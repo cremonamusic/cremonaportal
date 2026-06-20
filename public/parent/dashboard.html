@@ -13,13 +13,13 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#785900", "primary-container": "#ffc107",
-          "on-primary-fixed": "#261a00", "on-primary-container": "#6d5100",
-          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff",
-          "surface": "#f8f9fa", "surface-white": "#FFFFFF",
-          "surface-container": "#edeeef", "surface-container-low": "#f3f4f5",
-          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
-          "border-subtle": "#E0E0E0", "text-muted": "#5F6368",
+          "primary": "#C9A227", "primary-container": "#F5E5B0",
+          "on-primary-fixed": "#3E2C23", "on-primary-container": "#8B6020",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9",
+          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
           "error": "#ba1a1a"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
@@ -28,10 +28,10 @@
   }
 </script>
 <style>
-  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+  body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(120,89,0,0.15); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .fade-up { animation: fadeUp 0.35s ease-out both; }
   .child-card { transition: box-shadow 0.15s ease, transform 0.15s ease; }
@@ -40,7 +40,20 @@
   #toast.show { opacity:1; }
   #toast.error   { background:#ba1a1a; color:#fff; }
   #toast.success { background:#1e6e3b; color:#fff; }
-  #toast.info    { background:#0058bb; color:#fff; }
+  #toast.info    { background:#3B2A1E; color:#F5EFE4; }
+</style>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </style>
 </head>
 <body class="text-on-surface min-h-screen flex flex-col">
@@ -131,7 +144,7 @@ function showToast(msg, type = 'info') {
 }
 
 function avatarBg(name) {
-  const colors = ['#785900','#0058bb','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
+  const colors = ['#C9A227','#7A5230','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
   return colors[Math.abs(h) % colors.length];
