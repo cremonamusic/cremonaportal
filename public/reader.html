@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reader | I TALK Teachers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  body { font-family:'Plus Jakarta Sans',sans-serif; background:#1a1a1a; overflow:hidden; height:100vh; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+  .spinner { width:36px;height:36px;border:3px solid rgba(255,193,7,.2);border-top-color:#ffc107;border-radius:50%;animation:spin .7s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* ── Toolbar ─────────────────────────────────────────────────────────────── */
+  #toolbar { background:#1f1f1f;border-bottom:1px solid #333;height:52px;flex-shrink:0;overflow:hidden; }
+  .tb-btn { display:flex;align-items:center;justify-content:center;padding:4px 7px;border-radius:6px;color:#9ca3af;transition:background .15s,color .15s;cursor:pointer;border:none;background:transparent;font-size:12px;gap:3px;white-space:nowrap; }
+  .tb-btn:hover { background:rgba(255,255,255,.07);color:#e5e7eb; }
+  .tb-btn:disabled { opacity:.3;cursor:not-allowed; }
+  .tb-btn.active-tool { background:rgba(255,193,7,.18);color:#ffc107; }
+  .tb-divider { width:1px;height:22px;background:#333;flex-shrink:0; }
+
+  /* ── PDF scroll ──────────────────────────────────────────────────────────── */
+  #pdf-scroll { overflow-y:auto;overflow-x:auto;background:#1a1a1a;width:100%;height:100%; }
+  .pdf-scroll-outer { flex-grow:1;position:relative;overflow:hidden;height:100%; }
+  #pdf-scroll::-webkit-scrollbar { width:8px;height:8px; }
+  #pdf-scroll::-webkit-scrollbar-track { background:#111; }
+  #pdf-scroll::-webkit-scrollbar-thumb { background:#444;border-radius:4px; }
+  #pages-container { display:flex;flex-direction:column;align-items:center;padding:24px 0;gap:16px; }
+
+  /* ── Per-page wrappers ───────────────────────────────────────────────────── */
+  .page-wrapper { position:relative;flex-shrink:0;box-shadow:0 8px 40px rgba(0,0,0,.6);border-radius:2px;background:#e8e8e8; }
+  .pdf-page-canvas { display:block;border-radius:2px; }
+  .annot-canvas { position:absolute;top:0;left:0;display:block;border-radius:2px;pointer-events:none; }
+  /* Tool cursors applied via JS */
+
+  /* ── Sidebar ─────────────────────────────────────────────────────────────── */
+  #sidebar { width:320px;min-width:320px;background:#1f1f1f;border-left:1px solid #333;display:flex;flex-direction:column;overflow:hidden;transition:transform .2s ease; }
+  #sidebar.closed { transform:translateX(100%);width:0;min-width:0;overflow:hidden; }
+  @media(max-width:768px){
+    #sidebar{position:fixed;right:0;top:52px;bottom:0;z-index:100;}
+    #sidebar.closed{transform:translateX(100%);}
+  }
+
+  /* ── Note cards (sidebar) ────────────────────────────────────────────────── */
+  .note-card { background:#2a2a2a;border:1px solid #3a3a3a;border-radius:12px;padding:14px;transition:background .15s;cursor:pointer; }
+  .note-card:hover { background:#303030; }
+  .note-card:active { transform:scale(.98); }
+  .page-group-header { font-size:10px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.08em;padding:10px 0 4px;border-top:1px solid #2a2a2a;margin-top:2px; }
+  .page-group-header:first-child { border-top:none;padding-top:0; }
+
+  /* ── Floating note popup ─────────────────────────────────────────────────── */
+  #note-popup { position:fixed;z-index:200;top:64px;left:50%;transform:translateX(-50%);width:300px;max-width:calc(100vw - 32px);background:#242424;border:1px solid #3a3a3a;border-radius:14px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.7);animation:popup-in .12s ease; }
+  @keyframes popup-in { from{opacity:0;transform:translateX(-50%) translateY(-6px);}to{opacity:1;transform:translateX(-50%) translateY(0);} }
+  #note-popup.hidden { display:none!important; }
+  #popup-note-text:focus { outline:1px solid #ffc107; }
+
+  /* ── Text-tool floating input ────────────────────────────────────────────── */
+  #text-overlay { position:fixed;z-index:300;background:#242424;border:1px solid #444;border-radius:10px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);width:240px; }
+  #text-overlay.hidden { display:none!important; }
+  #text-input-field { width:100%;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:6px;color:#e5e7eb;font-size:13px;padding:6px 8px;resize:none;font-family:inherit;outline:none; }
+  #text-input-field:focus { outline:1px solid #ffc107; }
+
+  /* ── Toast ───────────────────────────────────────────────────────────────── */
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#0058bb;color:#fff; }
+
+  /* ── Sidebar scrollbar ───────────────────────────────────────────────────── */
+  #notes-scroll::-webkit-scrollbar { width:5px; }
+  #notes-scroll::-webkit-scrollbar-track { background:transparent; }
+  #notes-scroll::-webkit-scrollbar-thumb { background:#444;border-radius:10px; }
+
+  /* ── Pen color button ────────────────────────────────────────────────────── */
+  .pen-color-btn { width:16px;height:16px;border-radius:50%;border:none;cursor:pointer;flex-shrink:0; }
+
+  /* ── Highlight controls ──────────────────────────────────────────────────── */
+  .hl-color-btn { width:18px;height:18px;border-radius:4px;border:2px solid transparent;cursor:pointer;flex-shrink:0;transition:border-color .12s,transform .1s; }
+  .hl-color-btn:hover { transform:scale(1.15); }
+  .hl-color-btn.hl-active { border-color:#fff; }
+  #hl-opacity-wrap { display:flex;align-items:center;gap:5px; }
+  #hl-opacity-wrap label { color:#666;font-size:10px;font-weight:600;flex-shrink:0; }
+  #hl-opacity-val  { color:#9ca3af;font-size:10px;font-weight:700;width:26px;text-align:right;flex-shrink:0; }
+  #hl-opacity {
+    -webkit-appearance:none;appearance:none;
+    width:64px;height:4px;border-radius:2px;cursor:pointer;outline:none;flex-shrink:0;
+    background:linear-gradient(to right,rgba(255,235,0,.1),rgba(255,235,0,1));
+  }
+  #hl-opacity::-webkit-slider-thumb {
+    -webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer;
+    box-shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  #hl-opacity::-moz-range-thumb {
+    width:12px;height:12px;border-radius:50%;background:#fff;cursor:pointer;border:none;
+    box-shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+</style>
+<script>
+  tailwind.config={theme:{extend:{colors:{"primary":"#ffc107"}}}}
+</script>
+</head>
+<body class="flex flex-col" style="height:100vh;overflow:hidden">
+
+<div id="toast"></div>
+
+<!-- ── Floating Note Popup (sticky notes) ──────────────────────────────────── -->
+<div id="note-popup" class="hidden">
+  <div class="flex items-center justify-between mb-3">
+    <span style="color:#e5e7eb;font-size:13px;font-weight:700;">
+      📌 Note — <span style="color:#ffc107">Page </span>
+      <input id="popup-page-input" type="number" min="1" value="1"
+             style="width:36px;background:#1a1a1a;border:1px solid #444;border-radius:4px;color:#ffc107;font-size:12px;font-weight:700;padding:1px 4px;text-align:center;-moz-appearance:textfield;"/>
+    </span>
+    <button onclick="closeNotePopup()" style="background:none;border:none;color:#555;cursor:pointer;padding:2px;">
+      <span class="material-symbols-outlined" style="font-size:16px">close</span>
+    </button>
+  </div>
+  <textarea id="popup-note-text" rows="3" placeholder="Write a note…"
+            style="width:100%;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:8px;color:#e5e7eb;font-size:12px;padding:8px 10px;resize:none;font-family:inherit;display:block;"></textarea>
+  <div style="display:flex;align-items:center;gap:8px;margin-top:10px;margin-bottom:12px;">
+    <span style="color:#555;font-size:11px;font-weight:600;">Color:</span>
+    <button onclick="setPopupColor('yellow')" data-pcolor="yellow" class="popup-color-dot" style="width:16px;height:16px;border-radius:50%;background:#facc15;border:none;cursor:pointer;outline:2px solid #facc15;outline-offset:2px;"></button>
+    <button onclick="setPopupColor('green')"  data-pcolor="green"  class="popup-color-dot" style="width:16px;height:16px;border-radius:50%;background:#4ade80;border:none;cursor:pointer;"></button>
+    <button onclick="setPopupColor('blue')"   data-pcolor="blue"   class="popup-color-dot" style="width:16px;height:16px;border-radius:50%;background:#60a5fa;border:none;cursor:pointer;"></button>
+    <button onclick="setPopupColor('pink')"   data-pcolor="pink"   class="popup-color-dot" style="width:16px;height:16px;border-radius:50%;background:#f472b6;border:none;cursor:pointer;"></button>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="closeNotePopup()" style="flex:1;padding:7px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:8px;color:#888;font-size:12px;cursor:pointer;font-family:inherit;">Cancel</button>
+    <button onclick="savePopupNote()" id="popup-save-btn" style="flex:2;padding:7px;background:#ffc107;border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Save Note</button>
+  </div>
+</div>
+
+<!-- ── Text-tool input overlay ─────────────────────────────────────────────── -->
+<div id="text-overlay" class="hidden">
+  <div style="color:#9ca3af;font-size:11px;font-weight:600;margin-bottom:6px;">Type annotation</div>
+  <textarea id="text-input-field" rows="2" placeholder="Annotation text…"></textarea>
+  <div style="display:flex;gap:6px;margin-top:8px;">
+    <button onclick="cancelText()"   style="flex:1;padding:5px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:6px;color:#888;font-size:12px;cursor:pointer;font-family:inherit;">Cancel</button>
+    <button onclick="confirmText()" style="flex:2;padding:5px;background:#ffc107;border:none;border-radius:6px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Place ✓</button>
+  </div>
+</div>
+
+<!-- ── Loading overlay ─────────────────────────────────────────────────────── -->
+<div id="loading-overlay" class="fixed inset-0 z-[300] flex flex-col items-center justify-center" style="background:#1a1a1a">
+  <div class="spinner mb-4"></div>
+  <p style="color:#888;font-size:14px" id="load-msg">Loading book...</p>
+</div>
+
+<!-- ── Toolbar ─────────────────────────────────────────────────────────────── -->
+<div id="toolbar" class="flex items-center gap-1.5 px-3 z-50">
+
+  <a href="/books.html" class="tb-btn px-2">
+    <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
+    <span class="hidden sm:inline text-xs font-semibold">Books</span>
+  </a>
+  <div class="tb-divider"></div>
+
+  <p id="book-title" style="color:#e8e8e8;font-size:13px;font-weight:600;" class="truncate max-w-[100px] sm:max-w-[180px] flex-shrink">—</p>
+  <div class="flex-grow"></div>
+
+  <!-- Page indicator (replaces prev/next) -->
+  <div style="display:flex;align-items:center;gap:4px;color:#9ca3af;font-size:11px;font-weight:600;flex-shrink:0;">
+    <span class="material-symbols-outlined" style="font-size:14px">article</span>
+    <span id="page-indicator">— / —</span>
+  </div>
+  <div class="tb-divider"></div>
+
+  <!-- Zoom -->
+  <div class="flex items-center gap-0.5">
+    <button class="tb-btn" onclick="adjustZoom(-1)" title="Zoom out (-)">
+      <span class="material-symbols-outlined" style="font-size:18px">remove</span>
+    </button>
+    <span id="zoom-label" style="color:#9ca3af;font-size:11px;font-weight:600;width:36px;text-align:center;flex-shrink:0;">100%</span>
+    <button class="tb-btn" onclick="adjustZoom(1)" title="Zoom in (+)">
+      <span class="material-symbols-outlined" style="font-size:18px">add</span>
+    </button>
+  </div>
+  <div class="tb-divider"></div>
+
+  <!-- Drawing tools -->
+  <div class="flex items-center gap-0.5">
+    <button class="tb-btn tool-btn active-tool" data-tool="navigate" onclick="selectTool('navigate')" title="Navigate (V)">
+      <span class="material-symbols-outlined" style="font-size:17px">pan_tool</span>
+    </button>
+    <button class="tb-btn tool-btn" data-tool="highlight" onclick="selectTool('highlight')" title="Highlight (H)">
+      <span class="material-symbols-outlined" style="font-size:17px;color:#facc15" style="font-variation-settings:'FILL' 1">drive_file_rename_outline</span>
+    </button>
+    <button class="tb-btn tool-btn" data-tool="pen" onclick="selectTool('pen')" title="Pen (P)">
+      <span class="material-symbols-outlined" style="font-size:17px">edit</span>
+    </button>
+    <button class="tb-btn tool-btn" data-tool="text" onclick="selectTool('text')" title="Text (T)">
+      <span style="font-size:13px;font-weight:800;line-height:1;">T</span>
+    </button>
+    <button class="tb-btn tool-btn" data-tool="eraser" onclick="selectTool('eraser')" title="Eraser (E)">
+      <span class="material-symbols-outlined" style="font-size:17px">ink_eraser</span>
+    </button>
+  </div>
+
+  <!-- Highlight controls (shown only when Highlight tool active) -->
+  <div id="highlight-controls" class="hidden items-center gap-1.5 ml-1">
+    <button class="hl-color-btn hl-active" data-hlcolor="yellow" onclick="setHighlightColor('yellow')"
+            style="background:rgba(255,235,0,0.55);" title="Yellow"></button>
+    <button class="hl-color-btn" data-hlcolor="green"  onclick="setHighlightColor('green')"
+            style="background:rgba(0,255,0,0.55);"   title="Green"></button>
+    <button class="hl-color-btn" data-hlcolor="pink"   onclick="setHighlightColor('pink')"
+            style="background:rgba(255,0,128,0.55);"  title="Pink"></button>
+    <button class="hl-color-btn" data-hlcolor="blue"   onclick="setHighlightColor('blue')"
+            style="background:rgba(0,128,255,0.55);"  title="Blue"></button>
+    <button class="hl-color-btn" data-hlcolor="orange" onclick="setHighlightColor('orange')"
+            style="background:rgba(255,165,0,0.55);"  title="Orange"></button>
+    <div class="tb-divider mx-1"></div>
+    <div id="hl-opacity-wrap">
+      <label for="hl-opacity">α</label>
+      <input id="hl-opacity" type="range" min="0.1" max="0.9" step="0.05" value="0.38"
+             oninput="setHighlightOpacity(this.value)"/>
+      <span id="hl-opacity-val">38%</span>
+    </div>
+  </div>
+
+  <!-- Pen color swatches (shown when pen or text tool active) -->
+  <div id="pen-colors" class="hidden items-center gap-1.5 ml-1">
+    <button class="pen-color-btn" data-pencolor="red"   onclick="setPenColor('red')"   style="background:#ef4444;outline:2px solid #fff;outline-offset:2px;" title="Red"></button>
+    <button class="pen-color-btn" data-pencolor="blue"  onclick="setPenColor('blue')"  style="background:#3b82f6;" title="Blue"></button>
+    <button class="pen-color-btn" data-pencolor="green" onclick="setPenColor('green')" style="background:#22c55e;" title="Green"></button>
+    <button class="pen-color-btn" data-pencolor="black" onclick="setPenColor('black')" style="background:#e5e7eb;" title="White/Light"></button>
+  </div>
+
+  <!-- Clear page (shown when a drawing tool is active) -->
+  <button id="clear-btn" onclick="clearCurrentPage()" class="hidden tb-btn" style="color:#ef4444;" title="Clear all annotations on this page">
+    <span class="material-symbols-outlined" style="font-size:16px">layers_clear</span>
+    <span class="hidden sm:inline text-xs">Clear</span>
+  </button>
+
+  <div class="tb-divider"></div>
+
+  <!-- Download -->
+  <button id="download-btn" onclick="downloadPdf()" class="hidden tb-btn font-bold"
+          style="background:rgba(255,193,7,.1);color:#ffc107;" title="Download PDF">
+    <span class="material-symbols-outlined" style="font-size:16px">download</span>
+    <span class="hidden sm:inline text-xs">Download</span>
+  </button>
+
+  <!-- Notes sidebar toggle -->
+  <button onclick="toggleSidebar()" class="tb-btn font-bold"
+          style="background:rgba(255,255,255,.05);color:#d1d5db;" title="My Notes">
+    <span class="material-symbols-outlined" style="font-size:16px">rate_review</span>
+    <span class="hidden sm:inline text-xs">Notes</span>
+  </button>
+</div>
+
+<!-- ── Reader body ──────────────────────────────────────────────────────────── -->
+<div class="flex overflow-hidden" style="flex-grow:1;height:calc(100vh - 52px)">
+
+  <!-- Multi-page PDF scroll -->
+  <div class="pdf-scroll-outer">
+    <div id="pdf-scroll">
+      <div id="pages-container"></div>
+    </div>
+  </div>
+
+  <!-- Annotations Sidebar -->
+  <div id="sidebar" class="closed flex flex-col">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-700 flex-shrink-0">
+      <p class="text-white font-bold text-sm">My Notes</p>
+      <div class="flex items-center gap-1">
+        <button onclick="openNotePopup()"
+                style="background:rgba(255,193,7,.12);border:none;border-radius:6px;padding:4px 8px;color:#ffc107;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px;">
+          <span class="material-symbols-outlined" style="font-size:14px">add</span> Add
+        </button>
+        <button onclick="toggleSidebar()" class="text-gray-500 hover:text-white transition-colors p-1">
+          <span class="material-symbols-outlined text-sm">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="px-4 pt-3 pb-1 flex-shrink-0">
+      <p style="font-size:11px;color:#4a4a4a;line-height:1.5;">
+        <span class="material-symbols-outlined" style="font-size:13px;vertical-align:middle;">touch_app</span>
+        Click the PDF to add a sticky note at the current page.
+      </p>
+    </div>
+    <div id="notes-scroll" class="flex-grow overflow-y-auto px-4 pb-4 flex flex-col">
+      <div class="text-center py-10 text-gray-700 text-xs" id="notes-empty">
+        <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">sticky_note_2</span>
+        No notes yet.<br/>Click the PDF to annotate.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc,
+  query, where, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ── PDF.js ────────────────────────────────────────────────────────────────────
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── Firebase ──────────────────────────────────────────────────────────────────
+const app = initializeApp({
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentUser = null;
+let bookData    = null;
+let bookId      = null;
+let allNotes    = [];
+
+let pdfDoc      = null;
+let totalPages  = 0;
+let pageObserver = null;
+
+const ZOOM_STEPS = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+let zoomIndex    = 2;
+
+let activeTool   = 'navigate';
+let penColor     = 'red';
+const PEN_HEX    = { red:'#ef4444', blue:'#3b82f6', green:'#22c55e', black:'#f0f0f0' };
+
+// Highlight tool state
+const HL_RGB = {
+  yellow: '255,235,0',
+  green:  '0,255,0',
+  pink:   '255,0,128',
+  blue:   '0,128,255',
+  orange: '255,165,0'
+};
+let highlightColor   = 'yellow';  // key into HL_RGB
+let highlightOpacity = 0.38;
+function currentHighlightRgba() {
+  return `rgba(${HL_RGB[highlightColor]},${highlightOpacity})`;
+}
+
+// pageStrokes[pageNum] = array of stroke objects (normalized coords)
+let pageStrokes  = {};
+const saveTimers = {};
+
+// Text-tool pending state
+let textPending  = null; // { pageNum, nx, ny }
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    const data = snap.data();
+    if (data.role !== 'teacher' && data.role !== 'admin') {
+      window.location.href = '/index.html'; return;
+    }
+    currentUser = { uid: user.uid, name: data.name || user.email };
+    await initReader();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    document.getElementById('load-msg').textContent = 'Error loading book.';
+  }
+});
+
+// ── Reader init ───────────────────────────────────────────────────────────────
+async function initReader() {
+  const params = new URLSearchParams(location.search);
+  bookId = params.get('bookId');
+  if (!bookId) {
+    document.getElementById('load-msg').textContent = 'No book specified.';
+    setTimeout(() => window.location.href = '/books.html', 2000); return;
+  }
+  const snap = await getDoc(doc(db, 'books', bookId));
+  if (!snap.exists()) {
+    document.getElementById('load-msg').textContent = 'Book not found.';
+    setTimeout(() => window.location.href = '/books.html', 2000); return;
+  }
+  bookData = { id: snap.id, ...snap.data() };
+
+  document.getElementById('book-title').textContent = bookData.title || 'Untitled';
+  document.title = `${bookData.title || 'Book'} | I TALK Teachers`;
+
+  if (!bookData.r2Url) { document.getElementById('load-msg').textContent = 'PDF URL not found.'; return; }
+
+  if (bookData.downloadEnabled) {
+    document.getElementById('download-btn').classList.remove('hidden');
+    document.getElementById('download-btn').classList.add('flex');
+  }
+
+  addDoc(collection(db, 'auditLogs'), {
+    teacherUid: currentUser.uid, teacherName: currentUser.name,
+    fileAccessed: bookData.title || 'Untitled', bookId,
+    r2Url: bookData.r2Url, timestamp: serverTimestamp()
+  }).catch(() => {});
+
+  await loadPdf(bookData.r2Url);
+  await loadNotes();
+}
+
+// ── PDF load + multi-page setup ───────────────────────────────────────────────
+async function loadPdf(url) {
+  try {
+    const task = pdfjsLib.getDocument({ url, withCredentials: false });
+    pdfDoc     = await task.promise;
+    totalPages = pdfDoc.numPages;
+
+    // Use first page to compute placeholder dimensions for all wrappers
+    const firstPage    = await pdfDoc.getPage(1);
+    const firstScale   = getScale(firstPage);
+    const firstVP      = firstPage.getViewport({ scale: firstScale });
+    const placeholderW = Math.floor(firstVP.width);
+    const placeholderH = Math.floor(firstVP.height);
+
+    const container = document.getElementById('pages-container');
+    for (let i = 1; i <= totalPages; i++) {
+      const wrapper = buildPageWrapper(i, placeholderW, placeholderH);
+      container.appendChild(wrapper);
+    }
+
+    document.getElementById('page-indicator').textContent = `1 / ${totalPages}`;
+
+    // Lazy-render pages as they scroll into view
+    const scroll = document.getElementById('pdf-scroll');
+    pageObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const w = entry.target;
+        if (!w.dataset.rendered) renderPdfPage(parseInt(w.dataset.page), w);
+      });
+    }, { root: scroll, rootMargin: '600px 0px' });
+
+    container.querySelectorAll('.page-wrapper').forEach(w => pageObserver.observe(w));
+
+    // Page indicator on scroll
+    scroll.addEventListener('scroll', debounce(updatePageIndicator, 80));
+
+  } catch (e) {
+    console.error('PDF load:', e);
+    document.getElementById('pages-container').innerHTML =
+      `<div style="color:#888;text-align:center;padding:60px 20px;max-width:400px">
+        <span class="material-symbols-outlined" style="font-size:48px;color:#555;display:block;margin-bottom:12px">error</span>
+        <p style="font-size:14px;margin-bottom:8px">Failed to load PDF.</p>
+        <p style="font-size:12px;color:#555">${e.message?.includes('fetch') ? 'Check CORS: allow GET from this origin on your R2 bucket.' : (e.message||'Unknown error')}</p>
+      </div>`;
+  }
+}
+
+function buildPageWrapper(pageNum, w, h) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'page-wrapper';
+  wrapper.dataset.page = pageNum;
+  wrapper.style.cssText = `width:${w}px;height:${h}px;`;
+
+  const pdfCanvas = document.createElement('canvas');
+  pdfCanvas.className = 'pdf-page-canvas';
+  pdfCanvas.style.cssText = `width:${w}px;height:${h}px;`;
+
+  const annotCanvas = document.createElement('canvas');
+  annotCanvas.className = 'annot-canvas';
+  annotCanvas.style.cssText = `width:${w}px;height:${h}px;`;
+
+  setupDrawingEvents(annotCanvas, pageNum);
+
+  wrapper.appendChild(pdfCanvas);
+  wrapper.appendChild(annotCanvas);
+  return wrapper;
+}
+
+async function renderPdfPage(pageNum, wrapper) {
+  wrapper.dataset.rendered = '1';
+  try {
+    const page     = await pdfDoc.getPage(pageNum);
+    const scale    = getScale(page);
+    const viewport = page.getViewport({ scale });
+    const dpr      = window.devicePixelRatio || 1;
+    const cssW     = Math.floor(viewport.width);
+    const cssH     = Math.floor(viewport.height);
+    const physW    = Math.floor(cssW * dpr);
+    const physH    = Math.floor(cssH * dpr);
+
+    wrapper.style.cssText = `width:${cssW}px;height:${cssH}px;`;
+
+    const pdfCanvas = wrapper.querySelector('.pdf-page-canvas');
+    pdfCanvas.width  = physW; pdfCanvas.height = physH;
+    pdfCanvas.style.cssText = `width:${cssW}px;height:${cssH}px;display:block;border-radius:2px;`;
+
+    const annotCanvas = wrapper.querySelector('.annot-canvas');
+    annotCanvas.width  = physW; annotCanvas.height = physH;
+    annotCanvas.style.cssText = `position:absolute;top:0;left:0;width:${cssW}px;height:${cssH}px;display:block;border-radius:2px;pointer-events:${activeTool !== 'navigate' ? 'auto' : 'none'};`;
+
+    const ctx = pdfCanvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    await loadPageAnnotations(pageNum);
+  } catch (e) { console.error(`renderPdfPage ${pageNum}:`, e); }
+}
+
+// ── Scale ─────────────────────────────────────────────────────────────────────
+function getScale(page) {
+  const zf    = ZOOM_STEPS[zoomIndex];
+  const scroll = document.getElementById('pdf-scroll');
+  const avail = (scroll.clientWidth || window.innerWidth) - 32;
+  const base  = page.getViewport({ scale: 1 });
+  return Math.min(avail / base.width, 1.8) * zf;
+}
+
+// ── Page indicator ────────────────────────────────────────────────────────────
+function updatePageIndicator() {
+  const scroll    = document.getElementById('pdf-scroll');
+  const midY      = scroll.scrollTop + scroll.clientHeight * 0.4;
+  let current     = 1;
+  document.querySelectorAll('.page-wrapper').forEach(w => {
+    if (w.offsetTop <= midY) current = parseInt(w.dataset.page);
+  });
+  document.getElementById('page-indicator').textContent = `${current} / ${totalPages}`;
+}
+
+// ── Zoom ──────────────────────────────────────────────────────────────────────
+window.adjustZoom = async function(delta) {
+  const next = zoomIndex + delta;
+  if (next < 0 || next >= ZOOM_STEPS.length) return;
+  zoomIndex = next;
+  document.getElementById('zoom-label').textContent = Math.round(ZOOM_STEPS[zoomIndex] * 100) + '%';
+  await reRenderRendered();
+};
+
+async function reRenderRendered() {
+  const wrappers = [...document.querySelectorAll('.page-wrapper[data-rendered]')];
+  // Process in batches of 4 to stay responsive
+  for (let i = 0; i < wrappers.length; i += 4) {
+    await Promise.all(
+      wrappers.slice(i, i + 4).map(w => renderPdfPage(parseInt(w.dataset.page), w))
+    );
+  }
+}
+
+// ── Drawing tools ─────────────────────────────────────────────────────────────
+function setupDrawingEvents(annotCanvas, pageNum) {
+  let drawing = false;
+  let stroke  = null;
+
+  function pos(e) {
+    const r = annotCanvas.getBoundingClientRect();
+    const c = e.touches ? e.touches[0] : e;
+    return { x: (c.clientX - r.left) / r.width, y: (c.clientY - r.top) / r.height };
+  }
+
+  function onDown(e) {
+    if (activeTool === 'navigate') return;
+    e.preventDefault();
+    if (activeTool === 'text') {
+      const p = pos(e);
+      const c = e.touches ? e.touches[0] : e;
+      openTextInput(c.clientX, c.clientY, pageNum, p.x, p.y);
+      return;
+    }
+    drawing = true;
+    const p = pos(e);
+    stroke = {
+      tool: activeTool,
+      color: activeTool === 'highlight' ? currentHighlightRgba() :
+             activeTool === 'eraser'    ? 'erase' : PEN_HEX[penColor] || '#ef4444',
+      width: activeTool === 'highlight' ? 22 :
+             activeTool === 'eraser'    ? 28 : 3,
+      points: [p]
+    };
+    paintPoint(annotCanvas, stroke, p, null);
+  }
+
+  function onMove(e) {
+    if (!drawing || !stroke) return;
+    e.preventDefault();
+    const p    = pos(e);
+    const prev = stroke.points[stroke.points.length - 1];
+    stroke.points.push(p);
+    paintPoint(annotCanvas, stroke, p, prev);
+  }
+
+  function onUp() {
+    if (!drawing || !stroke) return;
+    drawing = false;
+    if (!pageStrokes[pageNum]) pageStrokes[pageNum] = [];
+    pageStrokes[pageNum].push({ ...stroke });
+    stroke = null;
+    scheduleSave(pageNum);
+  }
+
+  annotCanvas.addEventListener('mousedown', onDown);
+  annotCanvas.addEventListener('mousemove', onMove);
+  annotCanvas.addEventListener('mouseup',   onUp);
+  annotCanvas.addEventListener('mouseleave', onUp);
+
+  // Touch
+  const tp = { passive: false };
+  annotCanvas.addEventListener('touchstart', e => { e.preventDefault(); onDown(e); }, tp);
+  annotCanvas.addEventListener('touchmove',  e => { e.preventDefault(); onMove(e); }, tp);
+  annotCanvas.addEventListener('touchend',   e => { e.preventDefault(); onUp(e);   }, tp);
+}
+
+// Draw a single point/segment on an annotation canvas
+function paintPoint(canvas, stroke, pt, prev) {
+  if (!canvas.width) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.save();
+  applyComposite(ctx, stroke);
+  ctx.lineWidth = stroke.width * (window.devicePixelRatio || 1);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (!prev) {
+    ctx.beginPath();
+    ctx.arc(pt.x * W, pt.y * H, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(prev.x * W, prev.y * H);
+    ctx.lineTo(pt.x  * W, pt.y  * H);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function applyComposite(ctx, stroke) {
+  if (stroke.tool === 'eraser') {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+    ctx.fillStyle   = 'rgba(0,0,0,1)';
+  } else {
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = stroke.color;
+    ctx.fillStyle   = stroke.color;
+  }
+}
+
+// Full redraw of a page's annotation canvas from stored strokes
+function redrawPageAnnotations(pageNum) {
+  const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
+  if (!wrapper || !wrapper.dataset.rendered) return;
+  const canvas = wrapper.querySelector('.annot-canvas');
+  if (!canvas || !canvas.width) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  (pageStrokes[pageNum] || []).forEach(s => replayStroke(canvas, s));
+}
+
+function replayStroke(canvas, stroke) {
+  if (stroke.tool === 'text') { drawTextStroke(canvas, stroke); return; }
+  if (!stroke.points?.length) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.save();
+  applyComposite(ctx, stroke);
+  ctx.lineWidth = stroke.width * (window.devicePixelRatio || 1);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (stroke.points.length === 1) {
+    ctx.beginPath();
+    ctx.arc(stroke.points[0].x * W, stroke.points[0].y * H, ctx.lineWidth / 2, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    ctx.beginPath();
+    ctx.moveTo(stroke.points[0].x * W, stroke.points[0].y * H);
+    stroke.points.slice(1).forEach(p => ctx.lineTo(p.x * W, p.y * H));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawTextStroke(canvas, stroke) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  ctx.save();
+  ctx.font = `${15 * dpr}px Plus Jakarta Sans, sans-serif`;
+  ctx.fillStyle = PEN_HEX[stroke.penColor] || stroke.color || '#ef4444';
+  ctx.globalCompositeOperation = 'source-over';
+  // Multi-line support
+  const lines = stroke.text.split('\n');
+  const lineH = 18 * dpr;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, stroke.x * canvas.width, stroke.y * canvas.height + i * lineH);
+  });
+  ctx.restore();
+}
+
+// ── Text tool ─────────────────────────────────────────────────────────────────
+function openTextInput(clientX, clientY, pageNum, nx, ny) {
+  textPending = { pageNum, nx, ny };
+  const overlay = document.getElementById('text-overlay');
+  // Position near click, keep inside viewport
+  const OW = 240, OH = 110;
+  let left = Math.min(clientX + 8, window.innerWidth  - OW - 8);
+  let top  = Math.min(clientY + 8, window.innerHeight - OH - 8);
+  overlay.style.left = left + 'px';
+  overlay.style.top  = top  + 'px';
+  overlay.classList.remove('hidden');
+  document.getElementById('text-input-field').value = '';
+  setTimeout(() => document.getElementById('text-input-field').focus(), 20);
+}
+
+window.confirmText = function() {
+  const text = document.getElementById('text-input-field').value.trim();
+  if (!text || !textPending) { cancelText(); return; }
+  const { pageNum, nx, ny } = textPending;
+  if (!pageStrokes[pageNum]) pageStrokes[pageNum] = [];
+  const s = { tool: 'text', color: PEN_HEX[penColor], penColor, x: nx, y: ny, text };
+  pageStrokes[pageNum].push(s);
+  const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
+  if (wrapper?.dataset.rendered) drawTextStroke(wrapper.querySelector('.annot-canvas'), s);
+  scheduleSave(pageNum);
+  cancelText();
+};
+
+window.cancelText = function() {
+  textPending = null;
+  document.getElementById('text-overlay').classList.add('hidden');
+};
+
+// ── Tool selection ────────────────────────────────────────────────────────────
+window.selectTool = function(tool) {
+  activeTool = tool;
+  document.querySelectorAll('.tool-btn').forEach(btn => {
+    btn.classList.toggle('active-tool', btn.dataset.tool === tool);
+  });
+  const showColors    = (tool === 'pen' || tool === 'text');
+  const showHighlight = (tool === 'highlight');
+  const showClear     = (tool !== 'navigate');
+  document.getElementById('pen-colors').style.display        = showColors    ? 'flex' : 'none';
+  document.getElementById('highlight-controls').style.display = showHighlight ? 'flex' : 'none';
+  document.getElementById('clear-btn').style.display         = showClear     ? 'flex' : 'none';
+  // Update all annotation canvas pointer-events + cursor
+  const cursorMap = { highlight:'crosshair', pen:'crosshair', text:'text', eraser:'cell', navigate:'' };
+  document.querySelectorAll('.annot-canvas').forEach(c => {
+    c.style.pointerEvents = tool !== 'navigate' ? 'auto' : 'none';
+    c.style.cursor        = cursorMap[tool] || '';
+  });
+};
+
+window.setPenColor = function(color) {
+  penColor = color;
+  document.querySelectorAll('.pen-color-btn').forEach(btn => {
+    const active = btn.dataset.pencolor === color;
+    btn.style.outline       = active ? '2px solid #fff' : 'none';
+    btn.style.outlineOffset = active ? '2px' : '0';
+  });
+};
+
+window.setHighlightColor = function(color) {
+  highlightColor = color;
+  document.querySelectorAll('.hl-color-btn').forEach(btn => {
+    btn.classList.toggle('hl-active', btn.dataset.hlcolor === color);
+  });
+  // Update the slider track gradient to match the chosen color
+  const rgb = HL_RGB[color];
+  document.getElementById('hl-opacity').style.background =
+    `linear-gradient(to right,rgba(${rgb},.1),rgba(${rgb},1))`;
+};
+
+window.setHighlightOpacity = function(val) {
+  highlightOpacity = parseFloat(val);
+  document.getElementById('hl-opacity-val').textContent =
+    Math.round(highlightOpacity * 100) + '%';
+};
+
+// ── Drawing annotation persistence ───────────────────────────────────────────
+function scheduleSave(pageNum) {
+  clearTimeout(saveTimers[pageNum]);
+  saveTimers[pageNum] = setTimeout(() => savePageAnnotations(pageNum), 700);
+}
+
+async function savePageAnnotations(pageNum) {
+  if (!bookId || !currentUser) return;
+  try {
+    const id = `${bookId}_${currentUser.uid}_${pageNum}`;
+    await setDoc(doc(db, 'drawingAnnotations', id), {
+      bookId, teacherUid: currentUser.uid, page: pageNum,
+      strokes: pageStrokes[pageNum] || [],
+      updatedAt: serverTimestamp()
+    });
+  } catch (e) { console.error('savePageAnnotations:', e); }
+}
+
+async function loadPageAnnotations(pageNum) {
+  if (!bookId || !currentUser) return;
+  try {
+    const id   = `${bookId}_${currentUser.uid}_${pageNum}`;
+    const snap = await getDoc(doc(db, 'drawingAnnotations', id));
+    if (snap.exists()) {
+      pageStrokes[pageNum] = snap.data().strokes || [];
+      redrawPageAnnotations(pageNum);
+    }
+  } catch (e) { console.error('loadPageAnnotations:', e); }
+}
+
+// ── Clear current visible page ────────────────────────────────────────────────
+window.clearCurrentPage = async function() {
+  const scroll  = document.getElementById('pdf-scroll');
+  const midY    = scroll.scrollTop + scroll.clientHeight * 0.4;
+  let pageNum   = 1;
+  document.querySelectorAll('.page-wrapper').forEach(w => {
+    if (w.offsetTop <= midY) pageNum = parseInt(w.dataset.page);
+  });
+  if (!confirm(`Clear all drawing annotations on page ${pageNum}?`)) return;
+  pageStrokes[pageNum] = [];
+  redrawPageAnnotations(pageNum);
+  const id = `${bookId}_${currentUser.uid}_${pageNum}`;
+  deleteDoc(doc(db, 'drawingAnnotations', id)).catch(() => {});
+  showToast(`Page ${pageNum} cleared.`, 'success');
+};
+
+// ── Download ──────────────────────────────────────────────────────────────────
+window.downloadPdf = async function() {
+  if (!bookData?.r2Url || !bookData.downloadEnabled) return;
+  const btn = document.getElementById('download-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px;"></div>';
+  try {
+    const res  = await fetch(bookData.r2Url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const blob = await res.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = bookData.fileName || (bookData.title || 'book') + '.pdf';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(url);
+  } catch (e) { showToast('Download failed: ' + e.message, 'error'); }
+  finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px">download</span><span class="hidden sm:inline text-xs">Download</span>';
+  }
+};
+
+// ── Sticky notes (annotations collection) ─────────────────────────────────────
+let popupColor = 'yellow';
+
+async function loadNotes() {
+  if (!bookId || !currentUser) return;
+  try {
+    const q    = query(collection(db, 'annotations'), where('bookId', '==', bookId), where('teacherUid', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    allNotes   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderNotes();
+  } catch (e) { console.error('loadNotes:', e); }
+}
+
+function renderNotes() {
+  const scroll = document.getElementById('notes-scroll');
+  const empty  = document.getElementById('notes-empty');
+  scroll.querySelectorAll('.note-card, .page-group-header').forEach(el => el.remove());
+  if (!allNotes.length) { empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  const sorted = [...allNotes].sort((a, b) => {
+    const pa = a.page ?? 9999, pb = b.page ?? 9999;
+    return pa !== pb ? pa - pb : (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0);
+  });
+  const dotC = { yellow:'#facc15', green:'#4ade80', blue:'#60a5fa', pink:'#f472b6' };
+  let lastPage = undefined;
+
+  sorted.forEach(note => {
+    const pg = note.page ?? null;
+    if (pg !== lastPage) {
+      lastPage = pg;
+      const h = document.createElement('div');
+      h.className = 'page-group-header';
+      h.textContent = pg ? `Page ${pg}` : 'No page';
+      scroll.appendChild(h);
+    }
+    const el = document.createElement('div');
+    el.className = 'note-card';
+    if (pg) el.addEventListener('click', () => scrollToPage(pg));
+    const dot  = dotC[note.color] || '#facc15';
+    const when = note.timestamp?.toDate ? relativeTime(note.timestamp.toDate()) : '';
+    el.innerHTML = `
+      <div class="flex items-start justify-between gap-2 mb-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${dot}"></span>
+          ${when ? `<span class="text-xs text-gray-600">${when}</span>` : ''}
+        </div>
+        <button data-nid="${note.id}" class="del-note-btn text-gray-600 hover:text-red-400 transition-colors flex-shrink-0 p-1">
+          <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+        </button>
+      </div>
+      <p class="text-xs text-gray-300 leading-relaxed whitespace-pre-wrap break-words">${escHtml(note.text || '')}</p>`;
+    el.querySelector('.del-note-btn').addEventListener('click', async e => {
+      e.stopPropagation();
+      await deleteNote(note.id);
+    });
+    scroll.appendChild(el);
+  });
+}
+
+function scrollToPage(pageNum) {
+  const wrapper = document.querySelector(`.page-wrapper[data-page="${pageNum}"]`);
+  if (wrapper) wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+window.openNotePopup = function(page) {
+  const p = (typeof page === 'number' && page > 0) ? page : currentVisiblePage();
+  document.getElementById('popup-page-input').value = p;
+  document.getElementById('popup-note-text').value  = '';
+  setPopupColor('yellow');
+  document.getElementById('note-popup').classList.remove('hidden');
+  setTimeout(() => document.getElementById('popup-note-text').focus(), 30);
+};
+
+window.closeNotePopup = function() {
+  document.getElementById('note-popup').classList.add('hidden');
+};
+
+window.setPopupColor = function(color) {
+  popupColor = color;
+  const m = { yellow:'#facc15', green:'#4ade80', blue:'#60a5fa', pink:'#f472b6' };
+  document.querySelectorAll('.popup-color-dot').forEach(btn => {
+    const c = btn.dataset.pcolor;
+    btn.style.outline       = c === color ? `2px solid ${m[c]}` : 'none';
+    btn.style.outlineOffset = c === color ? '2px' : '0';
+  });
+};
+
+window.savePopupNote = async function() {
+  const text = document.getElementById('popup-note-text').value.trim();
+  const page = parseInt(document.getElementById('popup-page-input').value) || currentVisiblePage();
+  if (!text) { document.getElementById('popup-note-text').focus(); return; }
+  if (!currentUser || !bookId) return;
+  const btn = document.getElementById('popup-save-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const ref  = await addDoc(collection(db, 'annotations'), {
+      bookId, teacherUid: currentUser.uid, page, text, color: popupColor, timestamp: serverTimestamp()
+    });
+    const approxTs = { seconds: Date.now() / 1000, toDate: () => new Date() };
+    allNotes.push({ id: ref.id, bookId, teacherUid: currentUser.uid, page, text, color: popupColor, timestamp: approxTs });
+    renderNotes();
+    closeNotePopup();
+    if (document.getElementById('sidebar').classList.contains('closed')) toggleSidebar();
+    showToast('Note saved.', 'success');
+  } catch { showToast('Failed to save note.', 'error'); }
+  finally  { btn.textContent = 'Save Note'; btn.disabled = false; }
+};
+
+async function deleteNote(noteId) {
+  try {
+    await deleteDoc(doc(db, 'annotations', noteId));
+    allNotes = allNotes.filter(n => n.id !== noteId);
+    renderNotes();
+    showToast('Note deleted.', 'success');
+  } catch { showToast('Failed to delete.', 'error'); }
+}
+
+// ── Sidebar toggle ────────────────────────────────────────────────────────────
+window.toggleSidebar = function() {
+  document.getElementById('sidebar').classList.toggle('closed');
+  // Re-render visible pages after sidebar width change
+  setTimeout(async () => {
+    const visible = [...document.querySelectorAll('.page-wrapper[data-rendered]')].filter(w => {
+      const r = w.getBoundingClientRect();
+      return r.top < window.innerHeight && r.bottom > 0;
+    });
+    for (const w of visible) await renderPdfPage(parseInt(w.dataset.page), w);
+  }, 220);
+};
+
+// ── PDF canvas click → sticky note popup ─────────────────────────────────────
+document.getElementById('pages-container').addEventListener('click', e => {
+  // Only in navigate mode; drawing tools have their own handlers
+  if (activeTool !== 'navigate') return;
+  const wrapper = e.target.closest('.page-wrapper');
+  if (!wrapper) return;
+  const pageNum = parseInt(wrapper.dataset.page);
+  openNotePopup(pageNum);
+});
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+  if (e.key === '+' || e.key === '=') window.adjustZoom(1);
+  if (e.key === '-')                  window.adjustZoom(-1);
+  if (e.key === 'Escape') { closeNotePopup(); cancelText(); selectTool('navigate'); }
+  if (e.key === 'v' || e.key === 'V') selectTool('navigate');
+  if (e.key === 'h' || e.key === 'H') selectTool('highlight');
+  if (e.key === 'p' || e.key === 'P') selectTool('pen');
+  if (e.key === 't' || e.key === 'T') selectTool('text');
+  if (e.key === 'e' || e.key === 'E') selectTool('eraser');
+});
+
+// Re-render on resize (debounced)
+window.addEventListener('resize', debounce(async () => {
+  if (pdfDoc) await reRenderRendered();
+}, 300));
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function currentVisiblePage() {
+  const scroll = document.getElementById('pdf-scroll');
+  const midY   = scroll.scrollTop + scroll.clientHeight * 0.4;
+  let pg = 1;
+  document.querySelectorAll('.page-wrapper').forEach(w => {
+    if (w.offsetTop <= midY) pg = parseInt(w.dataset.page);
+  });
+  return pg;
+}
+
+function relativeTime(date) {
+  const s = (Date.now() - date.getTime()) / 1000;
+  if (s < 60)    return 'Just now';
+  if (s < 3600)  return `${Math.floor(s/60)}m ago`;
+  if (s < 86400) return `${Math.floor(s/3600)}h ago`;
+  return date.toLocaleDateString();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function debounce(fn, ms) {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+window.showToast = function(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3000);
+};
+</script>
+</body>
+</html>

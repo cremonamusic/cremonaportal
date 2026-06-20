@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Schedule | I TALK Parent Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#785900", "primary-container": "#ffc107",
+          "on-primary-fixed": "#261a00", "on-primary-container": "#6d5100",
+          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff",
+          "surface": "#f8f9fa", "surface-white": "#FFFFFF",
+          "surface-container": "#edeeef", "surface-container-low": "#f3f4f5",
+          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
+          "border-subtle": "#E0E0E0", "text-muted": "#5F6368",
+          "error": "#ba1a1a"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(120,89,0,0.15); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .child-tab { border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; }
+  .child-tab.active { color: #0058bb; border-bottom-color: #0058bb; font-weight: 600; }
+  .child-tab:not(.active) { color: #5F6368; }
+  .child-tab:not(.active):hover { color: #191c1d; }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity: 1; }
+  #toast.error   { background: #ba1a1a; color: #fff; }
+  #toast.success { background: #1e6e3b; color: #fff; }
+  #toast.info    { background: #0058bb; color: #fff; }
+  .session-block { transition: filter .12s; }
+  .session-block.clickable:hover { filter: brightness(0.94); cursor: pointer; }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-5">
+        <a href="dashboard.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
+        <a href="schedule.html"  class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Schedule</a>
+        <a href="reports.html"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Reports</a>
+        <a href="messages.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
+      <button onclick="doSignOut()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        <span class="hidden sm:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+
+  <h1 class="text-2xl font-bold text-on-surface mb-6">Schedule</h1>
+
+  <!-- Child tabs — shown when multiple children -->
+  <div id="child-tabs-wrap" class="hidden mb-6 border-b border-border-subtle">
+    <div id="child-tabs" class="flex gap-6 overflow-x-auto"></div>
+  </div>
+
+  <!-- Week navigation -->
+  <div class="flex items-center gap-3 mb-4">
+    <button id="prev-week-btn"
+            class="p-2 rounded-lg border border-border-subtle bg-surface-white hover:bg-surface-container transition-colors text-text-muted hover:text-on-surface">
+      <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+    </button>
+    <button id="today-btn"
+            class="px-3 py-1.5 rounded-lg border border-border-subtle bg-surface-white text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">
+      Today
+    </button>
+    <button id="next-week-btn"
+            class="p-2 rounded-lg border border-border-subtle bg-surface-white hover:bg-surface-container transition-colors text-text-muted hover:text-on-surface">
+      <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+    </button>
+    <span id="week-label" class="text-sm font-semibold text-on-surface ml-1"></span>
+  </div>
+
+  <!-- Calendar -->
+  <div class="bg-surface-white rounded-2xl border border-border-subtle overflow-hidden">
+    <!-- Scrollable calendar container -->
+    <div id="cal-scroll" style="overflow-y:auto;max-height:640px;">
+      <div id="cal-inner">
+        <!-- populated by renderCalendar() -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex items-center gap-5 mt-4 flex-wrap">
+    <div class="flex items-center gap-1.5 text-xs text-text-muted">
+      <span class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#eff6ff;border-left:3px solid #3b82f6;"></span>Upcoming
+    </div>
+    <div class="flex items-center gap-1.5 text-xs text-text-muted">
+      <span class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#f0fdf4;border-left:3px solid #22c55e;"></span>Completed
+    </div>
+    <div class="flex items-center gap-1.5 text-xs text-text-muted">
+      <span class="w-3 h-3 rounded-sm flex-shrink-0" style="background:#f9fafb;border-left:3px solid #9ca3af;"></span>Cancelled
+    </div>
+    <div class="flex items-center gap-1.5 text-xs text-text-muted ml-auto">
+      <span class="material-symbols-outlined text-[14px] text-secondary">video_call</span>
+      Tap a session to join
+    </div>
+  </div>
+
+</main>
+
+<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
+  © 2024 I TALK.
+</footer>
+
+<script type="module">
+import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs,
+         collection, query, where }             from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app  = initializeApp({
+  apiKey:            "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain:        "italk-teachers.firebaseapp.com",
+  projectId:         "italk-teachers",
+  storageBucket:     "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId:             "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── calendar constants ─────────────────────────────────────────────────────────
+const CAL_START   = 7;   // 07:00
+const CAL_END     = 21;  // 21:00
+const PX_PER_HOUR = 64;
+const TIME_W      = 52;
+const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 896 px
+
+const STATUS_STYLE = {
+  scheduled: { bg: '#eff6ff', border: '#3b82f6', text: '#1d4ed8' },
+  completed:  { bg: '#f0fdf4', border: '#22c55e', text: '#15803d' },
+  cancelled:  { bg: '#f9fafb', border: '#9ca3af', text: '#6b7280' },
+};
+
+// ── module state ───────────────────────────────────────────────────────────────
+let allStudents  = [];
+let allSessions  = [];
+let selectedSid  = '';
+let weekStart    = getMonday(new Date());
+
+// ── pure helpers (all declarations → hoisted) ──────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function avatarBg(name) {
+  const colors = ['#785900','#0058bb','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return colors[Math.abs(h) % colors.length];
+}
+
+function toDate(v) {
+  if (!v) return new Date(0);
+  if (v.toDate) return v.toDate();
+  return new Date(v);
+}
+
+function getMonday(d) {
+  const date = new Date(d);
+  const day  = date.getDay();
+  date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function getWeekDays(monday) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(monday);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+}
+
+function offsetWeek(d, days) {
+  const r = new Date(d);
+  r.setDate(r.getDate() + days);
+  return r;
+}
+
+function fmtWeekLabel(days) {
+  const o = { month: 'short', day: 'numeric' };
+  return `${days[0].toLocaleDateString('en-US', o)} – ${days[6].toLocaleDateString('en-US', { ...o, year: 'numeric' })}`;
+}
+
+function fmtTime(d) {
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+}
+
+function sessionTop(s) {
+  const dt = toDate(s.dateTime);
+  return Math.max(0, ((dt.getHours() + dt.getMinutes() / 60) - CAL_START) * PX_PER_HOUR);
+}
+
+function sessionH(s) {
+  return Math.max(24, ((s.duration || 30) / 60) * PX_PER_HOUR);
+}
+
+function sessionsForDay(day) {
+  return allSessions
+    .filter(s => toDate(s.dateTime).toDateString() === day.toDateString())
+    .sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
+}
+
+function getDisplayStatus(s) {
+  if (s.status === 'cancelled') return 'cancelled';
+  return toDate(s.dateTime) < new Date() ? 'completed' : 'scheduled';
+}
+
+// ── calendar render ────────────────────────────────────────────────────────────
+function renderCalendar() {
+  const days  = getWeekDays(weekStart);
+  const today = new Date();
+
+  document.getElementById('week-label').textContent = fmtWeekLabel(days);
+
+  // ── header row (sticky inside scroll container) ──
+  const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(72px,1fr));
+    position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid #e5e7eb;">
+    <div style="height:52px;background:#f9fafb;border-right:1px solid #e5e7eb;"></div>`;
+
+  days.forEach((day, i) => {
+    const isToday = day.toDateString() === today.toDateString();
+    html += `<div style="height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-left:1px solid #f3f4f6;">
+      <span style="font-size:11px;font-weight:500;color:#5F6368;text-transform:uppercase;letter-spacing:.04em;">${DAY_NAMES[i]}</span>
+      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;
+        ${isToday ? 'background:#0058bb;color:#fff;' : 'color:#191c1d;'}">${day.getDate()}</span>
+    </div>`;
+  });
+  html += `</div>`;
+
+  // ── body grid ──
+  html += `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(72px,1fr));height:${CAL_HEIGHT}px;">`;
+
+  // Time column
+  html += `<div style="position:relative;border-right:1px solid #e5e7eb;background:#f9fafb;">`;
+  for (let h = CAL_START; h < CAL_END; h++) {
+    const top = (h - CAL_START) * PX_PER_HOUR;
+    html += `<div style="position:absolute;top:${top}px;left:0;right:0;padding:3px 5px 0 0;text-align:right;font-size:10px;color:#9ca3af;line-height:1;">${String(h).padStart(2,'0')}:00</div>`;
+  }
+  html += `</div>`;
+
+  // Day columns
+  days.forEach(day => {
+    const isToday  = day.toDateString() === today.toDateString();
+    const daySess  = sessionsForDay(day);
+
+    html += `<div style="position:relative;border-left:1px solid #f3f4f6;background:${isToday ? 'rgba(59,130,246,0.025)' : 'transparent'};">`;
+
+    // Hour & half-hour lines
+    for (let h = CAL_START; h <= CAL_END; h++) {
+      const top = (h - CAL_START) * PX_PER_HOUR;
+      html += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:#f3f4f6;"></div>`;
+      if (h < CAL_END) {
+        html += `<div style="position:absolute;left:0;right:0;top:${top + 32}px;height:1px;border-top:1px dashed #f0f0f0;"></div>`;
+      }
+    }
+
+    // Session blocks — data-meet added for click handler wired after innerHTML
+    daySess.forEach(s => {
+      const disp   = getDisplayStatus(s);
+      const style  = STATUS_STYLE[disp] || STATUS_STYLE.scheduled;
+      const top    = sessionTop(s);
+      const height = sessionH(s);
+      const time   = fmtTime(toDate(s.dateTime));
+      const hasLink = s.meetLink && disp !== 'cancelled';
+
+      html += `<div class="session-block${hasLink ? ' clickable' : ''}"
+        data-meet="${hasLink ? escHtml(s.meetLink) : ''}"
+        style="position:absolute;left:3px;right:3px;top:${top}px;height:${height}px;
+          background:${style.bg};border-left:3px solid ${style.border};
+          border-radius:4px;padding:3px 5px;overflow:hidden;z-index:2;
+          ${disp === 'cancelled' ? 'opacity:0.5;' : ''}">
+        <div style="font-size:11px;font-weight:700;color:${style.text};line-height:1.3;
+          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+          ${disp === 'cancelled' ? 'text-decoration:line-through;' : ''}">${escHtml(s.subject || '—')}</div>
+        ${height >= 36 ? `<div style="font-size:10px;color:${style.text};opacity:.8;line-height:1.3;">${time}</div>` : ''}
+        ${height >= 52 ? `<div style="font-size:10px;color:${style.text};opacity:.7;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.teacherName || '')}</div>` : ''}
+        ${hasLink && height >= 52 ? `<div style="font-size:9px;color:${style.text};opacity:.65;line-height:1.2;margin-top:2px;">Tap to join</div>` : ''}
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  html += `</div>`; // end body grid
+
+  const inner = document.getElementById('cal-inner');
+  inner.innerHTML = html;
+
+  // Wire meet-link clicks (avoids inline onclick with user data)
+  inner.querySelectorAll('.session-block.clickable').forEach(el => {
+    el.addEventListener('click', () => {
+      const link = el.dataset.meet;
+      if (link) window.open(/^https?:\/\//i.test(link) ? link : 'https://' + link, '_blank', 'noopener');
+    });
+  });
+}
+
+// ── child tabs ─────────────────────────────────────────────────────────────────
+function renderTabs() {
+  if (allStudents.length < 2) return;
+  const wrap = document.getElementById('child-tabs-wrap');
+  const tabs = document.getElementById('child-tabs');
+  wrap.classList.remove('hidden');
+  tabs.innerHTML = allStudents.map(s => {
+    const name    = s.fullName || '—';
+    const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+    const bg      = avatarBg(name);
+    return `
+      <button data-sid="${escHtml(s.id)}"
+              class="child-tab ${s.id === selectedSid ? 'active' : ''} flex items-center gap-2 pb-3 px-1 text-sm whitespace-nowrap">
+        <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+              style="background:${bg}">${escHtml(initials)}</span>
+        ${escHtml(name)}
+      </button>`;
+  }).join('');
+
+  tabs.querySelectorAll('.child-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchChild(btn.dataset.sid));
+  });
+}
+
+async function switchChild(sid) {
+  if (sid === selectedSid) return;
+  selectedSid = sid;
+  document.querySelectorAll('#child-tabs .child-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sid === sid);
+  });
+  await loadSessions(sid);
+}
+
+// ── load sessions ──────────────────────────────────────────────────────────────
+async function loadSessions(sid) {
+  allSessions = [];
+  renderCalendar(); // show empty state immediately while loading
+
+  try {
+    const q    = query(collection(db, 'sessions'), where('studentId', '==', sid));
+    const snap = await getDocs(q);
+    allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    showToast('Failed to load sessions: ' + e.message, 'error');
+  }
+
+  renderCalendar();
+}
+
+// ── week navigation ────────────────────────────────────────────────────────────
+document.getElementById('prev-week-btn').addEventListener('click', () => {
+  weekStart = offsetWeek(weekStart, -7);
+  renderCalendar();
+});
+document.getElementById('next-week-btn').addEventListener('click', () => {
+  weekStart = offsetWeek(weekStart, 7);
+  renderCalendar();
+});
+document.getElementById('today-btn').addEventListener('click', () => {
+  weekStart = getMonday(new Date());
+  renderCalendar();
+});
+
+// ── auth guard ─────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+
+  let parentData;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().role !== 'parent') {
+      await signOut(auth);
+      window.location.href = '/index.html';
+      return;
+    }
+    parentData = snap.data();
+  } catch (e) {
+    window.location.href = '/index.html';
+    return;
+  }
+
+  // Header name
+  const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
+  if (firstName) document.getElementById('header-name').textContent = firstName;
+
+  // Load linked students
+  const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
+  if (!linkedIds.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('cal-inner').innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <span class="material-symbols-outlined text-5xl opacity-30">child_care</span>
+        <p class="font-semibold text-sm">No children linked to your account yet.</p>
+      </div>`;
+    return;
+  }
+
+  try {
+    const snaps = await Promise.all(linkedIds.map(id => getDoc(doc(db, 'students', id))));
+    allStudents = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
+  } catch (e) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('Failed to load student data.', 'error');
+    return;
+  }
+
+  if (!allStudents.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('cal-inner').innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <span class="material-symbols-outlined text-5xl opacity-30">person_off</span>
+        <p class="font-semibold text-sm">No student records found.</p>
+      </div>`;
+    return;
+  }
+
+  // Determine initial selection from URL param
+  const urlSid = new URLSearchParams(window.location.search).get('studentId') || '';
+  selectedSid  = allStudents.find(s => s.id === urlSid) ? urlSid : allStudents[0].id;
+
+  renderTabs();
+  document.getElementById('loading-overlay').style.display = 'none';
+  await loadSessions(selectedSid);
+});
+
+window.doSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/index.html';
+};
+</script>
+</body>
+</html>

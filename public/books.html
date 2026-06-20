@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Books | I TALK Teachers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8f9fa; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(120,89,0,0.15); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .book-card { transition: transform .15s ease, box-shadow .15s ease; }
+  .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(33,33,33,0.14); }
+  .book-card:active { transform: scale(0.97); }
+
+  /* ── Thumbnail skeleton shimmer ─────────────────────────────────────────── */
+  .thumb-skeleton {
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, #e8e8e8 25%, #f0f0f0 50%, #e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+  }
+  .thumb-skeleton.done { display: none; }
+
+  /* ── Thumbnail image ────────────────────────────────────────────────────── */
+  .book-thumb {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity .4s ease;
+  }
+  .book-thumb.loaded { opacity: 1; }
+
+  /* ── Fallback icon behind thumbnail ────────────────────────────────────── */
+  .thumb-fallback {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: opacity .3s ease;
+  }
+  .thumb-fallback.hidden-fallback { opacity: 0; pointer-events: none; }
+</style>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#785900", "primary-container": "#ffc107", "on-primary-container": "#6d5100",
+          "on-primary-fixed": "#261a00", "primary-fixed": "#ffdf9e", "primary-fixed-dim": "#fabd00",
+          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff",
+          "secondary-container": "#1471e6", "on-secondary-container": "#fefcff",
+          "surface": "#f8f9fa", "surface-white": "#FFFFFF", "surface-container": "#edeeef",
+          "surface-container-low": "#f3f4f5", "surface-container-high": "#e7e8e9",
+          "surface-container-highest": "#e1e3e4", "surface-container-lowest": "#ffffff",
+          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
+          "border-subtle": "#E0E0E0", "outline-variant": "#d4c5ab", "outline": "#827660",
+          "text-muted": "#5F6368", "error": "#ba1a1a", "error-container": "#ffdad6",
+        }
+      }
+    }
+  }
+</script>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <a href="/home.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Back to home">
+        <span class="material-symbols-outlined text-text-muted">arrow_back</span>
+      </a>
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+    </div>
+    <div class="flex items-center gap-1">
+      <a href="/messages.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Messages">
+        <span class="material-symbols-outlined text-text-muted">forum</span>
+      </a>
+      <a href="/reports.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Reports">
+        <span class="material-symbols-outlined text-text-muted">assignment</span>
+      </a>
+      <a href="/account.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="My Account">
+        <span class="material-symbols-outlined text-text-muted">account_circle</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="flex-grow max-w-5xl mx-auto w-full px-6 py-8 flex flex-col gap-6">
+
+  <!-- Page title + search -->
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold text-on-surface">Books</h1>
+      <p class="text-sm text-text-muted mt-0.5">Your class PDFs — click any book to open the reader.</p>
+    </div>
+    <div class="relative sm:w-64">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">search</span>
+      <input id="search-input" type="text" placeholder="Search by title, subject…" autocomplete="off"
+             class="w-full pl-9 pr-4 py-2 rounded-xl border border-border-subtle bg-surface-white text-sm focus:ring-2 focus:ring-primary-container focus:border-primary outline-none shadow-sm"/>
+    </div>
+  </div>
+
+  <!-- Filter chips + Sort -->
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div id="filter-bar" class="flex flex-wrap gap-2">
+      <button data-filter="" onclick="setFilter('')"
+              class="filter-chip active-chip px-4 py-1.5 rounded-full text-xs font-bold border border-primary-container bg-primary-container text-on-primary-fixed transition-colors">
+        All
+      </button>
+    </div>
+
+    <!-- Sort control -->
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <span class="material-symbols-outlined text-[16px] text-text-muted">sort</span>
+      <select id="sort-select" onchange="setSort(this.value)"
+              class="text-sm border border-border-subtle rounded-lg px-3 py-1.5 bg-surface-white focus:ring-2 focus:ring-primary-container focus:border-primary outline-none cursor-pointer text-on-surface">
+        <option value="az"     selected>A → Z</option>
+        <option value="za">Z → A</option>
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Books Grid -->
+  <div id="books-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+    <div class="col-span-full flex items-center justify-center gap-3 py-16 text-text-muted text-sm">
+      <div class="spinner"></div>
+      Loading books...
+    </div>
+  </div>
+
+  <p id="empty-msg" class="hidden text-center py-16 text-text-muted">
+    <span class="material-symbols-outlined text-5xl block mb-2 opacity-30">auto_stories</span>
+    No books match your search.
+  </p>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
+  <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
+    <p class="text-xs text-text-muted">© 2024 I TALK Teachers.</p>
+    <a href="/home.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Home</a>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, getDocs, addDoc,
+  query, where, orderBy, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ── PDF.js setup ───────────────────────────────────────────────────────────────
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ── Firebase ───────────────────────────────────────────────────────────────────
+const app = initializeApp({
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let currentUser  = null;
+let allBooks     = [];
+let activeFilter = '';
+let searchTerm   = '';
+let currentSort  = 'az';   // default: A → Z
+
+// ── Auth guard ─────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    const data = snap.data();
+    if (data.role === 'admin') { window.location.href = '/admin/accounts.html'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+
+    currentUser = { uid: user.uid, name: data.name || user.email };
+    await loadBooks();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    window.location.href = '/index.html';
+  }
+});
+
+// ── Load books from Firestore ──────────────────────────────────────────────────
+async function loadBooks() {
+  try {
+    const q    = query(collection(db, 'books'), where('visibility', '!=', false), orderBy('uploadedAt', 'desc'));
+    const snap = await getDocs(q);
+    allBooks   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch {
+    try {
+      const snap = await getDocs(collection(db, 'books'));
+      allBooks   = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                           .filter(b => b.visibility !== false)
+                           .sort((a, b) => (b.uploadedAt?.seconds || 0) - (a.uploadedAt?.seconds || 0));
+    } catch (e2) {
+      document.getElementById('books-grid').innerHTML =
+        `<div class="col-span-full text-center py-16 text-error text-sm">
+          <span class="material-symbols-outlined text-4xl block mb-2">error</span>
+          Failed to load books. Please refresh.
+        </div>`;
+      return;
+    }
+  }
+  buildFilterChips();
+  renderBooks();
+}
+
+// ── Filter chips ───────────────────────────────────────────────────────────────
+function buildFilterChips() {
+  const subjects = [...new Set(allBooks.map(b => b.subject).filter(Boolean))].sort();
+  if (!subjects.length) return;
+  const bar = document.getElementById('filter-bar');
+  subjects.forEach(s => {
+    const btn = document.createElement('button');
+    btn.dataset.filter = s;
+    btn.onclick = () => setFilter(s);
+    btn.className = 'filter-chip px-4 py-1.5 rounded-full text-xs font-bold border border-border-subtle bg-surface-white text-on-surface hover:bg-surface-container transition-colors';
+    btn.textContent = s;
+    bar.appendChild(btn);
+  });
+}
+
+window.setFilter = function(val) {
+  activeFilter = val;
+  document.querySelectorAll('.filter-chip').forEach(btn => {
+    const isActive = btn.dataset.filter === val;
+    btn.className = `filter-chip px-4 py-1.5 rounded-full text-xs font-bold border transition-colors ${
+      isActive
+        ? 'border-primary-container bg-primary-container text-on-primary-fixed'
+        : 'border-border-subtle bg-surface-white text-on-surface hover:bg-surface-container'
+    }`;
+  });
+  renderBooks();
+};
+
+// ── Sort ───────────────────────────────────────────────────────────────────────
+window.setSort = function(val) {
+  currentSort = val;
+  renderBooks();
+};
+
+// ── Render book grid ───────────────────────────────────────────────────────────
+function renderBooks() {
+  const grid     = document.getElementById('books-grid');
+  const emptyMsg = document.getElementById('empty-msg');
+
+  let filtered = allBooks.slice(); // copy so we don't mutate allBooks
+  if (activeFilter) filtered = filtered.filter(b => b.subject === activeFilter);
+  if (searchTerm)   filtered = filtered.filter(b =>
+    (b.title   || '').toLowerCase().includes(searchTerm) ||
+    (b.subject || '').toLowerCase().includes(searchTerm) ||
+    String(b.grade || '').toLowerCase().includes(searchTerm)
+  );
+
+  // Client-side sort
+  switch (currentSort) {
+    case 'az':     filtered.sort((a, b) => (a.title||'').localeCompare(b.title||'')); break;
+    case 'za':     filtered.sort((a, b) => (b.title||'').localeCompare(a.title||'')); break;
+    case 'newest': filtered.sort((a, b) => (b.uploadedAt?.seconds||0) - (a.uploadedAt?.seconds||0)); break;
+    case 'oldest': filtered.sort((a, b) => (a.uploadedAt?.seconds||0) - (b.uploadedAt?.seconds||0)); break;
+  }
+
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    emptyMsg.classList.remove('hidden');
+    return;
+  }
+  emptyMsg.classList.add('hidden');
+
+  grid.innerHTML = filtered.map(book => {
+    const subject = book.subject || '';
+    const grade   = book.grade ? `Grade ${book.grade}` : '';
+    const badge   = [subject, grade].filter(Boolean).join(' · ');
+    const accent  = subjectAccent(book.subject);
+    const titleSafe = escHtml(book.title || 'Untitled');
+
+    return `
+    <a href="/reader.html?bookId=${book.id}"
+       data-book-id="${book.id}"
+       data-title="${titleSafe}"
+       class="book-card bg-surface-white border border-border-subtle rounded-2xl overflow-hidden flex flex-col shadow-sm cursor-pointer group">
+
+      <!-- Cover thumbnail area (3:4 aspect ratio like a book) -->
+      <div class="relative w-full overflow-hidden" style="aspect-ratio:3/4;">
+        <!-- Shimmer skeleton shown while thumbnail loads -->
+        <div class="thumb-skeleton"></div>
+
+        <!-- Subject fallback icon (visible until real thumbnail loads) -->
+        <div class="thumb-fallback ${accent.bg}">
+          <span class="material-symbols-outlined text-5xl ${accent.text}"
+                style="font-variation-settings:'FILL' 1;">menu_book</span>
+        </div>
+
+        <!-- Real PDF thumbnail, fades in when ready -->
+        <img class="book-thumb"
+             data-book-id="${book.id}"
+             data-r2url="${escHtml(book.r2Url || '')}"
+             alt="${titleSafe}"
+             draggable="false"/>
+
+        <!-- Subtle overlay on hover -->
+        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/8 transition-colors duration-200 pointer-events-none"></div>
+      </div>
+
+      <!-- Info below cover -->
+      <div class="px-3 py-2.5 flex flex-col gap-0.5 border-t border-border-subtle/60">
+        <p class="font-bold text-sm text-on-surface leading-snug line-clamp-2">${titleSafe}</p>
+        ${badge ? `<p class="text-xs text-text-muted truncate mt-0.5">${escHtml(badge)}</p>` : ''}
+      </div>
+    </a>`;
+  }).join('');
+
+  // Kick off thumbnail generation (non-blocking)
+  loadThumbnails();
+}
+
+// ── Thumbnail generation ───────────────────────────────────────────────────────
+const THUMB_SCALE   = 0.3;
+const CACHE_PREFIX  = 'italk_thumb_v1_';
+
+async function generateThumbnail(bookId, r2Url) {
+  const cacheKey = CACHE_PREFIX + bookId;
+
+  // Return cached version immediately if available
+  try {
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) return cached;
+  } catch { /* ignore */ }
+
+  // Render page 1 of the PDF at low resolution
+  try {
+    const pdf      = await pdfjsLib.getDocument({ url: r2Url, withCredentials: false }).promise;
+    const page     = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: THUMB_SCALE });
+
+    const canvas  = document.createElement('canvas');
+    canvas.width  = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+
+    // Persist to localStorage (ignore quota errors)
+    try { localStorage.setItem(cacheKey, dataUrl); } catch { /* quota exceeded */ }
+
+    return dataUrl;
+  } catch (e) {
+    console.warn(`Thumbnail failed for ${bookId}:`, e.message || e);
+    return null;
+  }
+}
+
+async function loadThumbnails() {
+  const imgs = [...document.querySelectorAll('img.book-thumb[data-r2url]')];
+  if (!imgs.length) return;
+
+  // Process in batches of 4 — enough parallelism without overloading the browser
+  for (let i = 0; i < imgs.length; i += 4) {
+    await Promise.all(
+      imgs.slice(i, i + 4).map(async img => {
+        const bookId = img.dataset.bookId;
+        const r2Url  = img.dataset.r2url;
+        if (!r2Url || !img.isConnected) return;
+
+        const dataUrl = await generateThumbnail(bookId, r2Url);
+        if (!dataUrl || !img.isConnected) return;
+
+        img.src = dataUrl;
+        img.classList.add('loaded');
+
+        const container = img.closest('[style*="aspect-ratio"]');
+        if (!container) return;
+
+        // Hide skeleton and fallback icon once image is shown
+        container.querySelector('.thumb-skeleton')?.classList.add('done');
+        container.querySelector('.thumb-fallback')?.classList.add('hidden-fallback');
+      })
+    );
+  }
+}
+
+// ── Audit log on book click ────────────────────────────────────────────────────
+document.getElementById('books-grid').addEventListener('click', e => {
+  const link = e.target.closest('a[data-book-id]');
+  if (!link || !currentUser) return;
+  const bookId    = link.dataset.bookId;
+  const bookTitle = link.dataset.title || 'Unknown Book';
+  const book      = allBooks.find(b => b.id === bookId);
+  addDoc(collection(db, 'auditLogs'), {
+    teacherUid:   currentUser.uid,
+    teacherName:  currentUser.name,
+    fileAccessed: bookTitle,
+    bookId,
+    r2Url:        book?.r2Url || '',
+    timestamp:    serverTimestamp()
+  }).catch(() => {});
+});
+
+document.getElementById('search-input').addEventListener('input', function() {
+  searchTerm = this.value.toLowerCase();
+  renderBooks();
+});
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function subjectAccent(subject) {
+  const map = {
+    'English':       { bg: 'bg-amber-50',  text: 'text-amber-600'  },
+    'Science':       { bg: 'bg-green-50',  text: 'text-green-600'  },
+    'Math':          { bg: 'bg-blue-50',   text: 'text-blue-600'   },
+    'Social Studies':{ bg: 'bg-orange-50', text: 'text-orange-600' },
+    'History':       { bg: 'bg-rose-50',   text: 'text-rose-500'   },
+    'Literature':    { bg: 'bg-purple-50', text: 'text-purple-500' },
+  };
+  return map[subject] || { bg: 'bg-primary-container/20', text: 'text-primary' };
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

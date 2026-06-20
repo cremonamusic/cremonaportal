@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reports | I TALK Parent Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#785900", "primary-container": "#ffc107",
+          "on-primary-fixed": "#261a00", "on-primary-container": "#6d5100",
+          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff",
+          "surface": "#f8f9fa", "surface-white": "#FFFFFF",
+          "surface-container": "#edeeef", "surface-container-low": "#f3f4f5",
+          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
+          "border-subtle": "#E0E0E0", "text-muted": "#5F6368",
+          "error": "#ba1a1a"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(120,89,0,0.15); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .child-tab { border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; }
+  .child-tab.active { color: #0058bb; border-bottom-color: #0058bb; font-weight: 600; }
+  .child-tab:not(.active) { color: #5F6368; }
+  .child-tab:not(.active):hover { color: #191c1d; }
+  .report-card { transition: box-shadow .15s; }
+  .report-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .expand-body { display: none; }
+  .expand-body.open { display: block; }
+  .expand-icon { transition: transform .2s; }
+  .expanded .expand-icon { transform: rotate(180deg); }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a; color:#fff; }
+  #toast.success { background:#1e6e3b; color:#fff; }
+  #toast.info    { background:#0058bb; color:#fff; }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-5">
+        <a href="dashboard.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
+        <a href="schedule.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="reports.html"   class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Reports</a>
+        <a href="messages.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
+      <button onclick="doSignOut()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        <span class="hidden sm:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="flex-1 max-w-4xl mx-auto w-full px-6 py-8">
+
+  <h1 class="text-2xl font-bold text-on-surface mb-6">Reports</h1>
+
+  <!-- Child tabs — shown when multiple children -->
+  <div id="child-tabs-wrap" class="hidden mb-6 border-b border-border-subtle">
+    <div id="child-tabs" class="flex gap-6 overflow-x-auto"></div>
+  </div>
+
+  <!-- Reports list -->
+  <div id="reports-area">
+    <div class="flex items-center justify-center py-16">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
+  © 2024 I TALK.
+</footer>
+
+<script type="module">
+import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs,
+         collection, query, where, orderBy }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app  = initializeApp({
+  apiKey:            "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain:        "italk-teachers.firebaseapp.com",
+  projectId:         "italk-teachers",
+  storageBucket:     "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId:             "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── state ──────────────────────────────────────────────────────────────────────
+let allStudents    = [];   // [{id, fullName, grade, …}]
+let selectedSid    = '';
+let expandedIds    = new Set();
+
+// ── helpers ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function fmtDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function avatarBg(name) {
+  const colors = ['#785900','#0058bb','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return colors[Math.abs(h) % colors.length];
+}
+
+// ── auth guard ─────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+
+  let parentData;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().role !== 'parent') {
+      await signOut(auth);
+      window.location.href = '/index.html';
+      return;
+    }
+    parentData = snap.data();
+  } catch (e) {
+    window.location.href = '/index.html';
+    return;
+  }
+
+  // Header name
+  const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
+  if (firstName) document.getElementById('header-name').textContent = firstName;
+
+  // Load linked students
+  const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
+  if (!linkedIds.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    renderEmpty('No children linked to your account yet.');
+    return;
+  }
+
+  try {
+    const snaps  = await Promise.all(linkedIds.map(id => getDoc(doc(db, 'students', id))));
+    allStudents  = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
+  } catch (e) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('Failed to load student data.', 'error');
+    return;
+  }
+
+  if (!allStudents.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    renderEmpty('No student records found.');
+    return;
+  }
+
+  // Determine initial selection from URL param
+  const urlSid = new URLSearchParams(window.location.search).get('studentId') || '';
+  selectedSid  = allStudents.find(s => s.id === urlSid) ? urlSid : allStudents[0].id;
+
+  renderTabs();
+  document.getElementById('loading-overlay').style.display = 'none';
+  await loadAndRenderReports(selectedSid);
+});
+
+// ── tabs ───────────────────────────────────────────────────────────────────────
+function renderTabs() {
+  if (allStudents.length < 2) return;
+
+  const wrap = document.getElementById('child-tabs-wrap');
+  const tabs = document.getElementById('child-tabs');
+  wrap.classList.remove('hidden');
+
+  tabs.innerHTML = allStudents.map(s => {
+    const name    = s.fullName || '—';
+    const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+    const bg      = avatarBg(name);
+    const active  = s.id === selectedSid ? 'active' : '';
+    return `
+      <button data-sid="${escHtml(s.id)}"
+              class="child-tab ${active} flex items-center gap-2 pb-3 px-1 text-sm whitespace-nowrap"
+              onclick="switchChild('${escHtml(s.id)}')">
+        <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+              style="background:${bg}">${escHtml(initials)}</span>
+        ${escHtml(name)}
+      </button>`;
+  }).join('');
+}
+
+window.switchChild = async function(sid) {
+  if (sid === selectedSid) return;
+  selectedSid = sid;
+  expandedIds.clear();
+  // Update tab active state
+  document.querySelectorAll('#child-tabs .child-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sid === sid);
+  });
+  await loadAndRenderReports(sid);
+};
+
+// ── load & render reports ──────────────────────────────────────────────────────
+async function loadAndRenderReports(sid) {
+  const area = document.getElementById('reports-area');
+  area.innerHTML = `<div class="flex items-center justify-center py-16"><div class="spinner"></div></div>`;
+
+  let reports = [];
+  try {
+    const q    = query(
+      collection(db, 'reports'),
+      where('studentId', '==', sid),
+      where('status', '==', 'approved'),
+      orderBy('createdAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    reports    = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    // orderBy+where compound query may need an index — fall back to client sort
+    try {
+      const q2   = query(collection(db, 'reports'), where('studentId', '==', sid), where('status', '==', 'approved'));
+      const snap = await getDocs(q2);
+      reports    = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0);
+          const tb = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0);
+          return tb - ta;
+        });
+    } catch (e2) {
+      area.innerHTML = `<p class="text-error text-sm py-8 text-center">Failed to load reports: ${escHtml(e2.message)}</p>`;
+      return;
+    }
+  }
+
+  renderReports(reports);
+}
+
+function renderReports(reports) {
+  const area = document.getElementById('reports-area');
+
+  if (!reports.length) {
+    area.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <span class="material-symbols-outlined text-5xl opacity-30">description</span>
+        <p class="font-semibold text-sm">No approved reports yet</p>
+        <p class="text-xs">Reports will appear here once your child's teacher submits and they're approved.</p>
+      </div>`;
+    return;
+  }
+
+  area.innerHTML = reports.map(r => buildReportCard(r)).join('');
+
+  // Restore expanded state
+  expandedIds.forEach(id => {
+    const card = document.querySelector(`[data-rid="${id}"]`);
+    if (card) {
+      card.classList.add('expanded');
+      card.querySelector('.expand-body')?.classList.add('open');
+      card.querySelector('.expand-icon').textContent = 'expand_less';
+    }
+  });
+
+  // Wire toggle clicks
+  document.querySelectorAll('.report-card[data-rid]').forEach(card => {
+    card.querySelector('.report-header-btn')?.addEventListener('click', () => toggleCard(card));
+  });
+}
+
+function buildReportCard(r) {
+  const dateRange = (r.dateRangeStart && r.dateRangeEnd)
+    ? `${fmtDate(r.dateRangeStart)} – ${fmtDate(r.dateRangeEnd)}`
+    : r.dateRangeStart ? fmtDate(r.dateRangeStart) : '';
+
+  const submittedStr = r.createdAt?.toDate
+    ? r.createdAt.toDate().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+    : '';
+
+  const books = Array.isArray(r.books) ? r.books : [];
+  const categories = Array.isArray(r.categories) ? r.categories.filter(c => c.name) : [];
+  const enhancements = Array.isArray(r.enhancementAreas) ? r.enhancementAreas.filter(Boolean) : [];
+
+  const booksHtml = books.length
+    ? books.map(b => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary-container/20 text-primary text-xs font-medium">${escHtml(b.title || b)}</span>`).join('')
+    : '<span class="text-text-muted text-sm">—</span>';
+
+  const categoriesHtml = categories.length
+    ? categories.map(c => `
+        <div class="border border-border-subtle rounded-xl overflow-hidden">
+          <div class="px-4 py-2 bg-surface-container-low border-b border-border-subtle">
+            <p class="text-xs font-semibold text-on-surface-variant uppercase tracking-wide">${escHtml(c.name)}</p>
+          </div>
+          <div class="px-4 py-3">
+            <p class="text-sm text-on-surface leading-relaxed">${escHtml(c.feedback || '—')}</p>
+          </div>
+        </div>`).join('')
+    : '<p class="text-text-muted text-sm">No categories recorded.</p>';
+
+  const enhancementsHtml = enhancements.length
+    ? `<ul class="list-none flex flex-col gap-1.5">${enhancements.map(e =>
+        `<li class="flex items-start gap-2 text-sm text-on-surface">
+          <span class="material-symbols-outlined text-[16px] text-primary mt-0.5 flex-shrink-0" style="font-variation-settings:'FILL' 1;">star</span>
+          ${escHtml(e)}
+        </li>`).join('')}</ul>`
+    : '<p class="text-text-muted text-sm">None noted.</p>';
+
+  const evaluationHtml = r.evaluation
+    ? `<p class="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">${escHtml(r.evaluation)}</p>`
+    : '<p class="text-text-muted text-sm">No evaluation provided.</p>';
+
+  return `
+    <div class="report-card bg-surface-white rounded-2xl border border-border-subtle mb-4 overflow-hidden" data-rid="${escHtml(r.id)}">
+
+      <!-- Card header — click to expand -->
+      <button class="report-header-btn w-full text-left px-6 py-5 flex items-start justify-between gap-4 hover:bg-surface-container-low transition-colors">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 bg-green-50 text-green-700 text-xs font-semibold rounded-full border border-green-200">
+              <span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">verified</span>
+              Approved
+            </span>
+            ${dateRange ? `<span class="text-sm font-semibold text-on-surface">${escHtml(dateRange)}</span>` : ''}
+          </div>
+          <div class="flex flex-wrap items-center gap-3 mt-1 text-xs text-text-muted">
+            ${r.classTime ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span>${escHtml(r.classTime)}</span>` : ''}
+            ${r.teacherName ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span>${escHtml(r.teacherName)}</span>` : ''}
+            ${submittedStr ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span>Submitted ${escHtml(submittedStr)}</span>` : ''}
+          </div>
+          ${r.evaluation ? `<p class="text-sm text-text-muted mt-2 line-clamp-2 text-left">${escHtml(r.evaluation)}</p>` : ''}
+        </div>
+        <span class="material-symbols-outlined expand-icon text-text-muted flex-shrink-0 mt-1">expand_more</span>
+      </button>
+
+      <!-- Expanded detail -->
+      <div class="expand-body border-t border-border-subtle">
+        <div class="px-6 py-6 flex flex-col gap-6">
+
+          <!-- Books studied -->
+          <div>
+            <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Books Studied</p>
+            <div class="flex flex-wrap gap-2">${booksHtml}</div>
+          </div>
+
+          <!-- Feedback categories -->
+          <div>
+            <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-3">Feedback by Category</p>
+            <div class="flex flex-col gap-3">${categoriesHtml}</div>
+          </div>
+
+          <!-- Enhancement areas -->
+          <div>
+            <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Areas for Enhancement</p>
+            ${enhancementsHtml}
+          </div>
+
+          <!-- Overall evaluation -->
+          <div>
+            <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">Overall Evaluation</p>
+            ${evaluationHtml}
+          </div>
+
+        </div>
+      </div>
+
+    </div>`;
+}
+
+function toggleCard(card) {
+  const rid  = card.dataset.rid;
+  const body = card.querySelector('.expand-body');
+  const icon = card.querySelector('.expand-icon');
+  const isOpen = card.classList.toggle('expanded');
+  body.classList.toggle('open', isOpen);
+  icon.textContent = isOpen ? 'expand_less' : 'expand_more';
+  if (isOpen) expandedIds.add(rid);
+  else        expandedIds.delete(rid);
+}
+
+function renderEmpty(msg) {
+  document.getElementById('reports-area').innerHTML = `
+    <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+      <span class="material-symbols-outlined text-5xl opacity-30">description</span>
+      <p class="font-semibold text-sm">${escHtml(msg)}</p>
+    </div>`;
+}
+
+window.doSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/index.html';
+};
+</script>
+</body>
+</html>

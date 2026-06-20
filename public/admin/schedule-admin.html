@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Schedule Management | I TALK Teachers Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme: { extend: {
+      colors: {
+        "text-muted":"#5F6368","surface-white":"#FFFFFF","surface-container-low":"#f3f4f5",
+        "primary-container":"#ffc107","on-secondary-container":"#fefcff",
+        "secondary-container":"#1471e6","secondary":"#0058bb","on-surface-variant":"#4f4632",
+        "primary-fixed-dim":"#fabd00","on-surface":"#191c1d",
+        "secondary-fixed":"#d8e2ff","surface-container-highest":"#e1e3e4",
+        "border-subtle":"#E0E0E0","background":"#f8f9fa",
+        "primary-fixed":"#ffdf9e","primary":"#785900","on-primary-container":"#6d5100",
+        "outline":"#827660","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#f8f9fa","on-secondary":"#ffffff",
+        "error":"#ba1a1a","error-container":"#ffdad6","surface-container-high":"#e7e8e9",
+        "on-primary":"#ffffff","on-background":"#191c1d","on-primary-fixed":"#261a00"
+      },
+      spacing:{"gutter":"24px","container-max":"1200px","margin-mobile":"16px","margin-desktop":"40px"},
+      fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
+      fontSize:{
+        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+        "label-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+        "label-md":["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+        "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+  body { font-family:'Inter',sans-serif; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(120,89,0,.2);border-top-color:#785900;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#0058bb;color:#fff; }
+  .nav-active { color:#0058bb!important;border-bottom:2px solid #0058bb;padding-bottom:4px;font-weight:700!important; }
+  .status-scheduled { background:#eff6ff;color:#1d4ed8; }
+  .status-completed  { background:#f0fdf4;color:#15803d; }
+  .status-cancelled  { background:#f9fafb;color:#6b7280; }
+  tr.row-selected td { background:#eff6ff; }
+  /* View toggle */
+  .view-tab { padding:8px 16px;font-size:14px;border-radius:8px;display:flex;align-items:center;gap:6px;transition:all .15s;cursor:pointer;border:none;background:transparent; }
+  .view-tab.active { background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#0058bb;font-weight:700; }
+  .view-tab.inactive { color:#5F6368;font-weight:500; }
+  .view-tab.inactive:hover { color:#191c1d; }
+  /* Admin calendar session blocks */
+  .session-block-admin { transition:filter .12s,transform .1s;cursor:pointer; }
+  .session-block-admin:hover { filter:brightness(.88);transform:scaleX(.97); }
+</style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- ── Create / Edit Session Modal ────────────────────────────────────────── -->
+<div id="session-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-16 overflow-y-auto" onclick="if(event.target===this)closeSessionModal()">
+  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl mb-8">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 id="session-modal-title" class="font-headline-sm">Create Session</h2>
+      <button onclick="closeSessionModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-5 grid grid-cols-2 gap-4">
+
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Student *</label>
+        <select id="f-student" onchange="onStudentChange()" required
+                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="">— Select student —</option>
+        </select>
+      </div>
+
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Teacher</label>
+        <div id="f-teacher-display" class="min-h-[38px] flex items-center px-1">
+          <span class="text-sm text-text-muted">Select a student first</span>
+        </div>
+      </div>
+
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Subject *</label>
+        <select id="f-subject-select" onchange="onSubjectChange()"
+                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="">— Select subject —</option>
+          <option value="English Conversation">English Conversation</option>
+          <option value="Business English">Business English</option>
+          <option value="IELTS Preparation">IELTS Preparation</option>
+          <option value="TOEFL Preparation">TOEFL Preparation</option>
+          <option value="Young Learners">Young Learners</option>
+          <option value="Phonics">Phonics</option>
+          <option value="Reading &amp; Writing">Reading &amp; Writing</option>
+          <option value="Grammar">Grammar</option>
+          <option value="__custom__">Custom…</option>
+        </select>
+        <input id="f-subject-custom" type="text" placeholder="Enter custom subject"
+               class="hidden mt-2 w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Date & Time *</label>
+        <input id="f-datetime" type="datetime-local" oninput="updateRepeatInfo()"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Duration</label>
+        <select id="f-duration"
+                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="10">10 minutes</option>
+          <option value="15">15 minutes</option>
+          <option value="20">20 minutes</option>
+          <option value="30" selected>30 minutes</option>
+          <option value="45">45 minutes</option>
+          <option value="60">60 minutes</option>
+          <option value="90">90 minutes</option>
+          <option value="120">120 minutes</option>
+        </select>
+      </div>
+
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Google Meet Link</label>
+        <input id="f-meet" type="url" placeholder="https://meet.google.com/xxx-xxxx-xxx"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Status</label>
+        <!-- 'completed' removed — it is now calculated automatically from datetime -->
+        <select id="f-status"
+                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="scheduled">Scheduled</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <!-- Repeat weekly — only shown in create / copy mode -->
+      <div id="f-repeat-section" class="col-span-2 pt-3 border-t border-border-subtle">
+        <div class="flex items-center gap-2">
+          <input type="checkbox" id="f-repeat" onchange="onRepeatChange()"
+                 class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary cursor-pointer"/>
+          <label for="f-repeat" class="text-sm font-semibold text-on-surface cursor-pointer select-none">
+            Repeat this session weekly
+          </label>
+        </div>
+        <div id="f-repeat-weeks-wrap" class="hidden mt-3 flex items-center gap-3">
+          <label class="text-sm text-on-surface-variant whitespace-nowrap">For</label>
+          <input id="f-repeat-weeks" type="number" min="2" max="52" value="4"
+                 oninput="updateRepeatInfo()"
+                 class="w-20 border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none text-center"/>
+          <label class="text-sm text-on-surface-variant">weeks</label>
+          <span id="f-repeat-info" class="text-xs text-secondary font-medium"></span>
+        </div>
+        <p id="f-repeat-copy-note" class="hidden mt-2.5 text-xs text-text-muted bg-surface-container rounded-lg px-3 py-2">
+          <span class="material-symbols-outlined text-[13px] align-middle mr-0.5">info</span>
+          This will create new sessions — the original session is unchanged.
+        </p>
+      </div>
+    </div>
+    <div class="flex items-center justify-end gap-3 px-6 pb-5">
+      <button onclick="closeSessionModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
+      <button id="session-save-btn" onclick="saveSession()" class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm">Save Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Header ───────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts.html">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security.html">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources.html">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students.html">Students</a>
+        <a class="font-body-md nav-active" href="schedule-admin.html">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin.html">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin.html">Reports</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden md:inline font-body-md text-text-muted">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-container-max mx-auto px-margin-desktop py-gutter">
+  <!-- Page header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+    <div>
+      <h1 class="font-headline-lg text-on-surface mb-1">Schedule Management</h1>
+      <p class="font-body-md text-text-muted">Create, edit and manage all teaching sessions.</p>
+    </div>
+    <button onclick="openCreateSession()"
+            class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm flex-shrink-0">
+      <span class="material-symbols-outlined text-[18px]">add_circle</span>
+      Create Session
+    </button>
+  </div>
+
+  <!-- Stats row -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,.05)]">
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Total</p>
+      <p id="stat-total" class="text-2xl font-bold text-on-surface">—</p>
+    </div>
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,.05)]">
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Scheduled</p>
+      <p id="stat-scheduled" class="text-2xl font-bold text-blue-600">—</p>
+    </div>
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,.05)]">
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Completed</p>
+      <p id="stat-completed" class="text-2xl font-bold text-green-600">—</p>
+    </div>
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,.05)]">
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Cancelled</p>
+      <p id="stat-cancelled" class="text-2xl font-bold text-gray-400">—</p>
+    </div>
+  </div>
+
+  <!-- View toggle -->
+  <div class="flex items-center gap-2 mb-5">
+    <div class="flex gap-0.5 bg-surface-container rounded-xl p-1">
+      <button id="btn-list-view" onclick="setView('list')" class="view-tab active">
+        <span class="material-symbols-outlined text-[16px]">list</span>List View
+      </button>
+      <button id="btn-week-view" onclick="setView('week')" class="view-tab inactive">
+        <span class="material-symbols-outlined text-[16px]">calendar_view_week</span>Week View
+      </button>
+    </div>
+  </div>
+
+  <!-- ── LIST VIEW ──────────────────────────────────────────────────────────── -->
+  <div id="list-view-section">
+    <!-- Filters -->
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,.05)] mb-5 flex flex-wrap gap-3 items-end">
+      <div class="min-w-[160px]">
+        <label class="block text-label-sm text-text-muted mb-1">Teacher</label>
+        <select id="f-filter-teacher" onchange="applyFilters()"
+                class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="">All teachers</option>
+        </select>
+      </div>
+      <div class="min-w-[160px]">
+        <label class="block text-label-sm text-text-muted mb-1">Student</label>
+        <select id="f-filter-student" onchange="applyFilters()"
+                class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="">All students</option>
+        </select>
+      </div>
+      <div class="min-w-[120px]">
+        <label class="block text-label-sm text-text-muted mb-1">Status</label>
+        <select id="f-filter-status" onchange="applyFilters()"
+                class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="">All statuses</option>
+          <option value="scheduled">Scheduled</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div class="min-w-[130px]">
+        <label class="block text-label-sm text-text-muted mb-1">From date</label>
+        <input id="f-filter-from" type="date" onchange="applyFilters()"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div class="min-w-[130px]">
+        <label class="block text-label-sm text-text-muted mb-1">To date</label>
+        <input id="f-filter-to" type="date" onchange="applyFilters()"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <button onclick="clearFilters()" class="text-sm text-text-muted hover:text-error transition-colors px-2">Clear</button>
+      <span id="result-count" class="text-label-sm text-text-muted ml-auto self-center"></span>
+    </div>
+
+    <!-- Bulk action bar -->
+    <div id="bulk-bar" class="hidden mb-3 bg-secondary-fixed border border-secondary/20 rounded-xl px-5 py-3 flex items-center gap-3 flex-wrap">
+      <span class="material-symbols-outlined text-secondary text-[18px]">checklist</span>
+      <span id="bulk-count" class="text-sm font-bold text-secondary"></span>
+      <div class="flex items-center gap-2 ml-auto flex-wrap">
+        <button onclick="bulkCancel()"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-surface-white border border-border-subtle text-on-surface hover:bg-error-container hover:text-error hover:border-error/30 transition-colors">
+          <span class="material-symbols-outlined text-[14px]">event_busy</span>
+          Bulk Cancel
+        </button>
+        <button onclick="bulkDelete()"
+                class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-error text-white hover:brightness-110 transition-colors">
+          <span class="material-symbols-outlined text-[14px]">delete_sweep</span>
+          Bulk Delete
+        </button>
+        <button onclick="deselectAll()"
+                class="px-3 py-1.5 text-xs font-medium rounded-lg text-text-muted hover:bg-surface-container transition-colors">
+          Deselect All
+        </button>
+      </div>
+    </div>
+
+    <!-- Sessions table -->
+    <div class="bg-surface-white border border-border-subtle rounded-xl shadow-[0px_2px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm min-w-[700px]">
+          <thead>
+            <tr class="border-b border-border-subtle bg-surface-container-low">
+              <th class="px-4 py-3.5 w-10">
+                <input type="checkbox" id="select-all-chk" onchange="selectAll(this.checked)"
+                       class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary cursor-pointer"/>
+              </th>
+              <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Date & Time</th>
+              <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Student</th>
+              <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Teacher</th>
+              <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Subject</th>
+              <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Duration</th>
+              <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Status</th>
+              <th class="text-right px-6 py-3.5 font-label-md text-text-muted">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-tbody">
+            <tr><td colspan="8" class="text-center py-12 text-text-muted">
+              <div class="flex items-center justify-center gap-3">
+                <div class="spinner"></div> Loading sessions…
+              </div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /list-view-section -->
+
+  <!-- ── WEEK VIEW ──────────────────────────────────────────────────────────── -->
+  <div id="week-view-section" class="hidden">
+    <!-- Week nav -->
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div class="flex items-center gap-2">
+        <button onclick="prevWeekAdmin()"
+                class="flex items-center gap-1 px-3 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-on-surface hover:bg-surface-container transition-colors shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">chevron_left</span> Prev
+        </button>
+        <button onclick="goToTodayAdmin()"
+                class="px-3 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-secondary hover:bg-secondary/5 transition-colors shadow-sm">
+          Today
+        </button>
+        <button onclick="nextWeekAdmin()"
+                class="flex items-center gap-1 px-3 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-on-surface hover:bg-surface-container transition-colors shadow-sm">
+          Next <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        </button>
+      </div>
+      <h3 id="admin-week-label" class="font-bold text-base sm:text-lg text-on-surface">—</h3>
+      <!-- Teacher colour legend -->
+      <div id="week-legend" class="flex flex-wrap items-center gap-3 text-xs text-text-muted"></div>
+    </div>
+    <!-- Calendar grid -->
+    <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <div id="admin-calendar" class="min-w-[640px]">
+          <div class="flex items-center justify-center py-16 text-text-muted text-sm gap-3">
+            <div class="spinner"></div> Loading calendar…
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="text-xs text-text-muted mt-2 text-center">Click any session to edit it.</p>
+  </div><!-- /week-view-section -->
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where, getDocs,
+  addDoc, updateDoc, deleteDoc, Timestamp, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain:"italk-teachers.firebaseapp.com",projectId:"italk-teachers",
+  storageBucket:"italk-teachers.firebasestorage.app",
+  messagingSenderId:"566278333053",appId:"1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Teacher colour palette (assigned if teacher has no saved color) ────────────
+const DEFAULT_COLORS = ['#4285f4','#ea4335','#fbbc04','#34a853','#ff6d00','#46bdc6','#7986cb','#e67c73'];
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let allSessions  = [];
+let allTeachers  = [];
+let allStudents  = [];
+let editingId    = null;
+let currentAdmin = null;
+let selectedIds  = new Set();
+let currentView  = 'list';
+let adminWeekStart = getMonday(new Date());
+
+// ── Calendar constants ─────────────────────────────────────────────────────────
+const CAL_START   = 0;   // midnight
+const CAL_END     = 24;  // midnight (next day)
+const PX_PER_HOUR = 60;
+const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 1440 px
+const TIME_W      = 52;
+const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const MONTHS      = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── Dynamic status — never write back to Firestore ────────────────────────────
+function getDisplayStatus(s) {
+  if (s.status === 'cancelled') return 'cancelled';
+  return toDate(s.dateTime) < new Date() ? 'completed' : 'scheduled';
+}
+
+// ── Bulk selection helpers ─────────────────────────────────────────────────────
+function updateBulkBar() {
+  const bar   = document.getElementById('bulk-bar');
+  const count = selectedIds.size;
+  if (count === 0) { bar.classList.add('hidden'); return; }
+  bar.classList.remove('hidden');
+  document.getElementById('bulk-count').textContent =
+    `${count} session${count !== 1 ? 's' : ''} selected`;
+  const allChk     = document.getElementById('select-all-chk');
+  const visibleRows = document.querySelectorAll('#sessions-tbody input[data-row-chk]');
+  const allChecked  = [...visibleRows].every(c => c.checked);
+  allChk.indeterminate = !allChecked && count > 0;
+  allChk.checked       = allChecked;
+}
+
+window.selectAll = function(checked) {
+  document.querySelectorAll('#sessions-tbody input[data-row-chk]').forEach(chk => {
+    chk.checked = checked;
+    const sid = chk.dataset.sid;
+    const row = chk.closest('tr');
+    if (checked) { selectedIds.add(sid); row.classList.add('row-selected'); }
+    else         { selectedIds.delete(sid); row.classList.remove('row-selected'); }
+  });
+  updateBulkBar();
+};
+
+window.deselectAll = function() {
+  selectedIds.clear();
+  document.querySelectorAll('#sessions-tbody input[data-row-chk]').forEach(chk => {
+    chk.checked = false;
+    chk.closest('tr').classList.remove('row-selected');
+  });
+  const allChk = document.getElementById('select-all-chk');
+  if (allChk) { allChk.checked = false; allChk.indeterminate = false; }
+  updateBulkBar();
+};
+
+window.bulkCancel = async function() {
+  if (!selectedIds.size) return;
+  const n = selectedIds.size;
+  if (!confirm(`Cancel ${n} session${n !== 1 ? 's' : ''}? This cannot be undone.`)) return;
+  const ids = [...selectedIds];
+  try {
+    await Promise.all(ids.map(sid => updateDoc(doc(db, 'sessions', sid), { status: 'cancelled' })));
+    ids.forEach(sid => { const s = allSessions.find(x => x.id === sid); if (s) s.status = 'cancelled'; });
+    deselectAll();
+    updateStats(allSessions);
+    applyFilters();
+    showToast(`${n} session${n !== 1 ? 's' : ''} cancelled.`, 'success');
+  } catch (e) {
+    showToast('Bulk cancel failed: ' + e.message, 'error');
+  }
+};
+
+window.bulkDelete = async function() {
+  if (!selectedIds.size) return;
+  const n = selectedIds.size;
+  if (!confirm(`Permanently delete ${n} session${n !== 1 ? 's' : ''}? This cannot be undone.`)) return;
+  const ids = [...selectedIds];
+  try {
+    await Promise.all(ids.map(sid => deleteDoc(doc(db, 'sessions', sid))));
+    allSessions = allSessions.filter(x => !ids.includes(x.id));
+    deselectAll();
+    updateStats(allSessions);
+    applyFilters();
+    showToast(`${n} session${n !== 1 ? 's' : ''} deleted.`, 'success');
+  } catch (e) {
+    showToast('Bulk delete failed: ' + e.message, 'error');
+  }
+};
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') {
+    window.location.href = '/index.html'; return;
+  }
+  currentAdmin = { uid: user.uid, name: snap.data().name || user.email };
+  await Promise.all([loadSessions(), loadTeachers(), loadStudents()]);
+  updateStats(allSessions);
+  renderSessions(allSessions);
+  document.getElementById('loading-overlay').style.display = 'none';
+});
+
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
+
+// ── Load data ──────────────────────────────────────────────────────────────────
+async function loadSessions() {
+  const snap = await getDocs(collection(db, 'sessions'));
+  allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => toDate(b.dateTime) - toDate(a.dateTime));
+}
+
+async function loadTeachers() {
+  const q    = query(collection(db, 'users'), where('role', '==', 'teacher'));
+  const snap = await getDocs(q);
+  allTeachers = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  // Assign default colours to teachers that have none
+  allTeachers.forEach((t, i) => {
+    if (!t.color) t.color = DEFAULT_COLORS[i % DEFAULT_COLORS.length];
+  });
+
+  const filterSel = document.getElementById('f-filter-teacher');
+  allTeachers.forEach(t => {
+    filterSel.appendChild(new Option(t.name || t.email || t.id, t.id));
+  });
+}
+
+async function loadStudents() {
+  const snap = await getDocs(collection(db, 'students'));
+  allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  const filterSel = document.getElementById('f-filter-student');
+  const formSel   = document.getElementById('f-student');
+  allStudents.forEach(s => {
+    const label = s.fullName || s.id;
+    filterSel.appendChild(new Option(label, s.id));
+    formSel.appendChild(new Option(label, s.id));
+  });
+}
+
+// ── Stats — computed dynamically, never from stored status ────────────────────
+function updateStats(list) {
+  document.getElementById('stat-total').textContent     = list.length;
+  document.getElementById('stat-scheduled').textContent = list.filter(s => getDisplayStatus(s) === 'scheduled').length;
+  document.getElementById('stat-completed').textContent = list.filter(s => getDisplayStatus(s) === 'completed').length;
+  document.getElementById('stat-cancelled').textContent = list.filter(s => getDisplayStatus(s) === 'cancelled').length;
+}
+
+// ── Render sessions table ──────────────────────────────────────────────────────
+function renderSessions(list) {
+  document.getElementById('result-count').textContent = `${list.length} session${list.length !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('sessions-tbody');
+  selectedIds.clear();
+  const allChk = document.getElementById('select-all-chk');
+  if (allChk) { allChk.checked = false; allChk.indeterminate = false; }
+  document.getElementById('bulk-bar').classList.add('hidden');
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-16 text-text-muted">
+      <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">event_busy</span>
+      <p class="font-semibold text-sm">No sessions found</p>
+    </td></tr>`;
+    return;
+  }
+
+  const STATUS_LABELS = { scheduled:'Scheduled', completed:'Completed', cancelled:'Cancelled' };
+  tbody.innerHTML = list.map(s => {
+    const dt      = toDate(s.dateTime);
+    const dateStr = dt.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+    const timeStr = dt.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
+    const disp    = getDisplayStatus(s);
+    const sc      = `status-${disp}`;
+    const label   = STATUS_LABELS[disp] || disp;
+    return `
+      <tr class="border-b border-border-subtle last:border-0 hover:bg-surface-container-low transition-colors">
+        <td class="px-4 py-3.5">
+          <input type="checkbox" data-row-chk data-sid="${s.id}"
+                 class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary cursor-pointer"/>
+        </td>
+        <td class="px-4 py-3.5">
+          <p class="font-semibold text-on-surface">${escHtml(dateStr)}</p>
+          <p class="text-xs text-text-muted">${escHtml(timeStr)}</p>
+        </td>
+        <td class="px-4 py-3.5 font-medium">${escHtml(s.studentName || '—')}</td>
+        <td class="px-4 py-3.5">${(function(){
+          const color = getTeacherColor(s.teacherUid);
+          const bg = hexToRgba(color, 0.09);
+          return `<span style="display:inline-flex;align-items:center;padding:1px 8px;background:${bg};color:${color};border-radius:999px;font-size:11px;font-weight:600;line-height:18px;">${escHtml(s.teacherName||'—')}</span>`;
+        })()}</td>
+        <td class="px-4 py-3.5">${escHtml(s.subject || '—')}</td>
+        <td class="px-4 py-3.5 text-text-muted">${s.duration || '—'} min</td>
+        <td class="px-4 py-3.5">
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${sc}">${escHtml(label)}</span>
+        </td>
+        <td class="px-6 py-3.5 text-right">
+          <div class="flex items-center justify-end gap-1">
+            ${s.meetLink ? `<a href="${escHtml(absUrl(s.meetLink))}" target="_blank" rel="noopener"
+               class="p-1.5 rounded-lg hover:bg-secondary/10 text-text-muted hover:text-secondary transition-colors" title="Join Meet">
+               <span class="material-symbols-outlined text-[16px]">video_call</span></a>` : ''}
+            <button data-action="copy" data-sid="${s.id}"
+                    class="p-1.5 rounded-lg hover:bg-primary-container/30 text-text-muted hover:text-primary transition-colors" title="Duplicate session">
+              <span class="material-symbols-outlined text-[16px]">content_copy</span>
+            </button>
+            <button data-action="edit" data-sid="${s.id}"
+                    class="p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-secondary transition-colors" title="Edit">
+              <span class="material-symbols-outlined text-[16px]">edit</span>
+            </button>
+            ${s.status !== 'cancelled' ? `
+            <button data-action="cancel" data-sid="${s.id}"
+                    class="p-1.5 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors" title="Cancel session">
+              <span class="material-symbols-outlined text-[16px]">event_busy</span>
+            </button>` : ''}
+            <button data-action="delete" data-sid="${s.id}"
+                    class="p-1.5 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors" title="Delete">
+              <span class="material-symbols-outlined text-[16px]">delete</span>
+            </button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ── Table event delegation ─────────────────────────────────────────────────────
+document.getElementById('sessions-tbody').addEventListener('click', e => {
+  const btn = e.target.closest('[data-action]');
+  if (!btn) return;
+  const { action, sid } = btn.dataset;
+  if (action === 'copy')   openCopySession(sid);
+  if (action === 'edit')   openEditSession(sid);
+  if (action === 'cancel') confirmCancelSession(sid);
+  if (action === 'delete') confirmDeleteSession(sid);
+});
+
+document.getElementById('sessions-tbody').addEventListener('change', e => {
+  const chk = e.target.closest('[data-row-chk]');
+  if (!chk) return;
+  const { sid } = chk.dataset;
+  const row = chk.closest('tr');
+  if (chk.checked) { selectedIds.add(sid); row.classList.add('row-selected'); }
+  else             { selectedIds.delete(sid); row.classList.remove('row-selected'); }
+  updateBulkBar();
+});
+
+// ── Filters ────────────────────────────────────────────────────────────────────
+window.applyFilters = function() {
+  const tId    = document.getElementById('f-filter-teacher').value;
+  const sId    = document.getElementById('f-filter-student').value;
+  const status = document.getElementById('f-filter-status').value;
+  const from   = document.getElementById('f-filter-from').value;
+  const to     = document.getElementById('f-filter-to').value;
+
+  const filtered = allSessions.filter(s => {
+    if (tId    && s.teacherUid  !== tId)          return false;
+    if (sId    && s.studentId   !== sId)          return false;
+    if (status && getDisplayStatus(s) !== status) return false;  // filter by computed status
+    const dt = toDate(s.dateTime);
+    if (from && dt < new Date(from + 'T00:00:00')) return false;
+    if (to   && dt > new Date(to   + 'T23:59:59')) return false;
+    return true;
+  });
+  renderSessions(filtered);
+};
+
+window.clearFilters = function() {
+  ['f-filter-teacher','f-filter-student','f-filter-status','f-filter-from','f-filter-to']
+    .forEach(id => { document.getElementById(id).value = ''; });
+  renderSessions(allSessions);
+};
+
+// ── Subject dropdown helpers ───────────────────────────────────────────────────
+const KNOWN_SUBJECTS = [
+  'English Conversation','Business English','IELTS Preparation','TOEFL Preparation',
+  'Young Learners','Phonics','Reading & Writing','Grammar'
+];
+
+window.onSubjectChange = function() {
+  const sel    = document.getElementById('f-subject-select').value;
+  const custom = document.getElementById('f-subject-custom');
+  if (sel === '__custom__') { custom.classList.remove('hidden'); custom.focus(); }
+  else                       { custom.classList.add('hidden'); custom.value = ''; }
+};
+
+function getSubjectValue() {
+  const sel = document.getElementById('f-subject-select').value;
+  return sel === '__custom__' ? document.getElementById('f-subject-custom').value.trim() : sel;
+}
+
+function setSubjectValue(subject) {
+  const sel = document.getElementById('f-subject-select');
+  const custom = document.getElementById('f-subject-custom');
+  if (!subject) { sel.value = ''; custom.classList.add('hidden'); custom.value = ''; return; }
+  if (KNOWN_SUBJECTS.includes(subject)) { sel.value = subject; custom.classList.add('hidden'); custom.value = ''; }
+  else { sel.value = '__custom__'; custom.classList.remove('hidden'); custom.value = subject; }
+}
+
+// ── Teacher auto-fill from student ────────────────────────────────────────────
+function getTeacherForStudent(studentId) {
+  const student = allStudents.find(s => s.id === studentId);
+  if (!student || !(student.assignedTeachers || []).length) return null;
+  return allTeachers.find(t => t.id === student.assignedTeachers[0]) || null;
+}
+
+function updateModalTeacherDisplay(studentId) {
+  const el = document.getElementById('f-teacher-display');
+  if (!studentId) { el.innerHTML = '<span class="text-sm text-text-muted">Select a student first</span>'; return; }
+  const teacher = getTeacherForStudent(studentId);
+  if (!teacher) {
+    el.innerHTML = '<span class="text-sm text-amber-600 font-medium">No teacher assigned to this student</span>';
+  } else {
+    const color = (teacher.color && /^#[0-9a-f]{6}$/i.test(teacher.color)) ? teacher.color : '#0058bb';
+    const bg = hexToRgba(color, 0.09);
+    el.innerHTML = `<span style="display:inline-flex;align-items:center;padding:2px 10px;background:${bg};color:${color};border-radius:999px;font-size:13px;font-weight:600;line-height:22px;">${escHtml(teacher.name || teacher.email || teacher.id)}</span>`;
+  }
+}
+
+window.onStudentChange = function() {
+  const studentId = document.getElementById('f-student').value;
+  updateModalTeacherDisplay(studentId);
+  const teacher = getTeacherForStudent(studentId);
+  console.log('[onStudentChange] student:', studentId, '→ teacher:', teacher?.id, teacher?.name, '→ meetLink:', teacher?.googleMeetLink);
+  if (teacher && teacher.googleMeetLink) {
+    document.getElementById('f-meet').value = teacher.googleMeetLink;
+  }
+};
+
+function getTeacherColor(uid) {
+  const t = allTeachers.find(x => x.id === uid);
+  return (t && t.color) ? t.color : '#9ca3af';
+}
+
+// ── Repeat weekly helpers ──────────────────────────────────────────────────────
+window.onRepeatChange = function() {
+  const checked = document.getElementById('f-repeat').checked;
+  document.getElementById('f-repeat-weeks-wrap').classList.toggle('hidden', !checked);
+  if (checked) updateRepeatInfo();
+};
+
+window.updateRepeatInfo = function() {
+  const weeks = parseInt(document.getElementById('f-repeat-weeks').value) || 0;
+  const dtVal = document.getElementById('f-datetime').value;
+  if (!weeks || !dtVal) { document.getElementById('f-repeat-info').textContent = ''; return; }
+  const end = new Date(dtVal);
+  end.setDate(end.getDate() + (weeks - 1) * 7);
+  document.getElementById('f-repeat-info').textContent =
+    `→ ${weeks} sessions through ${end.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+};
+
+function resetRepeatSection() {
+  document.getElementById('f-repeat').checked = false;
+  document.getElementById('f-repeat-weeks').value = '4';
+  document.getElementById('f-repeat-weeks-wrap').classList.add('hidden');
+  document.getElementById('f-repeat-info').textContent = '';
+}
+
+// ── Create / edit / copy session modal ────────────────────────────────────────
+window.openCreateSession = function() {
+  editingId = null;
+  document.getElementById('session-modal-title').textContent = 'Create Session';
+  document.getElementById('f-student').value  = '';
+  document.getElementById('f-datetime').value = '';
+  document.getElementById('f-duration').value = '30';
+  document.getElementById('f-meet').value     = '';
+  document.getElementById('f-status').value   = 'scheduled';
+  setSubjectValue('');
+  updateModalTeacherDisplay('');
+  resetRepeatSection();
+  document.getElementById('f-repeat-section').classList.remove('hidden');
+  document.getElementById('f-repeat-copy-note').classList.add('hidden');
+  document.getElementById('session-modal').classList.remove('hidden');
+};
+
+function openCopySession(sid) {
+  const s = allSessions.find(x => x.id === sid);
+  if (!s) return;
+  editingId = null;
+  document.getElementById('session-modal-title').textContent = 'Copy Session';
+  document.getElementById('f-student').value  = s.studentId   || '';
+  document.getElementById('f-datetime').value = '';
+  document.getElementById('f-duration').value = String(s.duration || 30);
+  const _copyTeacher = getTeacherForStudent(s.studentId);
+  document.getElementById('f-meet').value     = (_copyTeacher && _copyTeacher.googleMeetLink) ? _copyTeacher.googleMeetLink : (s.meetLink || '');
+  document.getElementById('f-status').value   = 'scheduled';
+  setSubjectValue(s.subject || '');
+  updateModalTeacherDisplay(s.studentId || '');
+  resetRepeatSection();
+  document.getElementById('f-repeat-section').classList.remove('hidden');
+  document.getElementById('f-repeat-copy-note').classList.remove('hidden');
+  document.getElementById('session-modal').classList.remove('hidden');
+}
+
+function openEditSession(sid) {
+  editingId = sid;
+  const s = allSessions.find(x => x.id === sid);
+  if (!s) return;
+  document.getElementById('session-modal-title').textContent = 'Edit Session';
+  document.getElementById('f-student').value  = s.studentId   || '';
+  document.getElementById('f-duration').value = String(s.duration || 30);
+  const _editTeacher = getTeacherForStudent(s.studentId);
+  document.getElementById('f-meet').value     = (_editTeacher && _editTeacher.googleMeetLink) ? _editTeacher.googleMeetLink : (s.meetLink || '');
+  // Map stored 'completed' (legacy) → 'scheduled' since completed is now automatic
+  const storedStatus = s.status === 'completed' ? 'scheduled' : (s.status || 'scheduled');
+  document.getElementById('f-status').value   = storedStatus;
+  setSubjectValue(s.subject || '');
+  updateModalTeacherDisplay(s.studentId || '');
+  if (s.dateTime) {
+    const dt  = toDate(s.dateTime);
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('f-datetime').value =
+      `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+  }
+  resetRepeatSection();
+  document.getElementById('f-repeat-section').classList.add('hidden');
+  document.getElementById('session-modal').classList.remove('hidden');
+}
+
+window.closeSessionModal = function() {
+  document.getElementById('session-modal').classList.add('hidden');
+};
+
+window.saveSession = async function() {
+  const btn         = document.getElementById('session-save-btn');
+  const studentId   = document.getElementById('f-student').value;
+  const subject     = getSubjectValue();
+  const datetimeVal = document.getElementById('f-datetime').value;
+  const teacher     = getTeacherForStudent(studentId);
+  const teacherId   = teacher?.id || '';
+
+  if (!studentId || !subject || !datetimeVal) {
+    showToast('Please fill in all required fields.', 'error'); return;
+  }
+  if (!teacherId) {
+    showToast('This student has no assigned teacher. Assign a teacher in Students first.', 'error'); return;
+  }
+
+  const student  = allStudents.find(s => s.id === studentId);
+  const duration = parseInt(document.getElementById('f-duration').value);
+  const meetLink = document.getElementById('f-meet').value.trim();
+  const status   = document.getElementById('f-status').value;
+
+  const baseData = {
+    teacherUid:  teacherId,
+    teacherName: teacher?.name || teacher?.email || '',
+    studentId,
+    studentName: student?.fullName || '',
+    subject, duration, meetLink, status,
+  };
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    if (editingId) {
+      const data = { ...baseData, dateTime: Timestamp.fromDate(new Date(datetimeVal)) };
+      await updateDoc(doc(db, 'sessions', editingId), data);
+      const idx = allSessions.findIndex(s => s.id === editingId);
+      if (idx !== -1) allSessions[idx] = { id: editingId, ...allSessions[idx], ...data };
+      showToast('Session updated.', 'success');
+    } else {
+      const repeat = document.getElementById('f-repeat').checked;
+      const weeks  = repeat ? Math.min(52, Math.max(1, parseInt(document.getElementById('f-repeat-weeks').value) || 1)) : 1;
+      const baseDate = new Date(datetimeVal);
+      for (let i = 0; i < weeks; i++) {
+        const dt   = new Date(baseDate);
+        dt.setDate(dt.getDate() + i * 7);
+        const data = { ...baseData, dateTime: Timestamp.fromDate(dt), createdAt: serverTimestamp(), createdBy: currentAdmin.uid };
+        const ref  = await addDoc(collection(db, 'sessions'), data);
+        allSessions.unshift({ id: ref.id, ...data });
+      }
+      showToast(weeks > 1 ? `${weeks} sessions created.` : 'Session created.', 'success');
+    }
+    closeSessionModal();
+    allSessions.sort((a, b) => toDate(b.dateTime) - toDate(a.dateTime));
+    updateStats(allSessions);
+    applyFilters();
+    if (currentView === 'week') renderAdminCalendar();
+  } catch (e) {
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.textContent = 'Save Session'; btn.disabled = false;
+  }
+};
+
+async function confirmCancelSession(sid) {
+  const s = allSessions.find(x => x.id === sid);
+  if (!s) return;
+  if (!confirm(`Cancel session for "${s.studentName}" on ${toDate(s.dateTime).toLocaleDateString()}?`)) return;
+  try {
+    await updateDoc(doc(db, 'sessions', sid), { status: 'cancelled' });
+    const idx = allSessions.findIndex(x => x.id === sid);
+    if (idx !== -1) allSessions[idx].status = 'cancelled';
+    updateStats(allSessions);
+    applyFilters();
+    if (currentView === 'week') renderAdminCalendar();
+    showToast('Session cancelled.', 'success');
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+async function confirmDeleteSession(sid) {
+  const s = allSessions.find(x => x.id === sid);
+  if (!s) return;
+  if (!confirm('Permanently delete this session? This cannot be undone.')) return;
+  try {
+    await deleteDoc(doc(db, 'sessions', sid));
+    allSessions = allSessions.filter(x => x.id !== sid);
+    updateStats(allSessions);
+    applyFilters();
+    if (currentView === 'week') renderAdminCalendar();
+    showToast('Session deleted.', 'success');
+  } catch (e) { showToast('Failed: ' + e.message, 'error'); }
+}
+
+// ── View toggle ────────────────────────────────────────────────────────────────
+window.setView = function(v) {
+  currentView = v;
+  document.getElementById('list-view-section').classList.toggle('hidden', v === 'week');
+  document.getElementById('week-view-section').classList.toggle('hidden', v === 'list');
+  document.getElementById('btn-list-view').className = `view-tab ${v === 'list' ? 'active' : 'inactive'}`;
+  document.getElementById('btn-week-view').className = `view-tab ${v === 'week' ? 'active' : 'inactive'}`;
+  if (v === 'week') { renderAdminCalendar(); renderLegend(); }
+};
+
+// ── Week view ──────────────────────────────────────────────────────────────────
+window.prevWeekAdmin  = function() { adminWeekStart = offsetWeek(adminWeekStart, -7); renderAdminCalendar(); };
+window.nextWeekAdmin  = function() { adminWeekStart = offsetWeek(adminWeekStart,  7); renderAdminCalendar(); };
+window.goToTodayAdmin = function() { adminWeekStart = getMonday(new Date()); renderAdminCalendar(); };
+
+function renderLegend() {
+  const el = document.getElementById('week-legend');
+  el.innerHTML = allTeachers.map(t => `
+    <span class="flex items-center gap-1.5">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${t.color}"></span>
+      <span>${escHtml((t.name || t.email || '').split(' ')[0])}</span>
+    </span>`).join('');
+}
+
+function renderAdminCalendar() {
+  const days  = getWeekDays(adminWeekStart);
+  const today = new Date();
+
+  document.getElementById('admin-week-label').textContent = fmtWeekLabel(days);
+
+  // ── Header row ─────────────────────────────────────────────────────────────
+  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));border-bottom:1px solid #e5e7eb;">
+    <div style="background:#f9fafb;"></div>`;
+
+  days.forEach((day, i) => {
+    const isToday = day.toDateString() === today.toDateString();
+    html += `
+      <div style="background:${isToday ? '#eff6ff' : '#f9fafb'};border-left:1px solid #f3f4f6;
+                  height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+        <span style="font-size:11px;font-weight:600;color:${isToday ? '#1d4ed8' : '#6b7280'};">${DAY_NAMES[i]}</span>
+        <span style="font-size:14px;font-weight:700;width:28px;height:28px;border-radius:50%;
+                     display:flex;align-items:center;justify-content:center;
+                     background:${isToday ? '#3b82f6' : 'transparent'};
+                     color:${isToday ? '#fff' : '#191c1d'};">${day.getDate()}</span>
+      </div>`;
+  });
+  html += `</div>`;
+
+  // ── Body grid ───────────────────────────────────────────────────────────────
+  html += `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));
+                       height:${CAL_HEIGHT}px;position:relative;overflow:hidden;">`;
+
+  // Time labels
+  html += `<div style="position:relative;border-right:1px solid #f3f4f6;background:#fafafa;">`;
+  for (let h = CAL_START; h <= CAL_END; h++) {
+    const top = (h - CAL_START) * PX_PER_HOUR;
+    html += `<div style="position:absolute;top:${top - 8}px;right:6px;font-size:10px;color:#9ca3af;font-weight:500;line-height:1;text-align:right;">${String(h).padStart(2,'0')}:00</div>`;
+  }
+  html += `</div>`;
+
+  // Day columns
+  days.forEach((day, i) => {
+    const isToday    = day.toDateString() === today.toDateString();
+    const sessions   = sessionsForDay(day, allSessions);
+
+    html += `<div style="position:relative;border-left:1px solid #f3f4f6;background:${isToday ? 'rgba(59,130,246,0.03)' : 'transparent'};">`;
+
+    // Hour lines
+    for (let h = CAL_START; h <= CAL_END; h++) {
+      const top = (h - CAL_START) * PX_PER_HOUR;
+      html += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:#f3f4f6;"></div>`;
+      if (h < CAL_END)
+        html += `<div style="position:absolute;left:0;right:0;top:${top+30}px;height:1px;border-top:1px dashed #f0f0f0;"></div>`;
+    }
+
+    // Session blocks (colored by teacher)
+    sessions.forEach(s => {
+      const disp     = getDisplayStatus(s);
+      const tc       = disp === 'cancelled' ? '#9ca3af' : getTeacherColor(s.teacherUid);
+      const bg       = disp === 'cancelled' ? '#f9fafb' : hexToRgba(tc, 0.13);
+      const top      = sessionTop(s);
+      const height   = sessionH(s);
+      const time     = fmtTime(toDate(s.dateTime));
+      const tName    = (s.teacherName || '—').split(' ')[0];
+      const sName    = (s.studentName || '—').split(' ')[0];
+      const opacity  = disp === 'cancelled' ? 0.55 : 1;
+
+      html += `
+        <div class="session-block-admin" data-sid="${s.id}" style="
+              position:absolute;left:3px;right:3px;top:${top}px;height:${height}px;
+              background:${bg};border-left:3px solid ${tc};
+              border-radius:4px;padding:3px 5px;overflow:hidden;z-index:2;opacity:${opacity};">
+          <div style="font-size:11px;font-weight:700;color:${tc};line-height:1.3;
+                      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                      ${disp === 'cancelled' ? 'text-decoration:line-through;' : ''}">${escHtml(sName)}</div>
+          ${height >= 32 ? `<div style="font-size:10px;color:${tc};opacity:.8;line-height:1.2">${time}</div>` : ''}
+          ${height >= 48 ? `<div style="font-size:10px;color:${tc};opacity:.75;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(tName)}</div>` : ''}
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  const cal = document.getElementById('admin-calendar');
+  cal.innerHTML = html;
+
+  // Click on session → open edit modal
+  cal.addEventListener('click', e => {
+    const block = e.target.closest('.session-block-admin');
+    if (block) openEditSession(block.dataset.sid);
+  });
+}
+
+// ── Calendar date helpers ──────────────────────────────────────────────────────
+function getMonday(d) {
+  const day = d.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  const m = new Date(d);
+  m.setDate(m.getDate() + diff);
+  m.setHours(0, 0, 0, 0);
+  return m;
+}
+
+function getWeekDays(mon) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(mon);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+}
+
+function offsetWeek(d, days) {
+  const n = new Date(d);
+  n.setDate(n.getDate() + days);
+  return n;
+}
+
+function fmtWeekLabel(days) {
+  const s = days[0], e = days[6];
+  return s.getMonth() === e.getMonth()
+    ? `${MONTHS[s.getMonth()]} ${s.getDate()}–${e.getDate()}, ${s.getFullYear()}`
+    : `${MONTHS[s.getMonth()]} ${s.getDate()} – ${MONTHS[e.getMonth()]} ${e.getDate()}, ${e.getFullYear()}`;
+}
+
+function fmtTime(d) {
+  return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
+}
+
+function sessionsForDay(day, list) {
+  return (list || allSessions)
+    .filter(s => toDate(s.dateTime).toDateString() === day.toDateString())
+    .sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
+}
+
+function sessionTop(s) {
+  const dt = toDate(s.dateTime);
+  return Math.max(0, ((dt.getHours() + dt.getMinutes() / 60) - CAL_START) * PX_PER_HOUR);
+}
+
+function sessionH(s) {
+  return Math.max(24, ((s.duration || 30) / 60) * PX_PER_HOUR);
+}
+
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#','');
+  const r = parseInt(h.slice(0,2),16);
+  const g = parseInt(h.slice(2,4),16);
+  const b = parseInt(h.slice(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ── Generic helpers ────────────────────────────────────────────────────────────
+function toDate(v) {
+  if (!v) return new Date(0);
+  if (typeof v.toDate === 'function') return v.toDate();
+  return new Date(v);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function absUrl(url) {
+  if (!url) return '';
+  return /^https?:\/\//i.test(url) ? url : 'https://' + url;
+}
+
+window.showToast = function(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3500);
+};
+</script>
+</body>
+</html>

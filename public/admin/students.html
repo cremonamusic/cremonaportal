@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Students | I TALK Teachers Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme: { extend: {
+      colors: {
+        "on-tertiary-fixed":"#1b1c1c","surface-variant":"#e1e3e4","inverse-primary":"#fabd00",
+        "error-container":"#ffdad6","on-secondary-fixed":"#001a41","text-muted":"#5F6368",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFFFF","surface-container-low":"#f3f4f5",
+        "primary-container":"#ffc107","on-secondary-container":"#fefcff",
+        "secondary-container":"#1471e6","secondary":"#0058bb","on-surface-variant":"#4f4632",
+        "primary-fixed-dim":"#fabd00","on-surface":"#191c1d","surface-tint":"#785900",
+        "secondary-fixed":"#d8e2ff","surface-container-highest":"#e1e3e4",
+        "border-subtle":"#E0E0E0","background":"#f8f9fa",
+        "primary-fixed":"#ffdf9e","primary":"#785900","on-primary-container":"#6d5100",
+        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#f8f9fa","on-secondary":"#ffffff",
+        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
+        "surface-container-high":"#e7e8e9","on-primary":"#ffffff","on-background":"#191c1d"
+      },
+      spacing:{"gutter":"24px","container-max":"1200px","margin-mobile":"16px","margin-desktop":"40px"},
+      fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
+      fontSize:{
+        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+        "label-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+        "label-md":["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+        "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+  body { font-family:'Inter',sans-serif; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(120,89,0,.2);border-top-color:#785900;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#0058bb;color:#fff; }
+  .nav-active { color:#0058bb!important;border-bottom:2px solid #0058bb;padding-bottom:4px;font-weight:700!important; }
+  .teacher-pill { display:inline-flex;align-items:center;padding:1px 7px;background:rgba(0,88,187,0.09);color:#0058bb;border-radius:999px;font-size:11px;font-weight:600;line-height:18px; }
+  .teacher-check-item:hover { background:#f3f4f5; }
+  tr.student-row:hover td { background:#f8f9fa; }
+  tr.student-row { cursor:pointer; }
+</style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- ── Add / Edit Student Modal ────────────────────────────────────────────── -->
+<div id="student-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-16 overflow-y-auto" onclick="if(event.target===this)closeStudentModal()">
+  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl mb-8">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 id="student-modal-title" class="font-headline-sm">Add Student</h2>
+      <button onclick="closeStudentModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <form id="student-form" class="px-6 py-5 grid grid-cols-2 gap-4">
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Full Name *</label>
+        <input id="f-name" type="text" required placeholder="e.g. Kim Minji"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Date of Birth</label>
+        <input id="f-dob" type="date"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Grade</label>
+        <select id="f-grade" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+          <option value="">— Select —</option>
+          <option>K</option><option>1</option><option>2</option><option>3</option>
+          <option>4</option><option>5</option><option>6</option><option>7</option>
+          <option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+          <option>Adult</option>
+        </select>
+      </div>
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Notes</label>
+        <textarea id="f-notes" rows="3" placeholder="Learning goals, special needs, etc."
+                  class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
+      </div>
+      <div class="col-span-2">
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Assigned Teachers</label>
+        <div class="relative" id="teacher-assign-wrapper">
+          <button type="button" id="teacher-assign-btn" onclick="toggleTeacherDropdown()"
+                  class="w-full flex items-center justify-between border border-border-subtle rounded-lg px-3 py-2.5 text-sm bg-white hover:bg-surface-container-low transition-colors text-left">
+            <span id="teacher-assign-label" class="text-text-muted">No teachers assigned</span>
+            <span class="material-symbols-outlined text-[18px] text-text-muted flex-shrink-0">expand_more</span>
+          </button>
+          <div id="teacher-assign-dropdown" class="hidden absolute z-30 w-full mt-1 bg-white border border-border-subtle rounded-xl shadow-lg max-h-52 overflow-y-auto">
+            <p id="teacher-assign-placeholder" class="text-text-muted text-sm text-center py-3">Loading...</p>
+          </div>
+        </div>
+      </div>
+    </form>
+    <div class="flex items-center justify-end gap-3 px-6 pb-5">
+      <button onclick="closeStudentModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
+      <button id="student-save-btn" onclick="saveStudent()" class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Student Profile Modal ───────────────────────────────────────────────── -->
+<div id="profile-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-16 overflow-y-auto" onclick="if(event.target===this)closeProfileModal()">
+  <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl mb-8">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 id="profile-name" class="font-headline-sm">Student Profile</h2>
+      <button onclick="closeProfileModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-5">
+      <!-- Info grid -->
+      <div id="profile-info" class="grid grid-cols-2 gap-x-8 gap-y-3 mb-6 text-sm"></div>
+      <!-- Session history -->
+      <h3 class="font-headline-sm text-sm mb-3 text-on-surface-variant uppercase tracking-wide text-xs font-bold">Session History</h3>
+      <div id="profile-sessions" class="text-sm text-text-muted">Loading…</div>
+    </div>
+    <div class="flex justify-end px-6 pb-5 gap-3">
+      <button id="profile-edit-btn" onclick="editCurrentStudent()" class="px-4 py-2.5 text-sm font-bold border border-secondary text-secondary rounded-lg hover:bg-secondary/5 transition-colors">Edit Student</button>
+      <button onclick="closeProfileModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Header ───────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts.html">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security.html">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources.html">Resources</a>
+        <a class="font-body-md nav-active" href="students.html">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin.html">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin.html">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin.html">Reports</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden md:inline font-body-md text-text-muted">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-container-max mx-auto px-margin-desktop py-gutter">
+  <!-- Page header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+    <div>
+      <h1 class="font-headline-lg text-on-surface mb-1">Student Database</h1>
+      <p class="font-body-md text-text-muted">Manage student profiles and view session history.</p>
+    </div>
+    <button onclick="openAddStudent()"
+            class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm flex-shrink-0">
+      <span class="material-symbols-outlined text-[18px]">person_add</span>
+      Add Student
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] mb-5 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[160px]">
+      <label class="block text-label-sm text-text-muted mb-1">Search by name</label>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" style="font-size:16px">search</span>
+        <input id="search-input" type="text" placeholder="Student name…" oninput="applyFilters()"
+               class="w-full pl-9 pr-3 py-2 border border-border-subtle rounded-lg text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <div class="min-w-[110px]">
+      <label class="block text-label-sm text-text-muted mb-1">Grade</label>
+      <select id="grade-filter" onchange="applyFilters()"
+              class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+        <option value="">All grades</option>
+        <option>K</option><option>1</option><option>2</option><option>3</option>
+        <option>4</option><option>5</option><option>6</option><option>7</option>
+        <option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+      </select>
+    </div>
+    <div class="min-w-[160px]">
+      <label class="block text-label-sm text-text-muted mb-1">Assigned teacher</label>
+      <select id="teacher-filter" onchange="applyFilters()"
+              class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+        <option value="">All teachers</option>
+      </select>
+    </div>
+    <button onclick="clearFilters()" class="text-sm text-text-muted hover:text-error transition-colors px-2">Clear</button>
+    <span id="result-count" class="text-label-sm text-text-muted ml-auto self-center"></span>
+  </div>
+
+  <!-- Students table -->
+  <div class="bg-surface-white border border-border-subtle rounded-xl shadow-[0px_2px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-border-subtle">
+          <th class="text-left px-6 py-3.5 font-label-md text-text-muted">Name</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden sm:table-cell">Grade</th>
+          <th class="text-right px-6 py-3.5 font-label-md text-text-muted">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="students-tbody">
+        <tr><td colspan="3" class="text-center py-12 text-text-muted">
+          <div class="flex items-center justify-center gap-3">
+            <div class="spinner"></div> Loading students…
+          </div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where,
+  getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain:"italk-teachers.firebaseapp.com",projectId:"italk-teachers",
+  storageBucket:"italk-teachers.firebasestorage.app",
+  messagingSenderId:"566278333053",appId:"1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let allStudents       = [];
+let allTeachers       = [];
+let allParentEmails   = new Set();
+let studentParentMap  = new Map(); // studentId → [{name, email}]
+let editingId         = null;
+let profileStudent    = null;
+let selectedTeacherUids = new Set();
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') {
+    window.location.href = '/index.html'; return;
+  }
+  await Promise.all([loadStudents(), loadTeachers(), loadParentEmails()]);
+  console.log('[students] initial load complete — rendering table');
+  applyFilters();
+  document.getElementById('loading-overlay').style.display = 'none';
+});
+
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
+
+// ── Load data ──────────────────────────────────────────────────────────────────
+async function loadStudents() {
+  const snap = await getDocs(collection(db, 'students'));
+  allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  // Do NOT render here — render happens after all parallel fetches complete
+}
+
+async function loadTeachers() {
+  const q    = query(collection(db, 'users'), where('role', '==', 'teacher'));
+  const snap = await getDocs(q);
+  allTeachers = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  const sel = document.getElementById('teacher-filter');
+  allTeachers.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id; opt.textContent = t.name || t.email || t.id;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadParentEmails() {
+  console.log('[loadParentEmails] starting fetch');
+  const q = query(collection(db, 'users'), where('role', '==', 'parent'));
+  const snap = await getDocs(q);
+  allParentEmails = new Set();
+  studentParentMap = new Map();
+  snap.docs.forEach(d => {
+    const p = d.data();
+    const email = (p.email || '').toLowerCase();
+    if (email) allParentEmails.add(email);
+    (p.linkedStudentIds || []).forEach(sid => {
+      const entry = { name: p.name || `${p.firstName || ''} ${p.lastName || ''}`.trim(), email: p.email || '' };
+      const arr = studentParentMap.get(sid) || [];
+      arr.push(entry);
+      studentParentMap.set(sid, arr);
+    });
+  });
+  console.log(`[loadParentEmails] done — ${allParentEmails.size} parent email(s), ${studentParentMap.size} student-parent link(s)`);
+}
+
+function parentStatusBadge(email) {
+  if (!email) return '';
+  const linked = allParentEmails.has(email.toLowerCase());
+  return linked
+    ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-green-50 text-green-700 text-[11px] font-semibold rounded-full border border-green-200"><span class="material-symbols-outlined text-[12px]" style="font-variation-settings:'FILL' 1;">check_circle</span>Parent account linked</span>`
+    : `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-semibold rounded-full border border-amber-200"><span class="material-symbols-outlined text-[12px]">person_add</span>No parent account yet</span>`;
+}
+
+window.updateParentEmailStatus = function() {
+  const email = document.getElementById('f-parent-email').value.trim();
+  const el = document.getElementById('parent-email-status');
+  if (!email) { el.innerHTML = ''; el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.innerHTML = parentStatusBadge(email);
+};
+
+function hexToRgba(hex, alpha) {
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16);
+  const g = parseInt(h.substring(2,4),16);
+  const b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+function teacherPill(uid) {
+  const t = allTeachers.find(x => x.id === uid);
+  if (!t) return '';
+  const color = (t.color && /^#[0-9a-f]{6}$/i.test(t.color)) ? t.color : '#0058bb';
+  const bg = hexToRgba(color, 0.09);
+  return `<span style="display:inline-flex;align-items:center;padding:1px 8px;background:${bg};color:${color};border-radius:999px;font-size:11px;font-weight:600;line-height:18px;">${escHtml(t.name || t.email || uid)}</span>`;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function renderStudents(list) {
+  document.getElementById('result-count').textContent = `${list.length} student${list.length !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('students-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-text-muted">
+      <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">groups</span>
+      <p class="font-semibold text-sm">No students found</p>
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(s => `
+    <tr class="student-row border-b border-border-subtle last:border-0 transition-colors" data-sid="${s.id}">
+      <td class="px-6 py-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+            ${escHtml((s.fullName || '?').charAt(0).toUpperCase())}
+          </div>
+          <div>
+            <p class="font-semibold text-on-surface">${escHtml(s.fullName || '—')}</p>
+            ${(s.assignedTeachers || []).length ? `<div class="flex flex-wrap gap-1 mt-1">${(s.assignedTeachers).map(uid => teacherPill(uid)).filter(Boolean).join('')}</div>` : ''}
+            ${(() => { const pts = studentParentMap.get(s.id); if (!pts || !pts.length) return ''; const label = pts.length === 1 ? (pts[0].name || pts[0].email) : `${pts[0].name || pts[0].email} +${pts.length - 1} more`; return `<div class="flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[11px] text-text-muted">family_restroom</span><span class="text-[11px] text-text-muted">${escHtml(label)}</span></div>`; })()}
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3.5 hidden sm:table-cell">
+        ${s.grade ? `<span class="px-2 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full">${escHtml(s.grade)}</span>` : '<span class="text-text-muted">—</span>'}
+      </td>
+      <td class="px-6 py-3.5 text-right">
+        <div class="flex items-center justify-end gap-1">
+          <button data-action="edit" data-sid="${s.id}" class="p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-secondary transition-colors" title="Edit">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+          </button>
+          <button data-action="delete" data-sid="${s.id}" class="p-1.5 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors" title="Delete">
+            <span class="material-symbols-outlined text-[16px]">delete</span>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+// ── Filters ────────────────────────────────────────────────────────────────────
+window.applyFilters = function() {
+  console.log('[applyFilters] running — allParentEmails.size:', allParentEmails.size);
+  const q  = document.getElementById('search-input').value.trim().toLowerCase();
+  const g  = document.getElementById('grade-filter').value;
+  const t  = document.getElementById('teacher-filter').value;
+  const filtered = allStudents.filter(s => {
+    const matchQ = !q || (s.fullName || '').toLowerCase().includes(q) || (s.parentName || '').toLowerCase().includes(q);
+    const matchG = !g || s.grade === g;
+    const matchT = !t || (s.assignedTeachers || []).includes(t);
+    return matchQ && matchG && matchT;
+  });
+  renderStudents(filtered);
+};
+
+window.clearFilters = function() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('grade-filter').value = '';
+  document.getElementById('teacher-filter').value = '';
+  renderStudents(allStudents);
+};
+
+// ── Table event delegation ─────────────────────────────────────────────────────
+document.getElementById('students-tbody').addEventListener('click', e => {
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  const sid    = e.target.closest('[data-sid]')?.dataset.sid;
+  if (!sid) return;
+  if (action === 'edit')   { e.stopPropagation(); openEditStudent(sid); return; }
+  if (action === 'delete') { e.stopPropagation(); confirmDeleteStudent(sid); return; }
+  // Row click → profile
+  if (e.target.closest('tr.student-row')) openProfile(sid);
+});
+
+// ── Add / edit student modal ───────────────────────────────────────────────────
+window.openAddStudent = function() {
+  editingId = null;
+  selectedTeacherUids = new Set();
+  document.getElementById('student-modal-title').textContent = 'Add Student';
+  document.getElementById('student-form').reset();
+  renderTeacherCheckboxes();
+  updateTeacherAssignLabel();
+  document.getElementById('student-modal').classList.remove('hidden');
+};
+
+function openEditStudent(sid) {
+  editingId = sid;
+  const s = allStudents.find(x => x.id === sid);
+  if (!s) return;
+  selectedTeacherUids = new Set(s.assignedTeachers || []);
+  document.getElementById('student-modal-title').textContent = 'Edit Student';
+  document.getElementById('f-name').value         = s.fullName     || '';
+  document.getElementById('f-dob').value          = s.dateOfBirth  || '';
+  document.getElementById('f-grade').value        = s.grade        || '';
+  document.getElementById('f-notes').value        = s.notes        || '';
+  renderTeacherCheckboxes();
+  updateTeacherAssignLabel();
+  document.getElementById('student-modal').classList.remove('hidden');
+}
+
+window.closeStudentModal = function() {
+  document.getElementById('student-modal').classList.add('hidden');
+  document.getElementById('teacher-assign-dropdown').classList.add('hidden');
+};
+
+// ── Teacher assign dropdown ────────────────────────────────────────────────────
+window.toggleTeacherDropdown = function() {
+  const dd = document.getElementById('teacher-assign-dropdown');
+  dd.classList.toggle('hidden');
+};
+
+function renderTeacherCheckboxes() {
+  const dd = document.getElementById('teacher-assign-dropdown');
+  if (!allTeachers.length) {
+    dd.innerHTML = '<p class="text-text-muted text-sm text-center py-3">No teachers found.</p>';
+    return;
+  }
+  dd.innerHTML = allTeachers.map(t => {
+    const checked = selectedTeacherUids.has(t.id);
+    const label   = escHtml(t.name || t.email || t.id);
+    return `<label class="teacher-check-item flex items-center gap-3 px-4 py-2.5 cursor-pointer">
+      <input type="checkbox" value="${t.id}" ${checked ? 'checked' : ''}
+             onchange="toggleTeacherUid('${t.id}')"
+             class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary/30"/>
+      <span class="text-sm text-on-surface">${label}</span>
+    </label>`;
+  }).join('');
+}
+
+window.toggleTeacherUid = function(uid) {
+  if (selectedTeacherUids.has(uid)) selectedTeacherUids.delete(uid);
+  else selectedTeacherUids.add(uid);
+  updateTeacherAssignLabel();
+};
+
+function updateTeacherAssignLabel() {
+  const label = document.getElementById('teacher-assign-label');
+  if (!selectedTeacherUids.size) {
+    label.textContent = 'No teachers assigned';
+    label.className = 'text-text-muted';
+    return;
+  }
+  const names = [...selectedTeacherUids].map(uid => {
+    const t = allTeachers.find(x => x.id === uid);
+    return t ? (t.name || t.email || uid) : uid;
+  });
+  label.textContent = names.join(', ');
+  label.className = 'text-on-surface font-medium truncate';
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#teacher-assign-wrapper')) {
+    document.getElementById('teacher-assign-dropdown')?.classList.add('hidden');
+  }
+});
+
+window.addEventListener('focus', async () => {
+  await loadParentEmails();
+  applyFilters();
+});
+
+window.saveStudent = async function() {
+  const btn = document.getElementById('student-save-btn');
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showToast('Full name is required.', 'error'); return; }
+
+  const data = {
+    fullName:         name,
+    dateOfBirth:      document.getElementById('f-dob').value,
+    grade:            document.getElementById('f-grade').value,
+    notes:            document.getElementById('f-notes').value.trim(),
+    assignedTeachers: [...selectedTeacherUids],
+  };
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    if (editingId) {
+      await updateDoc(doc(db, 'students', editingId), data);
+      const idx = allStudents.findIndex(s => s.id === editingId);
+      if (idx !== -1) allStudents[idx] = { id: editingId, ...allStudents[idx], ...data };
+      showToast('Student updated.', 'success');
+    } else {
+      data.createdAt = serverTimestamp();
+      const ref = await addDoc(collection(db, 'students'), data);
+      allStudents.push({ id: ref.id, ...data });
+      allStudents.sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+      showToast('Student added.', 'success');
+    }
+    closeStudentModal();
+    applyFilters();
+  } catch (e) {
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.textContent = 'Save Student'; btn.disabled = false;
+  }
+};
+
+async function confirmDeleteStudent(sid) {
+  const s = allStudents.find(x => x.id === sid);
+  if (!s) return;
+  if (!confirm(`Delete student "${s.fullName}"? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db, 'students', sid));
+    allStudents = allStudents.filter(x => x.id !== sid);
+    applyFilters();
+    showToast('Student deleted.', 'success');
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+}
+
+// ── Student profile ────────────────────────────────────────────────────────────
+async function openProfile(sid) {
+  profileStudent = allStudents.find(s => s.id === sid);
+  if (!profileStudent) return;
+  const s = profileStudent;
+
+  document.getElementById('profile-name').textContent = s.fullName || '—';
+
+  const infoDiv = document.getElementById('profile-info');
+  const field = (label, val) => val
+    ? `<div><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-0.5">${label}</p><p class="font-medium">${escHtml(val)}</p></div>`
+    : '';
+  const linkedParents = studentParentMap.get(s.id) || [];
+  const teacherPills  = (s.assignedTeachers || []).map(uid => teacherPill(uid)).filter(Boolean).join(' ');
+  infoDiv.innerHTML = [
+    field('Date of Birth', s.dateOfBirth),
+    field('Grade', s.grade),
+    teacherPills ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Assigned Teachers</p><div class="flex flex-wrap gap-1">${teacherPills}</div></div>` : '',
+    linkedParents.length ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Linked Parent${linkedParents.length > 1 ? 's' : ''}</p><div class="flex flex-col gap-1">${linkedParents.map(p => `<div class="flex items-center gap-2"><span class="font-medium">${escHtml(p.name || '—')}</span>${p.email ? `<span class="text-xs text-text-muted">${escHtml(p.email)}</span>` : ''}</div>`).join('')}</div></div>` : '',
+    s.notes ? `<div class="col-span-2">${field('Notes', s.notes)}</div>` : '',
+  ].join('');
+
+  document.getElementById('profile-modal').classList.remove('hidden');
+
+  // Load session history
+  const sessDiv = document.getElementById('profile-sessions');
+  sessDiv.innerHTML = '<div class="text-text-muted text-sm">Loading…</div>';
+  try {
+    const q    = query(collection(db, 'sessions'), where('studentId', '==', sid));
+    const snap = await getDocs(q);
+    const sessions = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => toDate(b.dateTime) - toDate(a.dateTime));
+    if (!sessions.length) {
+      sessDiv.innerHTML = '<p class="text-text-muted text-sm">No sessions recorded.</p>';
+    } else {
+      const statusColors = { scheduled:'bg-blue-50 text-blue-700', completed:'bg-green-50 text-green-700', cancelled:'bg-gray-100 text-gray-500' };
+      sessDiv.innerHTML = `
+        <table class="w-full text-sm border-t border-border-subtle">
+          <thead><tr>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Date</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Teacher</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Subject</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Duration</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Status</th>
+          </tr></thead>
+          <tbody>
+            ${sessions.map(s => {
+              const dt = toDate(s.dateTime);
+              const sc = statusColors[s.status] || statusColors.scheduled;
+              return `<tr class="border-t border-border-subtle">
+                <td class="py-2 pr-4">${dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+                <td class="py-2 pr-4 text-text-muted">${escHtml(s.teacherName || '—')}</td>
+                <td class="py-2 pr-4">${escHtml(s.subject || '—')}</td>
+                <td class="py-2 pr-4 text-text-muted">${s.duration || '—'} min</td>
+                <td class="py-2"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${sc}">${s.status || '—'}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+  } catch (e) {
+    sessDiv.innerHTML = `<p class="text-error text-sm">Failed to load sessions: ${e.message}</p>`;
+  }
+}
+
+window.closeProfileModal = function() {
+  document.getElementById('profile-modal').classList.add('hidden');
+};
+
+window.editCurrentStudent = function() {
+  if (!profileStudent) return;
+  closeProfileModal();
+  openEditStudent(profileStudent.id);
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function toDate(v) {
+  if (!v) return new Date(0);
+  if (typeof v.toDate === 'function') return v.toDate();
+  return new Date(v);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.showToast = function(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3500);
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Students | I TALK Teachers</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode:"class",
+    theme: { extend: {
+      colors: {
+        "on-tertiary-fixed":"#1b1c1c","surface-variant":"#e1e3e4","inverse-primary":"#fabd00",
+        "error-container":"#ffdad6","on-secondary-fixed":"#001a41","text-muted":"#5F6368",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFFFF","surface-container-low":"#f3f4f5",
+        "primary-container":"#ffc107","on-secondary-container":"#fefcff",
+        "secondary-container":"#1471e6","secondary":"#0058bb","on-surface-variant":"#4f4632",
+        "primary-fixed-dim":"#fabd00","on-surface":"#191c1d","surface-tint":"#785900",
+        "secondary-fixed":"#d8e2ff","surface-container-highest":"#e1e3e4",
+        "border-subtle":"#E0E0E0","background":"#f8f9fa",
+        "primary-fixed":"#ffdf9e","primary":"#785900","on-primary-container":"#6d5100",
+        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#f8f9fa","on-secondary":"#ffffff",
+        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
+        "surface-container-high":"#e7e8e9","on-primary":"#ffffff","on-background":"#191c1d"
+      },
+      spacing:{"gutter":"24px","container-max":"1200px","margin-mobile":"16px","margin-desktop":"40px"},
+      fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
+      fontSize:{
+        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+        "label-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+        "label-md":["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+        "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+  body { font-family:'Inter',sans-serif; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(120,89,0,.2);border-top-color:#785900;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#0058bb;color:#fff; }
+  tr.student-row:hover td { background:#f8f9fa; }
+  tr.student-row { cursor:pointer; }
+</style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- ── Student Profile Modal ───────────────────────────────────────────────── -->
+<div id="profile-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-16 overflow-y-auto" onclick="if(event.target===this)closeProfileModal()">
+  <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl mb-8">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 id="profile-name" class="font-headline-sm">Student Profile</h2>
+      <button onclick="closeProfileModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-5">
+      <div id="profile-info" class="grid grid-cols-2 gap-x-8 gap-y-3 mb-6 text-sm"></div>
+      <h3 class="font-headline-sm text-sm mb-3 text-on-surface-variant uppercase tracking-wide text-xs font-bold">Session History</h3>
+      <div id="profile-sessions" class="text-sm text-text-muted">Loading…</div>
+    </div>
+    <div class="flex justify-end px-6 pb-5">
+      <button onclick="closeProfileModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Header ───────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-6 h-16 max-w-5xl mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/home.html"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books.html"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher.html" class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Students</a>
+        <a href="/reports.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Reports</a>
+      </nav>
+    </div>
+    <a href="/account.html"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </a>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-6 py-6 min-h-[calc(100vh-80px)]">
+  <!-- Page header -->
+  <div class="mb-6">
+    <h1 class="font-headline-lg text-on-surface mb-1">My Students</h1>
+    <p class="font-body-md text-text-muted">View profiles and session history for your assigned students.</p>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,0.05)] mb-5 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[160px]">
+      <label class="block text-label-sm text-text-muted mb-1">Search by name</label>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" style="font-size:16px">search</span>
+        <input id="search-input" type="text" placeholder="Student name…" oninput="applyFilters()"
+               class="w-full pl-9 pr-3 py-2 border border-border-subtle rounded-lg text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <div class="min-w-[110px]">
+      <label class="block text-label-sm text-text-muted mb-1">Grade</label>
+      <select id="grade-filter" onchange="applyFilters()"
+              class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+        <option value="">All grades</option>
+        <option>K</option><option>1</option><option>2</option><option>3</option>
+        <option>4</option><option>5</option><option>6</option><option>7</option>
+        <option>8</option><option>9</option><option>10</option><option>11</option><option>12</option>
+        <option>Adult</option>
+      </select>
+    </div>
+    <button onclick="clearFilters()" class="text-sm text-text-muted hover:text-error transition-colors px-2">Clear</button>
+    <span id="result-count" class="text-label-sm text-text-muted ml-auto self-center"></span>
+  </div>
+
+  <!-- Students table -->
+  <div class="bg-surface-white border border-border-subtle rounded-xl shadow-[0px_2px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-border-subtle">
+          <th class="text-left px-6 py-3.5 font-label-md text-text-muted">Name</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden sm:table-cell">Grade</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden md:table-cell">Parent</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden lg:table-cell">Phone</th>
+          <th class="text-right px-6 py-3.5 font-label-md text-text-muted">Profile</th>
+        </tr>
+      </thead>
+      <tbody id="students-tbody">
+        <tr><td colspan="5" class="text-center py-12 text-text-muted">
+          <div class="flex items-center justify-center gap-3">
+            <div class="spinner"></div> Loading students…
+          </div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
+  <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
+    <p class="text-xs text-text-muted">© 2024 I TALK Teachers.</p>
+    <a href="/account.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where,
+  getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain:"italk-teachers.firebaseapp.com", projectId:"italk-teachers",
+  storageBucket:"italk-teachers.firebasestorage.app",
+  messagingSenderId:"566278333053", appId:"1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let allStudents    = [];
+let currentUser    = null;
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists()) { await signOut(auth); window.location.href = '/index.html'; return; }
+    const data = snap.data();
+    if (data.status === 'inactive' || data.status === 'deleted') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    if (data.role === 'admin')   { window.location.href = '/admin/accounts.html'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+    currentUser = { uid: user.uid };
+    await loadStudents();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    window.location.href = '/index.html';
+  }
+});
+
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
+
+// ── Load data ──────────────────────────────────────────────────────────────────
+async function loadStudents() {
+  const q    = query(collection(db, 'students'), where('assignedTeachers', 'array-contains', currentUser.uid));
+  const snap = await getDocs(q);
+  allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  renderStudents(allStudents);
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
+function renderStudents(list) {
+  document.getElementById('result-count').textContent = `${list.length} student${list.length !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('students-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-text-muted">
+      <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">groups</span>
+      <p class="font-semibold text-sm">No students assigned to you yet</p>
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(s => `
+    <tr class="student-row border-b border-border-subtle last:border-0 transition-colors" data-sid="${escHtml(s.id)}">
+      <td class="px-6 py-3.5">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+            ${escHtml((s.fullName || '?').charAt(0).toUpperCase())}
+          </div>
+          <div>
+            <p class="font-semibold text-on-surface">${escHtml(s.fullName || '—')}</p>
+            ${s.parentEmail ? `<p class="text-xs text-text-muted">${escHtml(s.parentEmail)}</p>` : ''}
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3.5 hidden sm:table-cell">
+        ${s.grade ? `<span class="px-2 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full">${escHtml(s.grade)}</span>` : '<span class="text-text-muted">—</span>'}
+      </td>
+      <td class="px-4 py-3.5 hidden md:table-cell text-text-muted text-sm">${escHtml(s.parentName || '—')}</td>
+      <td class="px-4 py-3.5 hidden lg:table-cell text-text-muted text-sm">${escHtml(s.parentPhone || '—')}</td>
+      <td class="px-6 py-3.5 text-right">
+        <button data-sid="${escHtml(s.id)}" class="view-btn p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-secondary transition-colors" title="View profile">
+          <span class="material-symbols-outlined text-[16px]">person</span>
+        </button>
+      </td>
+    </tr>`).join('');
+
+  tbody.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); openProfile(btn.dataset.sid); });
+  });
+  tbody.querySelectorAll('tr.student-row').forEach(row => {
+    row.addEventListener('click', () => openProfile(row.dataset.sid));
+  });
+}
+
+// ── Filters ────────────────────────────────────────────────────────────────────
+window.applyFilters = function() {
+  const q  = document.getElementById('search-input').value.trim().toLowerCase();
+  const g  = document.getElementById('grade-filter').value;
+  const filtered = allStudents.filter(s => {
+    const matchQ = !q || (s.fullName || '').toLowerCase().includes(q) || (s.parentName || '').toLowerCase().includes(q);
+    const matchG = !g || s.grade === g;
+    return matchQ && matchG;
+  });
+  renderStudents(filtered);
+};
+
+window.clearFilters = function() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('grade-filter').value = '';
+  renderStudents(allStudents);
+};
+
+// ── Student profile ────────────────────────────────────────────────────────────
+async function openProfile(sid) {
+  const s = allStudents.find(x => x.id === sid);
+  if (!s) return;
+
+  document.getElementById('profile-name').textContent = s.fullName || '—';
+
+  const infoDiv = document.getElementById('profile-info');
+  const field = (label, val) => val
+    ? `<div><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-0.5">${label}</p><p class="font-medium">${escHtml(val)}</p></div>`
+    : '';
+  infoDiv.innerHTML = [
+    field('Date of Birth', s.dateOfBirth),
+    field('Grade', s.grade),
+    field('Parent / Guardian', s.parentName),
+    field('Parent Email', s.parentEmail),
+    field('Parent Phone', s.parentPhone),
+    s.notes ? `<div class="col-span-2">${field('Notes', s.notes)}</div>` : '',
+  ].join('');
+
+  document.getElementById('profile-modal').classList.remove('hidden');
+
+  const sessDiv = document.getElementById('profile-sessions');
+  sessDiv.innerHTML = '<div class="text-text-muted text-sm">Loading…</div>';
+  try {
+    const q    = query(collection(db, 'sessions'), where('studentId', '==', sid));
+    const snap = await getDocs(q);
+    const sessions = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => toDate(b.dateTime) - toDate(a.dateTime));
+    if (!sessions.length) {
+      sessDiv.innerHTML = '<p class="text-text-muted text-sm">No sessions recorded.</p>';
+    } else {
+      const statusColors = { scheduled:'bg-blue-50 text-blue-700', completed:'bg-green-50 text-green-700', cancelled:'bg-gray-100 text-gray-500' };
+      sessDiv.innerHTML = `
+        <table class="w-full text-sm border-t border-border-subtle">
+          <thead><tr>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Date</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Teacher</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Subject</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Duration</th>
+            <th class="text-left py-2 text-xs text-text-muted font-semibold">Status</th>
+          </tr></thead>
+          <tbody>
+            ${sessions.map(s => {
+              const dt = toDate(s.dateTime);
+              const sc = statusColors[s.status] || statusColors.scheduled;
+              return `<tr class="border-t border-border-subtle">
+                <td class="py-2 pr-4">${dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</td>
+                <td class="py-2 pr-4 text-text-muted">${escHtml(s.teacherName || '—')}</td>
+                <td class="py-2 pr-4">${escHtml(s.subject || '—')}</td>
+                <td class="py-2 pr-4 text-text-muted">${s.duration || '—'} min</td>
+                <td class="py-2"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${sc}">${s.status || '—'}</span></td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`;
+    }
+  } catch (e) {
+    sessDiv.innerHTML = `<p class="text-error text-sm">Failed to load sessions: ${e.message}</p>`;
+  }
+}
+
+window.closeProfileModal = function() {
+  document.getElementById('profile-modal').classList.add('hidden');
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function toDate(v) {
+  if (!v) return new Date(0);
+  if (typeof v.toDate === 'function') return v.toDate();
+  return new Date(v);
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3500);
+}
+</script>
+</body>
+</html>

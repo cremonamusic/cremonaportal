@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Messages Admin | I TALK Teachers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        spacing: {
+          "margin-desktop": "24px",
+          "margin-mobile":  "16px"
+        },
+        maxWidth: { "container-max": "1200px" },
+        colors: {
+          "primary":                "#785900", "primary-container": "#ffc107",
+          "on-primary-container":   "#6d5100", "on-primary-fixed": "#261a00",
+          "primary-fixed":          "#ffdf9e", "primary-fixed-dim": "#fabd00",
+          "secondary":              "#0058bb", "secondary-fixed": "#d8e2ff",
+          "on-secondary-fixed":     "#001a41", "secondary-container": "#1471e6",
+          "on-secondary-container": "#fefcff",
+          "tertiary":               "#005e6e", "tertiary-container": "#b1eeff",
+          "on-tertiary-fixed":      "#001f26",
+          "surface":                "#f8f9fa", "surface-white": "#FFFFFF",
+          "surface-container":      "#edeeef", "surface-container-low": "#f3f4f5",
+          "surface-container-high": "#e7e8e9", "surface-container-highest": "#e1e3e4",
+          "on-surface":             "#191c1d", "on-surface-variant": "#4f4632",
+          "border-subtle":          "#E0E0E0", "outline-variant": "#d4c5ab",
+          "outline":                "#827660", "text-muted": "#5F6368",
+          "error":                  "#ba1a1a", "error-container": "#ffdad6"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] },
+        fontSize: {
+          "nav": ["14px", "20px"], "nav-lg": ["15px", "22px"],
+          "header": ["22px", "28px"], "header-lg": ["26px", "34px"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  .spinner { width:18px;height:18px;border:2px solid rgba(120,89,0,0.2);border-top-color:#785900;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info { background:#0058bb;color:#fff; }
+</style>
+</head>
+
+<body class="bg-surface min-h-screen text-on-surface">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:28px;height:28px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading…</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-container-max mx-auto px-margin-desktop py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/admin/accounts.html"        class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Accounts</a>
+        <a href="/admin/security.html"        class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Security</a>
+        <a href="/admin/resources.html"       class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Resources</a>
+        <a href="/admin/students.html"        class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/admin/schedule-admin.html"  class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/admin/messages-admin.html"  class="text-nav font-bold text-secondary border-b-2 border-secondary pb-0.5">Messages</a>
+        <a href="/admin/reports-admin.html"   class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Reports</a>
+      </nav>
+    </div>
+    <button onclick="adminSignOut()"
+            class="flex items-center gap-1.5 px-3 py-1.5 border border-error text-error font-medium text-sm rounded-lg hover:bg-error-container transition-all">
+      <span class="material-symbols-outlined text-[17px]">logout</span>
+      <span class="hidden sm:inline">Sign Out</span>
+    </button>
+  </div>
+</header>
+
+<!-- ── Page content ───────────────────────────────────────────────────────── -->
+<main class="max-w-container-max mx-auto px-margin-desktop py-8">
+
+  <div class="mb-6">
+    <h1 class="text-header font-bold text-on-surface">Messages Admin</h1>
+    <p class="text-text-muted text-sm mt-1">Manage conversations, post announcements, create group chats, and open direct messages between teachers.</p>
+  </div>
+
+  <!-- Grid of panels -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- ── Left col: Create tools ─────────────────────────────────────────── -->
+    <div class="lg:col-span-1 flex flex-col gap-5">
+
+      <!-- Announcement panel -->
+      <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+        <div class="flex items-center gap-2 px-5 py-4 border-b border-border-subtle bg-amber-50">
+          <span class="material-symbols-outlined text-primary text-[22px]" style="font-variation-settings:'FILL' 1;">campaign</span>
+          <h2 class="font-bold text-sm text-on-surface">Announcement Channel</h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <p class="text-xs text-text-muted leading-relaxed">
+            The announcement channel is read-only for teachers. Only admins can post. All teachers are automatically added.
+          </p>
+          <button id="ensure-ann-btn" onclick="ensureAnnouncementChannel()"
+                  class="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-primary-container text-on-primary-fixed text-sm font-semibold hover:brightness-105 active:scale-95 transition-all">
+            <span class="material-symbols-outlined text-[18px]">sync</span>
+            Sync Announcement Channel
+          </button>
+          <div id="ann-status" class="text-xs text-text-muted text-center hidden"></div>
+
+          <!-- Post announcement -->
+          <div class="border-t border-border-subtle pt-4">
+            <p class="text-xs font-semibold text-on-surface mb-2">Post Announcement</p>
+            <textarea id="ann-text" rows="3" placeholder="Write announcement…"
+                      class="w-full resize-none rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface"></textarea>
+            <button id="ann-send-btn" onclick="postAnnouncement()"
+                    class="mt-2 w-full py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 active:scale-95 transition-all">
+              Send Announcement
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create group panel -->
+      <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+        <div class="flex items-center gap-2 px-5 py-4 border-b border-border-subtle bg-surface-container-low">
+          <span class="material-symbols-outlined text-secondary text-[22px]" style="font-variation-settings:'FILL' 1;">group_add</span>
+          <h2 class="font-bold text-sm text-on-surface">Create Group Chat</h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Group Name</label>
+            <input id="group-name" type="text" placeholder="e.g. Level 3 Teachers"
+                   class="w-full rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface"/>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Add Members</label>
+            <div class="relative mb-1.5">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[16px]">search</span>
+              <input id="group-member-search" type="text" placeholder="Search teachers…"
+                     oninput="renderGroupMemberSearch(this.value)"
+                     class="w-full pl-8 pr-3 py-1.5 text-xs bg-surface rounded-lg border border-border-subtle focus:border-secondary outline-none transition-all"/>
+            </div>
+            <div id="group-member-list" class="max-h-40 overflow-y-auto flex flex-col gap-0.5 border border-border-subtle rounded-xl p-1 bg-surface">
+              <!-- populated -->
+            </div>
+          </div>
+          <div id="group-selected-wrap" class="hidden">
+            <p class="text-xs font-semibold text-on-surface mb-1.5">Selected <span id="group-selected-count">0</span></p>
+            <div id="group-selected-chips" class="flex flex-wrap gap-1"></div>
+          </div>
+          <!-- Group photo (optional) -->
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Group Photo <span class="font-normal text-text-muted">(optional)</span></label>
+            <div class="flex items-center gap-3">
+              <div class="relative group cursor-pointer" onclick="document.getElementById('group-photo-input').click()">
+                <div id="group-photo-preview" class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center overflow-hidden border-2 border-border-subtle">
+                  <span id="group-photo-icon" class="material-symbols-outlined text-text-muted text-xl">add_photo_alternate</span>
+                  <img id="group-photo-img" class="hidden w-full h-full object-cover rounded-full" alt="group photo"/>
+                </div>
+                <div class="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <span class="material-symbols-outlined text-white text-sm">edit</span>
+                </div>
+              </div>
+              <p class="text-xs text-text-muted">Click to upload a photo</p>
+            </div>
+            <input id="group-photo-input" type="file" accept="image/*" class="hidden" onchange="previewGroupPhoto(this)"/>
+          </div>
+          <button id="create-group-btn" onclick="createGroupChat()"
+                  class="w-full py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 active:scale-95 transition-all">
+            Create Group
+          </button>
+        </div>
+      </div>
+
+      <!-- Create teacher–teacher direct message panel -->
+      <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+        <div class="flex items-center gap-2 px-5 py-4 border-b border-border-subtle bg-surface-container-low">
+          <span class="material-symbols-outlined text-[22px]" style="color:#7c3aed;font-variation-settings:'FILL' 1;">chat</span>
+          <h2 class="font-bold text-sm text-on-surface">Create Direct Message</h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <p class="text-xs text-text-muted leading-relaxed">Select two teachers to open a direct message conversation between them.</p>
+
+          <!-- Teacher A -->
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Teacher A</label>
+            <div class="relative mb-1.5">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[16px]">search</span>
+              <input id="dm-a-search" type="text" placeholder="Search teachers…"
+                     oninput="renderDMSlotSearch('a', this.value)"
+                     class="w-full pl-8 pr-3 py-1.5 text-xs bg-surface rounded-lg border border-border-subtle focus:border-secondary outline-none transition-all"/>
+            </div>
+            <div id="dm-a-selected" class="hidden flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl mb-1">
+              <div id="dm-a-avatar" class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"></div>
+              <span id="dm-a-name" class="text-xs font-semibold text-on-surface flex-1 truncate"></span>
+              <button onclick="clearDMSlot('a')" class="text-text-muted hover:text-error transition-colors">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </div>
+            <div id="dm-a-list" class="max-h-32 overflow-y-auto flex flex-col gap-0.5 border border-border-subtle rounded-xl p-1 bg-surface"></div>
+          </div>
+
+          <!-- Teacher B -->
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Teacher B</label>
+            <div class="relative mb-1.5">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[16px]">search</span>
+              <input id="dm-b-search" type="text" placeholder="Search teachers…"
+                     oninput="renderDMSlotSearch('b', this.value)"
+                     class="w-full pl-8 pr-3 py-1.5 text-xs bg-surface rounded-lg border border-border-subtle focus:border-secondary outline-none transition-all"/>
+            </div>
+            <div id="dm-b-selected" class="hidden flex items-center gap-2 px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl mb-1">
+              <div id="dm-b-avatar" class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"></div>
+              <span id="dm-b-name" class="text-xs font-semibold text-on-surface flex-1 truncate"></span>
+              <button onclick="clearDMSlot('b')" class="text-text-muted hover:text-error transition-colors">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </div>
+            <div id="dm-b-list" class="max-h-32 overflow-y-auto flex flex-col gap-0.5 border border-border-subtle rounded-xl p-1 bg-surface"></div>
+          </div>
+
+          <div id="dm-create-status" class="hidden text-xs text-center py-1 px-2 rounded-lg"></div>
+
+          <button id="create-dm-btn" onclick="createDirectMessage()"
+                  class="w-full py-2 rounded-lg text-white text-sm font-semibold active:scale-95 transition-all"
+                  style="background:#7c3aed">
+            Create DM
+          </button>
+        </div>
+      </div>
+
+      <!-- Create parent–teacher DM panel -->
+      <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+        <div class="flex items-center gap-2 px-5 py-4 border-b border-border-subtle" style="background:#eff6ff">
+          <span class="material-symbols-outlined text-secondary text-[22px]" style="font-variation-settings:'FILL' 1;">family_restroom</span>
+          <h2 class="font-bold text-sm text-on-surface">Create Parent–Teacher DM</h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+          <p class="text-xs text-text-muted leading-relaxed">Open a direct message between a parent and one of their child's teachers.</p>
+
+          <!-- Parent picker -->
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Parent</label>
+            <div class="relative mb-1.5">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[16px]">search</span>
+              <input id="ptdm-parent-search" type="text" placeholder="Search parents…"
+                     oninput="renderPTDMSearch('parent', this.value)"
+                     class="w-full pl-8 pr-3 py-1.5 text-xs bg-surface rounded-lg border border-border-subtle focus:border-secondary outline-none transition-all"/>
+            </div>
+            <div id="ptdm-parent-selected" class="hidden items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-xl mb-1">
+              <div id="ptdm-parent-avatar" class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"></div>
+              <span id="ptdm-parent-name" class="text-xs font-semibold text-on-surface flex-1 truncate"></span>
+              <button onclick="clearPTDMSlot('parent')" class="text-text-muted hover:text-error transition-colors">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </div>
+            <div id="ptdm-parent-list" class="max-h-32 overflow-y-auto flex flex-col gap-0.5 border border-border-subtle rounded-xl p-1 bg-surface"></div>
+          </div>
+
+          <!-- Teacher picker -->
+          <div>
+            <label class="text-xs font-semibold text-on-surface block mb-1">Teacher</label>
+            <div class="relative mb-1.5">
+              <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[16px]">search</span>
+              <input id="ptdm-teacher-search" type="text" placeholder="Search teachers…"
+                     oninput="renderPTDMSearch('teacher', this.value)"
+                     class="w-full pl-8 pr-3 py-1.5 text-xs bg-surface rounded-lg border border-border-subtle focus:border-secondary outline-none transition-all"/>
+            </div>
+            <div id="ptdm-teacher-selected" class="hidden items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl mb-1">
+              <div id="ptdm-teacher-avatar" class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"></div>
+              <span id="ptdm-teacher-name" class="text-xs font-semibold text-on-surface flex-1 truncate"></span>
+              <button onclick="clearPTDMSlot('teacher')" class="text-text-muted hover:text-error transition-colors">
+                <span class="material-symbols-outlined text-[14px]">close</span>
+              </button>
+            </div>
+            <div id="ptdm-teacher-list" class="max-h-32 overflow-y-auto flex flex-col gap-0.5 border border-border-subtle rounded-xl p-1 bg-surface"></div>
+          </div>
+
+          <div id="ptdm-status" class="hidden text-xs text-center py-1 px-2 rounded-lg"></div>
+
+          <button id="create-ptdm-btn" onclick="createPTDM()"
+                  class="w-full py-2 rounded-lg bg-secondary text-white text-sm font-semibold active:scale-95 transition-all">
+            Create Parent–Teacher DM
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Right col: All conversations ──────────────────────────────────── -->
+    <div class="lg:col-span-2">
+      <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-border-subtle">
+          <h2 class="font-bold text-sm text-on-surface">All Conversations</h2>
+          <span id="conv-count" class="text-xs text-text-muted">—</span>
+        </div>
+
+        <!-- Filters -->
+        <div class="px-4 py-3 border-b border-border-subtle flex items-center gap-2 flex-wrap">
+          <button class="conv-filter-btn active text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="all"     onclick="setConvFilter('all')">All</button>
+          <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="announcement" onclick="setConvFilter('announcement')">Announcements</button>
+          <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="group"  onclick="setConvFilter('group')">Groups</button>
+          <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="direct" onclick="setConvFilter('direct')">Direct Messages</button>
+        </div>
+
+        <div id="all-conv-list" class="divide-y divide-border-subtle">
+          <div class="flex justify-center py-8"><div class="spinner"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ── Delete confirm modal ───────────────────────────────────────────────── -->
+<div id="delete-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="closeDeleteModal()"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-error text-[20px]">delete</span>
+      </div>
+      <div>
+        <p class="font-bold text-sm text-on-surface">Delete Conversation</p>
+        <p id="delete-modal-sub" class="text-xs text-text-muted mt-0.5">This will delete all messages permanently.</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="closeDeleteModal()" class="flex-1 py-2 rounded-xl border border-border-subtle text-sm font-medium text-on-surface hover:bg-surface-container transition-colors">Cancel</button>
+      <button id="delete-confirm-btn" onclick="confirmDelete()" class="flex-1 py-2 rounded-xl bg-error text-white text-sm font-semibold hover:bg-error/90 active:scale-95 transition-all">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── View messages modal ──────────────────────────────────────────────────── -->
+<div id="view-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="closeViewModal()"></div>
+  <div class="relative w-full max-w-lg bg-surface-white rounded-2xl shadow-2xl flex flex-col overflow-hidden" style="height:80vh">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-border-subtle flex-shrink-0">
+      <div>
+        <p id="view-modal-title" class="font-bold text-sm text-on-surface">Conversation</p>
+        <p id="view-modal-sub"   class="text-xs text-text-muted"></p>
+      </div>
+      <button onclick="closeViewModal()" class="p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined text-[20px] text-text-muted">close</span>
+      </button>
+    </div>
+    <div id="view-modal-messages" class="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5 bg-surface">
+      <!-- populated -->
+    </div>
+  </div>
+</div>
+
+<style>
+  .conv-filter-btn { background:transparent; color:#5F6368; }
+  .conv-filter-btn.active { background:#d8e2ff; color:#0058bb; }
+  .conv-filter-btn:hover:not(.active) { background:#edeeef; }
+</style>
+
+<script type="module">
+import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, query, where,
+  onSnapshot, addDoc, updateDoc, getDocs, writeBatch, deleteDoc,
+  serverTimestamp, arrayUnion, orderBy
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ── Firebase init ─────────────────────────────────────────────────────────────
+const app  = initializeApp({
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentUser      = null;
+let currentUserData  = null;
+let allUsers         = new Map();    // uid → userData
+let allConversations = [];           // array of conv data
+let convFilter       = 'all';
+let convUnsub        = null;
+let selectedGroupMembers = new Set();
+let deleteTargetId   = null;
+let announcementConvId = null;
+let dmTeacherA       = null;   // { uid, name, email }
+let dmTeacherB       = null;   // { uid, name, email }
+let dmPTParent       = null;   // { uid, name, email }
+let dmPTTeacher      = null;   // { uid, name, email }
+let groupPhotoFile   = null;   // File object for pending group photo upload
+
+const WORKER_URL     = 'https://italk-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
+
+// ── Auth guard (admin only) ───────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    const data = snap.data();
+    if (data.role !== 'admin') { window.location.href = '/home.html'; return; }
+
+    currentUser     = user;
+    currentUserData = { uid: user.uid, ...data };
+    await init();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error('auth error', e);
+    window.location.href = '/index.html';
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+window.adminSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/index.html';
+};
+
+async function init() {
+  await loadAllUsers();
+  renderGroupMemberSearch('');
+  renderDMSlotSearch('a', '');
+  renderDMSlotSearch('b', '');
+  renderPTDMSearch('parent', '');
+  renderPTDMSearch('teacher', '');
+  startAllConversationsListener();
+}
+
+// ── Load all users ────────────────────────────────────────────────────────────
+async function loadAllUsers() {
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    snap.forEach(d => allUsers.set(d.id, { uid: d.id, ...d.data() }));
+  } catch (e) { console.error('loadAllUsers', e); }
+}
+
+// ── All conversations listener (admin reads ALL conversations) ───────────────
+// Requires Firestore rule: allow read if role == 'admin'
+// e.g. allow read: if request.auth != null && (
+//   request.auth.uid in resource.data.members ||
+//   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+// );
+function startAllConversationsListener() {
+  if (convUnsub) { convUnsub(); convUnsub = null; }
+
+  convUnsub = onSnapshot(collection(db, 'conversations'), snap => {
+    allConversations = [];
+    snap.forEach(d => {
+      const data = { id: d.id, ...d.data() };
+      allConversations.push(data);
+      if (data.type === 'announcement') announcementConvId = d.id;
+    });
+    allConversations.sort((a, b) => {
+      const ta = a.lastMessageAt?.toDate?.()?.getTime() || 0;
+      const tb = b.lastMessageAt?.toDate?.()?.getTime() || 0;
+      return tb - ta;
+    });
+    renderConvList();
+  }, err => {
+    console.error('allConvListener', err);
+    // Surface rule errors visibly so admin knows rules need updating
+    if (err.code === 'permission-denied') {
+      document.getElementById('all-conv-list').innerHTML =
+        `<p class="text-sm text-error text-center py-6 px-4">
+           Permission denied. Update Firestore rules to allow admin to read all conversations.<br>
+           <span class="text-text-muted text-xs mt-1 block">See console comment in startAllConversationsListener for the required rule.</span>
+         </p>`;
+    }
+  });
+}
+
+// ── Render conversation list ──────────────────────────────────────────────────
+function renderConvList() {
+  const list = allConversations.filter(c => convFilter === 'all' || c.type === convFilter);
+  document.getElementById('conv-count').textContent = `${list.length} conversation${list.length !== 1 ? 's' : ''}`;
+
+  const el = document.getElementById('all-conv-list');
+  if (!list.length) {
+    el.innerHTML = `<p class="text-sm text-text-muted text-center py-8 italic">No conversations found</p>`;
+    return;
+  }
+
+  el.innerHTML = list.map(conv => {
+    const isAnn  = conv.type === 'announcement';
+    const isGrp  = conv.type === 'group';
+    const isDM   = conv.type === 'direct';
+
+    let displayName = conv.name || 'Unnamed';
+    if (isDM) {
+      const other = (conv.members || [])
+        .map(uid => allUsers.get(uid))
+        .filter(Boolean)
+        .map(u => u.name || u.email)
+        .join(' ↔ ');
+      displayName = other || 'Direct Message';
+    }
+
+    const typeLabel = isAnn ? 'Announcement' : isGrp ? 'Group' : 'Direct';
+    const typeBadge = isAnn
+      ? 'bg-amber-100 text-amber-800'
+      : isGrp
+        ? 'bg-blue-100 text-blue-800'
+        : 'bg-gray-100 text-gray-700';
+
+    const memberCount = (conv.members || []).length;
+    const lastMsg = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 60) : '<span class="italic">No messages</span>';
+    const lastTime = conv.lastMessageAt?.toDate ? formatTime(conv.lastMessageAt.toDate()) : '';
+    const avatarColor = getAvatarColor(displayName);
+
+    return `
+    <div class="flex items-center gap-3 px-4 py-3 hover:bg-surface-container-low transition-colors">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white flex-shrink-0 text-xs font-bold overflow-hidden" style="background:${avatarColor}">
+        ${isAnn
+          ? '<span class="material-symbols-outlined text-[17px]" style="font-variation-settings:\'FILL\' 1;">campaign</span>'
+          : isGrp && conv.photoUrl
+            ? `<img src="${escHtml(conv.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="${escHtml(displayName)}"/>`
+            : isGrp
+              ? '<span class="material-symbols-outlined text-[17px]" style="font-variation-settings:\'FILL\' 1;">group</span>'
+              : escHtml(getInitials(displayName))}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-semibold text-sm text-on-surface truncate">${escHtml(displayName)}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full ${typeBadge}">${typeLabel}</span>
+          <span class="text-[10px] text-text-muted">${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
+        </div>
+        <p class="text-xs text-text-muted truncate mt-0.5">${lastMsg}</p>
+      </div>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        ${lastTime ? `<span class="text-[10px] text-text-muted">${lastTime}</span>` : ''}
+        <button onclick="openViewModal('${conv.id}')" title="View messages"
+                class="p-1.5 rounded-lg hover:bg-secondary-fixed/30 text-secondary transition-colors">
+          <span class="material-symbols-outlined text-[18px]">visibility</span>
+        </button>
+        ${!isAnn ? `
+        <button onclick="promptDelete('${conv.id}', '${escHtml(displayName).replace(/'/g, "\\'")}');" title="Delete"
+                class="p-1.5 rounded-lg hover:bg-error-container text-error transition-colors">
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+        </button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.setConvFilter = function(filter) {
+  convFilter = filter;
+  document.querySelectorAll('.conv-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === filter);
+  });
+  renderConvList();
+};
+
+// ── Ensure announcement channel ───────────────────────────────────────────────
+window.ensureAnnouncementChannel = async function() {
+  const btn    = document.getElementById('ensure-ann-btn');
+  const status = document.getElementById('ann-status');
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner"></div> Syncing…`;
+  status.classList.remove('hidden');
+  status.textContent = 'Gathering teacher accounts…';
+
+  try {
+    // Get all active teacher + admin UIDs
+    const memberUids = [];
+    allUsers.forEach((u, uid) => {
+      if (u.status !== 'inactive') memberUids.push(uid);
+    });
+
+    if (announcementConvId) {
+      // Update existing: add all members
+      await updateDoc(doc(db, 'conversations', announcementConvId), {
+        members: memberUids
+      });
+      status.textContent = `✓ Updated with ${memberUids.length} members.`;
+    } else {
+      // Create new announcement channel
+      const ref = await addDoc(collection(db, 'conversations'), {
+        type:          'announcement',
+        name:          'Announcements',
+        members:       memberUids,
+        createdBy:     currentUser.uid,
+        createdAt:     serverTimestamp(),
+        lastMessage:   '',
+        lastMessageAt: serverTimestamp(),
+        lastMessageBy: currentUser.uid
+      });
+      announcementConvId = ref.id;
+      status.textContent = `✓ Created with ${memberUids.length} members.`;
+    }
+    showToast('Announcement channel synced.', 'success');
+  } catch (e) {
+    console.error('ensureAnnouncement', e);
+    status.textContent = `Error: ${e.message}`;
+    showToast('Failed to sync. See console.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span class="material-symbols-outlined text-[18px]">sync</span> Sync Announcement Channel`;
+  }
+};
+
+// ── Post announcement ─────────────────────────────────────────────────────────
+window.postAnnouncement = async function() {
+  const text = document.getElementById('ann-text').value.trim();
+  if (!text) { showToast('Please enter an announcement text.', 'error'); return; }
+
+  if (!announcementConvId) {
+    showToast('Sync the announcement channel first.', 'error'); return;
+  }
+
+  const btn = document.getElementById('ann-send-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    await addDoc(collection(db, 'messages'), {
+      conversationId: announcementConvId,
+      senderUid:      currentUser.uid,
+      senderName:     currentUserData.name || 'Admin',
+      text,
+      timestamp:      serverTimestamp(),
+      readBy:         [currentUser.uid]
+    });
+    await updateDoc(doc(db, 'conversations', announcementConvId), {
+      lastMessage:   text,
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: currentUser.uid
+    });
+    document.getElementById('ann-text').value = '';
+    showToast('Announcement posted.', 'success');
+  } catch (e) {
+    console.error('postAnnouncement', e);
+    showToast('Failed to post. See console.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Announcement';
+  }
+};
+
+// ── Group member search ───────────────────────────────────────────────────────
+window.renderGroupMemberSearch = function(filter) {
+  const q   = (filter || '').toLowerCase();
+  const el  = document.getElementById('group-member-list');
+  const list = [...allUsers.values()]
+    .filter(u => u.uid !== currentUser.uid && u.status !== 'inactive' && u.role !== 'admin')
+    .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  if (!list.length) {
+    el.innerHTML = `<p class="text-xs text-text-muted text-center py-2">No teachers found</p>`;
+    return;
+  }
+
+  el.innerHTML = list.map(u => {
+    const checked = selectedGroupMembers.has(u.uid);
+    return `
+    <label class="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-container cursor-pointer transition-colors">
+      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleGroupMember('${u.uid}')"
+             class="rounded border-border-subtle text-secondary focus:ring-secondary cursor-pointer"/>
+      <div class="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"
+           style="background:${getAvatarColor(u.name || u.email || '')}">
+        ${escHtml(getInitials(u.name || u.email || '?'))}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-on-surface truncate">${escHtml(u.name || 'Unknown')}</p>
+        <p class="text-[10px] text-text-muted truncate">${escHtml(u.email || '')}</p>
+      </div>
+    </label>`;
+  }).join('');
+};
+
+window.toggleGroupMember = function(uid) {
+  if (selectedGroupMembers.has(uid)) selectedGroupMembers.delete(uid);
+  else selectedGroupMembers.add(uid);
+  renderSelectedChips();
+};
+
+function renderSelectedChips() {
+  const wrap  = document.getElementById('group-selected-wrap');
+  const chips = document.getElementById('group-selected-chips');
+  const count = document.getElementById('group-selected-count');
+
+  if (!selectedGroupMembers.size) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  count.textContent = selectedGroupMembers.size;
+
+  chips.innerHTML = [...selectedGroupMembers].map(uid => {
+    const u = allUsers.get(uid);
+    const name = u?.name || u?.email || uid;
+    return `
+    <span class="flex items-center gap-1 bg-secondary-fixed/50 text-on-secondary-fixed text-xs px-2 py-0.5 rounded-full">
+      ${escHtml(name)}
+      <button onclick="toggleGroupMember('${uid}');renderGroupMemberSearch('')" class="hover:text-error transition-colors">
+        <span class="material-symbols-outlined text-[12px]">close</span>
+      </button>
+    </span>`;
+  }).join('');
+}
+
+// ── Create Direct Message helpers ─────────────────────────────────────────────
+window.renderDMSlotSearch = function(slot, filter) {
+  const q    = (filter || '').toLowerCase();
+  const elId = `dm-${slot}-list`;
+  const el   = document.getElementById(elId);
+  const otherSlot = slot === 'a' ? 'b' : 'a';
+  const otherSelected = slot === 'a' ? dmTeacherB : dmTeacherA;
+
+  const list = [...allUsers.values()]
+    .filter(u => u.status !== 'inactive' && u.role !== 'admin')
+    .filter(u => !otherSelected || u.uid !== otherSelected.uid)  // can't pick same person for both slots
+    .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  if (!list.length) {
+    el.innerHTML = `<p class="text-[11px] text-text-muted text-center py-2">No teachers found</p>`;
+    return;
+  }
+
+  el.innerHTML = list.map(u => {
+    const color = getAvatarColor(u.name || u.email || '');
+    return `
+    <button onclick="selectDMTeacher('${slot}', '${u.uid}')"
+      class="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-left">
+      <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${color}">
+        ${escHtml(getInitials(u.name || u.email || '?'))}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-on-surface truncate">${escHtml(u.name || 'Unknown')}</p>
+        <p class="text-[10px] text-text-muted truncate">${escHtml(u.email || '')}</p>
+      </div>
+    </button>`;
+  }).join('');
+};
+
+window.selectDMTeacher = function(slot, uid) {
+  const u = allUsers.get(uid);
+  if (!u) return;
+  if (slot === 'a') dmTeacherA = u; else dmTeacherB = u;
+
+  // Show selected chip, hide list + search
+  const selectedEl = document.getElementById(`dm-${slot}-selected`);
+  const searchEl   = document.getElementById(`dm-${slot}-search`);
+  const listEl     = document.getElementById(`dm-${slot}-list`);
+  const avatarEl   = document.getElementById(`dm-${slot}-avatar`);
+  const nameEl     = document.getElementById(`dm-${slot}-name`);
+
+  avatarEl.style.background = getAvatarColor(u.name || u.email || '');
+  avatarEl.textContent      = getInitials(u.name || u.email || '?');
+  nameEl.textContent        = u.name || u.email || 'Unknown';
+  selectedEl.style.display  = 'flex';
+  searchEl.style.display    = 'none';
+  listEl.style.display      = 'none';
+
+  // Re-render the other slot to exclude this user
+  const other = slot === 'a' ? 'b' : 'a';
+  const otherSearch = document.getElementById(`dm-${other}-search`);
+  renderDMSlotSearch(other, otherSearch?.value || '');
+
+  // Clear status message
+  const statusEl = document.getElementById('dm-create-status');
+  statusEl.classList.add('hidden');
+};
+
+window.clearDMSlot = function(slot) {
+  if (slot === 'a') dmTeacherA = null; else dmTeacherB = null;
+
+  const selectedEl = document.getElementById(`dm-${slot}-selected`);
+  const searchEl   = document.getElementById(`dm-${slot}-search`);
+  const listEl     = document.getElementById(`dm-${slot}-list`);
+
+  selectedEl.style.display = 'none';
+  searchEl.style.display   = '';
+  searchEl.value           = '';
+  listEl.style.display     = '';
+  renderDMSlotSearch(slot, '');
+
+  // Re-render other slot too (the cleared user is now available again)
+  const other = slot === 'a' ? 'b' : 'a';
+  const otherSearch = document.getElementById(`dm-${other}-search`);
+  renderDMSlotSearch(other, otherSearch?.value || '');
+};
+
+window.createDirectMessage = async function() {
+  const statusEl = document.getElementById('dm-create-status');
+  const setStatus = (msg, cls) => {
+    statusEl.textContent = msg;
+    statusEl.className   = `text-xs text-center py-1 px-2 rounded-lg ${cls}`;
+    statusEl.classList.remove('hidden');
+  };
+
+  if (!dmTeacherA) { setStatus('Please select Teacher A.', 'bg-error-container text-error'); return; }
+  if (!dmTeacherB) { setStatus('Please select Teacher B.', 'bg-error-container text-error'); return; }
+  if (dmTeacherA.uid === dmTeacherB.uid) { setStatus('Please select two different teachers.', 'bg-error-container text-error'); return; }
+
+  const btn = document.getElementById('create-dm-btn');
+  btn.disabled = true; btn.textContent = 'Checking…';
+
+  // Query Firestore fresh — don't rely on local allConversations which only contains
+  // conversations where the admin is a member (DMs between teachers won't be there).
+  // Single where clause to stay within Firestore index limits; filter type client-side.
+  try {
+    const dupSnap = await getDocs(query(
+      collection(db, 'conversations'),
+      where('members', 'array-contains', dmTeacherA.uid)
+    ));
+    const existing = dupSnap.docs.find(d => {
+      const data = d.data();
+      return data.type === 'direct' && (data.members || []).includes(dmTeacherB.uid);
+    });
+    if (existing) {
+      const nameA = dmTeacherA.name || dmTeacherA.email;
+      const nameB = dmTeacherB.name || dmTeacherB.email;
+      setStatus(`A DM between ${nameA} and ${nameB} already exists.`, 'bg-amber-100 text-amber-800');
+      btn.disabled = false; btn.textContent = 'Create DM';
+      return;
+    }
+  } catch (e) {
+    console.error('createDirectMessage duplicate check', e);
+    // If the check fails (e.g. permission-denied), note: Firestore rules must allow
+    // admin to read conversations they are not a member of for duplicate detection.
+    // Proceeding with creation attempt.
+  }
+
+  btn.textContent = 'Creating…';
+
+  try {
+    const nameA = dmTeacherA.name || dmTeacherA.email || 'Unknown';
+    const nameB = dmTeacherB.name || dmTeacherB.email || 'Unknown';
+    await addDoc(collection(db, 'conversations'), {
+      type:          'direct',
+      name:          `${nameA} & ${nameB}`,
+      members:       [dmTeacherA.uid, dmTeacherB.uid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: currentUser.uid
+    });
+    setStatus(`✓ DM created between ${nameA} and ${nameB}.`, 'bg-green-100 text-green-800');
+    // Reset both slots
+    clearDMSlot('a');
+    clearDMSlot('b');
+    showToast('Direct message created.', 'success');
+  } catch (e) {
+    console.error('createDirectMessage', e);
+    setStatus('Failed to create DM. See console.', 'bg-error-container text-error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create DM';
+  }
+};
+
+// ── Create Parent–Teacher DM ──────────────────────────────────────────────────
+window.renderPTDMSearch = function(slot, filter) {
+  const q        = (filter || '').toLowerCase();
+  const isParent = slot === 'parent';
+  const el       = document.getElementById(`ptdm-${slot}-list`);
+
+  const list = [...allUsers.values()]
+    .filter(u => u.status !== 'inactive' && u.role === (isParent ? 'parent' : 'teacher'))
+    .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+    .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+  if (!list.length) {
+    el.innerHTML = `<p class="text-[11px] text-text-muted text-center py-2">No ${isParent ? 'parents' : 'teachers'} found</p>`;
+    return;
+  }
+
+  el.innerHTML = list.map(u => {
+    const color = getAvatarColor(u.name || u.email || '');
+    return `
+    <button onclick="selectPTDM('${slot}', '${u.uid}')"
+      class="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-left">
+      <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${color}">
+        ${escHtml(getInitials(u.name || u.email || '?'))}
+      </div>
+      <div class="flex-1 min-w-0">
+        <p class="text-xs font-semibold text-on-surface truncate">${escHtml(u.name || 'Unknown')}</p>
+        <p class="text-[10px] text-text-muted truncate">${escHtml(u.email || '')}</p>
+      </div>
+    </button>`;
+  }).join('');
+};
+
+window.selectPTDM = function(slot, uid) {
+  const u = allUsers.get(uid);
+  if (!u) return;
+  if (slot === 'parent') dmPTParent = u; else dmPTTeacher = u;
+
+  const selectedEl = document.getElementById(`ptdm-${slot}-selected`);
+  const searchEl   = document.getElementById(`ptdm-${slot}-search`);
+  const listEl     = document.getElementById(`ptdm-${slot}-list`);
+  const avatarEl   = document.getElementById(`ptdm-${slot}-avatar`);
+  const nameEl     = document.getElementById(`ptdm-${slot}-name`);
+
+  avatarEl.style.background = getAvatarColor(u.name || u.email || '');
+  avatarEl.textContent      = getInitials(u.name || u.email || '?');
+  nameEl.textContent        = u.name || u.email || 'Unknown';
+  selectedEl.style.display  = 'flex';
+  searchEl.style.display    = 'none';
+  listEl.style.display      = 'none';
+  document.getElementById('ptdm-status').classList.add('hidden');
+};
+
+window.clearPTDMSlot = function(slot) {
+  if (slot === 'parent') dmPTParent = null; else dmPTTeacher = null;
+
+  const selectedEl = document.getElementById(`ptdm-${slot}-selected`);
+  const searchEl   = document.getElementById(`ptdm-${slot}-search`);
+  const listEl     = document.getElementById(`ptdm-${slot}-list`);
+
+  selectedEl.style.display = 'none';
+  searchEl.style.display   = '';
+  searchEl.value           = '';
+  listEl.style.display     = '';
+  renderPTDMSearch(slot, '');
+};
+
+window.createPTDM = async function() {
+  const statusEl  = document.getElementById('ptdm-status');
+  const setStatus = (msg, cls) => {
+    statusEl.textContent = msg;
+    statusEl.className   = `text-xs text-center py-1 px-2 rounded-lg ${cls}`;
+    statusEl.classList.remove('hidden');
+  };
+
+  if (!dmPTParent)  { setStatus('Please select a parent.',  'bg-error-container text-error'); return; }
+  if (!dmPTTeacher) { setStatus('Please select a teacher.', 'bg-error-container text-error'); return; }
+
+  const btn = document.getElementById('create-ptdm-btn');
+  btn.disabled = true; btn.textContent = 'Checking…';
+
+  try {
+    const dupSnap = await getDocs(query(
+      collection(db, 'conversations'),
+      where('members', 'array-contains', dmPTParent.uid)
+    ));
+    const existing = dupSnap.docs.find(d => {
+      const data = d.data();
+      return data.type === 'direct' && (data.members || []).includes(dmPTTeacher.uid);
+    });
+    if (existing) {
+      setStatus('A DM between this parent and teacher already exists.', 'bg-amber-100 text-amber-800');
+      btn.disabled = false; btn.textContent = 'Create Parent–Teacher DM';
+      return;
+    }
+  } catch (e) {
+    console.error('createPTDM duplicate check', e);
+  }
+
+  btn.textContent = 'Creating…';
+  try {
+    const parentName  = dmPTParent.name  || dmPTParent.email  || 'Unknown';
+    const teacherName = dmPTTeacher.name || dmPTTeacher.email || 'Unknown';
+    await addDoc(collection(db, 'conversations'), {
+      type:          'direct',
+      name:          `${parentName} & ${teacherName}`,
+      members:       [dmPTParent.uid, dmPTTeacher.uid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: currentUser.uid
+    });
+    setStatus(`✓ DM created between ${parentName} and ${teacherName}.`, 'bg-green-100 text-green-800');
+    clearPTDMSlot('parent');
+    clearPTDMSlot('teacher');
+    showToast('Parent–Teacher DM created.', 'success');
+  } catch (e) {
+    console.error('createPTDM', e);
+    setStatus('Failed to create DM. See console.', 'bg-error-container text-error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Parent–Teacher DM';
+  }
+};
+
+// ── Create group chat ─────────────────────────────────────────────────────────
+window.createGroupChat = async function() {
+  const name = document.getElementById('group-name').value.trim();
+  if (!name) { showToast('Please enter a group name.', 'error'); return; }
+  if (selectedGroupMembers.size < 1) { showToast('Please add at least one member.', 'error'); return; }
+
+  const btn = document.getElementById('create-group-btn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+
+  try {
+    const members = [currentUser.uid, ...selectedGroupMembers];
+    const convRef = await addDoc(collection(db, 'conversations'), {
+      type:          'group',
+      name,
+      members,
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: currentUser.uid
+    });
+
+    // Upload group photo if one was selected
+    if (groupPhotoFile) {
+      try {
+        const ext = (groupPhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
+        const key = `groups/${convRef.id}_${Date.now()}.${ext}`;
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('PUT', `${WORKER_URL}/${key}`);
+          xhr.setRequestHeader('Content-Type', groupPhotoFile.type || 'image/jpeg');
+          xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`HTTP ${xhr.status}`));
+          xhr.onerror = () => reject(new Error('Network error'));
+          xhr.send(groupPhotoFile);
+        });
+        await updateDoc(doc(db, 'conversations', convRef.id), {
+          photoUrl: `${R2_PUBLIC_BASE}/${key}`
+        });
+      } catch (photoErr) {
+        console.warn('[createGroupChat] photo upload failed (group still created):', photoErr);
+      }
+    }
+
+    // Reset form
+    document.getElementById('group-name').value = '';
+    selectedGroupMembers.clear();
+    groupPhotoFile = null;
+    document.getElementById('group-photo-input').value = '';
+    document.getElementById('group-photo-icon').classList.remove('hidden');
+    const gpImg = document.getElementById('group-photo-img');
+    gpImg.src = ''; gpImg.classList.add('hidden');
+    renderSelectedChips();
+    renderGroupMemberSearch('');
+    showToast(`Group "${name}" created.`, 'success');
+  } catch (e) {
+    console.error('createGroup', e);
+    showToast('Failed to create group.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Group';
+  }
+};
+
+window.previewGroupPhoto = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  groupPhotoFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('group-photo-icon').classList.add('hidden');
+    const img = document.getElementById('group-photo-img');
+    img.src = e.target.result;
+    img.classList.remove('hidden');
+  };
+  reader.readAsDataURL(file);
+};
+
+// ── View messages modal ───────────────────────────────────────────────────────
+window.openViewModal = async function(convId) {
+  const conv = allConversations.find(c => c.id === convId);
+  if (!conv) return;
+
+  // Build display name for the header
+  let displayName = conv.name || 'Conversation';
+  if (conv.type === 'direct') {
+    const names = (conv.members || [])
+      .map(uid => {
+        const u = allUsers.get(uid);
+        return u ? (u.name || u.email || uid.slice(0, 6)) : uid.slice(0, 6);
+      })
+      .join(' ↔ ');
+    displayName = names || 'Direct Message';
+  }
+
+  const typeLabel = conv.type === 'announcement' ? 'Announcement'
+                  : conv.type === 'group'         ? 'Group chat'
+                  :                                 'Direct message';
+
+  document.getElementById('view-modal-title').textContent = displayName;
+  document.getElementById('view-modal-sub').textContent =
+    `${typeLabel} · ${(conv.members || []).length} members`;
+
+  const msgsEl = document.getElementById('view-modal-messages');
+  msgsEl.innerHTML = `<div class="flex justify-center py-8"><div class="spinner"></div></div>`;
+  document.getElementById('view-modal').style.display = 'flex';
+
+  try {
+    const snap = await getDocs(
+      query(collection(db, 'messages'), where('conversationId', '==', convId))
+    );
+    const msgs = [];
+    snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+    msgs.sort((a, b) =>
+      (a.timestamp?.toDate?.()?.getTime() || 0) -
+      (b.timestamp?.toDate?.()?.getTime() || 0));
+
+    if (!msgs.length) {
+      msgsEl.innerHTML = `<p class="text-sm text-text-muted text-center py-8 italic">No messages yet</p>`;
+      return;
+    }
+
+    // Render as chat bubbles — all left-aligned (admin observer view)
+    msgsEl.innerHTML = msgs.map(msg => {
+      const ts     = msg.timestamp?.toDate ? formatTimeFull(msg.timestamp.toDate()) : '';
+      const sender = escHtml(msg.senderName || 'Unknown');
+      const color  = getAvatarColor(msg.senderName || '');
+      const init   = escHtml(getInitials(msg.senderName || '?'));
+      const text   = msg.text ? escHtml(msg.text) : '';
+      const attach = msg.fileUrl
+        ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener"
+              class="flex items-center gap-1.5 mt-1.5 text-xs text-secondary hover:underline">
+             <span class="material-symbols-outlined text-[14px]">attach_file</span>
+             ${escHtml(msg.fileName || 'Attachment')}
+           </a>`
+        : '';
+
+      return `
+      <div class="flex items-end gap-2 px-4 py-1">
+        <div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[10px] font-bold text-white"
+             style="background:${color}">${init}</div>
+        <div class="max-w-[78%]">
+          <div class="flex items-baseline gap-2 mb-1">
+            <span class="text-[11px] font-semibold text-on-surface">${sender}</span>
+            <span class="text-[10px] text-text-muted">${ts}</span>
+          </div>
+          <div class="bg-surface-white border border-border-subtle rounded-2xl rounded-tl-sm px-3 py-2 text-sm text-on-surface leading-relaxed break-words">
+            ${text || '<span class="italic text-text-muted text-xs">[attachment]</span>'}
+            ${attach}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Scroll to latest message
+    requestAnimationFrame(() => { msgsEl.scrollTop = msgsEl.scrollHeight; });
+  } catch (e) {
+    console.error('openViewModal', e);
+    msgsEl.innerHTML = `<p class="text-sm text-error text-center py-8">Failed to load messages.</p>`;
+  }
+};
+
+window.closeViewModal = function() {
+  document.getElementById('view-modal').style.display = 'none';
+};
+
+// ── Delete conversation ───────────────────────────────────────────────────────
+window.promptDelete = function(convId, convName) {
+  console.log('[promptDelete] called', convId, convName);
+  deleteTargetId = convId;
+  document.getElementById('delete-modal-sub').textContent = `"${convName}" — all messages will be deleted permanently.`;
+  document.getElementById('delete-modal').style.display = 'flex';
+};
+
+window.closeDeleteModal = function() {
+  deleteTargetId = null;
+  document.getElementById('delete-modal').style.display = 'none';
+};
+
+window.confirmDelete = async function() {
+  if (!deleteTargetId) return;
+  const btn = document.getElementById('delete-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+
+  try {
+    // Delete all messages in the conversation
+    const snap = await getDocs(
+      query(collection(db, 'messages'), where('conversationId', '==', deleteTargetId))
+    );
+    const batch = writeBatch(db);
+    snap.forEach(d => batch.delete(d.ref));
+    batch.delete(doc(db, 'conversations', deleteTargetId));
+    await batch.commit();
+    showToast('Conversation deleted.', 'success');
+    closeDeleteModal();
+  } catch (e) {
+    console.error('deleteConv', e);
+    showToast('Failed to delete. See console.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Delete';
+  }
+};
+
+// ── Avatar helpers ────────────────────────────────────────────────────────────
+function getAvatarColor(str) {
+  const palette = ['#785900','#0058bb','#1e6e3b','#b91c1c','#7c3aed',
+                   '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
+  let h = 0;
+  for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+  return palette[h % palette.length];
+}
+
+function getInitials(name) {
+  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return (name || '?').slice(0, 2).toUpperCase();
+}
+
+function formatTime(date) {
+  const now  = new Date();
+  const diff = now - date;
+  if (diff < 60000)   return 'now';
+  if (diff < 3600000) return `${Math.floor(diff/60000)}m ago`;
+  if (date.toDateString() === now.toDateString())
+    return date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+  return date.toLocaleDateString([], { month:'short', day:'numeric' });
+}
+
+function formatTimeFull(date) {
+  return date.toLocaleDateString([], { month:'short', day:'numeric' })
+       + ' ' + date.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+}
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+</script>
+</body>
+</html>

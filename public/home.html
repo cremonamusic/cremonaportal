@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>I TALK Teachers - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#785900", "primary-container": "#ffc107", "on-primary-container": "#6d5100",
+          "on-primary-fixed": "#261a00", "primary-fixed": "#ffdf9e", "primary-fixed-dim": "#fabd00",
+          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff", "on-secondary-fixed": "#001a41",
+          "secondary-container": "#1471e6", "on-secondary-container": "#fefcff",
+          "surface": "#f8f9fa", "surface-white": "#FFFFFF", "surface-container": "#edeeef",
+          "surface-container-low": "#f3f4f5", "surface-container-high": "#e7e8e9",
+          "surface-container-highest": "#e1e3e4", "surface-container-lowest": "#ffffff",
+          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
+          "border-subtle": "#E0E0E0", "outline-variant": "#d4c5ab", "outline": "#827660",
+          "text-muted": "#5F6368", "error": "#ba1a1a", "error-container": "#ffdad6",
+          "background": "#f8f9fa"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(120,89,0,0.15); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .quick-card { transition: transform .15s ease, box-shadow .15s ease; }
+  .quick-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(33,33,33,0.12); }
+  .quick-card:active { transform: scale(0.97); }
+  .recent-item { transition: background .15s ease; }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/home.html"     class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Home</a>
+        <a href="/books.html"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages.html"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/reports.html"           class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Reports</a>
+      </nav>
+    </div>
+    <a href="/account.html"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </a>
+  </div>
+</header>
+
+<main class="flex-grow max-w-3xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+
+  <!-- Welcome Banner -->
+  <section class="bg-primary-container/20 border border-primary-fixed rounded-2xl px-8 py-6 relative overflow-hidden">
+    <div class="relative z-10 flex items-center justify-between gap-4">
+      <!-- Left: greeting + date -->
+      <div class="flex items-center gap-4">
+        <span class="material-symbols-outlined text-[36px] text-amber-400 flex-shrink-0" style="font-variation-settings:'FILL' 1;">wb_sunny</span>
+        <div>
+          <div class="flex items-center gap-2 mb-0.5">
+            <p id="greeting-text" class="text-sm text-text-muted font-medium">Good morning</p>
+            <span class="text-[10px] font-extrabold uppercase tracking-widest text-on-surface-variant bg-outline-variant/30 px-1.5 py-0.5 rounded">Today</span>
+          </div>
+          <p id="date-text" class="text-base font-bold text-on-surface">—</p>
+        </div>
+      </div>
+      <!-- Right: Start Class button -->
+      <a id="start-class-btn" href="https://meet.google.com" target="_blank" rel="noopener"
+         class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-full shadow-md hover:brightness-110 active:scale-95 transition-all flex-shrink-0">
+        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">videocam</span>
+        <span class="hidden sm:inline">Start Class</span>
+      </a>
+    </div>
+    <!-- decorative blobs -->
+    <div class="absolute -right-10 -top-10 w-40 h-40 bg-primary-container/30 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -right-4 -bottom-8 w-28 h-28 bg-primary-fixed/40 rounded-full blur-2xl pointer-events-none"></div>
+  </section>
+
+  <!-- Quick Access -->
+  <section>
+    <h2 class="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Quick Access</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <!-- Books -->
+      <a href="/books.html"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl bg-primary-container/20 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings:'FILL' 1;">menu_book</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Books</p>
+          <p class="text-sm text-text-muted mt-0.5">Browse all class materials</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
+      </a>
+
+      <!-- Schedule -->
+      <a href="/schedule.html"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl bg-secondary-fixed/40 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-3xl text-secondary" style="font-variation-settings:'FILL' 1;">calendar_month</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">My Schedule</p>
+          <p class="text-sm text-text-muted mt-0.5">View your weekly class timetable</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
+      </a>
+
+      <!-- Messages -->
+      <a href="/messages.html"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f5f3ff;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#7c3aed;">forum</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Messages</p>
+          <p class="text-sm text-text-muted mt-0.5">View your conversations</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
+      </a>
+
+      <!-- Students -->
+      <a href="/students-teacher.html"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f0fdfa;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#0f766e;">group</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Students</p>
+          <p class="text-sm text-text-muted mt-0.5">View your assigned students</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
+      </a>
+
+      <!-- Reports -->
+      <a href="/reports.html"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff7ed;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#c2410c;">description</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Reports</p>
+          <p class="text-sm text-text-muted mt-0.5">Write and manage student reports</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
+      </a>
+
+      <!-- Gmail -->
+      <a href="https://mail.google.com/" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+          <svg viewBox="0 0 48 48" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M6 40h6V23.8L4 18v18q0 1.65 1.175 2.825T6 40Z"/><path fill="#34A853" d="M36 40h6q1.65 0 2.825-1.175T46 36V18l-8 5.8Z"/><path fill="#FBBC04" d="M36 12v11.8l8-5.8V14q0-3.7-3.25-5.8Z"/><path fill="#EA4335" d="M12 23.8V12L24 21l12-9v11.8L24 33Z"/><path fill="#C5221F" d="M4 14v3.8l8 5.8V12L7.25 8.2Q4 10.3 4 14Z"/></svg>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Gmail</p>
+          <p class="text-sm text-text-muted mt-0.5">Open Gmail</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
+      </a>
+
+      <!-- Google Classroom -->
+      <a href="https://classroom.google.com" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#e8f0fe;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#1a73e8;">cast_for_education</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Google Classroom</p>
+          <p class="text-sm text-text-muted mt-0.5">Manage classes, assignments &amp; students</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
+      </a>
+
+      <!-- EBricks -->
+      <a href="https://www.ebricks.co.kr/" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff3e0;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#ff6600;">auto_stories</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">EBricks</p>
+          <p class="text-sm text-text-muted mt-0.5">Digital English learning platform</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
+      </a>
+
+      <!-- NE Times -->
+      <a href="https://www.netimes.co.kr/" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#e8f5e9;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#2e7d32;">newspaper</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">NE Times</p>
+          <p class="text-sm text-text-muted mt-0.5">English news for students</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Recently Viewed -->
+  <section>
+    <h2 class="text-xs font-bold uppercase tracking-widest text-text-muted mb-4">Recently Viewed</h2>
+    <div id="recent-list" class="flex flex-col gap-2">
+      <!-- populated by Firebase -->
+      <div class="flex items-center gap-3 py-4 text-text-muted text-sm">
+        <div class="spinner" style="width:18px;height:18px;border-width:2px"></div>
+        Loading recent books...
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
+  <div class="max-w-3xl mx-auto px-6 flex justify-between items-center">
+    <p class="text-xs text-text-muted">© 2024 I TALK Teachers.</p>
+    <a href="/account.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where, limit, getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    const data = snap.data();
+    if (data.role === 'admin') { window.location.href = '/admin/accounts.html'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+
+    // Greeting
+    const hour = new Date().getHours();
+    document.getElementById('greeting-text').textContent =
+      hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+    // Date
+    document.getElementById('date-text').textContent =
+      new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Meet link — ensure absolute URL so it doesn't resolve relative to the app origin
+    let meetLink = data.googleMeetLink || 'https://meet.google.com';
+    if (meetLink && !/^https?:\/\//i.test(meetLink)) meetLink = 'https://' + meetLink;
+    document.getElementById('start-class-btn').href = meetLink;
+
+    // Load recent books
+    await loadRecent(user.uid);
+
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    window.location.href = '/index.html';
+  }
+});
+
+async function loadRecent(uid) {
+  // Field names confirmed from reader.html:
+  //   teacherUid  — the auth user's UID
+  //   fileAccessed — bookData.title (book title shown to user)
+  //   bookId       — Firestore doc ID in the 'books' collection
+  //   r2Url        — direct R2 link for the PDF
+  //   timestamp    — serverTimestamp()
+  const container = document.getElementById('recent-list');
+  console.log('[loadRecent] querying auditLogs for teacherUid:', uid);
+  try {
+    const snap = await getDocs(query(
+      collection(db, 'auditLogs'),
+      where('teacherUid', '==', uid),
+      limit(50)
+    ));
+
+    console.log('[loadRecent] docs returned:', snap.docs.length);
+    if (snap.docs.length > 0) {
+      console.log('[loadRecent] first doc raw data:', snap.docs[0].data());
+    } else {
+      // If 0 docs despite confirmed writes, the most likely cause is a
+      // Firestore security rule that blocks teachers from listing auditLogs.
+      // Check firestore.rules — add:
+      //   match /auditLogs/{id} {
+      //     allow read: if request.auth.uid == resource.data.teacherUid;
+      //   }
+      console.warn('[loadRecent] 0 docs — check Firestore security rules for auditLogs read access.');
+    }
+
+    // Sort by timestamp desc client-side
+    const logs = snap.docs
+      .map(d => d.data())
+      .sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+    // Deduplicate by bookId / fileAccessed, show top 5
+    const seen   = new Set();
+    const unique = [];
+    for (const log of logs) {
+      const key = log.bookId || log.fileAccessed || '';
+      if (key && seen.has(key)) continue;
+      if (key) seen.add(key);
+      unique.push(log);
+      if (unique.length === 5) break;
+    }
+
+    if (!unique.length) {
+      container.innerHTML = `
+        <div class="text-center py-8 text-text-muted">
+          <span class="material-symbols-outlined text-4xl block mb-2 opacity-40">history</span>
+          <p class="text-sm">No recently viewed books yet.</p>
+          <a href="/books.html" class="text-sm text-secondary hover:underline mt-1 inline-block">Browse Books →</a>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = unique.map((log) => {
+      const ts    = log.timestamp?.toDate ? log.timestamp.toDate() : null;
+      const when  = ts ? relativeTime(ts) : '';
+      const href  = log.bookId ? `/reader.html?bookId=${log.bookId}` : (log.r2Url || log.driveUrl || '/books.html');
+      const isExternal = href.startsWith('http');
+      return `
+      <a href="${href}" ${isExternal ? 'target="_blank" rel="noopener"' : ''}
+         class="recent-item bg-surface-white border border-border-subtle rounded-xl px-5 py-4 flex items-center gap-4 hover:bg-surface-container-low">
+        <div class="w-9 h-9 rounded-lg bg-primary-container/20 flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-primary text-[18px]" style="font-variation-settings:'FILL' 1;">description</span>
+        </div>
+        <div class="flex-grow min-w-0">
+          <p class="font-semibold text-sm text-on-surface truncate">${escHtml(log.fileAccessed || 'Untitled')}</p>
+          ${when ? `<p class="text-xs text-text-muted mt-0.5">${when}</p>` : ''}
+        </div>
+        <span class="material-symbols-outlined text-outline flex-shrink-0">chevron_right</span>
+      </a>`;
+    }).join('');
+  } catch (e) {
+    // Log the full error — if code is 'permission-denied', Firestore security
+    // rules are blocking the teacher from reading the auditLogs collection.
+    console.error('[loadRecent] error code:', e.code, '| message:', e.message);
+    const isPermission = e.code === 'permission-denied';
+    container.innerHTML = `
+      <div class="text-center py-8 text-text-muted">
+        <span class="material-symbols-outlined text-4xl block mb-2 opacity-40">history</span>
+        <p class="text-sm">${isPermission ? 'Permission denied — check Firestore rules.' : 'Could not load recent books.'}</p>
+        <a href="/books.html" class="text-sm text-secondary hover:underline mt-1 inline-block">Browse Books →</a>
+      </div>`;
+  }
+}
+
+function relativeTime(date) {
+  const s = (Date.now() - date.getTime()) / 1000;
+  if (s < 60)    return 'Just now';
+  if (s < 3600)  return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  if (s < 604800) return `${Math.floor(s / 86400)}d ago`;
+  return date.toLocaleDateString();
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

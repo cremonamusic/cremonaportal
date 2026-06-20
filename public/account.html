@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account - I TALK Teachers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "error-container": "#ffdad6", "on-secondary-container": "#fefcff", "on-secondary": "#ffffff",
+          "border-subtle": "#E0E0E0", "surface-container-lowest": "#ffffff", "error": "#ba1a1a",
+          "primary-container": "#ffc107", "primary-fixed": "#ffdf9e", "on-error": "#ffffff",
+          "on-background": "#191c1d", "secondary-container": "#1471e6", "surface-dim": "#d9dadb",
+          "surface-container-highest": "#e1e3e4", "secondary-fixed": "#d8e2ff",
+          "on-surface-variant": "#4f4632", "surface-container-high": "#e7e8e9",
+          "surface": "#f8f9fa", "surface-white": "#FFFFFF", "text-muted": "#5F6368",
+          "on-primary-fixed": "#261a00", "primary": "#785900", "secondary": "#0058bb",
+          "on-error-container": "#93000a", "primary-fixed-dim": "#fabd00",
+          "on-secondary-fixed": "#001a41", "surface-container": "#edeeef",
+          "outline-variant": "#d4c5ab", "outline": "#827660", "on-surface": "#191c1d",
+          "background": "#f8f9fa", "on-secondary-fixed-variant": "#004493",
+          "on-primary-container": "#6d5100", "on-primary": "#ffffff",
+          "surface-container-low": "#f3f4f5"
+        },
+        spacing: { "base": "8px", "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px" },
+        fontFamily: { "body-md": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "label-sm": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-lg": ["Inter"], "headline-md": ["Inter"] },
+        fontSize: {
+          "body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],
+          "headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],
+          "label-md": ["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+          "label-sm": ["12px",{"lineHeight":"16px","fontWeight":"500"}],
+          "body-sm": ["14px",{"lineHeight":"20px","fontWeight":"400"}],
+          "headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+          "body-lg": ["18px",{"lineHeight":"28px","fontWeight":"400"}],
+          "headline-md": ["24px",{"lineHeight":"32px","fontWeight":"600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(120,89,0,0.2); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+  #toast.show { opacity: 1; }
+  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.success { background: #1e6e3b; color: #fff; }
+  #toast.info { background: #0058bb; color: #fff; }
+</style>
+</head>
+<body class="bg-background text-on-surface">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- TopAppBar -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm fixed top-0 left-0 w-full z-50">
+  <div class="flex items-center justify-between w-full px-6 h-16 max-w-[1200px] mx-auto">
+    <div class="flex items-center gap-8">
+      <a href="/home.html" class="hover:opacity-80 transition-opacity"><img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/></a>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/home.html"             class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books.html"            class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/reports.html"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Reports</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-2 px-3 py-1.5 text-sm font-bold text-secondary border-b-2 border-secondary">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </div>
+  </div>
+</header>
+
+<main class="pt-24 pb-12 px-4 md:px-8 max-w-3xl mx-auto">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-on-surface mb-1">Account</h1>
+    <p class="text-sm text-text-muted">Manage your profile and account settings.</p>
+  </div>
+
+  <div class="space-y-6">
+
+    <!-- Profile Card -->
+    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+      <h2 class="text-base font-semibold text-on-surface mb-6">Profile Information</h2>
+
+      <!-- Avatar + name row -->
+      <div class="flex items-center gap-5 mb-7">
+        <div class="relative group cursor-pointer flex-shrink-0" onclick="document.getElementById('photo-input').click()" title="Click to change photo">
+          <div id="avatar-circle" class="w-20 h-20 rounded-full bg-primary-fixed flex items-center justify-center text-2xl font-bold text-on-primary-fixed overflow-hidden">
+            <span id="avatar-initials">?</span>
+          </div>
+          <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <span class="material-symbols-outlined text-white text-xl">photo_camera</span>
+          </div>
+        </div>
+        <input id="photo-input" type="file" accept="image/*" class="hidden" onchange="uploadProfilePhoto(this)"/>
+        <div class="min-w-0">
+          <p id="display-name" class="text-lg font-bold text-on-surface truncate">—</p>
+          <p id="display-email" class="text-sm text-text-muted mt-0.5 truncate">—</p>
+          <span class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-secondary-fixed text-on-secondary-fixed-variant">
+            <span class="material-symbols-outlined text-xs mr-1" style="font-variation-settings:'FILL' 1;">verified</span>
+            Full Access
+          </span>
+        </div>
+      </div>
+
+      <!-- Fields -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">First Name</label>
+          <input id="field-firstname" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none cursor-default text-on-surface" readonly type="text" value=""/>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Last Name</label>
+          <input id="field-lastname" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none cursor-default text-on-surface" readonly type="text" value=""/>
+        </div>
+        <div class="flex flex-col gap-1.5 sm:col-span-2">
+          <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Email Address</label>
+          <input id="field-email" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none cursor-default text-on-surface" readonly type="email" value=""/>
+        </div>
+      </div>
+    </section>
+
+    <!-- Security Card -->
+    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+      <h2 class="text-base font-semibold text-on-surface mb-6">Security</h2>
+      <div class="space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p class="text-sm font-semibold text-on-surface">Password</p>
+            <p class="text-sm text-text-muted mt-0.5" id="password-hint">Update your account password.</p>
+          </div>
+          <button onclick="showPasswordModal()" id="change-pw-btn"
+                  class="self-start sm:self-auto px-4 py-2 border border-border-subtle rounded-lg text-sm font-medium hover:bg-surface-container-low transition-all whitespace-nowrap">
+            Change Password
+          </button>
+        </div>
+        <div class="h-px bg-border-subtle"></div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p class="text-sm font-semibold text-on-surface">Sign Out</p>
+            <p class="text-sm text-text-muted mt-0.5">Sign out from this device.</p>
+          </div>
+          <button onclick="doSignOut()"
+                  class="self-start sm:self-auto flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg text-sm font-medium hover:bg-error-container transition-all">
+            <span class="material-symbols-outlined text-sm">logout</span>
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- Password Change Modal -->
+<div id="pw-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="hidePwModal()"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl border border-border-subtle p-6 flex flex-col gap-4">
+    <div>
+      <h2 class="font-headline-sm text-headline-sm">Change Password</h2>
+      <p class="font-body-sm text-text-muted mt-1">Confirm your current password, then choose a new one.</p>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="font-label-md text-on-surface">Current Password</label>
+      <div class="relative">
+        <input id="current-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Your current password" autocomplete="current-password"/>
+        <button type="button" onclick="togglePw('current-pw',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface">
+          <span class="material-symbols-outlined text-[20px]">visibility</span>
+        </button>
+      </div>
+    </div>
+    <div class="h-px bg-border-subtle"></div>
+    <div class="flex flex-col gap-1.5">
+      <label class="font-label-md text-on-surface">New Password</label>
+      <div class="relative">
+        <input id="new-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Min. 8 characters" autocomplete="new-password"/>
+        <button type="button" onclick="togglePw('new-pw',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface">
+          <span class="material-symbols-outlined text-[20px]">visibility</span>
+        </button>
+      </div>
+    </div>
+    <div class="flex flex-col gap-1.5">
+      <label class="font-label-md text-on-surface">Confirm New Password</label>
+      <div class="relative">
+        <input id="confirm-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Repeat new password" autocomplete="new-password"/>
+        <button type="button" onclick="togglePw('confirm-pw',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface">
+          <span class="material-symbols-outlined text-[20px]">visibility</span>
+        </button>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 mt-2">
+      <button onclick="hidePwModal()" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="save-pw-btn" onclick="savePassword()" class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold font-label-md shadow hover:brightness-105 active:scale-95 flex items-center gap-2">
+        Update Password
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-surface-container-highest border-t border-border-subtle mt-12">
+  <div class="w-full py-gutter px-margin-desktop flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto gap-4">
+    <div class="flex flex-col items-center md:items-start">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <p class="font-body-sm text-text-muted mt-1">© 2024 I TALK Teachers.</p>
+    </div>
+    <div class="flex flex-wrap justify-center gap-gutter">
+      <a class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/terms.html">Terms of Service</a>
+      <a class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/privacy.html">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+let currentUser = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    const data = snap.data();
+    if (data.role !== 'teacher' && data.role !== 'admin') {
+      window.location.href = '/index.html'; return;
+    }
+    currentUser = user;
+    populateProfile(user, data);
+    document.getElementById('loading-overlay').style.display = 'none';
+    // Hide change password for Google SSO users
+    if (data.ssoProvider === 'google') {
+      document.getElementById('change-pw-btn').style.display = 'none';
+      document.getElementById('password-hint').textContent = 'Password managed by Google SSO.';
+    }
+  } catch (e) {
+    console.error(e);
+    window.location.href = '/index.html';
+  }
+});
+
+function populateProfile(user, data) {
+  const firstName = data.firstName || (data.name ? data.name.split(' ')[0] : '');
+  const lastName  = data.lastName  || (data.name ? data.name.split(' ').slice(1).join(' ') : '');
+  const fullName  = (firstName && lastName) ? `${firstName} ${lastName}` : (firstName || data.name || user.email || '?');
+  const email     = data.email || user.email || '';
+  const initials  = fullName.split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+
+  document.getElementById('display-name').textContent   = fullName;
+  document.getElementById('display-email').textContent  = email;
+  document.getElementById('avatar-initials').textContent = initials;
+  document.getElementById('field-firstname').value = firstName;
+  document.getElementById('field-lastname').value  = lastName;
+  document.getElementById('field-email').value     = email;
+
+  if (data.photoUrl) {
+    document.getElementById('avatar-circle').innerHTML =
+      `<img src="${data.photoUrl}" class="w-full h-full object-cover rounded-full" alt="profile photo"/>`;
+  }
+}
+
+const WORKER_URL     = 'https://italk-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
+
+window.uploadProfilePhoto = async function(input) {
+  const file = input.files[0];
+  if (!file || !currentUser) return;
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const key = `avatars/${currentUser.uid}_${Date.now()}.${ext}`;
+  const circle = document.getElementById('avatar-circle');
+  const prevContent = circle.innerHTML;
+  circle.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="spinner" style="width:24px;height:24px;border-width:3px"></div></div>';
+  try {
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', `${WORKER_URL}/${key}`);
+      xhr.setRequestHeader('Content-Type', file.type || 'image/jpeg');
+      xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`HTTP ${xhr.status}`));
+      xhr.onerror = () => reject(new Error('Network error'));
+      xhr.send(file);
+    });
+    const photoUrl = `${R2_PUBLIC_BASE}/${key}`;
+    await updateDoc(doc(db, 'users', currentUser.uid), { photoUrl });
+    circle.innerHTML = `<img src="${photoUrl}" class="w-full h-full object-cover rounded-full" alt="profile photo"/>`;
+  } catch (err) {
+    console.error('[uploadProfilePhoto]', err);
+    circle.innerHTML = prevContent;
+    alert('Photo upload failed. Please try again.');
+  }
+  input.value = '';
+};
+
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+window.doSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/index.html';
+};
+
+window.showPasswordModal = function() {
+  document.getElementById('pw-modal').classList.remove('hidden');
+  document.getElementById('current-pw').value = '';
+  document.getElementById('new-pw').value = '';
+  document.getElementById('confirm-pw').value = '';
+};
+window.hidePwModal = function() {
+  document.getElementById('pw-modal').classList.add('hidden');
+};
+
+window.savePassword = async function() {
+  const curPw = document.getElementById('current-pw').value;
+  const newPw = document.getElementById('new-pw').value;
+  const conPw = document.getElementById('confirm-pw').value;
+  if (!curPw)              return showToast('Please enter your current password.', 'error');
+  if (newPw.length < 8)   return showToast('New password must be at least 8 characters.', 'error');
+  if (newPw !== conPw)     return showToast('New passwords do not match.', 'error');
+
+  const btn = document.getElementById('save-pw-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Saving...';
+  try {
+    const credential = EmailAuthProvider.credential(currentUser.email, curPw);
+    await reauthenticateWithCredential(currentUser, credential);
+    await updatePassword(currentUser, newPw);
+    hidePwModal();
+    showToast('Password updated successfully.', 'success');
+  } catch (e) {
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      showToast('Current password is incorrect.', 'error');
+    } else if (e.code === 'auth/too-many-requests') {
+      showToast('Too many attempts. Please try again later.', 'error');
+    } else {
+      console.error('[savePassword]', e);
+      showToast('Failed to update password. Please try again.', 'error');
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Update Password';
+  }
+};
+
+window.togglePw = function(id, btn) {
+  const input = document.getElementById(id);
+  const icon = btn.querySelector('span');
+  input.type = input.type === 'password' ? 'text' : 'password';
+  icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+};
+
+window.showToast = function(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3500);
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teacher Directory | I TALK Teachers Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "on-tertiary-fixed": "#1b1c1c", "surface-variant": "#e1e3e4", "inverse-primary": "#fabd00",
+          "error-container": "#ffdad6", "on-secondary-fixed": "#001a41", "text-muted": "#5F6368",
+          "secondary-fixed-dim": "#adc7ff", "surface-white": "#FFFFFF", "surface-container-low": "#f3f4f5",
+          "primary-container": "#ffc107", "on-secondary-container": "#fefcff",
+          "secondary-container": "#1471e6", "secondary": "#0058bb", "on-surface-variant": "#4f4632",
+          "primary-fixed-dim": "#fabd00", "on-surface": "#191c1d", "surface-tint": "#785900",
+          "on-secondary-fixed-variant": "#004493", "on-primary-fixed": "#261a00",
+          "secondary-fixed": "#d8e2ff", "tertiary-fixed": "#e5e2e1", "tertiary-container": "#cccac9",
+          "surface-container-highest": "#e1e3e4", "border-subtle": "#E0E0E0", "background": "#f8f9fa",
+          "primary-fixed": "#ffdf9e", "primary": "#785900", "on-primary-container": "#6d5100",
+          "outline": "#827660", "outline-variant": "#d4c5ab", "surface-container": "#edeeef",
+          "on-error": "#ffffff", "surface": "#f8f9fa", "on-secondary": "#ffffff",
+          "on-error-container": "#93000a", "error": "#ba1a1a", "surface-dim": "#d9dadb",
+          "surface-container-high": "#e7e8e9", "on-primary": "#ffffff", "on-background": "#191c1d"
+        },
+        spacing: { "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px", "base": "8px" },
+        fontFamily: { "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-md": ["Inter"], "label-sm": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "headline-md": ["Inter"] },
+        fontSize: {
+          "body-sm": ["14px",{"lineHeight":"20px","fontWeight":"400"}],
+          "headline-lg": ["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+          "body-md": ["16px",{"lineHeight":"24px","fontWeight":"400"}],
+          "label-sm": ["12px",{"lineHeight":"16px","fontWeight":"500"}],
+          "headline-sm": ["20px",{"lineHeight":"28px","fontWeight":"600"}],
+          "label-md": ["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+          "headline-md": ["24px",{"lineHeight":"32px","fontWeight":"600"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  body { font-family: 'Inter', sans-serif; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(120,89,0,0.2); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+  #toast.show { opacity: 1; }
+  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.success { background: #1e6e3b; color: #fff; }
+  #toast.info { background: #0058bb; color: #fff; }
+</style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- TopAppBar -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="I TALK" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a class="font-body-md text-secondary border-b-2 border-secondary pb-1 font-bold" href="accounts.html">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security.html">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources.html">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students.html">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin.html">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin.html">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin.html">Reports</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden md:inline font-body-md text-text-muted">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-container-max mx-auto px-margin-desktop py-gutter grid grid-cols-12 gap-gutter">
+  <!-- Dashboard Header -->
+  <div class="col-span-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
+    <div>
+      <h1 class="font-headline-lg text-headline-lg text-on-surface mb-1">Teacher Directory</h1>
+      <p class="font-body-md text-text-muted">Manage instructional staff, permissions, and access status.</p>
+    </div>
+    <button id="add-account-btn" onclick="openAddTeacherModal()"
+            class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm flex-shrink-0">
+      <span class="material-symbols-outlined text-[18px]">person_add</span>
+      Add Teacher
+    </button>
+  </div>
+
+  <!-- Role Tabs -->
+  <div class="col-span-12 flex border-b border-border-subtle -mb-2">
+    <button id="tab-teachers" onclick="switchTab('teachers')"
+            class="px-5 py-2.5 text-sm font-bold text-secondary border-b-2 border-secondary transition-colors">
+      <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">school</span>Teachers</span>
+    </button>
+    <button id="tab-parents" onclick="switchTab('parents')"
+            class="px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent">
+      <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">family_restroom</span>Parents</span>
+    </button>
+  </div>
+
+  <!-- Firebase Console Links -->
+  <div class="col-span-12 flex flex-wrap gap-3 mb-2">
+    <a href="https://console.firebase.google.com/project/italk-teachers/firestore/databases/-default-/data/~2Fusers~2FJ4Hy9gEDrOUWfwHVF7FVzQoKvY23"
+       target="_blank" rel="noopener"
+       class="inline-flex items-center gap-2 px-4 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-medium text-text-muted hover:text-secondary hover:border-secondary transition-colors shadow-sm">
+      <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 10h16M4 14h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      Firestore · users
+      <span class="material-symbols-outlined text-[14px] opacity-50">open_in_new</span>
+    </a>
+    <a href="https://console.firebase.google.com/project/italk-teachers/authentication/users"
+       target="_blank" rel="noopener"
+       class="inline-flex items-center gap-2 px-4 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-medium text-text-muted hover:text-secondary hover:border-secondary transition-colors shadow-sm">
+      <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+      Firebase Auth · users
+      <span class="material-symbols-outlined text-[14px] opacity-50">open_in_new</span>
+    </a>
+  </div>
+
+  <!-- Filters & Table -->
+  <div class="col-span-12 lg:col-span-9">
+    <div class="bg-surface-white p-6 rounded-xl shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-border-subtle">
+      <div class="flex flex-col md:flex-row gap-4 mb-6">
+        <div class="relative flex-grow">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted">search</span>
+          <input id="search-input" class="w-full pl-10 pr-4 py-2 bg-surface border border-border-subtle rounded-lg focus:ring-2 focus:ring-primary-container focus:border-primary outline-none transition-all font-body-sm" placeholder="Search teachers by name or email..." type="text"/>
+        </div>
+        <select id="status-filter" class="bg-surface border border-border-subtle rounded-lg px-4 py-2 font-body-sm outline-none">
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <select id="sso-filter" class="bg-surface border border-border-subtle rounded-lg px-4 py-2 font-body-sm outline-none">
+          <option value="all">All SSO</option>
+          <option value="google">Google SSO</option>
+          <option value="email">Email</option>
+        </select>
+      </div>
+      <!-- Table -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead id="accounts-thead">
+            <tr class="border-b border-border-subtle">
+              <th class="pb-4 font-label-md text-text-muted px-2">Teacher Name</th>
+              <th class="pb-4 font-label-md text-text-muted px-2">Email</th>
+              <th class="pb-4 font-label-md text-text-muted px-2">Status</th>
+              <th class="pb-4 font-label-md text-text-muted px-2">SSO</th>
+              <th class="pb-4 font-label-md text-text-muted px-2 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="accounts-tbody" class="divide-y divide-border-subtle">
+            <tr>
+              <td colspan="5" class="py-12 text-center text-text-muted">
+                <div class="spinner mx-auto mb-3"></div>
+                <p>Loading...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="mt-6 flex justify-between items-center text-text-muted font-body-sm">
+        <span id="pagination-info">Showing 0 teachers</span>
+        <div class="flex gap-2" id="pagination-controls"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Sidebar -->
+  <aside class="col-span-12 lg:col-span-3 space-y-gutter">
+    <div class="bg-surface-white p-6 rounded-xl shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-border-subtle" id="detail-view">
+      <h2 class="font-headline-sm text-headline-sm text-on-surface mb-4">Account Details</h2>
+      <div id="detail-content" class="text-center text-text-muted py-8">
+        <span class="material-symbols-outlined text-4xl mb-2 block">person_search</span>
+        <p class="text-sm">Select a teacher to view details</p>
+      </div>
+    </div>
+    <div id="actions-panel" class="hidden bg-surface-white p-6 rounded-xl shadow-[0px_2px_4px_rgba(0,0,0,0.05)] border border-border-subtle">
+      <h2 class="font-label-md text-text-muted mb-4 uppercase tracking-widest">Administrative Actions</h2>
+      <div class="flex flex-col gap-2">
+        <button id="toggle-status-btn" onclick="toggleSelectedStatus()" class="flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+          <span class="material-symbols-outlined text-secondary">toggle_on</span>
+          Toggle Active Status
+        </button>
+        <div id="meet-link-action">
+          <button onclick="openMeetLinkModal()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+            <span class="material-symbols-outlined text-secondary">video_call</span>
+            Edit Meet Link
+          </button>
+        </div>
+        <div id="edit-students-action" class="hidden">
+          <button onclick="openEditLinkedStudentsModal()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+            <span class="material-symbols-outlined text-secondary">group</span>
+            Edit Linked Students
+          </button>
+        </div>
+        <hr class="my-1 border-border-subtle"/>
+        <button onclick="confirmDelete()" class="flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-error hover:bg-error-container/30 transition-colors border border-transparent hover:border-error-container">
+          <span class="material-symbols-outlined">delete</span>
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- Add Teacher Modal -->
+<div id="add-teacher-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('add-teacher-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <h3 class="font-headline-sm text-on-surface">Add Teacher Account</h3>
+    <p class="font-body-sm text-text-muted -mt-2">Creates a new teacher login directly — no invitation code needed.</p>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">First Name</label>
+        <input id="at-firstname" type="text" placeholder="Jane"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Last Name</label>
+        <input id="at-lastname" type="text" placeholder="Smith"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Email</label>
+      <input id="at-email" type="email" placeholder="jane.smith@italk.ne.kr"
+             class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Temporary Password</label>
+      <div class="relative">
+        <input id="at-password" type="password" placeholder="Min. 8 characters"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none pr-10"/>
+        <button type="button" onclick="toggleAtPassword()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors">
+          <span id="at-pw-eye" class="material-symbols-outlined text-[18px]">visibility</span>
+        </button>
+      </div>
+      <p class="text-xs text-text-muted mt-1">The teacher can change this after their first login.</p>
+    </div>
+    <div class="flex justify-end gap-3 pt-1">
+      <button onclick="document.getElementById('add-teacher-modal').classList.add('hidden')"
+              class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="add-teacher-btn" onclick="submitAddTeacher()"
+              class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold font-label-md shadow hover:brightness-105 active:scale-95 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">person_add</span> Create Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Meet Link Modal -->
+<div id="meet-link-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('meet-link-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <h3 class="font-headline-sm text-on-surface">Edit Google Meet Link</h3>
+    <p class="font-body-sm text-text-muted">Assign a permanent Google Meet link for <strong id="meet-link-teacher-name"></strong>. This will auto-fill on their reports.</p>
+    <input id="meet-link-input" type="url" placeholder="https://meet.google.com/xxx-xxxx-xxx"
+           class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    <div class="flex justify-end gap-3">
+      <button onclick="document.getElementById('meet-link-modal').classList.add('hidden')" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="save-meet-link-btn" onclick="saveGoogleMeetLink()" class="px-6 py-2 bg-secondary text-white rounded-lg font-bold font-label-md shadow hover:brightness-110 active:scale-95 flex items-center gap-2">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('delete-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center">
+        <span class="material-symbols-outlined text-error">warning</span>
+      </div>
+      <h2 class="font-headline-sm text-headline-sm">Delete Account?</h2>
+    </div>
+    <p class="font-body-sm text-text-muted">This will remove <strong id="delete-name-label" class="text-on-surface"></strong>'s profile from the system. This action cannot be undone.</p>
+    <div class="flex justify-end gap-3">
+      <button onclick="document.getElementById('delete-modal').classList.add('hidden')" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="confirm-delete-btn" onclick="executeDelete()" class="px-6 py-2 bg-error text-white rounded-lg font-bold font-label-md shadow hover:bg-red-700 active:scale-95 flex items-center gap-2">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Parent Modal -->
+<div id="add-parent-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('add-parent-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="font-headline-sm text-on-surface">Add Parent Account</h3>
+    <p class="font-body-sm text-text-muted -mt-2">Creates a parent login and links them to their child(ren).</p>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">First Name</label>
+        <input id="ap-firstname" type="text" placeholder="John"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Last Name</label>
+        <input id="ap-lastname" type="text" placeholder="Park"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Email</label>
+      <input id="ap-email" type="email" placeholder="parent@email.com"
+             class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Phone Number</label>
+      <input id="ap-phone" type="tel" placeholder="010-0000-0000"
+             class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Temporary Password</label>
+      <div class="relative">
+        <input id="ap-password" type="password" placeholder="Min. 8 characters"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none pr-10"/>
+        <button type="button" onclick="toggleApPassword()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors">
+          <span id="ap-pw-eye" class="material-symbols-outlined text-[18px]">visibility</span>
+        </button>
+      </div>
+      <p class="text-xs text-text-muted mt-1">You will see this after creation to share with the parent.</p>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Link Students <span class="text-text-muted font-normal text-xs">— select at least one</span></label>
+      <div id="ap-student-list" class="max-h-44 overflow-y-auto border border-border-subtle rounded-lg divide-y divide-border-subtle">
+        <p class="text-sm text-text-muted text-center py-4">Loading students...</p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 pt-1">
+      <button onclick="document.getElementById('add-parent-modal').classList.add('hidden')"
+              class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="add-parent-btn" onclick="submitAddParent()"
+              class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold font-label-md shadow hover:brightness-105 active:scale-95 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[16px]">person_add</span> Create Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Linked Students Modal -->
+<div id="edit-students-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('edit-students-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <h3 class="font-headline-sm text-on-surface">Edit Linked Students</h3>
+    <p class="font-body-sm text-text-muted">Select all students belonging to this parent.</p>
+    <div id="es-student-list" class="max-h-56 overflow-y-auto border border-border-subtle rounded-lg divide-y divide-border-subtle">
+      <p class="text-sm text-text-muted text-center py-4">Loading students...</p>
+    </div>
+    <div class="flex justify-end gap-3">
+      <button onclick="document.getElementById('edit-students-modal').classList.add('hidden')" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="save-students-btn" onclick="saveLinkedStudents()" class="px-6 py-2 bg-secondary text-white rounded-lg font-bold font-label-md shadow hover:brightness-110 active:scale-95">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Parent Created Confirmation Modal -->
+<div id="parent-created-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-green-700" style="font-variation-settings:'FILL' 1;">check_circle</span>
+      </div>
+      <div>
+        <h3 class="font-headline-sm text-on-surface">Account Created</h3>
+        <p class="font-body-sm text-text-muted" id="created-parent-name"></p>
+      </div>
+    </div>
+    <p class="font-body-sm text-text-muted">Share these temporary credentials with the parent. They should change the password after first login.</p>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-label-sm font-label-md text-text-muted mb-1">Email</label>
+        <div class="flex items-center gap-2 bg-surface border border-border-subtle rounded-lg px-3 py-2">
+          <span id="created-parent-email" class="flex-1 text-sm font-mono text-on-surface break-all"></span>
+          <button onclick="copyToClipboard('created-parent-email')" class="text-text-muted hover:text-secondary transition-colors flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+          </button>
+        </div>
+      </div>
+      <div>
+        <label class="block text-label-sm font-label-md text-text-muted mb-1">Temporary Password</label>
+        <div class="flex items-center gap-2 bg-surface border border-border-subtle rounded-lg px-3 py-2">
+          <span id="created-parent-password" class="flex-1 text-sm font-mono text-on-surface"></span>
+          <button onclick="copyToClipboard('created-parent-password')" class="text-text-muted hover:text-secondary transition-colors flex-shrink-0">
+            <span class="material-symbols-outlined text-[18px]">content_copy</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <button onclick="closeParentCreated()" class="w-full py-2.5 bg-primary-container text-on-primary-fixed rounded-lg font-bold font-label-md shadow hover:brightness-105 active:scale-95">Done</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc, setDoc, serverTimestamp, arrayUnion, arrayRemove
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allTeachers = [], allParents = [], allStudents = [];
+let filteredList = [];
+let selectedAccount = null, currentUser = null;
+let currentTab = 'teachers';
+const PAGE_SIZE = 15;
+let currentPage = 0;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  currentUser = user;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    if (snap.data().role !== 'admin') { window.location.href = '/home.html'; return; }
+    await Promise.all([loadTeachers(), loadParents(), loadStudents()]);
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    window.location.href = '/index.html';
+  }
+});
+
+async function loadTeachers() {
+  try {
+    const q = query(collection(db, 'users'), where('role', '==', 'teacher'));
+    const snap = await getDocs(q);
+    allTeachers = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      .filter(t => t.status !== 'deleted')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    applyFilters();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('accounts-tbody').innerHTML = `<tr><td colspan="5" class="py-12 text-center text-error">Failed to load teachers.</td></tr>`;
+  }
+}
+
+async function loadParents() {
+  try {
+    const q = query(collection(db, 'users'), where('role', '==', 'parent'));
+    const snap = await getDocs(q);
+    allParents = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      .filter(p => p.status !== 'deleted')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function loadStudents() {
+  try {
+    const snap = await getDocs(collection(db, 'students'));
+    allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+window.switchTab = function(tab) {
+  currentTab = tab;
+  selectedAccount = null;
+  document.getElementById('actions-panel').classList.add('hidden');
+  document.getElementById('detail-content').innerHTML = `<div class="text-center text-text-muted py-8"><span class="material-symbols-outlined text-4xl mb-2 block">person_search</span><p class="text-sm">Select ${tab === 'teachers' ? 'a teacher' : 'a parent'} to view details</p></div>`;
+
+  document.getElementById('tab-teachers').className = tab === 'teachers'
+    ? 'px-5 py-2.5 text-sm font-bold text-secondary border-b-2 border-secondary transition-colors'
+    : 'px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent';
+  document.getElementById('tab-parents').className = tab === 'parents'
+    ? 'px-5 py-2.5 text-sm font-bold text-secondary border-b-2 border-secondary transition-colors'
+    : 'px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent';
+
+  const addBtn = document.getElementById('add-account-btn');
+  if (tab === 'teachers') {
+    addBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">person_add</span> Add Teacher';
+    addBtn.onclick = openAddTeacherModal;
+  } else {
+    addBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">person_add</span> Add Parent';
+    addBtn.onclick = openAddParentModal;
+  }
+
+  document.getElementById('search-input').placeholder = tab === 'teachers'
+    ? 'Search teachers by name or email...'
+    : 'Search parents by name or email...';
+
+  document.getElementById('accounts-thead').innerHTML = tab === 'teachers'
+    ? `<tr class="border-b border-border-subtle">
+        <th class="pb-4 font-label-md text-text-muted px-2">Teacher Name</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Email</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Status</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">SSO</th>
+        <th class="pb-4 font-label-md text-text-muted px-2 text-right">Actions</th>
+      </tr>`
+    : `<tr class="border-b border-border-subtle">
+        <th class="pb-4 font-label-md text-text-muted px-2">Parent Name</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Email</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Status</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Linked Students</th>
+        <th class="pb-4 font-label-md text-text-muted px-2 text-right">Actions</th>
+      </tr>`;
+
+  applyFilters();
+};
+
+function applyFilters() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const status = document.getElementById('status-filter').value;
+  const sso = document.getElementById('sso-filter').value;
+  const source = currentTab === 'teachers' ? allTeachers : allParents;
+  filteredList = source.filter(t => {
+    const matchSearch = !search || (t.name||'').toLowerCase().includes(search) || (t.email||'').toLowerCase().includes(search);
+    const matchStatus = status === 'all' || t.status === status;
+    const matchSso = sso === 'all' || t.ssoProvider === sso;
+    return matchSearch && matchStatus && matchSso;
+  });
+  currentPage = 0;
+  renderTable();
+}
+
+function renderTable() {
+  const tbody = document.getElementById('accounts-tbody');
+  const start = currentPage * PAGE_SIZE;
+  const page = filteredList.slice(start, start + PAGE_SIZE);
+  const noun = currentTab === 'teachers' ? 'teachers' : 'parents';
+  if (!page.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-text-muted"><span class="material-symbols-outlined text-4xl block mb-2">person_off</span>No ${noun} found.</td></tr>`;
+    document.getElementById('pagination-info').textContent = `0 ${noun}`;
+    document.getElementById('pagination-controls').innerHTML = '';
+    return;
+  }
+  const avatarColors = ['bg-primary-fixed text-on-primary-fixed', 'bg-secondary-fixed text-on-secondary-fixed', 'bg-tertiary-fixed text-on-tertiary-fixed'];
+
+  if (currentTab === 'teachers') {
+    tbody.innerHTML = page.map((t, i) => {
+      const initials = (t.name||t.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const colorClass = avatarColors[i % avatarColors.length];
+      const isActive = t.status !== 'inactive';
+      const statusBadge = isActive
+        ? `<span class="px-2 py-1 rounded-full bg-green-100 text-green-700 text-[11px] font-bold uppercase tracking-wider">Active</span>`
+        : `<span class="px-2 py-1 rounded-full bg-surface-container-highest text-text-muted text-[11px] font-bold uppercase tracking-wider">Inactive</span>`;
+      const ssoBadge = t.ssoProvider === 'google'
+        ? `<div class="flex items-center gap-1 text-secondary"><span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">verified</span>Google</div>`
+        : `<div class="flex items-center gap-1 text-text-muted"><span class="material-symbols-outlined text-[18px]">mail</span>Email</div>`;
+      return `
+      <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="selectAccount('${t.uid}')">
+        <td class="py-4 px-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full ${colorClass} flex items-center justify-center font-bold text-label-sm flex-shrink-0">${escHtml(initials)}</div>
+            <span class="font-body-md font-semibold">${escHtml(t.name||'—')}</span>
+          </div>
+        </td>
+        <td class="py-4 px-2 font-body-sm text-text-muted">${escHtml(t.email||'')}</td>
+        <td class="py-4 px-2">${statusBadge}</td>
+        <td class="py-4 px-2 font-body-sm">${ssoBadge}</td>
+        <td class="py-4 px-2 text-right">
+          <button class="text-text-muted hover:text-primary transition-colors" onclick="event.stopPropagation();selectAccount('${t.uid}')">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  } else {
+    tbody.innerHTML = page.map((p, i) => {
+      const initials = (p.name||p.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const colorClass = avatarColors[i % avatarColors.length];
+      const isActive = p.status !== 'inactive';
+      const statusBadge = isActive
+        ? `<span class="px-2 py-1 rounded-full bg-green-100 text-green-700 text-[11px] font-bold uppercase tracking-wider">Active</span>`
+        : `<span class="px-2 py-1 rounded-full bg-surface-container-highest text-text-muted text-[11px] font-bold uppercase tracking-wider">Inactive</span>`;
+      const linkedIds = p.linkedStudentIds || [];
+      const studentPills = linkedIds.length
+        ? linkedIds.map(sid => {
+            const s = allStudents.find(x => x.id === sid);
+            return s ? `<span class="px-2 py-0.5 bg-secondary-fixed/50 text-secondary rounded-full text-[11px] font-medium">${escHtml(s.fullName||sid)}</span>` : '';
+          }).filter(Boolean).join(' ')
+        : `<span class="text-text-muted text-sm italic">None</span>`;
+      return `
+      <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="selectAccount('${p.uid}')">
+        <td class="py-4 px-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full ${colorClass} flex items-center justify-center font-bold text-label-sm flex-shrink-0">${escHtml(initials)}</div>
+            <span class="font-body-md font-semibold">${escHtml(p.name||'—')}</span>
+          </div>
+        </td>
+        <td class="py-4 px-2 font-body-sm text-text-muted">${escHtml(p.email||'')}</td>
+        <td class="py-4 px-2">${statusBadge}</td>
+        <td class="py-4 px-2"><div class="flex flex-wrap gap-1">${studentPills}</div></td>
+        <td class="py-4 px-2 text-right">
+          <button class="text-text-muted hover:text-primary transition-colors" onclick="event.stopPropagation();selectAccount('${p.uid}')">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  const total = filteredList.length;
+  const pages = Math.ceil(total / PAGE_SIZE);
+  document.getElementById('pagination-info').textContent = `Showing ${start+1}–${Math.min(start+PAGE_SIZE, total)} of ${total} ${noun}`;
+  const controls = document.getElementById('pagination-controls');
+  controls.innerHTML = `
+    <button onclick="goPage(${currentPage-1})" ${currentPage===0?'disabled':''} class="w-8 h-8 flex items-center justify-center border border-border-subtle rounded hover:bg-surface-container transition-colors disabled:opacity-40">
+      <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+    </button>
+    ${Array.from({length:Math.min(pages,5)},(_,i)=>`<button onclick="goPage(${i})" class="w-8 h-8 flex items-center justify-center ${i===currentPage?'bg-primary-container text-on-primary-container font-bold':'border border-border-subtle hover:bg-surface-container'} rounded">${i+1}</button>`).join('')}
+    <button onclick="goPage(${currentPage+1})" ${currentPage>=pages-1?'disabled':''} class="w-8 h-8 flex items-center justify-center border border-border-subtle rounded hover:bg-surface-container transition-colors disabled:opacity-40">
+      <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+    </button>`;
+}
+
+window.goPage = function(n) {
+  const pages = Math.ceil(filteredList.length / PAGE_SIZE);
+  if (n < 0 || n >= pages) return;
+  currentPage = n;
+  renderTable();
+};
+
+window.selectAccount = function(uid) {
+  const source = currentTab === 'teachers' ? allTeachers : allParents;
+  selectedAccount = source.find(t => t.uid === uid);
+  if (!selectedAccount) return;
+  const t = selectedAccount;
+  const initials = (t.name||t.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const isActive = t.status !== 'inactive';
+
+  if (currentTab === 'teachers') {
+    document.getElementById('detail-content').innerHTML = `
+      <div class="flex flex-col items-center text-center pb-4 border-b border-border-subtle mb-4">
+        <div class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>
+        <h3 class="font-headline-sm text-headline-sm">${escHtml(t.name||'—')}</h3>
+        <p class="font-body-sm text-text-muted">${escHtml(t.email||'')}</p>
+      </div>
+      <div class="space-y-3 text-left">
+        <div><span class="block font-label-sm text-text-muted">Status</span><span class="font-body-md font-semibold ${isActive?'text-green-700':'text-text-muted'}">${isActive?'Active':'Inactive'}</span></div>
+        <div><span class="block font-label-sm text-text-muted">Sign-in</span><span class="font-body-md">${escHtml(t.ssoProvider==='google'?'Google SSO':'Email & Password')}</span></div>
+        <div><span class="block font-label-sm text-text-muted">Institution</span><span class="font-body-md">${escHtml(t.institution||'Not set')}</span></div>
+        <div><span class="block font-label-sm text-text-muted">Google Meet Link</span>${t.googleMeetLink
+          ? `<a href="${escHtml(absUrl(t.googleMeetLink))}" target="_blank" rel="noopener" class="font-body-md text-secondary underline break-all">${escHtml(t.googleMeetLink)}</a>`
+          : `<span class="font-body-md text-text-muted italic">Not set</span>`}</div>
+        <div><span class="block font-label-sm text-text-muted">Joined</span><span class="font-body-md">${t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : '—'}</span></div>
+      </div>`;
+    document.getElementById('meet-link-action').classList.remove('hidden');
+    document.getElementById('edit-students-action').classList.add('hidden');
+  } else {
+    const linkedIds = t.linkedStudentIds || [];
+    const studentList = linkedIds.length
+      ? linkedIds.map(sid => {
+          const s = allStudents.find(x => x.id === sid);
+          return s ? `<span class="inline-flex items-center px-2 py-1 bg-secondary-fixed/50 text-secondary rounded-full text-xs font-medium">${escHtml(s.fullName||sid)}${s.grade?' · '+escHtml(s.grade):''}</span>` : '';
+        }).filter(Boolean).join(' ')
+      : '<span class="font-body-md text-text-muted italic">No students linked</span>';
+    document.getElementById('detail-content').innerHTML = `
+      <div class="flex flex-col items-center text-center pb-4 border-b border-border-subtle mb-4">
+        <div class="w-16 h-16 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>
+        <h3 class="font-headline-sm text-headline-sm">${escHtml(t.name||'—')}</h3>
+        <p class="font-body-sm text-text-muted">${escHtml(t.email||'')}</p>
+        <span class="mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[11px] font-bold rounded-full uppercase tracking-wider">Parent</span>
+      </div>
+      <div class="space-y-3 text-left">
+        <div><span class="block font-label-sm text-text-muted">Status</span><span class="font-body-md font-semibold ${isActive?'text-green-700':'text-text-muted'}">${isActive?'Active':'Inactive'}</span></div>
+        <div><span class="block font-label-sm text-text-muted">Joined</span><span class="font-body-md">${t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : '—'}</span></div>
+        <div><span class="block font-label-sm text-text-muted mb-1.5">Linked Students</span><div class="flex flex-wrap gap-1.5">${studentList}</div></div>
+      </div>`;
+    document.getElementById('meet-link-action').classList.add('hidden');
+    document.getElementById('edit-students-action').classList.remove('hidden');
+  }
+
+  document.getElementById('toggle-status-btn').innerHTML = `
+    <span class="material-symbols-outlined text-secondary">${isActive?'person_off':'person'}</span>
+    ${isActive ? 'Deactivate Account' : 'Activate Account'}`;
+  document.getElementById('actions-panel').classList.remove('hidden');
+};
+
+window.toggleSelectedStatus = async function() {
+  if (!selectedAccount) return;
+  const newStatus = selectedAccount.status === 'inactive' ? 'active' : 'inactive';
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { status: newStatus });
+    selectedAccount.status = newStatus;
+    const source = currentTab === 'teachers' ? allTeachers : allParents;
+    const idx = source.findIndex(t => t.uid === selectedAccount.uid);
+    if (idx !== -1) source[idx].status = newStatus;
+    applyFilters();
+    selectAccount(selectedAccount.uid);
+    showToast(`Account ${newStatus === 'active' ? 'activated' : 'deactivated'}.`, 'success');
+  } catch (e) {
+    showToast('Failed to update status.', 'error');
+  }
+};
+
+// ── Add Teacher ──────────────────────────────────────────────────────────────
+
+window.openAddTeacherModal = function() {
+  document.getElementById('at-firstname').value = '';
+  document.getElementById('at-lastname').value  = '';
+  document.getElementById('at-email').value     = '';
+  document.getElementById('at-password').value  = '';
+  document.getElementById('add-teacher-modal').classList.remove('hidden');
+  document.getElementById('at-firstname').focus();
+};
+
+window.toggleAtPassword = function() {
+  const inp = document.getElementById('at-password');
+  const eye = document.getElementById('at-pw-eye');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  eye.textContent = show ? 'visibility_off' : 'visibility';
+};
+
+window.submitAddTeacher = async function() {
+  const firstName = document.getElementById('at-firstname').value.trim();
+  const lastName  = document.getElementById('at-lastname').value.trim();
+  const email     = document.getElementById('at-email').value.trim().toLowerCase();
+  const password  = document.getElementById('at-password').value;
+
+  if (!firstName || !lastName || !email || !password)
+    return showToast('Please fill in all fields.', 'error');
+  if (!email.endsWith('@italk.ne.kr'))
+    return showToast('Email must be an @italk.ne.kr address.', 'error');
+  if (password.length < 8)
+    return showToast('Password must be at least 8 characters.', 'error');
+
+  const btn = document.getElementById('add-teacher-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,.2)"></div> Creating...';
+
+  try {
+    let secondaryApp;
+    try { secondaryApp = getApp('teacher-create'); }
+    catch { secondaryApp = initializeApp(firebaseConfig, 'teacher-create'); }
+    const secondaryAuth = getAuth(secondaryApp);
+
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    const uid  = cred.user.uid;
+    await updateProfile(cred.user, { displayName: `${firstName} ${lastName}` });
+    await signOut(secondaryAuth);
+
+    await setDoc(doc(db, 'users', uid), {
+      firstName, lastName,
+      name: `${firstName} ${lastName}`,
+      email, role: 'teacher', status: 'active',
+      ssoProvider: 'email', institution: '',
+      createdAt: serverTimestamp(),
+    });
+
+    allTeachers.push({ uid, name: `${firstName} ${lastName}`, firstName, lastName, email, role: 'teacher', status: 'active', ssoProvider: 'email' });
+    allTeachers.sort((a, b) => (a.name||'').localeCompare(b.name||''));
+    applyFilters();
+    document.getElementById('add-teacher-modal').classList.add('hidden');
+    showToast(`Account created for ${firstName} ${lastName}.`, 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">person_add</span> Create Account';
+  }
+};
+
+// ── Add Parent ───────────────────────────────────────────────────────────────
+
+window.openAddParentModal = function() {
+  document.getElementById('ap-firstname').value = '';
+  document.getElementById('ap-lastname').value  = '';
+  document.getElementById('ap-email').value     = '';
+  document.getElementById('ap-phone').value     = '';
+  document.getElementById('ap-password').value  = '';
+  renderStudentPicker('ap-student-list', []);
+  document.getElementById('add-parent-modal').classList.remove('hidden');
+  document.getElementById('ap-firstname').focus();
+};
+
+window.toggleApPassword = function() {
+  const inp = document.getElementById('ap-password');
+  const eye = document.getElementById('ap-pw-eye');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  eye.textContent = show ? 'visibility_off' : 'visibility';
+};
+
+function renderStudentPicker(containerId, selectedIds) {
+  const el = document.getElementById(containerId);
+  if (!allStudents.length) {
+    el.innerHTML = '<p class="text-sm text-text-muted text-center py-4">No students found.</p>';
+    return;
+  }
+  el.innerHTML = allStudents.map(s => `
+    <label class="flex items-center gap-3 px-3 py-2 hover:bg-surface-container-low cursor-pointer">
+      <input type="checkbox" value="${escHtml(s.id)}" ${selectedIds.includes(s.id)?'checked':''}
+             class="accent-secondary w-4 h-4 flex-shrink-0"
+             />
+      <div>
+        <p class="text-sm font-medium text-on-surface">${escHtml(s.fullName||'Unnamed')}</p>
+        ${s.grade ? `<p class="text-xs text-text-muted">${escHtml(s.grade)}</p>` : ''}
+      </div>
+    </label>`).join('');
+}
+
+function getCheckedStudents(containerId) {
+  return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(cb => cb.value);
+}
+
+window.submitAddParent = async function() {
+  const firstName = document.getElementById('ap-firstname').value.trim();
+  const lastName  = document.getElementById('ap-lastname').value.trim();
+  const email     = document.getElementById('ap-email').value.trim().toLowerCase();
+  const password  = document.getElementById('ap-password').value;
+  const linkedStudentIds = getCheckedStudents('ap-student-list');
+
+  if (!firstName || !lastName || !email || !password)
+    return showToast('Please fill in all fields.', 'error');
+  if (password.length < 8)
+    return showToast('Password must be at least 8 characters.', 'error');
+  if (!linkedStudentIds.length)
+    return showToast('Please select at least one student.', 'error');
+
+  const btn = document.getElementById('add-parent-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,.2)"></div> Creating...';
+
+  try {
+    let secondaryApp;
+    try { secondaryApp = getApp('parent-create'); }
+    catch { secondaryApp = initializeApp(firebaseConfig, 'parent-create'); }
+    const secondaryAuth = getAuth(secondaryApp);
+
+    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    const uid  = cred.user.uid;
+    await updateProfile(cred.user, { displayName: `${firstName} ${lastName}` });
+    await signOut(secondaryAuth);
+
+    await setDoc(doc(db, 'users', uid), {
+      firstName, lastName,
+      name: `${firstName} ${lastName}`,
+      email, role: 'parent', status: 'active',
+      ssoProvider: 'email', linkedStudentIds,
+      parentPhone: document.getElementById('ap-phone').value.trim(),
+      createdAt: serverTimestamp(),
+    });
+
+    // Stamp new parent's email onto each linked student's parentEmails array
+    for (const sid of linkedStudentIds) {
+      try {
+        await updateDoc(doc(db, 'students', sid), { parentEmails: arrayUnion(email) });
+      } catch (_) {}
+    }
+
+    allParents.push({ uid, name: `${firstName} ${lastName}`, firstName, lastName, email, role: 'parent', status: 'active', ssoProvider: 'email', linkedStudentIds });
+    allParents.sort((a, b) => (a.name||'').localeCompare(b.name||''));
+    document.getElementById('add-parent-modal').classList.add('hidden');
+
+    document.getElementById('created-parent-name').textContent = `${firstName} ${lastName}`;
+    document.getElementById('created-parent-email').textContent = email;
+    document.getElementById('created-parent-password').textContent = password;
+    document.getElementById('parent-created-modal').classList.remove('hidden');
+
+    if (currentTab === 'parents') applyFilters();
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">person_add</span> Create Account';
+  }
+};
+
+window.closeParentCreated = function() {
+  document.getElementById('parent-created-modal').classList.add('hidden');
+  showToast('Parent account created successfully.', 'success');
+};
+
+window.copyToClipboard = async function(elId) {
+  const text = document.getElementById(elId).textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('Copied!', 'success');
+  } catch {
+    showToast('Copy failed.', 'error');
+  }
+};
+
+// ── Edit Linked Students ──────────────────────────────────────────────────────
+
+window.openEditLinkedStudentsModal = function() {
+  if (!selectedAccount) return;
+  renderStudentPicker('es-student-list', selectedAccount.linkedStudentIds || []);
+  document.getElementById('edit-students-modal').classList.remove('hidden');
+};
+
+window.saveLinkedStudents = async function() {
+  if (!selectedAccount) return;
+  const oldIds           = selectedAccount.linkedStudentIds || [];
+  const linkedStudentIds = getCheckedStudents('es-student-list');
+  const addedIds         = linkedStudentIds.filter(id => !oldIds.includes(id));
+  const removedIds       = oldIds.filter(id => !linkedStudentIds.includes(id));
+  const btn = document.getElementById('save-students-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { linkedStudentIds });
+
+    const parentEmail = selectedAccount.email || '';
+    // Add parent email to newly linked students
+    for (const sid of addedIds) {
+      try {
+        await updateDoc(doc(db, 'students', sid), { parentEmails: arrayUnion(parentEmail) });
+      } catch (err) {
+        console.error(`[saveLinkedStudents] student ${sid} arrayUnion FAILED:`, err);
+      }
+    }
+    // Remove parent email from unlinked students
+    for (const sid of removedIds) {
+      try {
+        await updateDoc(doc(db, 'students', sid), { parentEmails: arrayRemove(parentEmail) });
+      } catch (err) {
+        console.error(`[saveLinkedStudents] student ${sid} arrayRemove FAILED:`, err);
+      }
+    }
+
+    selectedAccount.linkedStudentIds = linkedStudentIds;
+    const idx = allParents.findIndex(p => p.uid === selectedAccount.uid);
+    if (idx !== -1) allParents[idx].linkedStudentIds = linkedStudentIds;
+    document.getElementById('edit-students-modal').classList.add('hidden');
+    applyFilters();
+    selectAccount(selectedAccount.uid);
+    showToast('Linked students updated.', 'success');
+  } catch (e) {
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+};
+
+// ── Meet Link ─────────────────────────────────────────────────────────────────
+
+window.openMeetLinkModal = function() {
+  if (!selectedAccount) return;
+  document.getElementById('meet-link-teacher-name').textContent = selectedAccount.name || selectedAccount.email;
+  document.getElementById('meet-link-input').value = selectedAccount.googleMeetLink || '';
+  document.getElementById('meet-link-modal').classList.remove('hidden');
+  document.getElementById('meet-link-input').focus();
+};
+
+window.saveGoogleMeetLink = async function() {
+  if (!selectedAccount) return;
+  const link = document.getElementById('meet-link-input').value.trim();
+  const btn  = document.getElementById('save-meet-link-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { googleMeetLink: link });
+    selectedAccount.googleMeetLink = link;
+    const idx = allTeachers.findIndex(t => t.uid === selectedAccount.uid);
+    if (idx !== -1) allTeachers[idx].googleMeetLink = link;
+    document.getElementById('meet-link-modal').classList.add('hidden');
+    selectAccount(selectedAccount.uid);
+    showToast('Google Meet link saved.', 'success');
+  } catch (e) {
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+};
+
+// ── Delete ────────────────────────────────────────────────────────────────────
+
+window.confirmDelete = function() {
+  if (!selectedAccount) return;
+  document.getElementById('delete-name-label').textContent = selectedAccount.name || selectedAccount.email;
+  document.getElementById('delete-modal').classList.remove('hidden');
+};
+
+window.executeDelete = async function() {
+  if (!selectedAccount) return;
+  const btn = document.getElementById('confirm-delete-btn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,0.3)"></div>';
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { status: 'deleted', deletedAt: serverTimestamp() });
+    if (currentTab === 'teachers') {
+      allTeachers = allTeachers.filter(t => t.uid !== selectedAccount.uid);
+    } else {
+      allParents = allParents.filter(p => p.uid !== selectedAccount.uid);
+    }
+    selectedAccount = null;
+    document.getElementById('delete-modal').classList.add('hidden');
+    document.getElementById('actions-panel').classList.add('hidden');
+    document.getElementById('detail-content').innerHTML = `<div class="text-center text-text-muted py-8"><span class="material-symbols-outlined text-4xl mb-2 block">person_search</span><p class="text-sm">Select ${currentTab === 'teachers' ? 'a teacher' : 'a parent'} to view details</p></div>`;
+    applyFilters();
+    showToast('Account deleted successfully.', 'success');
+  } catch (e) {
+    console.error('[executeDelete]', e);
+    showToast(e.message || 'Failed to delete account. Please try again.', 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = 'Delete';
+  }
+};
+
+window.doSignOut = async function() {
+  await signOut(auth); window.location.href = '/index.html';
+};
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function absUrl(url) {
+  if (!url) return '';
+  return /^https?:\/\//i.test(url) ? url : 'https://' + url;
+}
+
+['search-input','status-filter','sso-filter'].forEach(id => {
+  document.getElementById(id).addEventListener('input', applyFilters);
+  document.getElementById(id).addEventListener('change', applyFilters);
+});
+
+window.showToast = function(msg, type='info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => t.className = '', 3500);
+};
+</script>
+</body>
+</html>

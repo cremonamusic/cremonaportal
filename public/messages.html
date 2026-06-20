@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Messages | I TALK Teachers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#785900", "primary-container": "#ffc107", "on-primary-container": "#6d5100",
+          "on-primary-fixed": "#261a00", "primary-fixed": "#ffdf9e", "primary-fixed-dim": "#fabd00",
+          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff", "on-secondary-fixed": "#001a41",
+          "secondary-container": "#1471e6", "on-secondary-container": "#fefcff",
+          "surface": "#f8f9fa", "surface-white": "#FFFFFF", "surface-container": "#edeeef",
+          "surface-container-low": "#f3f4f5", "surface-container-high": "#e7e8e9",
+          "surface-container-highest": "#e1e3e4",
+          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
+          "border-subtle": "#E0E0E0", "outline-variant": "#d4c5ab", "outline": "#827660",
+          "text-muted": "#5F6368", "error": "#ba1a1a", "error-container": "#ffdad6",
+          "background": "#f8f9fa"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; height: 100dvh; overflow: hidden; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(120,89,0,0.2);border-top-color:#785900;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #messages-area { scroll-behavior: smooth; }
+  #messages-area::-webkit-scrollbar { width:5px; }
+  #messages-area::-webkit-scrollbar-track { background:transparent; }
+  #messages-area::-webkit-scrollbar-thumb { background:#e0e0e0;border-radius:4px; }
+  #sidebar-scroll::-webkit-scrollbar { width:4px; }
+  #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+  #sidebar-scroll::-webkit-scrollbar-thumb { background:#e0e0e0;border-radius:4px; }
+  .conv-item { transition: background 0.12s; }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info { background:#0058bb;color:#fff; }
+</style>
+</head>
+
+<body class="bg-background text-on-surface flex flex-col">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:28px;height:28px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm flex-shrink-0 z-50" style="height:56px">
+  <div class="max-w-full px-6 h-full flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="I TALK" class="h-7 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/home.html"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books.html"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages.html"         class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Messages</a>
+        <a href="/students-teacher.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/reports.html"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Reports</a>
+      </nav>
+    </div>
+    <a href="/account.html"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline" id="header-user-name">Account</span>
+    </a>
+  </div>
+</header>
+
+<!-- ── Main layout ─────────────────────────────────────────────────────────── -->
+<div class="flex flex-1 overflow-hidden" style="height:calc(100dvh - 56px)">
+
+  <!-- ── Left sidebar ──────────────────────────────────────────────────────── -->
+  <div class="w-72 flex-shrink-0 border-r border-border-subtle bg-surface-white flex flex-col overflow-hidden">
+
+    <!-- Sidebar top: search + new DM -->
+    <div class="p-3 border-b border-border-subtle flex-shrink-0">
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
+        <input id="sidebar-search" type="text" placeholder="Search conversations…"
+               oninput="filterSidebar(this.value)"
+               class="w-full pl-8 pr-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all"/>
+      </div>
+    </div>
+
+    <!-- Conversation list -->
+    <div id="sidebar-scroll" class="flex-1 overflow-y-auto py-2">
+
+      <!-- Announcements -->
+      <div class="mb-1">
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
+        <div id="sidebar-announcements">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No announcements</p>
+        </div>
+      </div>
+
+      <!-- Groups -->
+      <div class="mb-1">
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Group Chats</p>
+        <div id="sidebar-groups">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No group chats</p>
+        </div>
+      </div>
+
+      <!-- DMs -->
+      <div>
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
+        <div id="sidebar-dms">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No direct messages</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Right chat area ───────────────────────────────────────────────────── -->
+  <div class="flex-1 flex flex-col overflow-hidden bg-surface">
+
+    <!-- Empty state -->
+    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-text-muted gap-3">
+      <span class="material-symbols-outlined text-[56px] opacity-25">forum</span>
+      <p class="text-base font-medium opacity-50">Select a conversation</p>
+    </div>
+
+    <!-- Conversation view (hidden until conversation selected) -->
+    <div id="conv-view" class="hidden flex-col h-full overflow-hidden" style="display:none">
+
+      <!-- Chat header -->
+      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-5 py-3 flex items-center gap-3">
+        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background:#785900">—</div>
+        <div class="flex-1 min-w-0">
+          <p id="chat-header-name" class="font-semibold text-sm text-on-surface truncate">—</p>
+          <p id="chat-header-sub"  class="text-xs text-text-muted"></p>
+        </div>
+        <button id="members-toggle-btn" onclick="toggleMembersPanel()"
+                class="hidden flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-secondary hover:bg-secondary-fixed/40 transition-colors">
+          <span class="material-symbols-outlined text-[16px]">group</span>
+          <span id="members-count-label"></span>
+          <span class="material-symbols-outlined text-[14px]" id="members-chevron">expand_more</span>
+        </button>
+      </div>
+
+      <!-- Members panel (group chats only) -->
+      <div id="members-panel" class="hidden flex-shrink-0 bg-surface-container-low border-b border-border-subtle">
+        <div id="members-panel-inner" class="flex gap-5 px-5 py-3 overflow-x-auto"></div>
+      </div>
+
+      <!-- Messages area -->
+      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Read-only notice (shown for announcement channel for non-admin) -->
+      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center gap-2 text-sm text-text-muted">
+        <span class="material-symbols-outlined text-[18px]">lock</span>
+        Read only — only admins can post in announcements
+      </div>
+
+      <!-- File preview bar (shown when file selected) -->
+      <div id="file-preview" class="hidden flex-shrink-0 bg-surface border-t border-border-subtle px-4 py-2 flex items-center gap-2 text-sm">
+        <span class="material-symbols-outlined text-[18px] text-secondary">attach_file</span>
+        <span id="file-preview-name" class="truncate max-w-[200px] text-on-surface"></span>
+        <button onclick="clearFile()" class="ml-auto p-1 rounded hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[16px] text-text-muted">close</span>
+        </button>
+      </div>
+
+      <!-- Input bar -->
+      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-3 flex items-end gap-2">
+        <label for="file-input" class="flex-shrink-0 p-2 rounded-lg text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-[22px]">attach_file</span>
+        </label>
+        <input id="file-input" type="file" class="hidden" onchange="handleFileSelect(this)"/>
+        <textarea id="msg-input" rows="1"
+                  placeholder="Type a message…"
+                  onkeydown="handleMsgKeydown(event)"
+                  oninput="autoResize(this)"
+                  class="flex-1 resize-none rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface max-h-32 overflow-y-auto"></textarea>
+        <button id="send-btn" onclick="sendMessage()"
+                class="flex-shrink-0 w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white hover:bg-secondary/90 active:scale-95 transition-all shadow-sm">
+          <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">send</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script type="module">
+import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, collection, query, where,
+  onSnapshot, addDoc, updateDoc, getDocs, writeBatch,
+  serverTimestamp, arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ── Constants ─────────────────────────────────────────────────────────────────
+const WORKER_URL    = 'https://italk-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
+
+// ── Firebase init ─────────────────────────────────────────────────────────────
+const app  = initializeApp({
+  apiKey: "AIzaSyAPfuUfjwVpewn1YVjm1D_mAsu-DLEHLa8",
+  authDomain: "italk-teachers.firebaseapp.com",
+  projectId: "italk-teachers",
+  storageBucket: "italk-teachers.firebasestorage.app",
+  messagingSenderId: "566278333053",
+  appId: "1:566278333053:web:bcd0a14138d18b572b0714"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── Module-level state (never touched before auth fires) ──────────────────────
+let currentUser     = null;
+let currentUserData = null;
+let isAdmin         = false;
+let conversations   = new Map();   // id → data
+let activeConvId    = null;
+let msgArr          = [];           // messages for active conv
+let allUsers        = new Map();   // uid → userData
+let presenceMap     = new Map();   // uid → presenceData
+let convUnsub           = null;
+let msgUnsub            = null;
+let pendingFile         = null;
+let sidebarFilter       = '';
+let dmDisplayNames      = new Map();  // otherUid → resolved display name for DM sidebar
+let readTimes           = new Map();  // convId → Date.now() when user last opened/read it
+let presenceIntervalId  = null;       // tracked so we can clear on re-login
+let pollIntervalId      = null;
+let visibilityHandler   = null;
+let membersPanelOpen    = false;
+
+// ── Teardown — unsubscribes all listeners and clears all session state ────────
+function teardown() {
+  if (convUnsub)          { convUnsub(); convUnsub = null; }
+  if (msgUnsub)           { msgUnsub();  msgUnsub  = null; }
+  if (presenceIntervalId) { clearInterval(presenceIntervalId); presenceIntervalId = null; }
+  if (pollIntervalId)     { clearInterval(pollIntervalId);     pollIntervalId     = null; }
+  if (visibilityHandler)  { document.removeEventListener('visibilitychange', visibilityHandler); visibilityHandler = null; }
+
+  conversations.clear();
+  allUsers.clear();
+  presenceMap.clear();
+  dmDisplayNames.clear();
+  readTimes.clear();
+  activeConvId     = null;
+  msgArr           = [];
+  pendingFile      = null;
+  sidebarFilter    = '';
+  membersPanelOpen = false;
+  clearFile();
+
+  const membersBtn   = document.getElementById('members-toggle-btn');
+  const membersPanel = document.getElementById('members-panel');
+  if (membersBtn)   membersBtn.classList.add('hidden');
+  if (membersPanel) membersPanel.classList.add('hidden');
+
+  // Reset UI to empty state
+  const emptyState = document.getElementById('empty-state');
+  const convView   = document.getElementById('conv-view');
+  if (emptyState) emptyState.style.display = '';
+  if (convView)   convView.style.display   = 'none';
+  ['sidebar-announcements','sidebar-groups','sidebar-dms'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+}
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+
+    // Always tear down stale state/listeners before re-initializing.
+    // onAuthStateChanged can fire more than once (token refresh, re-login),
+    // and without this, old Maps, intervals, and listeners stack up.
+    teardown();
+
+    currentUser     = user;
+    currentUserData = { uid: user.uid, ...snap.data() };
+    isAdmin         = currentUserData.role === 'admin';
+
+    await init();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error('auth error', e);
+    window.location.href = '/index.html';
+  }
+});
+
+// ── Init (called after auth confirmed, always after teardown()) ──────────────
+async function init() {
+  // Display name in header
+  document.getElementById('header-user-name').textContent =
+    (currentUserData.firstName && currentUserData.lastName)
+      ? `${currentUserData.firstName} ${currentUserData.lastName}`
+      : (currentUserData.name || 'Account');
+
+  // Presence — store IDs so teardown() can clear them on re-login
+  await updateOwnPresence(true);
+  presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);
+  visibilityHandler  = () => updateOwnPresence(!document.hidden);
+  document.addEventListener('visibilitychange', visibilityHandler);
+
+  // Load all users for name resolution
+  await loadAllUsers();
+
+  // Poll presence every 30s — store ID so teardown() can clear it
+  await pollPresence();
+  pollIntervalId = setInterval(pollPresence, 30000);
+
+  // Start real-time conversations listener
+  startConversationListener();
+}
+
+// ── Presence ──────────────────────────────────────────────────────────────────
+async function updateOwnPresence(online) {
+  if (!currentUser) return;
+  try {
+    await setDoc(doc(db, 'userPresence', currentUser.uid),
+      { online, lastSeen: serverTimestamp() }, { merge: true });
+  } catch (_) {}
+}
+
+async function pollPresence() {
+  if (!conversations.size) return;
+  try {
+    const uids = new Set();
+    conversations.forEach(c => (c.members || []).forEach(u => {
+      if (u !== currentUser.uid) uids.add(u);
+    }));
+    await Promise.all([...uids].map(async uid => {
+      const s = await getDoc(doc(db, 'userPresence', uid));
+      if (s.exists()) presenceMap.set(uid, s.data());
+    }));
+    renderSidebar();
+    if (membersPanelOpen && activeConvId) {
+      const activeConv = conversations.get(activeConvId);
+      if (activeConv?.type === 'group') renderMembersPanel(activeConv);
+    }
+  } catch (_) {}
+}
+
+function isOnline(uid) {
+  const p = presenceMap.get(uid);
+  if (!p) return false;
+  if (p.online === false) return false;
+  const ls = p.lastSeen?.toDate ? p.lastSeen.toDate() : null;
+  return ls ? (Date.now() - ls.getTime()) < 2 * 60 * 1000 : false;
+}
+
+// ── Load all users ────────────────────────────────────────────────────────────
+async function loadAllUsers() {
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    snap.forEach(d => allUsers.set(d.id, { uid: d.id, ...d.data() }));
+  } catch (e) { console.error('loadAllUsers', e); }
+}
+
+// ── Conversations listener ────────────────────────────────────────────────────
+function startConversationListener() {
+  if (convUnsub) { convUnsub(); convUnsub = null; }
+  const q = query(
+    collection(db, 'conversations'),
+    where('members', 'array-contains', currentUser.uid)
+  );
+  convUnsub = onSnapshot(q, async snap => {
+    snap.docChanges().forEach(change => {
+      if (change.type === 'removed') conversations.delete(change.doc.id);
+      else conversations.set(change.doc.id, { id: change.doc.id, ...change.doc.data() });
+    });
+
+    // For every DM, ensure the other member's data is in allUsers.
+    // loadAllUsers() runs at init but may miss users added later, or fail silently.
+    const missing = new Set();
+    conversations.forEach(conv => {
+      if (conv.type === 'direct') {
+        (conv.members || []).forEach(uid => {
+          if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid);
+        });
+      }
+    });
+    if (missing.size > 0) {
+      await Promise.all([...missing].map(async uid => {
+        try {
+          const s = await getDoc(doc(db, 'users', uid));
+          if (s.exists()) allUsers.set(uid, { uid, ...s.data() });
+        } catch (_) {}
+      }));
+    }
+
+    renderSidebar();
+  }, err => console.error('convListener', err));
+}
+
+// ── Sidebar rendering ─────────────────────────────────────────────────────────
+function renderSidebar() {
+  const ann = [], grp = [], dms = [];
+  const filter = sidebarFilter.toLowerCase();
+
+  conversations.forEach(conv => {
+    let displayName = getConvDisplayName(conv);
+    if (filter && !displayName.toLowerCase().includes(filter)) return;
+    if (conv.type === 'announcement') ann.push(conv);
+    else if (conv.type === 'group')   grp.push(conv);
+    else                              dms.push(conv);
+  });
+
+  const byTime = (a, b) => {
+    const ta = a.lastMessageAt?.toDate?.()?.getTime() || 0;
+    const tb = b.lastMessageAt?.toDate?.()?.getTime() || 0;
+    return tb - ta;
+  };
+
+  const render = (list, elId, empty) => {
+    const el = document.getElementById(elId);
+    el.innerHTML = list.sort(byTime).map(convItemHtml).join('')
+      || `<p class="px-3 py-2 text-xs text-text-muted italic">${empty}</p>`;
+  };
+
+  render(ann, 'sidebar-announcements', 'No announcements');
+  render(grp, 'sidebar-groups',        'No group chats');
+  render(dms, 'sidebar-dms',           'No direct messages');
+}
+
+// Returns the display name for a conversation synchronously.
+// For DMs: looks up the other member's name from dmDisplayNames cache.
+// If not yet cached, triggers an async Firestore fetch and returns a placeholder
+// until the fetch completes and re-renders the sidebar.
+function getConvDisplayName(conv) {
+  if (conv.type === 'direct') {
+    const otherUid = (conv.members || []).find(u => u !== currentUser.uid);
+    if (!otherUid) {
+      console.log('[getConvDisplayName] DM has no otherUid — members:', conv.members, 'currentUser.uid:', currentUser?.uid);
+      return 'Direct Message';
+    }
+    const cached = dmDisplayNames.get(otherUid);
+    console.log('[getConvDisplayName] DM conv', conv.id, '| otherUid:', otherUid, '| cached value:', cached);
+    if (cached && cached !== '__pending__') return cached;
+    if (!cached) fetchAndCacheDMName(otherUid); // fire-and-forget, re-renders when done
+    return 'Direct Message';
+  }
+  return conv.name || 'Unnamed';
+}
+
+// Fetches the other user's doc directly from Firestore (never uses allUsers cache).
+// Supports firstName+lastName or name field. Re-renders sidebar when resolved.
+async function fetchAndCacheDMName(uid) {
+  if (dmDisplayNames.has(uid)) return; // already fetched or in-flight
+  console.log('[fetchAndCacheDMName] fetching uid:', uid);
+  dmDisplayNames.set(uid, '__pending__'); // prevent duplicate concurrent fetches
+  try {
+    const snap = await getDoc(doc(db, 'users', uid));
+    console.log('[fetchAndCacheDMName] uid:', uid, '| doc exists:', snap.exists(), '| raw data:', snap.exists() ? snap.data() : null);
+    if (snap.exists()) {
+      const d = snap.data();
+      const name = (d.firstName && d.lastName)
+        ? `${d.firstName} ${d.lastName}`
+        : (d.name || d.email || 'Unknown');
+      console.log('[fetchAndCacheDMName] uid:', uid, '| storing name:', name);
+      dmDisplayNames.set(uid, name);
+    } else {
+      console.log('[fetchAndCacheDMName] uid:', uid, '| doc does not exist — storing Unknown');
+      dmDisplayNames.set(uid, 'Unknown');
+    }
+  } catch (err) {
+    console.error('[fetchAndCacheDMName] uid:', uid, '| fetch error:', err);
+    dmDisplayNames.delete(uid); // allow retry on next render
+    return;
+  }
+  renderSidebar(); // re-render now that the name is known
+}
+
+function convItemHtml(conv) {
+  const isActive      = conv.id === activeConvId;
+  const displayName   = getConvDisplayName(conv);
+  const avatarColor   = getAvatarColor(displayName);
+  const initials      = getInitials(displayName);
+  const lastMsg       = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 45) : '';
+  const lastTime      = conv.lastMessageAt?.toDate ? formatTime(conv.lastMessageAt.toDate()) : '';
+  const isAnn         = conv.type === 'announcement';
+  // A conversation is unread when:
+  //  • it has a last message sent by someone else, AND
+  //  • the last message arrived after the user last opened this conversation.
+  // readTimes is updated immediately on open and again after markAllRead commits,
+  // so the dot clears without waiting for a Firestore round-trip.
+  // Both sides are trimmed to guard against whitespace or type differences.
+  const lastMsgTime  = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
+  const lastReadTime = readTimes.get(conv.id) || 0;
+  const lastSender   = String(conv.lastMessageBy || '').trim();
+  const myUid        = String(currentUser.uid || '').trim();
+  const hasUnread    = !!conv.lastMessage && lastSender !== '' && lastSender !== myUid && lastMsgTime > lastReadTime;
+
+  let avatarHtml;
+  let onlineDot = '';
+  if (isAnn) {
+    avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+  } else if (conv.type === 'group') {
+    if (conv.photoUrl) {
+      avatarHtml = `<img src="${escHtml(conv.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="group"/>`;
+    } else {
+      avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">group</span>`;
+    }
+  } else {
+    const otherUid  = (conv.members || []).find(u => u !== currentUser.uid);
+    const otherUser = otherUid ? allUsers.get(otherUid) : null;
+    if (otherUser?.photoUrl) {
+      avatarHtml = `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="${escHtml(displayName)}"/>`;
+    } else {
+      avatarHtml = `<span class="text-[13px] font-bold">${escHtml(initials)}</span>`;
+    }
+    if (otherUid) {
+      const online = isOnline(otherUid);
+      onlineDot = `<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${online ? 'bg-green-500' : 'bg-gray-300'}"></span>`;
+    }
+  }
+
+  return `
+  <button onclick="openConversation('${conv.id}')"
+    class="conv-item w-full flex items-center gap-2.5 px-2.5 py-2 mx-0.5 rounded-xl text-left ${isActive ? 'bg-secondary-fixed/60' : 'hover:bg-surface-container'} ${isAnn ? 'border-l-[3px] border-primary-container pl-2' : ''}">
+    <div class="relative flex-shrink-0">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white"
+           style="background:${avatarColor}">${avatarHtml}</div>
+      ${onlineDot}
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center justify-between gap-1">
+        <span class="text-sm font-semibold text-on-surface truncate">${escHtml(displayName)}</span>
+        ${lastTime ? `<span class="text-[10px] text-text-muted flex-shrink-0">${lastTime}</span>` : ''}
+      </div>
+      <p class="text-xs truncate mt-0.5 ${hasUnread ? 'text-on-surface font-medium' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
+    </div>
+    ${hasUnread ? '<span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
+  </button>`;
+}
+
+// ── Open conversation ─────────────────────────────────────────────────────────
+window.openConversation = async function(convId) {
+  activeConvId = convId;
+  // Stamp read time immediately so hasUnread clears in this render pass —
+  // don't wait for the Firestore batch commit to come back.
+  readTimes.set(convId, Date.now());
+  renderSidebar();
+
+  const conv = conversations.get(convId);
+  if (!conv) return;
+
+  // Show conv view
+  document.getElementById('empty-state').style.display   = 'none';
+  const cv = document.getElementById('conv-view');
+  cv.style.display = 'flex';
+
+  // Update header — for DMs, fetch the other user's name fresh if not yet cached
+  const avatarEl = document.getElementById('chat-avatar');
+
+  if (conv.type === 'direct') {
+    const otherUid = (conv.members || []).find(u => u !== currentUser.uid);
+    // Fetch name directly from Firestore, don't trust the stored conv.name
+    let headerName = 'Direct Message';
+    if (otherUid) {
+      try {
+        const uSnap = await getDoc(doc(db, 'users', otherUid));
+        if (uSnap.exists()) {
+          const d = uSnap.data();
+          headerName = (d.firstName && d.lastName)
+            ? `${d.firstName} ${d.lastName}`
+            : (d.name || d.email || 'Unknown');
+          dmDisplayNames.set(otherUid, headerName); // update cache too
+        }
+      } catch (_) {}
+    }
+    document.getElementById('chat-header-name').textContent = headerName;
+    avatarEl.style.background = getAvatarColor(headerName);
+    avatarEl.textContent = getInitials(headerName);
+    const online = otherUid ? isOnline(otherUid) : false;
+    document.getElementById('chat-header-sub').innerHTML =
+      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">● ${online ? 'Online' : 'Offline'}</span>`;
+    document.getElementById('members-toggle-btn').classList.add('hidden');
+    document.getElementById('members-panel').classList.add('hidden');
+    renderSidebar(); // update sidebar with freshly fetched name
+  } else {
+    const displayName = getConvDisplayName(conv);
+    document.getElementById('chat-header-name').textContent = displayName;
+    avatarEl.style.background = getAvatarColor(displayName);
+    const toggleBtn    = document.getElementById('members-toggle-btn');
+    const membersPanel = document.getElementById('members-panel');
+    if (conv.type === 'announcement') {
+      avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+      document.getElementById('chat-header-sub').textContent = 'Announcements channel';
+      toggleBtn.classList.add('hidden');
+      membersPanel.classList.add('hidden');
+    } else {
+      avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">group</span>`;
+      document.getElementById('chat-header-sub').textContent = '';
+      const memberCount = (conv.members || []).length;
+      document.getElementById('members-count-label').textContent = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
+      document.getElementById('members-chevron').textContent = 'expand_more';
+      membersPanelOpen = false;
+      membersPanel.classList.add('hidden');
+      toggleBtn.classList.remove('hidden');
+      renderMembersPanel(conv);
+    }
+  }
+
+  // Show/hide input bar vs read-only notice
+  const isReadOnly = conv.type === 'announcement' && !isAdmin;
+  document.getElementById('input-bar').style.display    = isReadOnly ? 'none' : 'flex';
+  document.getElementById('readonly-note').style.display = isReadOnly ? 'flex' : 'none';
+
+  // Start message listener
+  startMessageListener(convId);
+};
+
+// ── Members panel ─────────────────────────────────────────────────────────────
+window.toggleMembersPanel = function() {
+  membersPanelOpen = !membersPanelOpen;
+  document.getElementById('members-panel').classList.toggle('hidden', !membersPanelOpen);
+  document.getElementById('members-chevron').textContent = membersPanelOpen ? 'expand_less' : 'expand_more';
+};
+
+function renderMembersPanel(conv) {
+  const inner = document.getElementById('members-panel-inner');
+  inner.innerHTML = (conv.members || []).map(uid => {
+    const u = allUsers.get(uid);
+    const name = u
+      ? ((u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || u.email || 'Unknown'))
+      : 'Unknown';
+    const online = isOnline(uid);
+    const avatarHtml = u?.photoUrl
+      ? `<img src="${escHtml(u.photoUrl)}" class="w-9 h-9 rounded-full object-cover" alt="${escHtml(name)}"/>`
+      : `<div class="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-bold text-white" style="background:${getAvatarColor(name)}">${escHtml(getInitials(name))}</div>`;
+    return `
+    <div class="flex flex-col items-center gap-1 flex-shrink-0" style="min-width:52px;max-width:52px">
+      <div class="relative">
+        ${avatarHtml}
+        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-surface-container-low ${online ? 'bg-green-500' : 'bg-gray-300'}"></span>
+      </div>
+      <span class="text-[10px] text-on-surface font-medium leading-tight text-center w-full truncate" title="${escHtml(name)}">${escHtml(name.split(' ')[0])}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Messages listener ─────────────────────────────────────────────────────────
+function startMessageListener(convId) {
+  if (msgUnsub) { msgUnsub(); msgUnsub = null; }
+  const area = document.getElementById('messages-area');
+  area.innerHTML = `<div class="flex justify-center py-8"><div class="spinner"></div></div>`;
+
+  const q = query(collection(db, 'messages'), where('conversationId', '==', convId));
+
+  msgUnsub = onSnapshot(q, async snap => {
+    msgArr = [];
+    snap.forEach(d => msgArr.push({ id: d.id, ...d.data() }));
+    msgArr.sort((a, b) =>
+      (a.timestamp?.toDate?.()?.getTime() || 0) -
+      (b.timestamp?.toDate?.()?.getTime() || 0));
+    renderMessages();
+    // Await the batch so we know exactly when all messages are marked read,
+    // then re-stamp readTimes and re-render the sidebar in one go.
+    await markAllRead(convId);
+    readTimes.set(convId, Date.now());
+    renderSidebar();
+  }, err => console.error('msgListener', err));
+}
+
+// ── Render messages ───────────────────────────────────────────────────────────
+function renderMessages() {
+  const area = document.getElementById('messages-area');
+  if (!msgArr.length) {
+    area.innerHTML = `<div class="flex-1 flex items-center justify-center py-16 text-sm text-text-muted italic">No messages yet. Say hello!</div>`;
+    return;
+  }
+
+  const wasAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 120;
+  area.innerHTML = msgArr.map(buildMessageHtml).join('');
+  if (wasAtBottom || msgArr.length < 20) area.scrollTop = area.scrollHeight;
+}
+
+function buildMessageHtml(msg) {
+  const isOwn  = msg.senderUid === currentUser.uid;
+  const ts     = msg.timestamp?.toDate ? formatTimeFull(msg.timestamp.toDate()) : '';
+  const sender = escHtml(msg.senderName || 'Unknown');
+
+  // Read receipts (up to 3 others)
+  const receipts = (msg.readBy || [])
+    .filter(u => u !== currentUser.uid)
+    .slice(-3)
+    .map(u => {
+      const usr  = allUsers.get(u);
+      const nm   = usr?.name || '?';
+      const col  = getAvatarColor(nm);
+      const init = getInitials(nm);
+      return `<div class="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold text-white" style="background:${col}" title="${escHtml(nm)}">${escHtml(init)}</div>`;
+    }).join('');
+
+  let fileHtml = '';
+  if (msg.fileUrl) {
+    const isImg = (msg.fileType || '').startsWith('image/');
+    fileHtml = isImg
+      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[200px] rounded-lg border border-border-subtle" alt="attachment"/></a>`
+      : `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener"
+           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-lg border ${isOwn ? 'border-amber-200 bg-amber-50' : 'border-border-subtle bg-surface'} text-xs hover:opacity-80 transition-opacity">
+           <span class="material-symbols-outlined text-[16px]">description</span>
+           <span class="truncate max-w-[150px]">${escHtml(msg.fileName || 'Attachment')}</span>
+           <span class="material-symbols-outlined text-[14px] ml-auto opacity-60">download</span>
+         </a>`;
+  }
+
+  if (isOwn) {
+    return `
+    <div class="flex flex-col items-end px-4 py-0.5">
+      <div class="max-w-[72%]">
+        <div class="bg-amber-100 text-on-primary-fixed rounded-2xl rounded-tr-sm px-4 py-2 text-sm leading-relaxed break-words">
+          ${msg.text ? escHtml(msg.text) : ''}${fileHtml}
+        </div>
+        <div class="flex items-center justify-end gap-1 mt-0.5 pr-0.5">
+          <span class="text-[10px] text-text-muted">${ts}</span>
+          ${receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const senderUser = msg.senderUid ? allUsers.get(msg.senderUid) : null;
+  const senderAvatarHtml = senderUser?.photoUrl
+    ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-6 h-6 rounded-full flex-shrink-0 object-cover" alt="${escHtml(msg.senderName || '')}"/>`
+    : `<div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`;
+
+  return `
+  <div class="flex items-end gap-2 px-4 py-0.5">
+    ${senderAvatarHtml}
+    <div class="max-w-[72%]">
+      <p class="text-[11px] text-text-muted mb-1 ml-1">${sender}</p>
+      <div class="bg-surface-white border border-border-subtle rounded-2xl rounded-tl-sm px-4 py-2 text-sm leading-relaxed text-on-surface break-words">
+        ${msg.text ? escHtml(msg.text) : ''}${fileHtml}
+      </div>
+      <div class="flex items-center gap-1 mt-0.5 ml-1">
+        <span class="text-[10px] text-text-muted">${ts}</span>
+        ${receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── Mark all read ─────────────────────────────────────────────────────────────
+async function markAllRead(convId) {
+  if (!currentUser || !msgArr.length) return;
+  // Normalise uid to a trimmed string to guard against type mismatches
+  const myUid = String(currentUser.uid).trim();
+  try {
+    const batch = writeBatch(db);
+    let   count = 0;
+    msgArr.forEach(msg => {
+      // Normalise every stored uid in readBy before comparing
+      const alreadyRead = (msg.readBy || []).some(u => String(u).trim() === myUid);
+      if (!alreadyRead) {
+        batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) });
+        count++;
+      }
+    });
+    if (count > 0) await batch.commit();
+  } catch (e) {
+    console.error('[markAllRead]', e);
+  }
+}
+
+// ── Send message ──────────────────────────────────────────────────────────────
+window.sendMessage = async function() {
+  if (!activeConvId || !currentUser) return;
+  const input   = document.getElementById('msg-input');
+  const text    = input.value.trim();
+  if (!text && !pendingFile) return;
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = true;
+  input.style.height = '';
+
+  try {
+    let fileUrl = '', fileName = '', fileType = '';
+    if (pendingFile) {
+      showToast('Uploading…', 'info');
+      ({ fileUrl, fileName, fileType } = await uploadFile(pendingFile));
+      clearFile();
+    }
+
+    const msgData = {
+      conversationId: activeConvId,
+      senderUid:      currentUser.uid,
+      senderName:     currentUserData.name || currentUser.email || 'Unknown',
+      text,
+      timestamp:      serverTimestamp(),
+      readBy:         [currentUser.uid]
+    };
+    if (fileUrl) { msgData.fileUrl = fileUrl; msgData.fileName = fileName; msgData.fileType = fileType; }
+
+    await addDoc(collection(db, 'messages'), msgData);
+    await updateDoc(doc(db, 'conversations', activeConvId), {
+      lastMessage:   text || fileName,
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: currentUser.uid
+    });
+
+    input.value = '';
+  } catch (e) {
+    console.error('sendMessage', e);
+    showToast('Failed to send. Try again.', 'error');
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+};
+
+// ── File handling ─────────────────────────────────────────────────────────────
+window.handleFileSelect = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) { showToast('File too large (max 20MB).', 'error'); return; }
+  pendingFile = file;
+  document.getElementById('file-preview-name').textContent = file.name;
+  document.getElementById('file-preview').style.display = 'flex';
+};
+
+window.clearFile = function() {
+  pendingFile = null;
+  document.getElementById('file-preview').style.display = 'none';
+  document.getElementById('file-input').value = '';
+};
+
+async function uploadFile(file) {
+  const key = `messages/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${WORKER_URL}/${key}`);
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.onload = () => xhr.status === 200
+      ? resolve({ fileUrl: `${R2_PUBLIC_BASE}/${key}`, fileName: file.name, fileType: file.type })
+      : reject(new Error(`Upload failed: ${xhr.status}`));
+    xhr.onerror = () => reject(new Error('Upload network error'));
+    xhr.send(file);
+  });
+}
+
+// ── Input helpers ─────────────────────────────────────────────────────────────
+window.handleMsgKeydown = function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+};
+
+window.autoResize = function(el) {
+  el.style.height = '';
+  el.style.height = Math.min(el.scrollHeight, 128) + 'px';
+};
+
+// ── Sidebar filter ────────────────────────────────────────────────────────────
+window.filterSidebar = function(val) {
+  sidebarFilter = val;
+  renderSidebar();
+};
+
+// ── Avatar helpers ────────────────────────────────────────────────────────────
+function getAvatarColor(str) {
+  const palette = ['#785900','#0058bb','#1e6e3b','#b91c1c','#7c3aed',
+                   '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
+  let h = 0;
+  for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+  return palette[h % palette.length];
+}
+
+function getInitials(name) {
+  const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return (name || '?').slice(0, 2).toUpperCase();
+}
+
+// ── Time helpers ──────────────────────────────────────────────────────────────
+function formatTime(date) {
+  const now  = new Date();
+  const diff = now - date;
+  if (diff < 60000)   return 'now';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
+  if (date.toDateString() === now.toDateString())
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+}
+
+function formatTimeFull(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// ── Escape HTML ───────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+</script>
+</body>
+</html>
