@@ -14,20 +14,20 @@
     theme: {
       extend: {
         colors: {
-          "error-container": "#ffdad6", "on-secondary-container": "#fefcff", "on-secondary": "#ffffff",
-          "border-subtle": "#E0E0E0", "surface-container-lowest": "#ffffff", "error": "#ba1a1a",
-          "primary-container": "#ffc107", "primary-fixed": "#ffdf9e", "on-error": "#ffffff",
-          "on-background": "#191c1d", "secondary-container": "#1471e6", "surface-dim": "#d9dadb",
-          "surface-container-highest": "#e1e3e4", "secondary-fixed": "#d8e2ff",
-          "on-surface-variant": "#4f4632", "surface-container-high": "#e7e8e9",
-          "surface": "#f8f9fa", "surface-white": "#FFFFFF", "text-muted": "#5F6368",
-          "on-primary-fixed": "#261a00", "primary": "#785900", "secondary": "#0058bb",
-          "on-error-container": "#93000a", "primary-fixed-dim": "#fabd00",
-          "on-secondary-fixed": "#001a41", "surface-container": "#edeeef",
-          "outline-variant": "#d4c5ab", "outline": "#827660", "on-surface": "#191c1d",
-          "background": "#f8f9fa", "on-secondary-fixed-variant": "#004493",
-          "on-primary-container": "#6d5100", "on-primary": "#ffffff",
-          "surface-container-low": "#f3f4f5"
+          "error-container": "#ffdad6", "on-secondary-container": "#3E2C23", "on-secondary": "#3E2C23",
+          "border-subtle": "#E8DCC8", "surface-container-lowest": "#FFFDF9", "error": "#ba1a1a",
+          "primary-container": "#F5E5B0", "primary-fixed": "#F0E8C0", "on-error": "#ffffff",
+          "on-background": "#3E2C23", "secondary-container": "#F5E5B0", "surface-dim": "#D4BCA0",
+          "surface-container-highest": "#E4D8C2", "secondary-fixed": "#F0E8C0",
+          "on-surface-variant": "#7A5A42", "surface-container-high": "#EAE0CE",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "text-muted": "#8B6B52",
+          "on-primary-fixed": "#3E2C23", "primary": "#C9A227", "secondary": "#C9A227",
+          "on-error-container": "#93000a", "primary-fixed-dim": "#D4A520",
+          "on-secondary-fixed": "#3E2C23", "surface-container": "#F0E8D6",
+          "outline-variant": "#D4BCA0", "outline": "#7A5230", "on-surface": "#3E2C23",
+          "background": "#FAF6EF", "on-secondary-fixed-variant": "#7A5230",
+          "on-primary-container": "#8B6020", "on-primary": "#3E2C23",
+          "surface-container-low": "#F5EFE4"
         },
         spacing: { "base": "8px", "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px" },
         fontFamily: { "body-md": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "label-sm": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-lg": ["Inter"], "headline-md": ["Inter"] },
@@ -47,14 +47,27 @@
 </script>
 <style>
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; }
-  .spinner { width: 20px; height: 20px; border: 2px solid rgba(120,89,0,0.2); border-top-color: #785900; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(201,162,39,0.2); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
   #toast.show { opacity: 1; }
   #toast.error { background: #ba1a1a; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
-  #toast.info { background: #0058bb; color: #fff; }
+  #toast.info { background: #3B2A1E; color: #F5EFE4; }
+</style>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </style>
 </head>
 <body class="bg-background text-on-surface">

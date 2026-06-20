@@ -25,16 +25,16 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#785900", "primary-container": "#ffc107",
-          "on-primary-container": "#6d5100", "on-primary-fixed": "#261a00",
-          "secondary": "#0058bb", "secondary-fixed": "#d8e2ff",
-          "on-secondary-fixed": "#001a41", "on-secondary-fixed-variant": "#004493",
-          "surface-white": "#FFFFFF", "surface": "#f8f9fa",
-          "surface-container": "#edeeef", "surface-container-low": "#f3f4f5",
-          "surface-container-highest": "#e1e3e4",
-          "on-surface": "#191c1d", "on-surface-variant": "#4f4632",
-          "border-subtle": "#E0E0E0", "text-muted": "#5F6368",
-          "outline-variant": "#d4c5ab",
+          "primary": "#C9A227", "primary-container": "#F5E5B0",
+          "on-primary-container": "#8B6020", "on-primary-fixed": "#3E2C23",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
+          "on-secondary-fixed": "#3E2C23", "on-secondary-fixed-variant": "#7A5230",
+          "surface-white": "#FFFDF9", "surface": "#FAF6EF",
+          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
+          "surface-container-highest": "#E4D8C2",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
+          "outline-variant": "#D4BCA0",
           "error": "#ba1a1a", "error-container": "#ffdad6",
         }
       }
@@ -45,9 +45,9 @@
 <style>
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .edu-pattern {
-    background-color: #f8f9fa;
+    background-color: #FAF6EF;
     background-image: radial-gradient(#d4c5ab 0.5px, transparent 0.5px),
-                      radial-gradient(#d4c5ab 0.5px, #f8f9fa 0.5px);
+                      radial-gradient(#D4BCA0 0.5px, #FAF6EF 0.5px);
     background-size: 20px 20px; background-position: 0 0, 10px 10px;
   }
   @keyframes slideUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
@@ -68,12 +68,12 @@
   .otp-input {
     width:48px; height:56px;
     text-align:center; font-size:22px; font-weight:700;
-    border:2px solid #E0E0E0; border-radius:10px;
+    border:2px solid #E8DCC8; border-radius:10px;
     outline:none; transition:border-color 0.15s, box-shadow 0.15s;
-    background:#fff; color:#191c1d;
+    background:#fff; color:#3E2C23;
   }
-  .otp-input:focus { border-color:#0058bb; box-shadow:0 0 0 3px rgba(0,88,187,0.12); }
-  .otp-input.filled { border-color:#785900; }
+  .otp-input:focus { border-color:#C9A227; box-shadow:0 0 0 3px rgba(201,162,39,0.25); }
+  .otp-input.filled { border-color:#C9A227; }
 
   /* Toast */
   #toast {
@@ -84,7 +84,20 @@
   #toast.show   { opacity:1; }
   #toast.error  { background:#ba1a1a; color:#fff; }
   #toast.success{ background:#1e6e3b; color:#fff; }
-  #toast.info   { background:#0058bb; color:#fff; }
+  #toast.info   { background:#3B2A1E; color:#F5EFE4; }
+</style>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </style>
 </head>
 
@@ -96,7 +109,7 @@
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
-    <div class="w-8 h-8 rounded-full" style="border:3px solid #ffc107;border-top-color:#785900;animation:spin .7s linear infinite"></div>
+    <div class="w-8 h-8 rounded-full" style="border:3px solid rgba(201,162,39,0.3);border-top-color:#C9A227;animation:spin .7s linear infinite"></div>
     <p class="text-text-muted text-sm">Loading...</p>
   </div>
 </div>
@@ -233,7 +246,7 @@
       <div class="flex flex-col items-center text-center gap-5">
 
         <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:#dbeafe;">
-          <span class="material-symbols-outlined text-[32px]" style="color:#0058bb;font-variation-settings:'FILL' 1;">mark_email_unread</span>
+          <span class="material-symbols-outlined text-[32px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">mark_email_unread</span>
         </div>
 
         <div>
@@ -525,7 +538,7 @@ window.resendOtp = async function() {
   if (!pendingSignup) return;
   const btn = document.getElementById('otp-resend-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#0058bb;border-color:rgba(0,88,187,.2)"></div>';
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#C9A227;border-color:rgba(201,162,39,.2)"></div>';
 
   try {
     const { email, firstName, lastName } = pendingSignup;
