@@ -399,14 +399,18 @@ window.signUpWithEmail = async function() {
   let codeDocId = null;
   let codePurpose = 'teacher';
   try {
+    const normalizedCode = rawCode.toUpperCase();
+    console.log('[signup] querying invitationCodes where code ==', JSON.stringify(normalizedCode));
     const snap = await db.collection('invitationCodes')
-      .where('code', '==', rawCode.toUpperCase()).get();
+      .where('code', '==', normalizedCode).get();
+    console.log('[signup] query returned', snap.size, 'doc(s)');
     if (snap.empty) {
       setLoading('signup-btn', false);
       return showToast('Invalid code.', 'error');
     }
     const codeDoc  = snap.docs[0];
     const codeData = codeDoc.data();
+    console.log('[signup] matched doc id:', codeDoc.id, '| data:', JSON.stringify(codeData));
     if (codeData.expiresAt && codeData.expiresAt.toDate() < new Date()) {
       setLoading('signup-btn', false);
       return showToast('This code has expired.', 'error');
@@ -417,7 +421,9 @@ window.signUpWithEmail = async function() {
     }
     codeDocId   = codeDoc.id;
     codePurpose = codeData.purpose === 'parent' ? 'parent' : 'teacher';
+    console.log('[signup] code valid — docId:', codeDocId, '| purpose:', codePurpose);
   } catch (e) {
+    console.error('[signup] error validating invitation code:', e.code, e.message, e);
     setLoading('signup-btn', false);
     return showToast('Error validating code. Try again.', 'error');
   }
