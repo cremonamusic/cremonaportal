@@ -18,20 +18,20 @@
         },
         maxWidth: { "container-max": "1200px" },
         colors: {
-          "primary":                "#785900", "primary-container": "#ffc107",
-          "on-primary-container":   "#6d5100", "on-primary-fixed": "#261a00",
-          "primary-fixed":          "#ffdf9e", "primary-fixed-dim": "#fabd00",
-          "secondary":              "#0058bb", "secondary-fixed": "#d8e2ff",
-          "on-secondary-fixed":     "#001a41", "secondary-container": "#1471e6",
-          "on-secondary-container": "#fefcff",
-          "tertiary":               "#005e6e", "tertiary-container": "#b1eeff",
+          "primary":                "#C9A227", "primary-container": "#F5E5B0",
+          "on-primary-container":   "#6d5100", "on-primary-fixed": "#3E2C23",
+          "primary-fixed":          "#F0E8C0", "primary-fixed-dim": "#D4A520",
+          "secondary":              "#C9A227", "secondary-fixed": "#F0E8C0",
+          "on-secondary-fixed":     "#3E2C23", "secondary-container": "#F5E5B0",
+          "on-secondary-container": "#3E2C23",
+          "tertiary":               "#005e6e", "tertiary-container": "#F0E8C0",
           "on-tertiary-fixed":      "#001f26",
-          "surface":                "#f8f9fa", "surface-white": "#FFFFFF",
-          "surface-container":      "#edeeef", "surface-container-low": "#f3f4f5",
-          "surface-container-high": "#e7e8e9", "surface-container-highest": "#e1e3e4",
-          "on-surface":             "#191c1d", "on-surface-variant": "#4f4632",
-          "border-subtle":          "#E0E0E0", "outline-variant": "#d4c5ab",
-          "outline":                "#827660", "text-muted": "#5F6368",
+          "surface":                "#FAF6EF", "surface-white": "#FFFDF9",
+          "surface-container":      "#edeeef", "surface-container-low": "#F5EFE4",
+          "surface-container-high": "#EAE0CE", "surface-container-highest": "#E4D8C2",
+          "on-surface":             "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle":          "#E8DCC8", "outline-variant": "#D4BCA0",
+          "outline":                "#827660", "text-muted": "#8B6B52",
           "error":                  "#ba1a1a", "error-container": "#ffdad6"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] },
@@ -46,13 +46,26 @@
 <style>
   body { font-family: 'Inter', sans-serif; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .spinner { width:18px;height:18px;border:2px solid rgba(120,89,0,0.2);border-top-color:#785900;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
+  .spinner { width:18px;height:18px;border:2px solid rgba(201,162,39,0.2);border-top-color:#C9A227;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
   #toast.show { opacity:1; }
   #toast.error { background:#ba1a1a;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info { background:#0058bb;color:#fff; }
+  #toast.info { background:#3B2A1E;color:#F5EFE4; }
+</style>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </style>
 </head>
 
@@ -367,8 +380,8 @@
 </div>
 
 <style>
-  .conv-filter-btn { background:transparent; color:#5F6368; }
-  .conv-filter-btn.active { background:#d8e2ff; color:#0058bb; }
+  .conv-filter-btn { background:transparent; color:#8B6B52; }
+  .conv-filter-btn.active { background:#F5E5B0; color:#A07818; }
   .conv-filter-btn:hover:not(.active) { background:#edeeef; }
 </style>
 
@@ -1190,7 +1203,7 @@ window.confirmDelete = async function() {
 
 // ── Avatar helpers ────────────────────────────────────────────────────────────
 function getAvatarColor(str) {
-  const palette = ['#785900','#0058bb','#1e6e3b','#b91c1c','#7c3aed',
+  const palette = ['#C9A227','#7A5230','#1e6e3b','#b91c1c','#7c3aed',
                    '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
   let h = 0;
   for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
