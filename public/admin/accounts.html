@@ -242,7 +242,7 @@
     </div>
     <div>
       <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Email</label>
-      <input id="at-email" type="email" placeholder="jane.smith@italk.ne.kr"
+      <input id="at-email" type="email" placeholder="jane.smith@example.com"
              class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
     </div>
     <div>
@@ -751,8 +751,6 @@ window.submitAddTeacher = async function() {
 
   if (!firstName || !lastName || !email || !password)
     return showToast('Please fill in all fields.', 'error');
-  if (!email.endsWith('@italk.ne.kr'))
-    return showToast('Email must be an @italk.ne.kr address.', 'error');
   if (password.length < 8)
     return showToast('Password must be at least 8 characters.', 'error');
 
