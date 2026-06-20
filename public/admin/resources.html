@@ -322,35 +322,21 @@ import {
   getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc,
   query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-// ─── Cloudflare Worker + R2 Configuration ─────────────────────────────────────
-const WORKER_URL     = 'https://italk-upload-worker.garam-9b9.workers.dev';
-const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
-
-// XHR upload for real progress events — fetch doesn't expose upload progress
-function uploadToR2(file, key, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', `${WORKER_URL}/${key}`);
-    xhr.setRequestHeader('Content-Type', file.type || 'application/pdf');
-    xhr.upload.onprogress = e => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
-    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300)
-      ? resolve()
-      : reject(new Error(`HTTP ${xhr.status}: ${xhr.responseText}`));
-    xhr.onerror = () => reject(new Error('Network error — check Worker is deployed'));
-    xhr.send(file);
-  });
-}
-
-async function deleteFromR2(key) {
-  if (!key) return;
-  const res = await fetch(`${WORKER_URL}/${key}`, { method: 'DELETE' });
-  if (!res.ok && res.status !== 404) throw new Error(`Delete failed: ${res.status}`);
-}
-
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+// ─── Firebase Storage helpers ──────────────────────────────────────────────────
 function makeKey(file) {
   const ext  = file.name.split('.').pop().toLowerCase();
   const base = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9\-_.]/g, '_').slice(0, 60);
   return `${Date.now()}_${base}.${ext}`;
+}
+
+async function deleteFromStorage(fileName) {
+  if (!fileName) return;
+  try {
+    await deleteObject(ref(storage, `books/${fileName}`));
+  } catch (e) {
+    if (e.code !== 'storage/object-not-found') throw e;
+  }
 }
 
 // ─── Firebase ─────────────────────────────────────────────────────────────────
@@ -362,8 +348,9 @@ const app = initializeApp({
   messagingSenderId: "227259733472",
   appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
 
 let allResources   = [];
 let selectedFile   = null;
@@ -461,8 +448,8 @@ function renderResources() {
       <td class="px-4 py-4 text-right">
         <div class="flex items-center justify-end gap-1">
           ${r.fileName ? `
-          <a href="${R2_PUBLIC_BASE}/${escHtml(r.fileName)}" target="_blank" rel="noopener"
-             class="p-1.5 rounded text-orange-600 hover:bg-orange-50 transition-colors" title="View in R2">
+          <a href="${escHtml(r.r2Url || '')}" target="_blank" rel="noopener"
+             class="p-1.5 rounded text-orange-600 hover:bg-orange-50 transition-colors" title="View in Storage">
             <span class="material-symbols-outlined text-[16px]">cloud</span>
           </a>` : ''}
           <a href="${readerUrl}" target="_blank" class="p-1.5 text-text-muted hover:text-secondary transition-colors" title="Preview">
@@ -580,13 +567,13 @@ window.saveBulkEdit = async function() {
 window.bulkDeleteBooks = async function() {
   if (!selectedBookIds.size) return;
   const n = selectedBookIds.size;
-  if (!confirm(`Permanently delete ${n} book${n !== 1 ? 's' : ''}? Files will be removed from R2 and the library.`)) return;
+  if (!confirm(`Permanently delete ${n} book${n !== 1 ? 's' : ''}? Files will be removed from Storage and the library.`)) return;
 
   const ids   = [...selectedBookIds];
   const books = ids.map(id => allResources.find(r => r.id === id)).filter(Boolean);
 
   try {
-    await Promise.all(books.map(r => deleteFromR2(r.fileName)));
+    await Promise.all(books.map(r => deleteFromStorage(r.fileName)));
     await Promise.all(ids.map(id => deleteDoc(doc(db, 'books', id))));
     allResources = allResources.filter(r => !ids.includes(r.id));
     deselectAllBooks();
@@ -615,7 +602,7 @@ window.uploadResource = async function() {
 
   const btn = document.getElementById('upload-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,0.2)"></div> Uploading to R2...';
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,0.2)"></div> Uploading...';
   document.getElementById('upload-progress-wrap').classList.remove('hidden');
   document.getElementById('upload-bar').style.width = '0%';
   document.getElementById('upload-pct').textContent = '0%';
@@ -623,18 +610,27 @@ window.uploadResource = async function() {
   const key = makeKey(selectedFile);
 
   try {
-    // 1. Upload to Cloudflare R2
-    await uploadToR2(selectedFile, key, pct => {
-      const p = Math.round(pct * 100);
-      document.getElementById('upload-bar').style.width = p + '%';
-      document.getElementById('upload-pct').textContent = p + '%';
+    // 1. Upload to Firebase Storage
+    const storageRef = ref(storage, `books/${key}`);
+    const uploadTask = uploadBytesResumable(storageRef, selectedFile, { contentType: selectedFile.type || 'application/pdf' });
+    await new Promise((resolve, reject) => {
+      uploadTask.on('state_changed',
+        snap => {
+          const p = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
+          document.getElementById('upload-bar').style.width = p + '%';
+          document.getElementById('upload-pct').textContent = p + '%';
+        },
+        reject,
+        resolve
+      );
     });
+    const r2Url = await getDownloadURL(storageRef);
 
     // 2. Save metadata to Firestore
     await addDoc(collection(db, 'books'), {
       title, subject, grade,
       fileName: key,
-      r2Url: `${R2_PUBLIC_BASE}/${key}`,
+      r2Url,
       downloadEnabled, visibility: true,
       fileSize: selectedFile.size,
       fileType: selectedFile.type || 'application/pdf',
@@ -658,7 +654,7 @@ window.uploadResource = async function() {
     showToast('Upload failed: ' + e.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Upload to R2';
+    btn.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Upload to Storage';
   }
 };
 
@@ -672,9 +668,9 @@ window.toggleField = async function(id, field, value) {
 };
 
 window.deleteResource = async function(id, fileName, title) {
-  if (!confirm(`Delete "${title}"?\n\nThis removes it from R2 and the library. This cannot be undone.`)) return;
+  if (!confirm(`Delete "${title}"?\n\nThis removes it from Storage and the library. This cannot be undone.`)) return;
   try {
-    await deleteFromR2(fileName);
+    await deleteFromStorage(fileName);
     await deleteDoc(doc(db, 'books', id));
     allResources = allResources.filter(r => r.id !== id);
     renderResources();

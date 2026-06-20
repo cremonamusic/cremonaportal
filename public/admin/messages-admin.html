@@ -379,6 +379,7 @@ import {
   onSnapshot, addDoc, updateDoc, getDocs, writeBatch, deleteDoc,
   serverTimestamp, arrayUnion, orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // ── Firebase init ─────────────────────────────────────────────────────────────
 const app  = initializeApp({
@@ -389,8 +390,9 @@ const app  = initializeApp({
   messagingSenderId: "227259733472",
   appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentUser      = null;
@@ -407,9 +409,6 @@ let dmTeacherB       = null;   // { uid, name, email }
 let dmPTParent       = null;   // { uid, name, email }
 let dmPTTeacher      = null;   // { uid, name, email }
 let groupPhotoFile   = null;   // File object for pending group photo upload
-
-const WORKER_URL     = 'https://italk-upload-worker.garam-9b9.workers.dev';
-const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
 
 // ── Auth guard (admin only) ───────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
@@ -1020,18 +1019,11 @@ window.createGroupChat = async function() {
     if (groupPhotoFile) {
       try {
         const ext = (groupPhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
-        const key = `groups/${convRef.id}_${Date.now()}.${ext}`;
-        await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open('PUT', `${WORKER_URL}/${key}`);
-          xhr.setRequestHeader('Content-Type', groupPhotoFile.type || 'image/jpeg');
-          xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`HTTP ${xhr.status}`));
-          xhr.onerror = () => reject(new Error('Network error'));
-          xhr.send(groupPhotoFile);
-        });
-        await updateDoc(doc(db, 'conversations', convRef.id), {
-          photoUrl: `${R2_PUBLIC_BASE}/${key}`
-        });
+        const path = `groups/${convRef.id}_${Date.now()}.${ext}`;
+        const storageRef = ref(storage, path);
+        await uploadBytes(storageRef, groupPhotoFile, { contentType: groupPhotoFile.type || 'image/jpeg' });
+        const photoUrl = await getDownloadURL(storageRef);
+        await updateDoc(doc(db, 'conversations', convRef.id), { photoUrl });
       } catch (photoErr) {
         console.warn('[createGroupChat] photo upload failed (group still created):', photoErr);
       }
