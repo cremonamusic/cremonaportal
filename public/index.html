@@ -13,7 +13,7 @@
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script>emailjs.init('4_7MfuOBZ-dISzPbz');</script>
+<script>emailjs.init('dc-ORwhDtS1wn-ezz');</script>
 
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -367,10 +367,10 @@ async function generateAndSendOtp(email, name) {
   otpCode   = String(Math.floor(100000 + Math.random() * 900000));
   otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
 
-  const result = await emailjs.send('service_24g7poi', 'template_co5j3ni', {
+  const result = await emailjs.send('service_1vo2fln', 'template_xa9n0xb', {
     email:    email,
     passcode: otpCode
-  }, '4_7MfuOBZ-dISzPbz').catch(err => {
+  }, 'dc-ORwhDtS1wn-ezz').catch(err => {
     console.error('[emailjs error]', JSON.stringify(err));
     throw err;
   });
