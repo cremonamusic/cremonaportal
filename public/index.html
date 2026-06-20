@@ -351,14 +351,6 @@ async function redirectByRole(uid) {
         ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
         return;
       }
-      // Parents may use any email domain; teacher/admin must be @italk.ne.kr
-      const currentEmail = (auth.currentUser && auth.currentUser.email) || '';
-      if (data.role !== 'parent' && !currentEmail.endsWith('@italk.ne.kr')) {
-        await auth.signOut();
-        showToast('Access restricted. Please contact your administrator.', 'error');
-        ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
-        return;
-      }
       if (data.role === 'admin')        window.location.href = '/admin/accounts.html';
       else if (data.role === 'parent')  window.location.href = '/parent/dashboard.html';
       else                              window.location.href = '/home.html';
@@ -428,12 +420,6 @@ window.signUpWithEmail = async function() {
   } catch (e) {
     setLoading('signup-btn', false);
     return showToast('Error validating code. Try again.', 'error');
-  }
-
-  // Teacher accounts must use @italk.ne.kr; parents may use any email
-  if (codePurpose !== 'parent' && !email.endsWith('@italk.ne.kr')) {
-    setLoading('signup-btn', false);
-    return showToast('This access code requires an @italk.ne.kr email address.', 'error');
   }
 
   setLoading('signup-btn', true, 'Sending code...');
