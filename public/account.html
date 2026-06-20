@@ -234,6 +234,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
@@ -243,8 +244,9 @@ const app = initializeApp({
   messagingSenderId: "227259733472",
   appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
 let currentUser = null;
 
 onAuthStateChanged(auth, async (user) => {
@@ -292,27 +294,18 @@ function populateProfile(user, data) {
   }
 }
 
-const WORKER_URL     = 'https://italk-upload-worker.garam-9b9.workers.dev';
-const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
-
 window.uploadProfilePhoto = async function(input) {
   const file = input.files[0];
   if (!file || !currentUser) return;
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const key = `avatars/${currentUser.uid}_${Date.now()}.${ext}`;
+  const path = `avatars/${currentUser.uid}_${Date.now()}.${ext}`;
   const circle = document.getElementById('avatar-circle');
   const prevContent = circle.innerHTML;
   circle.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="spinner" style="width:24px;height:24px;border-width:3px"></div></div>';
   try {
-    await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('PUT', `${WORKER_URL}/${key}`);
-      xhr.setRequestHeader('Content-Type', file.type || 'image/jpeg');
-      xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`HTTP ${xhr.status}`));
-      xhr.onerror = () => reject(new Error('Network error'));
-      xhr.send(file);
-    });
-    const photoUrl = `${R2_PUBLIC_BASE}/${key}`;
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file, { contentType: file.type || 'image/jpeg' });
+    const photoUrl = await getDownloadURL(storageRef);
     await updateDoc(doc(db, 'users', currentUser.uid), { photoUrl });
     circle.innerHTML = `<img src="${photoUrl}" class="w-full h-full object-cover rounded-full" alt="profile photo"/>`;
   } catch (err) {

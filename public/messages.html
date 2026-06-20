@@ -212,11 +212,9 @@ import {
   onSnapshot, addDoc, updateDoc, getDocs, writeBatch,
   serverTimestamp, arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-const WORKER_URL    = 'https://italk-upload-worker.garam-9b9.workers.dev';
-const R2_PUBLIC_BASE = 'https://pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
-
+// ── Firebase init ─────────────────────────────────────────────────────────────
 // ── Firebase init ─────────────────────────────────────────────────────────────
 const app  = initializeApp({
   apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
@@ -226,8 +224,9 @@ const app  = initializeApp({
   messagingSenderId: "227259733472",
   appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
 
 // ── Module-level state (never touched before auth fires) ──────────────────────
 let currentUser     = null;
@@ -850,17 +849,12 @@ window.clearFile = function() {
 };
 
 async function uploadFile(file) {
-  const key = `messages/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', `${WORKER_URL}/${key}`);
-    xhr.setRequestHeader('Content-Type', file.type);
-    xhr.onload = () => xhr.status === 200
-      ? resolve({ fileUrl: `${R2_PUBLIC_BASE}/${key}`, fileName: file.name, fileType: file.type })
-      : reject(new Error(`Upload failed: ${xhr.status}`));
-    xhr.onerror = () => reject(new Error('Upload network error'));
-    xhr.send(file);
-  });
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const path = `messages/${activeConvId}/${Date.now()}_${safeName}`;
+  const storageRef = ref(storage, path);
+  await uploadBytes(storageRef, file, { contentType: file.type });
+  const fileUrl = await getDownloadURL(storageRef);
+  return { fileUrl, fileName: file.name, fileType: file.type };
 }
 
 // ── Input helpers ─────────────────────────────────────────────────────────────
