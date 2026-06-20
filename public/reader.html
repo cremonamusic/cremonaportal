@@ -2,8 +2,9 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Reader | I TALK Teachers</title>
+<title>Reader | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -391,7 +392,7 @@ async function initReader() {
   bookData = { id: snap.id, ...snap.data() };
 
   document.getElementById('book-title').textContent = bookData.title || 'Untitled';
-  document.title = `${bookData.title || 'Book'} | I TALK Teachers`;
+  document.title = `${bookData.title || 'Book'} | Cremona Music Portal`;
 
   if (!bookData.r2Url) { document.getElementById('load-msg').textContent = 'PDF URL not found.'; return; }
 
