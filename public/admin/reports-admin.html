@@ -202,9 +202,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // ── EmailJS placeholders — fill these in before deploying ─────────────────────
-const EMAILJS_REPORT_SERVICE_ID  = 'service_ydbmks1';
-const EMAILJS_REPORT_TEMPLATE_ID = 'template_znf14yo';
-const EMAILJS_PUBLIC_KEY         = 'mUzj_VvL-__k6ltia';
+const EMAILJS_REPORT_SERVICE_ID  = 'service_1vo2fln';
+const EMAILJS_REPORT_TEMPLATE_ID = 'template_vzvn67y';
+const EMAILJS_PUBLIC_KEY         = 'dc-ORwhDtS1wn-ezz';
 
 const app = initializeApp({
   apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
@@ -483,13 +483,7 @@ window.approveReport = async function(reportId) {
     // Send email to every linked parent via EmailJS
     if (parentEmails.length) {
       const baseParams = {
-        student_name:      report.studentName || '',
-        date_range:        `${report.dateRangeStart || ''} – ${report.dateRangeEnd || ''}`,
-        class_time:        report.classTime || '',
-        books:             (report.books || []).map(b => b.title || b.bookId).join(', ') || 'None',
-        categories:        (report.categories || []).map(c => `${c.name}: ${c.feedback}`).join('\n') || '',
-        enhancement_areas: (report.enhancementAreas || []).map(e => `• ${e}`).join('\n') || 'None',
-        evaluation:        report.evaluation || '',
+        student_name: report.studentName || '',
       };
       let sent = 0;
       for (const email of parentEmails) {
