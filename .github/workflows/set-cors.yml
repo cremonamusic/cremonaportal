@@ -1,0 +1,37 @@
+name: Set Firebase Storage CORS (one-time)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  set-cors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authenticate with service account
+        run: |
+          echo "$FIREBASE_SA" > /tmp/sa.json
+          gcloud auth activate-service-account --key-file=/tmp/sa.json
+        env:
+          FIREBASE_SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Write cors.json
+        run: |
+          cat > /tmp/cors.json << 'EOF'
+          [
+            {
+              "origin": [
+                "https://cremonamusic-portal.web.app",
+                "https://cremonamusic-portal.firebaseapp.com"
+              ],
+              "method": ["GET"],
+              "maxAgeSeconds": 3600,
+              "responseHeader": ["Content-Type", "Range", "Accept-Ranges", "Content-Length"]
+            }
+          ]
+          EOF
+
+      - name: Apply CORS config
+        run: gsutil cors set /tmp/cors.json gs://cremonamusic-portal.firebasestorage.app
+
+      - name: Confirm CORS config
+        run: gsutil cors get gs://cremonamusic-portal.firebasestorage.app
