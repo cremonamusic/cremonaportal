@@ -163,7 +163,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         <tr class="border-b border-border-subtle">
           <th class="text-left px-6 py-3.5 font-label-md text-text-muted">Student</th>
           <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden sm:table-cell">Teacher</th>
-          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden md:table-cell">Date Range</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden md:table-cell">Lesson Date</th>
           <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Status</th>
           <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden lg:table-cell">Created</th>
         </tr>
@@ -266,8 +266,7 @@ function renderTable() {
   }
   tbody.innerHTML = filteredComments.map(c => {
     const badge      = statusBadge(c.status);
-    const dateRange  = c.dateRangeStart && c.dateRangeEnd
-      ? `${c.dateRangeStart} – ${c.dateRangeEnd}` : (c.dateRangeStart || '—');
+    const lessonDate = c.lessonDate || '—';
     const createdStr = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '—';
     return `<tr class="comment-row border-b border-border-subtle last:border-0 transition-colors" data-cid="${escAttr(c.id)}">
       <td class="px-6 py-3.5">
@@ -275,7 +274,7 @@ function renderTable() {
         ${c.commentText ? `<p class="text-xs text-text-muted mt-0.5 truncate max-w-[200px]">${escHtml(c.commentText)}</p>` : ''}
       </td>
       <td class="px-4 py-3.5 hidden sm:table-cell text-text-muted">${escHtml(c.teacherName || '—')}</td>
-      <td class="px-4 py-3.5 hidden md:table-cell text-text-muted text-sm">${escHtml(dateRange)}</td>
+      <td class="px-4 py-3.5 hidden md:table-cell text-text-muted text-sm">${escHtml(lessonDate)}</td>
       <td class="px-4 py-3.5">${badge}</td>
       <td class="px-4 py-3.5 hidden lg:table-cell text-text-muted text-sm">${createdStr}</td>
     </tr>`;
@@ -310,12 +309,8 @@ window.openDetailModal = function(comment) {
         <p class="font-semibold text-on-surface">${escHtml(comment.teacherName || '—')}</p>
       </div>
       <div>
-        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Date Range</p>
-        <p>${escHtml(comment.dateRangeStart || '—')} – ${escHtml(comment.dateRangeEnd || '—')}</p>
-      </div>
-      <div>
-        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Class Time</p>
-        <p>${escHtml(comment.classTime || '—')}</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Lesson Date</p>
+        <p>${escHtml(comment.lessonDate || '—')}</p>
       </div>
       <div>
         <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Status</p>

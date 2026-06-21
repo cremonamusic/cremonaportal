@@ -315,9 +315,7 @@ function renderComments(comments) {
 }
 
 function buildCommentCard(c) {
-  const dateRange = (c.dateRangeStart && c.dateRangeEnd)
-    ? `${fmtDate(c.dateRangeStart)} – ${fmtDate(c.dateRangeEnd)}`
-    : c.dateRangeStart ? fmtDate(c.dateRangeStart) : '';
+  const dateRange = c.lessonDate ? fmtDate(c.lessonDate) : '';
 
   const sentStr = c.sentAt?.toDate
     ? c.sentAt.toDate().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
@@ -339,9 +337,7 @@ function buildCommentCard(c) {
             ${dateRange ? `<span class="text-sm font-semibold text-on-surface">${escHtml(dateRange)}</span>` : ''}
           </div>
           <div class="flex flex-wrap items-center gap-3 mt-1 text-xs text-text-muted">
-            ${c.classTime   ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span>${escHtml(c.classTime)}</span>` : ''}
             ${c.teacherName ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span>${escHtml(c.teacherName)}</span>` : ''}
-            ${sentStr       ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span>${escHtml(sentStr)}</span>` : ''}
           </div>
           ${preview ? `<p class="text-sm text-text-muted mt-2 text-left line-clamp-2">${escHtml(preview)}</p>` : ''}
         </div>

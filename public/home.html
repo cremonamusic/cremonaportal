@@ -102,12 +102,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <p id="date-text" class="text-base font-bold text-on-surface">—</p>
         </div>
       </div>
-      <!-- Right: Start Class button -->
-      <a id="start-class-btn" href="https://meet.google.com" target="_blank" rel="noopener"
-         class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-full shadow-md hover:brightness-110 active:scale-95 transition-all flex-shrink-0">
-        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">videocam</span>
-        <span class="hidden sm:inline">Start Class</span>
-      </a>
     </div>
     <!-- decorative blobs -->
     <div class="absolute -right-10 -top-10 w-40 h-40 bg-primary-container/30 rounded-full blur-3xl pointer-events-none"></div>
@@ -171,69 +165,17 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
       </a>
 
-      <!-- Reports -->
-      <a href="/reports.html"
+      <!-- Comments -->
+      <a href="/comments.html"
          class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
         <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff7ed;">
-          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#c2410c;">description</span>
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#c2410c;">chat</span>
         </div>
         <div>
-          <p class="font-bold text-base text-on-surface">Reports</p>
-          <p class="text-sm text-text-muted mt-0.5">Write and manage student reports</p>
+          <p class="font-bold text-base text-on-surface">Comments</p>
+          <p class="text-sm text-text-muted mt-0.5">Write and manage student comments</p>
         </div>
         <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
-      </a>
-
-      <!-- Gmail -->
-      <a href="https://mail.google.com/" target="_blank" rel="noopener"
-         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
-          <svg viewBox="0 0 48 48" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M6 40h6V23.8L4 18v18q0 1.65 1.175 2.825T6 40Z"/><path fill="#34A853" d="M36 40h6q1.65 0 2.825-1.175T46 36V18l-8 5.8Z"/><path fill="#FBBC04" d="M36 12v11.8l8-5.8V14q0-3.7-3.25-5.8Z"/><path fill="#EA4335" d="M12 23.8V12L24 21l12-9v11.8L24 33Z"/><path fill="#C5221F" d="M4 14v3.8l8 5.8V12L7.25 8.2Q4 10.3 4 14Z"/></svg>
-        </div>
-        <div>
-          <p class="font-bold text-base text-on-surface">Gmail</p>
-          <p class="text-sm text-text-muted mt-0.5">Open Gmail</p>
-        </div>
-        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
-      </a>
-
-      <!-- Google Classroom -->
-      <a href="https://classroom.google.com" target="_blank" rel="noopener"
-         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#e8f0fe;">
-          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#1a73e8;">cast_for_education</span>
-        </div>
-        <div>
-          <p class="font-bold text-base text-on-surface">Google Classroom</p>
-          <p class="text-sm text-text-muted mt-0.5">Manage classes, assignments &amp; students</p>
-        </div>
-        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
-      </a>
-
-      <!-- EBricks -->
-      <a href="https://www.ebricks.co.kr/" target="_blank" rel="noopener"
-         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff3e0;">
-          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#ff6600;">auto_stories</span>
-        </div>
-        <div>
-          <p class="font-bold text-base text-on-surface">EBricks</p>
-          <p class="text-sm text-text-muted mt-0.5">Digital English learning platform</p>
-        </div>
-        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
-      </a>
-
-      <!-- NE Times -->
-      <a href="https://www.netimes.co.kr/" target="_blank" rel="noopener"
-         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#e8f5e9;">
-          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#2e7d32;">newspaper</span>
-        </div>
-        <div>
-          <p class="font-bold text-base text-on-surface">NE Times</p>
-          <p class="text-sm text-text-muted mt-0.5">English news for students</p>
-        </div>
-        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
       </a>
 
     </div>
@@ -299,11 +241,6 @@ onAuthStateChanged(auth, async (user) => {
     // Date
     document.getElementById('date-text').textContent =
       new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-    // Meet link — ensure absolute URL so it doesn't resolve relative to the app origin
-    let meetLink = data.googleMeetLink || 'https://meet.google.com';
-    if (meetLink && !/^https?:\/\//i.test(meetLink)) meetLink = 'https://' + meetLink;
-    document.getElementById('start-class-btn').href = meetLink;
 
     // Load recent books
     await loadRecent(user.uid);

@@ -143,23 +143,11 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
           <div class="px-6 py-5 flex flex-col gap-5">
 
-            <!-- Date range + class info -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Start Date <span class="text-error">*</span></label>
-                <input id="f-date-start" type="date"
-                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">End Date <span class="text-error">*</span></label>
-                <input id="f-date-end" type="date"
-                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Class Time</label>
-                <input id="f-class-time" type="text" placeholder="e.g. Mon/Wed 4:00 PM"
-                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-              </div>
+            <!-- Lesson date -->
+            <div>
+              <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Lesson Date <span class="text-error">*</span></label>
+              <input id="f-lesson-date" type="date"
+                     class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
             </div>
 
             <!-- Comment text -->
@@ -355,9 +343,7 @@ async function selectStudent(student) {
 function resetForm() {
   editingCommentId = null;
 
-  document.getElementById('f-date-start').value   = '';
-  document.getElementById('f-date-end').value     = '';
-  document.getElementById('f-class-time').value   = '';
+  document.getElementById('f-lesson-date').value  = '';
   document.getElementById('f-comment-text').value = '';
   document.getElementById('editing-badge').classList.add('hidden');
   document.getElementById('cancel-edit-btn').classList.add('hidden');
@@ -378,12 +364,10 @@ function resetForm() {
 window.sendComment = async function() {
   if (!selectedStudent) return;
 
-  const dateStart   = document.getElementById('f-date-start').value;
-  const dateEnd     = document.getElementById('f-date-end').value;
-  const classTime   = document.getElementById('f-class-time').value.trim();
+  const lessonDate  = document.getElementById('f-lesson-date').value;
   const commentText = document.getElementById('f-comment-text').value.trim();
 
-  if (!dateStart || !dateEnd) { showToast('Please select a date range.', 'error'); return; }
+  if (!lessonDate) { showToast('Please select a lesson date.', 'error'); return; }
   if (!commentText)           { showToast('Comment text is required before sending.', 'error'); return; }
 
   const btn = document.getElementById('send-btn');
@@ -396,9 +380,7 @@ window.sendComment = async function() {
       studentName:    selectedStudent.fullName || '',
       teacherUid:     currentUser.uid,
       teacherName:    currentUser.name,
-      dateRangeStart: dateStart,
-      dateRangeEnd:   dateEnd,
-      classTime,
+      lessonDate,
       commentText,
       status:         'sent',
       sentAt:         serverTimestamp(),
@@ -430,9 +412,7 @@ window.cancelEdit = function() { resetForm(); };
 window.saveDraft = async function(silent = false) {
   if (!selectedStudent) return;
 
-  const dateStart   = document.getElementById('f-date-start').value;
-  const dateEnd     = document.getElementById('f-date-end').value;
-  const classTime   = document.getElementById('f-class-time').value.trim();
+  const lessonDate  = document.getElementById('f-lesson-date').value;
   const commentText = document.getElementById('f-comment-text').value.trim();
 
   const btn = document.getElementById('draft-btn');
@@ -447,9 +427,7 @@ window.saveDraft = async function(silent = false) {
       studentName:    selectedStudent.fullName || '',
       teacherUid:     currentUser.uid,
       teacherName:    currentUser.name,
-      dateRangeStart: dateStart,
-      dateRangeEnd:   dateEnd,
-      classTime,
+      lessonDate,
       commentText,
       status:         'draft',
       updatedAt:      serverTimestamp(),
@@ -532,8 +510,7 @@ function renderCommentsList() {
     const badge = c.status === 'sent'
       ? `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Sent</span>`
       : `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Draft</span>`;
-    const dateRange  = (c.dateRangeStart && c.dateRangeEnd)
-      ? `${c.dateRangeStart} – ${c.dateRangeEnd}` : (c.dateRangeStart || '');
+    const dateRange  = c.lessonDate || '';
     const updatedStr = c.updatedAt?.toDate ? c.updatedAt.toDate().toLocaleDateString() : '';
     const sentStr    = c.sentAt?.toDate    ? c.sentAt.toDate().toLocaleDateString()    : '';
     const createdStr = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '';
@@ -594,9 +571,7 @@ window.startEditComment = function(commentId) {
   if (!comment || comment.status !== 'draft') return;
 
   editingCommentId = commentId;
-  document.getElementById('f-date-start').value   = comment.dateRangeStart || '';
-  document.getElementById('f-date-end').value     = comment.dateRangeEnd   || '';
-  document.getElementById('f-class-time').value   = comment.classTime      || '';
+  document.getElementById('f-lesson-date').value  = comment.lessonDate     || '';
   document.getElementById('f-comment-text').value = comment.commentText    || '';
 
   const badge = document.getElementById('editing-badge');
@@ -616,8 +591,7 @@ function startAutoSave() {
   autoSaveInterval = setInterval(() => {
     if (!selectedStudent) return;
     const hasContent =
-      document.getElementById('f-date-start').value ||
-      document.getElementById('f-date-end').value   ||
+      document.getElementById('f-lesson-date').value ||
       document.getElementById('f-comment-text').value.trim();
     if (!hasContent) return;
     saveDraft(true);
