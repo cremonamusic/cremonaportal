@@ -814,7 +814,22 @@ async function createParentAccountWithChildren() {
   const studentRefs  = childEntries.map(() => db.collection('students').doc());
   const uploadedRefs = []; // track for rollback
 
-  // ── Step 1: Upload all IC photos ──────────────────────────────────────────
+  // ── Step 1: Create Firebase Auth account first (establishes request.auth) ──
+  setLoading('otp-verify-btn', true, 'Creating account...');
+  _skipAuthHandler = true;
+  let newUser = null;
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    newUser = cred.user;
+  } catch (e) {
+    console.error('[parent-signup] auth creation failed', e);
+    _skipAuthHandler = false;
+    setLoading('otp-verify-btn', false);
+    showToast(friendlyError(e.code) || 'Account creation failed. Please try again.', 'error');
+    return;
+  }
+
+  // ── Step 2: Upload IC photos — now authenticated, Storage rules will pass ──
   setLoading('otp-verify-btn', true, 'Uploading photos...');
   const photoUrls = [];
   try {
@@ -836,25 +851,12 @@ async function createParentAccountWithChildren() {
     }
   } catch (e) {
     console.error('[parent-signup] photo upload failed', e);
-    await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
-    setLoading('otp-verify-btn', false);
-    showToast('Photo upload failed. Please try again.', 'error');
-    return;
-  }
-
-  // ── Step 2: Create Firebase Auth account ──────────────────────────────────
-  setLoading('otp-verify-btn', true, 'Creating account...');
-  _skipAuthHandler = true;
-  let newUser = null;
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
-    newUser = cred.user;
-  } catch (e) {
-    console.error('[parent-signup] auth creation failed', e);
+    // Rollback: delete Auth account + any partial uploads
+    try { await newUser.delete(); } catch (_) {}
     _skipAuthHandler = false;
     await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
     setLoading('otp-verify-btn', false);
-    showToast(friendlyError(e.code) || 'Account creation failed. Please try again.', 'error');
+    showToast('Photo upload failed. Please try again.', 'error');
     return;
   }
 
