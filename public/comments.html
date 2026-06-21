@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Comments | Cremona Music Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#C9A227", "primary-container": "#F5E5B0", "on-primary-container": "#8B6020",
+          "on-primary-fixed": "#3E2C23", "primary-fixed": "#F0E8C0", "primary-fixed-dim": "#D4A520",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0", "on-secondary-fixed": "#3E2C23",
+          "secondary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "surface-container": "#F0E8D6",
+          "surface-container-low": "#F5EFE4", "surface-container-high": "#EAE0CE",
+          "surface-container-highest": "#E4D8C2", "surface-container-lowest": "#FFFDF9",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "outline-variant": "#D4BCA0", "outline": "#7A5230",
+          "text-muted": "#8B6B52", "error": "#ba1a1a", "error-container": "#ffdad6",
+          "background": "#FAF6EF"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  .student-item { cursor: pointer; border-left: 2px solid transparent; transition: background .12s ease, border-color .12s ease; }
+  .student-item.active { background: rgba(0,88,187,0.06); border-left-color: #A07818; }
+  .student-item:hover:not(.active) { background: #f3f4f5; }
+</style>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/home.html"             class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books.html"            class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/comments.html"         class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Comments</a>
+      </nav>
+    </div>
+    <a href="/account.html"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </a>
+  </div>
+</header>
+
+<main class="flex-grow max-w-5xl mx-auto w-full px-6 py-8">
+
+  <div class="mb-6">
+    <h1 class="text-2xl font-extrabold text-on-surface">Student Comments</h1>
+    <p class="text-sm text-text-muted mt-1">Select a student to write or view comments.</p>
+  </div>
+
+  <!-- Mobile student selector -->
+  <div class="md:hidden mb-4">
+    <label class="text-xs font-bold uppercase tracking-widest text-text-muted mb-2 block">Select Student</label>
+    <select id="student-select-mobile" onchange="selectStudentById(this.value)"
+            class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm bg-white focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none">
+      <option value="">— Choose a student —</option>
+    </select>
+  </div>
+
+  <div class="flex gap-6 items-start">
+
+    <!-- Sidebar: student list -->
+    <aside class="w-60 flex-shrink-0 hidden md:block">
+      <div class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm overflow-hidden sticky top-24">
+        <div class="px-4 py-3 border-b border-border-subtle bg-surface-container-low">
+          <p class="text-xs font-bold uppercase tracking-widest text-text-muted">My Students</p>
+        </div>
+        <div id="student-list" class="flex flex-col divide-y divide-border-subtle max-h-[calc(100vh-200px)] overflow-y-auto">
+          <div class="flex items-center gap-2 px-4 py-6 text-text-muted text-sm">
+            <div class="spinner" style="width:16px;height:16px;border-width:2px"></div>
+            Loading...
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <div class="flex-1 min-w-0 flex flex-col gap-5">
+
+      <!-- Empty state -->
+      <div id="empty-state" class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm p-12 text-center">
+        <span class="material-symbols-outlined text-5xl text-outline block mb-3" style="font-variation-settings:'FILL' 1;opacity:.3;">chat</span>
+        <p class="font-semibold text-on-surface-variant">Select a student to begin</p>
+        <p class="text-sm text-text-muted mt-1">Choose a student from the list to write or view their comments.</p>
+      </div>
+
+      <!-- Comment form -->
+      <div id="comment-form-section" class="hidden">
+        <div class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm">
+          <div class="px-6 py-4 border-b border-border-subtle flex items-center justify-between gap-3">
+            <h2 id="form-title" class="font-bold text-base text-on-surface">Write Comment</h2>
+            <span id="editing-badge" class="hidden px-2.5 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full">Editing Draft</span>
+          </div>
+
+          <div class="px-6 py-5 flex flex-col gap-5">
+
+            <!-- Date range + class info -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Start Date <span class="text-error">*</span></label>
+                <input id="f-date-start" type="date"
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">End Date <span class="text-error">*</span></label>
+                <input id="f-date-end" type="date"
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Class Time</label>
+                <input id="f-class-time" type="text" placeholder="e.g. Mon/Wed 4:00 PM"
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+              </div>
+            </div>
+
+            <!-- Comment text -->
+            <div>
+              <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Comment <span class="text-error">*</span></label>
+              <textarea id="f-comment-text" rows="8"
+                        placeholder="Write your comment about this student's progress, achievements, areas to work on, or anything else you'd like the parent to know..."
+                        class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-y"></textarea>
+            </div>
+
+          </div>
+
+          <div class="px-6 pb-5 flex items-center justify-between gap-3 border-t border-border-subtle pt-4 flex-wrap">
+            <div class="flex items-center gap-3">
+              <button onclick="cancelEdit()" id="cancel-edit-btn"
+                      class="hidden px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">
+                Cancel
+              </button>
+              <span id="autosave-indicator" class="hidden text-xs text-text-muted flex items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">check_circle</span>
+                Auto-saved
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button onclick="saveDraft()" id="draft-btn"
+                      class="px-4 py-2.5 text-sm font-semibold border border-border-subtle text-on-surface-variant bg-white rounded-lg hover:bg-surface-container transition-all active:scale-95 flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">save</span>
+                Save Draft
+              </button>
+              <button onclick="sendComment()" id="send-btn"
+                      class="px-6 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">send</span>
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments list -->
+      <div id="comments-list-section" class="hidden">
+        <div class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm">
+          <div class="px-6 py-4 border-b border-border-subtle">
+            <h2 class="font-bold text-base text-on-surface">Comments</h2>
+          </div>
+          <div id="comments-list-body">
+            <div class="flex items-center gap-2 px-6 py-6 text-text-muted text-sm">
+              <div class="spinner" style="width:16px;height:16px;border-width:2px"></div>
+              Loading comments...
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
+  <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
+    <p class="text-xs text-text-muted">© 2025 Cremona Music.</p>
+    <a href="/account.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, query, where,
+  getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain: "cremonamusic-portal.firebaseapp.com",
+  projectId: "cremonamusic-portal",
+  storageBucket: "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let currentUser      = null;
+let allStudents      = [];
+let selectedStudent  = null;
+let myComments       = [];
+let editingCommentId = null;
+let autoSaveInterval = null;
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists()) { await signOut(auth); window.location.href = '/index.html'; return; }
+    const data = snap.data();
+    if (data.status === 'inactive' || data.status === 'deleted') {
+      await signOut(auth); window.location.href = '/index.html'; return;
+    }
+    if (data.role === 'admin')   { window.location.href = '/admin/accounts.html'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+
+    const displayName = (data.firstName && data.lastName)
+      ? `${data.firstName} ${data.lastName}`
+      : (data.name || data.email || 'Teacher');
+    currentUser = { uid: user.uid, name: displayName };
+
+    await loadStudents();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) {
+    console.error(e);
+    window.location.href = '/index.html';
+  }
+});
+
+// ── Load students ──────────────────────────────────────────────────────────────
+async function loadStudents() {
+  const q    = query(collection(db, 'students'), where('assignedTeachers', 'array-contains', currentUser.uid));
+  const snap = await getDocs(q);
+  allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  renderStudentList();
+}
+
+// ── Render student list ────────────────────────────────────────────────────────
+function renderStudentList() {
+  const list = document.getElementById('student-list');
+  const sel  = document.getElementById('student-select-mobile');
+  while (sel.options.length > 1) sel.remove(1);
+
+  if (!allStudents.length) {
+    list.innerHTML = `<div class="px-4 py-8 text-center text-text-muted text-sm">
+      <span class="material-symbols-outlined text-3xl block mb-2" style="opacity:.3;font-variation-settings:'FILL' 1;">person_off</span>
+      No students assigned.
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = allStudents.map(s => `
+    <div class="student-item px-4 py-3 flex items-center gap-3" id="si-${s.id}" data-sid="${escAttr(s.id)}">
+      <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+        ${escHtml((s.fullName || '?').charAt(0).toUpperCase())}
+      </div>
+      <div class="min-w-0">
+        <p class="font-semibold text-sm text-on-surface truncate">${escHtml(s.fullName || '—')}</p>
+        ${s.grade ? `<p class="text-xs text-text-muted">Grade ${escHtml(s.grade)}</p>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  list.addEventListener('click', e => {
+    const item = e.target.closest('[data-sid]');
+    if (item) selectStudentById(item.dataset.sid);
+  });
+
+  allStudents.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.fullName || s.id;
+    sel.appendChild(opt);
+  });
+}
+
+// ── Select student ─────────────────────────────────────────────────────────────
+window.selectStudentById = function(sid) {
+  if (!sid) return;
+  const student = allStudents.find(s => s.id === sid);
+  if (student) selectStudent(student);
+};
+
+async function selectStudent(student) {
+  selectedStudent  = student;
+  editingCommentId = null;
+
+  document.querySelectorAll('.student-item').forEach(el => el.classList.remove('active'));
+  const activeEl = document.getElementById(`si-${student.id}`);
+  if (activeEl) activeEl.classList.add('active');
+
+  document.getElementById('empty-state').classList.add('hidden');
+  document.getElementById('comment-form-section').classList.remove('hidden');
+  document.getElementById('comments-list-section').classList.remove('hidden');
+  document.getElementById('form-title').textContent = `Write Comment — ${escHtml(student.fullName || 'Student')}`;
+
+  resetForm();
+  startAutoSave();
+  await loadMyComments(student.id);
+}
+
+function resetForm() {
+  editingCommentId = null;
+
+  document.getElementById('f-date-start').value   = '';
+  document.getElementById('f-date-end').value     = '';
+  document.getElementById('f-class-time').value   = '';
+  document.getElementById('f-comment-text').value = '';
+  document.getElementById('editing-badge').classList.add('hidden');
+  document.getElementById('cancel-edit-btn').classList.add('hidden');
+
+  const sendBtn = document.getElementById('send-btn');
+  sendBtn.disabled = false;
+  sendBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Send';
+
+  const draftBtn = document.getElementById('draft-btn');
+  draftBtn.disabled = false;
+  draftBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">save</span> Save Draft';
+
+  document.getElementById('autosave-indicator').classList.add('hidden');
+  stopAutoSave();
+}
+
+// ── Send comment ───────────────────────────────────────────────────────────────
+window.sendComment = async function() {
+  if (!selectedStudent) return;
+
+  const dateStart   = document.getElementById('f-date-start').value;
+  const dateEnd     = document.getElementById('f-date-end').value;
+  const classTime   = document.getElementById('f-class-time').value.trim();
+  const commentText = document.getElementById('f-comment-text').value.trim();
+
+  if (!dateStart || !dateEnd) { showToast('Please select a date range.', 'error'); return; }
+  if (!commentText)           { showToast('Comment text is required before sending.', 'error'); return; }
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#261a00;border-color:rgba(38,26,0,.2)"></div><span>Sending...</span>';
+
+  try {
+    const payload = {
+      studentId:      selectedStudent.id,
+      studentName:    selectedStudent.fullName || '',
+      teacherUid:     currentUser.uid,
+      teacherName:    currentUser.name,
+      dateRangeStart: dateStart,
+      dateRangeEnd:   dateEnd,
+      classTime,
+      commentText,
+      status:         'sent',
+      sentAt:         serverTimestamp(),
+      updatedAt:      serverTimestamp(),
+    };
+
+    if (editingCommentId) {
+      await updateDoc(doc(db, 'reports', editingCommentId), payload);
+    } else {
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db, 'reports'), payload);
+    }
+
+    showToast('Comment sent successfully.', 'success');
+    resetForm();
+    startAutoSave();
+    await loadMyComments(selectedStudent.id);
+  } catch (e) {
+    console.error('[sendComment]', e);
+    showToast('Failed to send: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Send';
+  }
+};
+
+window.cancelEdit = function() { resetForm(); };
+
+// ── Save as Draft ──────────────────────────────────────────────────────────────
+window.saveDraft = async function(silent = false) {
+  if (!selectedStudent) return;
+
+  const dateStart   = document.getElementById('f-date-start').value;
+  const dateEnd     = document.getElementById('f-date-end').value;
+  const classTime   = document.getElementById('f-class-time').value.trim();
+  const commentText = document.getElementById('f-comment-text').value.trim();
+
+  const btn = document.getElementById('draft-btn');
+  if (!silent) {
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Saving...';
+  }
+
+  try {
+    const payload = {
+      studentId:      selectedStudent.id,
+      studentName:    selectedStudent.fullName || '',
+      teacherUid:     currentUser.uid,
+      teacherName:    currentUser.name,
+      dateRangeStart: dateStart,
+      dateRangeEnd:   dateEnd,
+      classTime,
+      commentText,
+      status:         'draft',
+      updatedAt:      serverTimestamp(),
+    };
+
+    if (editingCommentId) {
+      await updateDoc(doc(db, 'reports', editingCommentId), payload);
+    } else {
+      payload.createdAt = serverTimestamp();
+      const ref = await addDoc(collection(db, 'reports'), payload);
+      editingCommentId = ref.id;
+      const badge = document.getElementById('editing-badge');
+      badge.textContent = 'Editing Draft';
+      badge.classList.remove('hidden');
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+      document.getElementById('send-btn').innerHTML =
+        '<span class="material-symbols-outlined text-[18px]">send</span> Send';
+    }
+
+    if (!silent) showToast('Draft saved.', 'success');
+    else         showAutoSaveIndicator();
+    await loadMyComments(selectedStudent.id);
+  } catch (e) {
+    console.error('[saveDraft]', e);
+    if (!silent) showToast('Failed to save draft: ' + e.message, 'error');
+  } finally {
+    if (!silent) {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">save</span> Save Draft';
+    }
+  }
+};
+
+window.deleteDraft = async function(commentId) {
+  if (!confirm('Delete this draft? This cannot be undone.')) return;
+  try {
+    await deleteDoc(doc(db, 'reports', commentId));
+    if (editingCommentId === commentId) resetForm();
+    myComments = myComments.filter(c => c.id !== commentId);
+    renderCommentsList();
+    showToast('Draft deleted.', 'success');
+  } catch (e) {
+    console.error('[deleteDraft]', e);
+    showToast('Failed to delete draft: ' + e.message, 'error');
+  }
+};
+
+// ── Load & render comments list ────────────────────────────────────────────────
+async function loadMyComments(studentId) {
+  const body = document.getElementById('comments-list-body');
+  body.innerHTML = `<div class="flex items-center gap-2 px-6 py-6 text-text-muted text-sm">
+    <div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Loading comments...</div>`;
+  try {
+    const q = query(collection(db, 'reports'), where('teacherUid', '==', currentUser.uid));
+    const snap = await getDocs(q);
+    myComments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(c => c.studentId === studentId)
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    renderCommentsList();
+  } catch (e) {
+    console.error('[loadMyComments]', e);
+    body.innerHTML = `<p class="px-6 py-4 text-error text-sm">Failed to load: ${e.message}</p>`;
+  }
+}
+
+function renderCommentsList() {
+  const body = document.getElementById('comments-list-body');
+  if (!myComments.length) {
+    body.innerHTML = `<div class="px-6 py-8 text-center text-text-muted text-sm">
+      <span class="material-symbols-outlined text-3xl block mb-2" style="opacity:.3;">chat</span>
+      No comments yet for this student.
+    </div>`;
+    return;
+  }
+
+  const drafts = myComments.filter(c => c.status === 'draft');
+  const sent   = myComments.filter(c => c.status === 'sent');
+
+  const renderRow = c => {
+    const badge = c.status === 'sent'
+      ? `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Sent</span>`
+      : `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Draft</span>`;
+    const dateRange  = (c.dateRangeStart && c.dateRangeEnd)
+      ? `${c.dateRangeStart} – ${c.dateRangeEnd}` : (c.dateRangeStart || '');
+    const updatedStr = c.updatedAt?.toDate ? c.updatedAt.toDate().toLocaleDateString() : '';
+    const sentStr    = c.sentAt?.toDate    ? c.sentAt.toDate().toLocaleDateString()    : '';
+    const createdStr = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '';
+    const actionBtn  = c.status === 'draft'
+      ? `<div class="flex items-center gap-2 flex-shrink-0">
+           <button data-cid="${escAttr(c.id)}" class="edit-btn flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-gray-300 text-gray-600 bg-white rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
+             <span class="material-symbols-outlined text-[15px]">edit_note</span> Continue Editing
+           </button>
+           <button data-cid="${escAttr(c.id)}" class="del-draft-btn flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-error bg-white hover:bg-red-50 active:scale-95 transition-all" title="Delete draft">
+             <span class="material-symbols-outlined text-[16px]">delete</span>
+           </button>
+         </div>`
+      : '';
+    return `
+    <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-start gap-3 border-b border-border-subtle last:border-0">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 flex-wrap mb-1">
+          ${badge}
+          ${dateRange ? `<span class="text-xs text-text-muted">${escHtml(dateRange)}</span>` : ''}
+          ${c.status === 'draft' && updatedStr
+            ? `<span class="text-xs text-text-muted">· Saved ${updatedStr}</span>`
+            : sentStr ? `<span class="text-xs text-text-muted">· Sent ${sentStr}</span>`
+            : createdStr ? `<span class="text-xs text-text-muted">· Created ${createdStr}</span>` : ''}
+        </div>
+        ${c.commentText
+          ? `<p class="text-sm text-text-muted mt-1 line-clamp-2">${escHtml(c.commentText)}</p>` : ''}
+      </div>
+      ${actionBtn}
+    </div>`;
+  };
+
+  let html = '';
+  if (drafts.length) {
+    html += `<div class="px-6 pt-3 pb-1">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Drafts</p>
+    </div>`;
+    html += drafts.map(renderRow).join('');
+    if (sent.length) {
+      html += `<div class="px-6 pt-4 pb-1 border-t border-border-subtle">
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sent</p>
+      </div>`;
+    }
+  }
+  html += sent.map(renderRow).join('');
+  body.innerHTML = html;
+
+  body.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => startEditComment(btn.dataset.cid));
+  });
+  body.querySelectorAll('.del-draft-btn').forEach(btn => {
+    btn.addEventListener('click', () => deleteDraft(btn.dataset.cid));
+  });
+}
+
+// ── Edit draft ─────────────────────────────────────────────────────────────────
+window.startEditComment = function(commentId) {
+  const comment = myComments.find(c => c.id === commentId);
+  if (!comment || comment.status !== 'draft') return;
+
+  editingCommentId = commentId;
+  document.getElementById('f-date-start').value   = comment.dateRangeStart || '';
+  document.getElementById('f-date-end').value     = comment.dateRangeEnd   || '';
+  document.getElementById('f-class-time').value   = comment.classTime      || '';
+  document.getElementById('f-comment-text').value = comment.commentText    || '';
+
+  const badge = document.getElementById('editing-badge');
+  badge.textContent = 'Editing Draft';
+  badge.classList.remove('hidden');
+  document.getElementById('cancel-edit-btn').classList.remove('hidden');
+  document.getElementById('send-btn').innerHTML =
+    '<span class="material-symbols-outlined text-[18px]">send</span> Send';
+
+  document.getElementById('comment-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast('Continue editing your draft.', 'info');
+};
+
+// ── Auto-save ──────────────────────────────────────────────────────────────────
+function startAutoSave() {
+  stopAutoSave();
+  autoSaveInterval = setInterval(() => {
+    if (!selectedStudent) return;
+    const hasContent =
+      document.getElementById('f-date-start').value ||
+      document.getElementById('f-date-end').value   ||
+      document.getElementById('f-comment-text').value.trim();
+    if (!hasContent) return;
+    saveDraft(true);
+  }, 30000);
+}
+
+function stopAutoSave() {
+  if (autoSaveInterval) { clearInterval(autoSaveInterval); autoSaveInterval = null; }
+}
+
+function showAutoSaveIndicator() {
+  const el = document.getElementById('autosave-indicator');
+  if (!el) return;
+  el.classList.remove('hidden');
+  clearTimeout(window._autosaveHideTimer);
+  window._autosaveHideTimer = setTimeout(() => el.classList.add('hidden'), 3000);
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3500);
+}
+</script>
+</body>
+</html>

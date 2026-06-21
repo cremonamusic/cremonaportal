@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Comments | Cremona Music Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#C9A227", "primary-container": "#F5E5B0",
+          "on-primary-fixed": "#3E2C23", "on-primary-container": "#8B6020",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9",
+          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
+          "error": "#ba1a1a"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .child-tab { border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; }
+  .child-tab.active { color: #A07818; border-bottom-color: #A07818; font-weight: 600; }
+  .child-tab:not(.active) { color: #8B6B52; }
+  .child-tab:not(.active):hover { color: #3E2C23; }
+  .comment-card { transition: box-shadow .15s; }
+  .comment-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .expand-body { display: none; }
+  .expand-body.open { display: block; }
+  .expand-icon { transition: transform .2s; }
+  .expanded .expand-icon { transform: rotate(180deg); }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a; color:#fff; }
+  #toast.success { background:#1e6e3b; color:#fff; }
+  #toast.info    { background:#3B2A1E; color:#F5EFE4; }
+</style>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
+      <nav class="hidden sm:flex items-center gap-5">
+        <a href="dashboard.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
+        <a href="schedule.html"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="comments.html"   class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Comments</a>
+        <a href="messages.html"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
+      <button onclick="doSignOut()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        <span class="hidden sm:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="flex-1 max-w-4xl mx-auto w-full px-6 py-8">
+
+  <h1 class="text-2xl font-bold text-on-surface mb-6">Comments</h1>
+
+  <!-- Child tabs — shown when multiple children -->
+  <div id="child-tabs-wrap" class="hidden mb-6 border-b border-border-subtle">
+    <div id="child-tabs" class="flex gap-6 overflow-x-auto"></div>
+  </div>
+
+  <!-- Comments list -->
+  <div id="comments-area">
+    <div class="flex items-center justify-center py-16">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+</main>
+
+<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
+  © 2025 Cremona Music.
+</footer>
+
+<script type="module">
+import { initializeApp }                         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs,
+         collection, query, where, orderBy }     from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app  = initializeApp({
+  apiKey:            "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain:        "cremonamusic-portal.firebaseapp.com",
+  projectId:         "cremonamusic-portal",
+  storageBucket:     "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── state ──────────────────────────────────────────────────────────────────────
+let allStudents = [];
+let selectedSid = '';
+let expandedIds = new Set();
+
+// ── helpers ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function fmtDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function avatarBg(name) {
+  const colors = ['#C9A227','#7A5230','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
+  return colors[Math.abs(h) % colors.length];
+}
+
+// ── auth guard ─────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+
+  let parentData;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().role !== 'parent') {
+      await signOut(auth);
+      window.location.href = '/index.html';
+      return;
+    }
+    parentData = snap.data();
+  } catch (e) {
+    window.location.href = '/index.html';
+    return;
+  }
+
+  const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
+  if (firstName) document.getElementById('header-name').textContent = firstName;
+
+  const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
+  if (!linkedIds.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    renderEmpty('No children linked to your account yet.');
+    return;
+  }
+
+  try {
+    const snaps = await Promise.all(linkedIds.map(id => getDoc(doc(db, 'students', id))));
+    allStudents = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
+  } catch (e) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('Failed to load student data.', 'error');
+    return;
+  }
+
+  if (!allStudents.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    renderEmpty('No student records found.');
+    return;
+  }
+
+  const urlSid = new URLSearchParams(window.location.search).get('studentId') || '';
+  selectedSid  = allStudents.find(s => s.id === urlSid) ? urlSid : allStudents[0].id;
+
+  renderTabs();
+  document.getElementById('loading-overlay').style.display = 'none';
+  await loadAndRenderComments(selectedSid);
+});
+
+// ── tabs ───────────────────────────────────────────────────────────────────────
+function renderTabs() {
+  if (allStudents.length < 2) return;
+
+  const wrap = document.getElementById('child-tabs-wrap');
+  const tabs = document.getElementById('child-tabs');
+  wrap.classList.remove('hidden');
+
+  tabs.innerHTML = allStudents.map(s => {
+    const name    = s.fullName || '—';
+    const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
+    const bg      = avatarBg(name);
+    const active  = s.id === selectedSid ? 'active' : '';
+    return `
+      <button data-sid="${escHtml(s.id)}"
+              class="child-tab ${active} flex items-center gap-2 pb-3 px-1 text-sm whitespace-nowrap"
+              onclick="switchChild('${escHtml(s.id)}')">
+        <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+              style="background:${bg}">${escHtml(initials)}</span>
+        ${escHtml(name)}
+      </button>`;
+  }).join('');
+}
+
+window.switchChild = async function(sid) {
+  if (sid === selectedSid) return;
+  selectedSid = sid;
+  expandedIds.clear();
+  document.querySelectorAll('#child-tabs .child-tab').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sid === sid);
+  });
+  await loadAndRenderComments(sid);
+};
+
+// ── load & render comments ─────────────────────────────────────────────────────
+async function loadAndRenderComments(sid) {
+  const area = document.getElementById('comments-area');
+  area.innerHTML = `<div class="flex items-center justify-center py-16"><div class="spinner"></div></div>`;
+
+  let comments = [];
+  try {
+    const q    = query(
+      collection(db, 'reports'),
+      where('studentId', '==', sid),
+      where('status', '==', 'sent'),
+      orderBy('sentAt', 'desc')
+    );
+    const snap = await getDocs(q);
+    comments   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    // Compound query may need an index — fall back to client sort
+    try {
+      const q2   = query(collection(db, 'reports'), where('studentId', '==', sid), where('status', '==', 'sent'));
+      const snap = await getDocs(q2);
+      comments   = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.sentAt?.toDate ? a.sentAt.toDate() : (a.createdAt?.toDate ? a.createdAt.toDate() : new Date(0));
+          const tb = b.sentAt?.toDate ? b.sentAt.toDate() : (b.createdAt?.toDate ? b.createdAt.toDate() : new Date(0));
+          return tb - ta;
+        });
+    } catch (e2) {
+      area.innerHTML = `<p class="text-error text-sm py-8 text-center">Failed to load comments: ${escHtml(e2.message)}</p>`;
+      return;
+    }
+  }
+
+  renderComments(comments);
+}
+
+function renderComments(comments) {
+  const area = document.getElementById('comments-area');
+
+  if (!comments.length) {
+    area.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <span class="material-symbols-outlined text-5xl opacity-30">chat</span>
+        <p class="font-semibold text-sm">No comments yet</p>
+        <p class="text-xs">Comments from your child's teacher will appear here once sent.</p>
+      </div>`;
+    return;
+  }
+
+  area.innerHTML = comments.map(c => buildCommentCard(c)).join('');
+
+  expandedIds.forEach(id => {
+    const card = document.querySelector(`[data-cid="${id}"]`);
+    if (card) {
+      card.classList.add('expanded');
+      card.querySelector('.expand-body')?.classList.add('open');
+      card.querySelector('.expand-icon').textContent = 'expand_less';
+    }
+  });
+
+  document.querySelectorAll('.comment-card[data-cid]').forEach(card => {
+    card.querySelector('.comment-header-btn')?.addEventListener('click', () => toggleCard(card));
+  });
+}
+
+function buildCommentCard(c) {
+  const dateRange = (c.dateRangeStart && c.dateRangeEnd)
+    ? `${fmtDate(c.dateRangeStart)} – ${fmtDate(c.dateRangeEnd)}`
+    : c.dateRangeStart ? fmtDate(c.dateRangeStart) : '';
+
+  const sentStr = c.sentAt?.toDate
+    ? c.sentAt.toDate().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+    : c.createdAt?.toDate
+      ? c.createdAt.toDate().toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' })
+      : '';
+
+  const preview = c.commentText
+    ? c.commentText.length > 120 ? c.commentText.slice(0, 120) + '…' : c.commentText
+    : '';
+
+  return `
+    <div class="comment-card bg-surface-white rounded-2xl border border-border-subtle mb-4 overflow-hidden" data-cid="${escHtml(c.id)}">
+
+      <!-- Card header — click to expand -->
+      <button class="comment-header-btn w-full text-left px-6 py-5 flex items-start justify-between gap-4 hover:bg-surface-container-low transition-colors">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            ${dateRange ? `<span class="text-sm font-semibold text-on-surface">${escHtml(dateRange)}</span>` : ''}
+          </div>
+          <div class="flex flex-wrap items-center gap-3 mt-1 text-xs text-text-muted">
+            ${c.classTime   ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span>${escHtml(c.classTime)}</span>` : ''}
+            ${c.teacherName ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span>${escHtml(c.teacherName)}</span>` : ''}
+            ${sentStr       ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">calendar_today</span>${escHtml(sentStr)}</span>` : ''}
+          </div>
+          ${preview ? `<p class="text-sm text-text-muted mt-2 text-left line-clamp-2">${escHtml(preview)}</p>` : ''}
+        </div>
+        <span class="material-symbols-outlined expand-icon text-text-muted flex-shrink-0 mt-1">expand_more</span>
+      </button>
+
+      <!-- Expanded detail -->
+      <div class="expand-body border-t border-border-subtle">
+        <div class="px-6 py-6">
+          ${c.commentText
+            ? `<p class="text-sm text-on-surface leading-relaxed whitespace-pre-wrap">${escHtml(c.commentText)}</p>`
+            : '<p class="text-text-muted text-sm">No comment provided.</p>'}
+        </div>
+      </div>
+
+    </div>`;
+}
+
+function toggleCard(card) {
+  const cid  = card.dataset.cid;
+  const body = card.querySelector('.expand-body');
+  const icon = card.querySelector('.expand-icon');
+  const isOpen = card.classList.toggle('expanded');
+  body.classList.toggle('open', isOpen);
+  icon.textContent = isOpen ? 'expand_less' : 'expand_more';
+  if (isOpen) expandedIds.add(cid);
+  else        expandedIds.delete(cid);
+}
+
+function renderEmpty(msg) {
+  document.getElementById('comments-area').innerHTML = `
+    <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+      <span class="material-symbols-outlined text-5xl opacity-30">chat</span>
+      <p class="font-semibold text-sm">${escHtml(msg)}</p>
+    </div>`;
+}
+
+window.doSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/index.html';
+};
+</script>
+</body>
+</html>

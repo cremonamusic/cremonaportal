@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Comments | Cremona Music Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: {
+      colors: {
+        "on-tertiary-fixed":"#3E2C23","surface-variant":"#E4D8C2","inverse-primary":"#D4A520",
+        "error-container":"#ffdad6","on-secondary-fixed":"#3E2C23","text-muted":"#8B6B52",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFDF9","surface-container-low":"#F5EFE4",
+        "primary-container":"#F5E5B0","on-secondary-container":"#3E2C23",
+        "secondary-container":"#F5E5B0","secondary":"#C9A227","on-surface-variant":"#7A5A42",
+        "primary-fixed-dim":"#D4A520","on-surface":"#3E2C23","surface-tint":"#C9A227",
+        "secondary-fixed":"#F0E8C0","surface-container-highest":"#E4D8C2",
+        "border-subtle":"#E8DCC8","background":"#FAF6EF",
+        "primary-fixed":"#F0E8C0","primary":"#C9A227","on-primary-container":"#8B6020",
+        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#3E2C23",
+        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
+        "surface-container-high":"#EAE0CE","on-primary":"#3E2C23","on-background":"#3E2C23",
+        "on-primary-fixed":"#3E2C23"
+      },
+      fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
+      fontSize:{
+        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+        "label-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+        "label-md":["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+        "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+  body { font-family:'Inter',sans-serif; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,.2);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  .nav-active { color:#C9A227!important;border-bottom:2px solid #C9A227;padding-bottom:4px;font-weight:700!important; }
+  tr.comment-row { cursor:pointer; }
+  tr.comment-row:hover td { background:#FAF6EF; }
+  .tab-btn { transition: all .15s ease; }
+  .tab-btn.active { background:#C9A227;color:#3E2C23; }
+</style>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- ── Comment Detail Modal ────────────────────────────────────────────────── -->
+<div id="detail-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-12 overflow-y-auto" onclick="if(event.target===this)closeDetailModal()">
+  <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl mb-8">
+
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 class="font-headline-sm">Comment Detail</h2>
+      <button onclick="closeDetailModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div id="detail-body" class="px-6 py-5 flex flex-col gap-5">
+      <!-- populated by openDetailModal() -->
+    </div>
+
+    <div class="flex items-center justify-end px-6 pb-5 border-t border-border-subtle pt-4">
+      <button onclick="closeDetailModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts.html">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security.html">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources.html">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students.html">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin.html">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin.html">Messages</a>
+        <a class="font-body-md nav-active" href="comments-admin.html">Comments</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container font-body-md opacity-20 hover:opacity-100">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="hidden md:inline font-bold">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-[1200px] mx-auto px-10 py-6">
+
+  <!-- Page header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+    <div>
+      <h1 class="font-headline-lg text-on-surface mb-1">Student Comments</h1>
+      <p class="font-body-md text-text-muted">Read-only view of all comments from teachers across all students.</p>
+    </div>
+    <span id="result-count" class="text-label-sm text-text-muted"></span>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="flex gap-2 mb-5 flex-wrap">
+    <button class="tab-btn active px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle" data-tab="all"   onclick="setTab('all')">All</button>
+    <button class="tab-btn        px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="sent"  onclick="setTab('sent')">Sent</button>
+    <button class="tab-btn        px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="draft" onclick="setTab('draft')">Draft</button>
+  </div>
+
+  <!-- Search row -->
+  <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-sm mb-5 flex flex-wrap gap-3 items-end">
+    <div class="flex-1 min-w-[200px]">
+      <label class="block text-label-sm text-text-muted mb-1">Search</label>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" style="font-size:16px">search</span>
+        <input id="search-input" type="text" placeholder="Student or teacher name..." oninput="applyFilters()"
+               class="w-full pl-9 pr-3 py-2 border border-border-subtle rounded-lg text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <button onclick="clearSearch()" class="text-sm text-text-muted hover:text-error transition-colors px-2">Clear</button>
+  </div>
+
+  <!-- Comments table -->
+  <div class="bg-surface-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-border-subtle">
+          <th class="text-left px-6 py-3.5 font-label-md text-text-muted">Student</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden sm:table-cell">Teacher</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden md:table-cell">Date Range</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Status</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden lg:table-cell">Created</th>
+        </tr>
+      </thead>
+      <tbody id="comments-tbody">
+        <tr><td colspan="5" class="text-center py-12 text-text-muted">
+          <div class="flex items-center justify-center gap-3"><div class="spinner"></div> Loading comments…</div>
+        </td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain: "cremonamusic-portal.firebaseapp.com",
+  projectId: "cremonamusic-portal",
+  storageBucket: "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let allComments      = [];
+let filteredComments = [];
+let currentTab       = 'all';
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') {
+    window.location.href = '/home.html'; return;
+  }
+  await loadComments();
+  document.getElementById('loading-overlay').style.display = 'none';
+});
+
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
+
+// ── Load comments ──────────────────────────────────────────────────────────────
+async function loadComments() {
+  const snap = await getDocs(collection(db, 'reports'));
+  allComments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+  applyFilters();
+}
+
+// ── Tabs & filters ─────────────────────────────────────────────────────────────
+window.setTab = function(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    const isActive = btn.dataset.tab === tab;
+    btn.classList.toggle('active', isActive);
+    btn.classList.toggle('bg-white', !isActive);
+    btn.classList.toggle('text-text-muted', !isActive);
+  });
+  applyFilters();
+};
+
+window.applyFilters = function() {
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  filteredComments = allComments.filter(c => {
+    const matchTab = currentTab === 'all' || c.status === currentTab;
+    const matchQ   = !q ||
+      (c.studentName || '').toLowerCase().includes(q) ||
+      (c.teacherName  || '').toLowerCase().includes(q);
+    return matchTab && matchQ;
+  });
+  renderTable();
+};
+
+window.clearSearch = function() {
+  document.getElementById('search-input').value = '';
+  applyFilters();
+};
+
+// ── Render table ───────────────────────────────────────────────────────────────
+function renderTable() {
+  const count = filteredComments.length;
+  document.getElementById('result-count').textContent = `${count} comment${count !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('comments-tbody');
+  if (!count) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-text-muted">
+      <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">chat</span>
+      <p class="font-semibold text-sm">No comments found</p>
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filteredComments.map(c => {
+    const badge      = statusBadge(c.status);
+    const dateRange  = c.dateRangeStart && c.dateRangeEnd
+      ? `${c.dateRangeStart} – ${c.dateRangeEnd}` : (c.dateRangeStart || '—');
+    const createdStr = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '—';
+    return `<tr class="comment-row border-b border-border-subtle last:border-0 transition-colors" data-cid="${escAttr(c.id)}">
+      <td class="px-6 py-3.5">
+        <p class="font-semibold text-on-surface">${escHtml(c.studentName || '—')}</p>
+        ${c.commentText ? `<p class="text-xs text-text-muted mt-0.5 truncate max-w-[200px]">${escHtml(c.commentText)}</p>` : ''}
+      </td>
+      <td class="px-4 py-3.5 hidden sm:table-cell text-text-muted">${escHtml(c.teacherName || '—')}</td>
+      <td class="px-4 py-3.5 hidden md:table-cell text-text-muted text-sm">${escHtml(dateRange)}</td>
+      <td class="px-4 py-3.5">${badge}</td>
+      <td class="px-4 py-3.5 hidden lg:table-cell text-text-muted text-sm">${createdStr}</td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('tr.comment-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const c = allComments.find(x => x.id === row.dataset.cid);
+      if (c) openDetailModal(c);
+    });
+  });
+}
+
+function statusBadge(status) {
+  if (status === 'sent')  return `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Sent</span>`;
+  return `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Draft</span>`;
+}
+
+// ── Detail modal ───────────────────────────────────────────────────────────────
+window.openDetailModal = function(comment) {
+  const createdStr = comment.createdAt?.toDate ? comment.createdAt.toDate().toLocaleString() : '—';
+  const sentStr    = comment.sentAt?.toDate    ? comment.sentAt.toDate().toLocaleString()    : null;
+
+  document.getElementById('detail-body').innerHTML = `
+    <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Student</p>
+        <p class="font-semibold text-on-surface">${escHtml(comment.studentName || '—')}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Teacher</p>
+        <p class="font-semibold text-on-surface">${escHtml(comment.teacherName || '—')}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Date Range</p>
+        <p>${escHtml(comment.dateRangeStart || '—')} – ${escHtml(comment.dateRangeEnd || '—')}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Class Time</p>
+        <p>${escHtml(comment.classTime || '—')}</p>
+      </div>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Status</p>
+        ${statusBadge(comment.status)}
+      </div>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Created</p>
+        <p class="text-text-muted">${createdStr}</p>
+      </div>
+      ${sentStr ? `<div class="col-span-2">
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Sent</p>
+        <p class="text-text-muted">${sentStr}</p>
+      </div>` : ''}
+    </div>
+
+    ${comment.commentText ? `<div>
+      <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">Comment</p>
+      <p class="text-sm text-on-surface leading-relaxed whitespace-pre-wrap border border-border-subtle rounded-lg px-4 py-3 bg-surface-container-low">${escHtml(comment.commentText)}</p>
+    </div>` : ''}
+  `;
+
+  document.getElementById('detail-modal').classList.remove('hidden');
+};
+
+window.closeDetailModal = function() {
+  document.getElementById('detail-modal').classList.add('hidden');
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escAttr(s) {
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+window.showToast = function(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3500);
+};
+</script>
+</body>
+</html>
