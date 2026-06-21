@@ -126,7 +126,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <!-- ── Header ─────────────────────────────────────────────────────────────── -->
 <header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-10 h-16 max-w-[1200px] mx-auto">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
     <div class="flex items-center gap-8">
       <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
       <nav class="hidden md:flex items-center gap-6">
@@ -140,10 +140,10 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </nav>
     </div>
     <div class="flex items-center gap-4">
-      <span class="hidden md:inline font-body-md text-text-muted">Admin Portal</span>
-      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+      
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container font-body-md opacity-20 hover:opacity-100">
         <span class="material-symbols-outlined text-sm">logout</span>
-        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+        <span class="hidden md:inline font-bold">Sign Out</span>
       </button>
     </div>
   </div>
