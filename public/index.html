@@ -11,6 +11,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
 <!-- EmailJS -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -290,6 +291,39 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
     </div>
 
+    <!-- ── CHILDREN REGISTRATION CARD ──────────────────────────────────────── -->
+    <div id="children-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
+      <div class="flex flex-col items-center gap-2 mb-6 text-center">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:#fef9c3;">
+          <span class="material-symbols-outlined text-[32px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">child_care</span>
+        </div>
+        <h2 class="text-lg font-bold text-on-surface">Register Your Child(ren)</h2>
+        <p class="text-sm text-text-muted leading-relaxed">Add up to 5 children. Full name, date of birth, and IC photos (front + back) are required per child.</p>
+      </div>
+
+      <div id="children-list" class="flex flex-col gap-5">
+        <!-- rendered by JS -->
+      </div>
+
+      <button id="add-child-btn" onclick="addChildEntry()"
+              class="mt-4 flex items-center gap-1.5 text-sm font-medium text-secondary hover:underline transition-colors">
+        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+        Add another child
+      </button>
+
+      <div class="mt-6 flex flex-col gap-3">
+        <button id="children-submit-btn" onclick="submitChildren()"
+                class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">check_circle</span>
+          Complete Registration
+        </button>
+        <button onclick="skipChildren()"
+                class="text-sm text-text-muted hover:underline text-center">
+          Skip — I'll add children later
+        </button>
+      </div>
+    </div>
+
     <!-- ── FORGOT PASSWORD CARD ────────────────────────────────────────────── -->
     <div id="forgot-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
       <h2 class="text-lg font-bold text-on-surface mb-2">Reset Password</h2>
@@ -326,8 +360,9 @@ const firebaseConfig = {
   appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db   = firebase.firestore();
+const auth     = firebase.auth();
+const db       = firebase.firestore();
+const storage  = firebase.storage();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // ── State ──────────────────────────────────────────────────────────────────────
@@ -340,6 +375,10 @@ let pendingSignup = null;
 // Active OTP (signup)
 let otpCode   = null;  // string '123456'
 let otpExpiry = null;  // Date
+
+// Children registration state (parent signups only)
+let pendingParentUid = null;
+let childEntries     = []; // [{name, dob, frontFile, backFile}]
 
 
 // ── Auth state: redirect any signed-in user ────────────────────────────────────
@@ -519,7 +558,14 @@ window.verifyOtp = async function() {
     });
 
     _skipAuthHandler = false;
-    await redirectByRole(newUser.uid);
+    if (codePurpose === 'parent') {
+      pendingParentUid = newUser.uid;
+      setLoading('otp-verify-btn', false);
+      initChildrenCard();
+      showCard('children');
+    } else {
+      await redirectByRole(newUser.uid);
+    }
 
   } catch (e) {
     console.error('[signup error]', e.code, e.message);
@@ -690,7 +736,8 @@ function setLoading(btnId, loading, text = '') {
       'login-btn':         'Sign In',
       'signup-btn':        'Create Account',
       'forgot-btn':        'Send Reset Link',
-      'otp-verify-btn':    '<span class="material-symbols-outlined text-[18px]">verified</span> Verify Code',
+      'otp-verify-btn':       '<span class="material-symbols-outlined text-[18px]">verified</span> Verify Code',
+      'children-submit-btn':  '<span class="material-symbols-outlined text-[18px]">check_circle</span> Complete Registration',
       'google-signin-btn': `<svg height="18" viewBox="0 0 18 18" width="18"><path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.7l2.79 2.17C16.46 14.12 18 11.89 18 9c0-.61-.06-1.14-.16-1.8z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.79-2.17c-.77.52-1.76.83-3.17.83-2.44 0-4.51-1.64-5.25-3.84L.91 13.04C2.39 15.99 5.45 18 9 18z" fill="#34A853"/><path d="M3.75 10.64c-.19-.57-.3-1.18-.3-1.82s.11-1.25.3-1.82L.91 4.67C.33 5.83 0 7.13 0 8.5s.33 2.67.91 3.83l2.84-2.19z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.45 0 2.39 2.01.91 4.96l2.84 2.19C4.49 4.95 6.56 3.58 9 3.58z" fill="#EA4335"/></svg><span class="text-sm font-medium text-on-surface">Continue with Google</span>`
     };
     btn.innerHTML = defaults[btnId] || btn.textContent;
@@ -699,7 +746,7 @@ function setLoading(btnId, loading, text = '') {
 
 // ── Card switching ─────────────────────────────────────────────────────────────
 window.showCard = function(card) {
-  ['login-card', 'signup-card', 'otp-card', 'forgot-card'].forEach(id => {
+  ['login-card', 'signup-card', 'otp-card', 'forgot-card', 'children-card'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   const target = document.getElementById(`${card}-card`);
@@ -726,6 +773,175 @@ window.showToast = function(message, type = 'info') {
   toast.textContent = message;
   toast.className = `show ${type}`;
   setTimeout(() => { toast.className = ''; }, 3500);
+};
+
+// ── Children registration (parent signup only) ────────────────────────────────
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function initChildrenCard() {
+  childEntries = [{ name: '', dob: '', frontFile: null, backFile: null }];
+  renderChildEntries();
+}
+
+function renderChildEntries() {
+  const container = document.getElementById('children-list');
+  container.innerHTML = childEntries.map((c, i) => `
+    <div class="border border-border-subtle rounded-xl p-4 flex flex-col gap-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-on-surface">Child ${i + 1}</h3>
+        ${childEntries.length > 1
+          ? `<button onclick="removeChildEntry(${i})" class="text-text-muted hover:text-error transition-colors p-1 rounded-lg" type="button">
+               <span class="material-symbols-outlined text-[18px]">close</span>
+             </button>`
+          : ''}
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-on-surface-variant">Full Name *</label>
+        <input id="child-name-${i}" type="text" value="${esc(c.name)}" placeholder="Child's full name"
+               oninput="childEntries[${i}].name = this.value"
+               class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-on-surface-variant">Date of Birth *</label>
+        <input id="child-dob-${i}" type="date" value="${esc(c.dob)}"
+               oninput="childEntries[${i}].dob = this.value"
+               class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        ${icUploadZoneHtml(i, 'front', c.frontFile)}
+        ${icUploadZoneHtml(i, 'back',  c.backFile)}
+      </div>
+    </div>
+  `).join('');
+
+  // Wire file inputs after DOM injection
+  childEntries.forEach((_, i) => {
+    ['front', 'back'].forEach(side => {
+      const input = document.getElementById(`child-${side}-file-${i}`);
+      if (input) input.addEventListener('change', function() {
+        handleChildFile(i, side, this.files[0]);
+      });
+    });
+  });
+
+  const addBtn = document.getElementById('add-child-btn');
+  if (addBtn) addBtn.style.display = childEntries.length >= 5 ? 'none' : '';
+}
+
+function icUploadZoneHtml(i, side, file) {
+  const label    = side === 'front' ? 'IC Front *' : 'IC Back *';
+  const hasFile  = !!file;
+  const inner    = hasFile
+    ? `<span class="material-symbols-outlined text-[20px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">check_circle</span>
+       <span class="text-[11px] font-medium mt-0.5 block truncate max-w-full px-1" style="color:#C9A227;">${esc(file.name)}</span>`
+    : `<span class="material-symbols-outlined text-text-muted text-[24px]">upload</span>
+       <span class="text-[11px] text-text-muted mt-0.5 block">Click to upload</span>`;
+  const border   = hasFile ? 'border-secondary bg-secondary/5' : 'border-dashed border-border-subtle hover:border-secondary/40';
+  return `
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-medium text-on-surface-variant">${label}</label>
+      <input id="child-${side}-file-${i}" type="file"
+             accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic" class="hidden"/>
+      <button type="button" onclick="document.getElementById('child-${side}-file-${i}').click()"
+              class="flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 ${border} p-3 min-h-[80px] text-center transition-colors w-full">
+        ${inner}
+      </button>
+    </div>`;
+}
+
+function handleChildFile(i, side, file) {
+  if (!file) return;
+  const ALLOWED = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
+  if (!ALLOWED.includes(file.type) && !file.name.toLowerCase().match(/\.(jpg|jpeg|png|heic)$/)) {
+    return showToast('Only JPG, PNG, or HEIC files are allowed.', 'error');
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    return showToast('Image must be under 5 MB.', 'error');
+  }
+  if (side === 'front') childEntries[i].frontFile = file;
+  else                  childEntries[i].backFile  = file;
+  renderChildEntries();
+}
+
+window.addChildEntry = function() {
+  if (childEntries.length >= 5) return;
+  childEntries.push({ name: '', dob: '', frontFile: null, backFile: null });
+  renderChildEntries();
+};
+
+window.removeChildEntry = function(idx) {
+  childEntries.splice(idx, 1);
+  renderChildEntries();
+};
+
+window.skipChildren = function() {
+  window.location.href = '/parent/dashboard.html';
+};
+
+window.submitChildren = async function() {
+  // Validate all entries
+  for (let i = 0; i < childEntries.length; i++) {
+    const c = childEntries[i];
+    if (!c.name.trim())  return showToast(`Child ${i + 1}: Full name is required.`, 'error');
+    if (!c.dob)          return showToast(`Child ${i + 1}: Date of birth is required.`, 'error');
+    if (!c.frontFile)    return showToast(`Child ${i + 1}: IC Front photo is required.`, 'error');
+    if (!c.backFile)     return showToast(`Child ${i + 1}: IC Back photo is required.`, 'error');
+  }
+
+  setLoading('children-submit-btn', true, 'Registering...');
+
+  try {
+    const createdIds = [];
+
+    for (const c of childEntries) {
+      // 1. Create student doc
+      const ref = await db.collection('students').add({
+        fullName:                  c.name.trim(),
+        dateOfBirth:               c.dob,
+        grade:                     '',
+        notes:                     '',
+        assignedTeachers:          [],
+        createdAt:                 firebase.firestore.FieldValue.serverTimestamp(),
+        registeredViaParentSignup: true,
+      });
+      const sid = ref.id;
+
+      // 2. Upload IC photos
+      const ext = f => f.name.toLowerCase().endsWith('.heic') ? 'heic'
+                     : f.name.toLowerCase().endsWith('.png')  ? 'png' : 'jpg';
+
+      const frontRef = storage.ref(`studentIC/${sid}/front.${ext(c.frontFile)}`);
+      const backRef  = storage.ref(`studentIC/${sid}/back.${ext(c.backFile)}`);
+
+      await frontRef.put(c.frontFile, { contentType: c.frontFile.type || 'image/jpeg' });
+      await backRef.put(c.backFile,   { contentType: c.backFile.type  || 'image/jpeg' });
+
+      const [icFrontUrl, icBackUrl] = await Promise.all([
+        frontRef.getDownloadURL(),
+        backRef.getDownloadURL(),
+      ]);
+
+      // 3. Write URLs back to student doc
+      await db.collection('students').doc(sid).update({ icFrontUrl, icBackUrl });
+
+      createdIds.push(sid);
+    }
+
+    // 4. Link all students to parent's user doc
+    await db.collection('users').doc(pendingParentUid).update({
+      linkedStudentIds: firebase.firestore.FieldValue.arrayUnion(...createdIds),
+    });
+
+    showToast('Children registered!', 'success');
+    setTimeout(() => { window.location.href = '/parent/dashboard.html'; }, 1200);
+
+  } catch (e) {
+    console.error('[submitChildren]', e);
+    setLoading('children-submit-btn', false);
+    showToast('Registration failed. Please try again.', 'error');
+  }
 };
 
 // ── Access code formatter ──────────────────────────────────────────────────────
