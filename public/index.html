@@ -229,7 +229,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         </div>
         <button id="signup-btn" onclick="signUpWithEmail()"
                 class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
-          Create Account
+          Continue
         </button>
       </div>
 
@@ -283,8 +283,8 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
             <span class="material-symbols-outlined text-[16px]">refresh</span>
             Resend code
           </button>
-          <button onclick="showCard('signup')" class="text-xs text-text-muted hover:underline">
-            ← Back to sign up
+          <button onclick="otpGoBack()" class="text-xs text-text-muted hover:underline">
+            ← Back
           </button>
         </div>
 
@@ -312,14 +312,13 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </button>
 
       <div class="mt-6 flex flex-col gap-3">
-        <button id="children-submit-btn" onclick="submitChildren()"
+        <button id="children-submit-btn" onclick="childrenNextStep()"
                 class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">check_circle</span>
-          Complete Registration
+          <span class="material-symbols-outlined text-[18px]">email</span>
+          Continue — Verify Email
         </button>
-        <button onclick="skipChildren()"
-                class="text-sm text-text-muted hover:underline text-center">
-          Skip — I'll add children later
+        <button onclick="showCard('signup')" class="text-xs text-text-muted hover:underline text-center">
+          ← Back to account info
         </button>
       </div>
     </div>
@@ -377,8 +376,7 @@ let otpCode   = null;  // string '123456'
 let otpExpiry = null;  // Date
 
 // Children registration state (parent signups only)
-let pendingParentUid = null;
-let childEntries     = []; // [{name, dob, frontFile, backFile}]
+let childEntries = []; // [{name, dob, frontFile, backFile}]
 
 
 // ── Auth state: redirect any signed-in user ────────────────────────────────────
@@ -480,25 +478,31 @@ window.signUpWithEmail = async function() {
     return showToast('Error validating code. Try again.', 'error');
   }
 
-  setLoading('signup-btn', true, 'Sending code...');
-
-  try {
-    await generateAndSendOtp(email, firstName + ' ' + lastName);
-  } catch (e) {
-    console.error('[otp send error]', e);
-    setLoading('signup-btn', false);
-    return showToast('Failed to send verification code. Please try again.', 'error');
-  }
-
-  // Store everything for use after OTP confirmed
+  // Store everything — used after OTP confirmed
   pendingSignup = { firstName, lastName, email, rawCode, password, codeDocId, codePurpose };
 
-  setLoading('signup-btn', false);
-  document.getElementById('otp-email-display').textContent = email;
-  clearOtpBoxes();
-  setOtpError('');
-  showCard('otp');
-  document.getElementById('otp-0').focus();
+  if (codePurpose === 'parent') {
+    // Parent: collect children info before sending OTP
+    setLoading('signup-btn', false);
+    initChildrenCard();
+    showCard('children');
+  } else {
+    // Teacher: send OTP immediately
+    setLoading('signup-btn', true, 'Sending code...');
+    try {
+      await generateAndSendOtp(email, firstName + ' ' + lastName);
+    } catch (e) {
+      console.error('[otp send error]', e);
+      setLoading('signup-btn', false);
+      return showToast('Failed to send verification code. Please try again.', 'error');
+    }
+    setLoading('signup-btn', false);
+    document.getElementById('otp-email-display').textContent = email;
+    clearOtpBoxes();
+    setOtpError('');
+    showCard('otp');
+    document.getElementById('otp-0').focus();
+  }
 };
 
 // ── Step 2: Verify OTP → create account ───────────────────────────────────────
@@ -528,53 +532,13 @@ window.verifyOtp = async function() {
     return;
   }
 
-  // OTP correct — create the account
+  // OTP correct — dispatch to account creation
   setOtpError('');
-  setLoading('otp-verify-btn', true, 'Creating account...');
-
-  const { firstName, lastName, email, rawCode, password, codeDocId, codePurpose } = pendingSignup;
-
-  _skipAuthHandler = true;
-  let newUser = null;
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
-    newUser = cred.user;
-
-    await db.collection('users').doc(newUser.uid).set({
-      name:           firstName + ' ' + lastName,
-      firstName:      firstName,
-      lastName:       lastName,
-      email:          email,
-      role:           codePurpose === 'parent' ? 'parent' : 'teacher',
-      institution:    '',
-      createdAt:      firebase.firestore.FieldValue.serverTimestamp(),
-      ssoProvider:    'email',
-      status:         'active',
-      invitationCode: rawCode.toUpperCase()
-    });
-
-    await db.collection('invitationCodes').doc(codeDocId).update({
-      usageCount: firebase.firestore.FieldValue.increment(1)
-    });
-
-    _skipAuthHandler = false;
-    if (codePurpose === 'parent') {
-      pendingParentUid = newUser.uid;
-      setLoading('otp-verify-btn', false);
-      initChildrenCard();
-      showCard('children');
-    } else {
-      await redirectByRole(newUser.uid);
-    }
-
-  } catch (e) {
-    console.error('[signup error]', e.code, e.message);
-    if (newUser) {
-      try { await newUser.delete(); } catch (_) {}
-    }
-    _skipAuthHandler = false;
-    setLoading('otp-verify-btn', false);
-    showToast(friendlyError(e.code) || 'Something went wrong. Please try again.', 'error');
+  const { codePurpose } = pendingSignup;
+  if (codePurpose === 'parent') {
+    await createParentAccountWithChildren();
+  } else {
+    await createTeacherAccount();
   }
 };
 
@@ -734,10 +698,10 @@ function setLoading(btnId, loading, text = '') {
     btn.disabled = false;
     const defaults = {
       'login-btn':         'Sign In',
-      'signup-btn':        'Create Account',
+      'signup-btn':        'Continue',
       'forgot-btn':        'Send Reset Link',
       'otp-verify-btn':       '<span class="material-symbols-outlined text-[18px]">verified</span> Verify Code',
-      'children-submit-btn':  '<span class="material-symbols-outlined text-[18px]">check_circle</span> Complete Registration',
+      'children-submit-btn':  '<span class="material-symbols-outlined text-[18px]">email</span> Continue — Verify Email',
       'google-signin-btn': `<svg height="18" viewBox="0 0 18 18" width="18"><path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.7l2.79 2.17C16.46 14.12 18 11.89 18 9c0-.61-.06-1.14-.16-1.8z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.79-2.17c-.77.52-1.76.83-3.17.83-2.44 0-4.51-1.64-5.25-3.84L.91 13.04C2.39 15.99 5.45 18 9 18z" fill="#34A853"/><path d="M3.75 10.64c-.19-.57-.3-1.18-.3-1.82s.11-1.25.3-1.82L.91 4.67C.33 5.83 0 7.13 0 8.5s.33 2.67.91 3.83l2.84-2.19z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.45 0 2.39 2.01.91 4.96l2.84 2.19C4.49 4.95 6.56 3.58 9 3.58z" fill="#EA4335"/></svg><span class="text-sm font-medium text-on-surface">Continue with Google</span>`
     };
     btn.innerHTML = defaults[btnId] || btn.textContent;
@@ -775,9 +739,169 @@ window.showToast = function(message, type = 'info') {
   setTimeout(() => { toast.className = ''; }, 3500);
 };
 
-// ── Children registration (parent signup only) ────────────────────────────────
+// ── Children / account creation helpers ───────────────────────────────────────
 function esc(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Smart back from OTP card: parent goes to children-card, teacher to signup-card
+window.otpGoBack = function() {
+  if (pendingSignup && pendingSignup.codePurpose === 'parent') showCard('children');
+  else showCard('signup');
+};
+
+// Children-card "Continue" — validates children then sends OTP
+window.childrenNextStep = async function() {
+  if (!childEntries.length) return showToast('Please add at least one child.', 'error');
+  for (let i = 0; i < childEntries.length; i++) {
+    const c = childEntries[i];
+    if (!c.name.trim()) return showToast(`Child ${i + 1}: Full name is required.`, 'error');
+    if (!c.dob)         return showToast(`Child ${i + 1}: Date of birth is required.`, 'error');
+    if (!c.frontFile)   return showToast(`Child ${i + 1}: IC Front photo is required.`, 'error');
+    if (!c.backFile)    return showToast(`Child ${i + 1}: IC Back photo is required.`, 'error');
+  }
+  setLoading('children-submit-btn', true, 'Sending code...');
+  try {
+    const { email, firstName, lastName } = pendingSignup;
+    await generateAndSendOtp(email, firstName + ' ' + lastName);
+  } catch (e) {
+    console.error('[otp send error]', e);
+    setLoading('children-submit-btn', false);
+    return showToast('Failed to send verification code. Please try again.', 'error');
+  }
+  setLoading('children-submit-btn', false);
+  document.getElementById('otp-email-display').textContent = pendingSignup.email;
+  clearOtpBoxes();
+  setOtpError('');
+  showCard('otp');
+  document.getElementById('otp-0').focus();
+};
+
+// Teacher account creation (called after OTP verified)
+async function createTeacherAccount() {
+  const { firstName, lastName, email, rawCode, password, codeDocId } = pendingSignup;
+  setLoading('otp-verify-btn', true, 'Creating account...');
+  _skipAuthHandler = true;
+  let newUser = null;
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    newUser = cred.user;
+    await db.collection('users').doc(newUser.uid).set({
+      name: firstName + ' ' + lastName, firstName, lastName, email,
+      role: 'teacher', institution: '', ssoProvider: 'email', status: 'active',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      invitationCode: rawCode.toUpperCase(),
+    });
+    await db.collection('invitationCodes').doc(codeDocId).update({
+      usageCount: firebase.firestore.FieldValue.increment(1)
+    });
+    _skipAuthHandler = false;
+    await redirectByRole(newUser.uid);
+  } catch (e) {
+    console.error('[teacher-signup]', e.code, e.message);
+    if (newUser) { try { await newUser.delete(); } catch (_) {} }
+    _skipAuthHandler = false;
+    setLoading('otp-verify-btn', false);
+    showToast(friendlyError(e.code) || 'Something went wrong. Please try again.', 'error');
+  }
+}
+
+// Parent account + children creation — atomic, with rollback at each step
+async function createParentAccountWithChildren() {
+  const { firstName, lastName, email, rawCode, password, codeDocId } = pendingSignup;
+
+  // Pre-generate student doc refs (reserves IDs — no Firestore write yet)
+  const studentRefs  = childEntries.map(() => db.collection('students').doc());
+  const uploadedRefs = []; // track for rollback
+
+  // ── Step 1: Upload all IC photos ──────────────────────────────────────────
+  setLoading('otp-verify-btn', true, 'Uploading photos...');
+  const photoUrls = [];
+  try {
+    for (let i = 0; i < childEntries.length; i++) {
+      const c   = childEntries[i];
+      const sid = studentRefs[i].id;
+      const ext = f => f.name.toLowerCase().endsWith('.heic') ? 'heic'
+                     : f.name.toLowerCase().endsWith('.png')  ? 'png' : 'jpg';
+      const fRef = storage.ref(`studentIC/${sid}/front.${ext(c.frontFile)}`);
+      const bRef = storage.ref(`studentIC/${sid}/back.${ext(c.backFile)}`);
+      await fRef.put(c.frontFile, { contentType: c.frontFile.type || 'image/jpeg' });
+      uploadedRefs.push(fRef);
+      await bRef.put(c.backFile,  { contentType: c.backFile.type  || 'image/jpeg' });
+      uploadedRefs.push(bRef);
+      const [icFrontUrl, icBackUrl] = await Promise.all([
+        fRef.getDownloadURL(), bRef.getDownloadURL(),
+      ]);
+      photoUrls.push({ icFrontUrl, icBackUrl });
+    }
+  } catch (e) {
+    console.error('[parent-signup] photo upload failed', e);
+    await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
+    setLoading('otp-verify-btn', false);
+    showToast('Photo upload failed. Please try again.', 'error');
+    return;
+  }
+
+  // ── Step 2: Create Firebase Auth account ──────────────────────────────────
+  setLoading('otp-verify-btn', true, 'Creating account...');
+  _skipAuthHandler = true;
+  let newUser = null;
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    newUser = cred.user;
+  } catch (e) {
+    console.error('[parent-signup] auth creation failed', e);
+    _skipAuthHandler = false;
+    await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
+    setLoading('otp-verify-btn', false);
+    showToast(friendlyError(e.code) || 'Account creation failed. Please try again.', 'error');
+    return;
+  }
+
+  // ── Step 3: Batch write — users/{uid} + all students/{id} atomically ──────
+  setLoading('otp-verify-btn', true, 'Saving records...');
+  try {
+    const studentIds = studentRefs.map(r => r.id);
+    const batch = db.batch();
+
+    batch.set(db.collection('users').doc(newUser.uid), {
+      name: firstName + ' ' + lastName, firstName, lastName, email,
+      role: 'parent', institution: '', ssoProvider: 'email', status: 'active',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      invitationCode: rawCode.toUpperCase(),
+      linkedStudentIds: studentIds,
+    });
+
+    for (let i = 0; i < childEntries.length; i++) {
+      const c = childEntries[i];
+      batch.set(studentRefs[i], {
+        fullName: c.name.trim(), dateOfBirth: c.dob,
+        grade: '', notes: '', assignedTeachers: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        registeredViaParentSignup: true,
+        icFrontUrl: photoUrls[i].icFrontUrl,
+        icBackUrl:  photoUrls[i].icBackUrl,
+      });
+    }
+
+    await batch.commit();
+
+    // Non-critical: mark invite code used (don't roll back account if this fails)
+    db.collection('invitationCodes').doc(codeDocId)
+      .update({ usageCount: firebase.firestore.FieldValue.increment(1) })
+      .catch(e => console.warn('[parent-signup] invite code update failed (non-critical)', e));
+
+    _skipAuthHandler = false;
+    window.location.href = '/parent/dashboard.html';
+
+  } catch (e) {
+    console.error('[parent-signup] batch write failed', e);
+    try { await newUser.delete(); } catch (_) {}
+    _skipAuthHandler = false;
+    await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
+    setLoading('otp-verify-btn', false);
+    showToast('Failed to save records. Please try again.', 'error');
+  }
 }
 
 function initChildrenCard() {
@@ -876,113 +1000,6 @@ window.removeChildEntry = function(idx) {
   renderChildEntries();
 };
 
-window.skipChildren = function() {
-  window.location.href = '/parent/dashboard.html';
-};
-
-window.submitChildren = async function() {
-  // Validate all entries
-  for (let i = 0; i < childEntries.length; i++) {
-    const c = childEntries[i];
-    if (!c.name.trim())  return showToast(`Child ${i + 1}: Full name is required.`, 'error');
-    if (!c.dob)          return showToast(`Child ${i + 1}: Date of birth is required.`, 'error');
-    if (!c.frontFile)    return showToast(`Child ${i + 1}: IC Front photo is required.`, 'error');
-    if (!c.backFile)     return showToast(`Child ${i + 1}: IC Back photo is required.`, 'error');
-  }
-
-  setLoading('children-submit-btn', true, 'Registering...');
-
-  try {
-    const createdIds = [];
-
-    for (let ci = 0; ci < childEntries.length; ci++) {
-      const c = childEntries[ci];
-      console.log(`[submitChildren] child ${ci + 1}: starting`);
-
-      // 1. Create student doc
-      let ref, sid;
-      try {
-        ref = await db.collection('students').add({
-          fullName:                  c.name.trim(),
-          dateOfBirth:               c.dob,
-          grade:                     '',
-          notes:                     '',
-          assignedTeachers:          [],
-          createdAt:                 firebase.firestore.FieldValue.serverTimestamp(),
-          registeredViaParentSignup: true,
-        });
-        sid = ref.id;
-        console.log(`[submitChildren] child ${ci + 1}: Firestore student doc created — sid=${sid}`);
-      } catch (e) {
-        console.error(`[submitChildren] child ${ci + 1}: FAILED at Firestore students.add — code=${e.code} msg=${e.message}`, e);
-        throw e;
-      }
-
-      // 2. Upload IC photos
-      const ext = f => f.name.toLowerCase().endsWith('.heic') ? 'heic'
-                     : f.name.toLowerCase().endsWith('.png')  ? 'png' : 'jpg';
-      const frontPath = `studentIC/${sid}/front.${ext(c.frontFile)}`;
-      const backPath  = `studentIC/${sid}/back.${ext(c.backFile)}`;
-      console.log(`[submitChildren] child ${ci + 1}: uploading front → ${frontPath}`);
-
-      const frontRef = storage.ref(frontPath);
-      const backRef  = storage.ref(backPath);
-
-      try {
-        await frontRef.put(c.frontFile, { contentType: c.frontFile.type || 'image/jpeg' });
-        console.log(`[submitChildren] child ${ci + 1}: front upload OK`);
-      } catch (e) {
-        console.error(`[submitChildren] child ${ci + 1}: FAILED at Storage front upload — code=${e.code} msg=${e.message}`, e);
-        throw e;
-      }
-
-      try {
-        await backRef.put(c.backFile, { contentType: c.backFile.type || 'image/jpeg' });
-        console.log(`[submitChildren] child ${ci + 1}: back upload OK`);
-      } catch (e) {
-        console.error(`[submitChildren] child ${ci + 1}: FAILED at Storage back upload — code=${e.code} msg=${e.message}`, e);
-        throw e;
-      }
-
-      const [icFrontUrl, icBackUrl] = await Promise.all([
-        frontRef.getDownloadURL(),
-        backRef.getDownloadURL(),
-      ]);
-      console.log(`[submitChildren] child ${ci + 1}: download URLs obtained`);
-
-      // 3. Write URLs back to student doc
-      try {
-        await db.collection('students').doc(sid).update({ icFrontUrl, icBackUrl });
-        console.log(`[submitChildren] child ${ci + 1}: Firestore student doc updated with URLs`);
-      } catch (e) {
-        console.error(`[submitChildren] child ${ci + 1}: FAILED at Firestore students.update (URLs) — code=${e.code} msg=${e.message}`, e);
-        throw e;
-      }
-
-      createdIds.push(sid);
-    }
-
-    // 4. Link all students to parent's user doc
-    console.log(`[submitChildren] linking students to parent — uid=${pendingParentUid} ids=${createdIds}`);
-    try {
-      await db.collection('users').doc(pendingParentUid).update({
-        linkedStudentIds: firebase.firestore.FieldValue.arrayUnion(...createdIds),
-      });
-      console.log(`[submitChildren] parent user doc updated — linkedStudentIds appended`);
-    } catch (e) {
-      console.error(`[submitChildren] FAILED at Firestore users.update (linkedStudentIds) — code=${e.code} msg=${e.message}`, e);
-      throw e;
-    }
-
-    showToast('Children registered!', 'success');
-    setTimeout(() => { window.location.href = '/parent/dashboard.html'; }, 1200);
-
-  } catch (e) {
-    console.error('[submitChildren] outer catch — operation failed:', e);
-    setLoading('children-submit-btn', false);
-    showToast('Registration failed. Please try again.', 'error');
-  }
-};
 
 // ── Access code formatter ──────────────────────────────────────────────────────
 document.getElementById('signup-code').addEventListener('input', function() {
