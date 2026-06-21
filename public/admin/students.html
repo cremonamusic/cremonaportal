@@ -596,6 +596,19 @@ async function openProfile(sid) {
     teacherPills ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Assigned Teachers</p><div class="flex flex-wrap gap-1">${teacherPills}</div></div>` : '',
     linkedParents.length ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Linked Parent${linkedParents.length > 1 ? 's' : ''}</p><div class="flex flex-col gap-1">${linkedParents.map(p => `<div class="flex items-center gap-2"><span class="font-medium">${escHtml(p.name || '—')}</span>${p.email ? `<span class="text-xs text-text-muted">${escHtml(p.email)}</span>` : ''}</div>`).join('')}</div></div>` : '',
     s.notes ? `<div class="col-span-2">${field('Notes', s.notes)}</div>` : '',
+    (s.icFrontUrl || s.icBackUrl) ? `<div class="col-span-2">
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-2">IC Photos</p>
+      <div class="flex gap-3">
+        ${s.icFrontUrl ? `<a href="${escHtml(s.icFrontUrl)}" target="_blank" rel="noopener" class="group flex flex-col items-center gap-1">
+          <img src="${escHtml(s.icFrontUrl)}" alt="IC Front" class="w-32 h-20 object-cover rounded-lg border border-border-subtle shadow-sm group-hover:opacity-80 transition-opacity"/>
+          <span class="text-[11px] text-text-muted font-medium">Front</span>
+        </a>` : ''}
+        ${s.icBackUrl ? `<a href="${escHtml(s.icBackUrl)}" target="_blank" rel="noopener" class="group flex flex-col items-center gap-1">
+          <img src="${escHtml(s.icBackUrl)}" alt="IC Back" class="w-32 h-20 object-cover rounded-lg border border-border-subtle shadow-sm group-hover:opacity-80 transition-opacity"/>
+          <span class="text-[11px] text-text-muted font-medium">Back</span>
+        </a>` : ''}
+      </div>
+    </div>` : '',
   ].join('');
 
   document.getElementById('profile-modal').classList.remove('hidden');
