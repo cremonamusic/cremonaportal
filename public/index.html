@@ -895,50 +895,90 @@ window.submitChildren = async function() {
   try {
     const createdIds = [];
 
-    for (const c of childEntries) {
+    for (let ci = 0; ci < childEntries.length; ci++) {
+      const c = childEntries[ci];
+      console.log(`[submitChildren] child ${ci + 1}: starting`);
+
       // 1. Create student doc
-      const ref = await db.collection('students').add({
-        fullName:                  c.name.trim(),
-        dateOfBirth:               c.dob,
-        grade:                     '',
-        notes:                     '',
-        assignedTeachers:          [],
-        createdAt:                 firebase.firestore.FieldValue.serverTimestamp(),
-        registeredViaParentSignup: true,
-      });
-      const sid = ref.id;
+      let ref, sid;
+      try {
+        ref = await db.collection('students').add({
+          fullName:                  c.name.trim(),
+          dateOfBirth:               c.dob,
+          grade:                     '',
+          notes:                     '',
+          assignedTeachers:          [],
+          createdAt:                 firebase.firestore.FieldValue.serverTimestamp(),
+          registeredViaParentSignup: true,
+        });
+        sid = ref.id;
+        console.log(`[submitChildren] child ${ci + 1}: Firestore student doc created — sid=${sid}`);
+      } catch (e) {
+        console.error(`[submitChildren] child ${ci + 1}: FAILED at Firestore students.add — code=${e.code} msg=${e.message}`, e);
+        throw e;
+      }
 
       // 2. Upload IC photos
       const ext = f => f.name.toLowerCase().endsWith('.heic') ? 'heic'
                      : f.name.toLowerCase().endsWith('.png')  ? 'png' : 'jpg';
+      const frontPath = `studentIC/${sid}/front.${ext(c.frontFile)}`;
+      const backPath  = `studentIC/${sid}/back.${ext(c.backFile)}`;
+      console.log(`[submitChildren] child ${ci + 1}: uploading front → ${frontPath}`);
 
-      const frontRef = storage.ref(`studentIC/${sid}/front.${ext(c.frontFile)}`);
-      const backRef  = storage.ref(`studentIC/${sid}/back.${ext(c.backFile)}`);
+      const frontRef = storage.ref(frontPath);
+      const backRef  = storage.ref(backPath);
 
-      await frontRef.put(c.frontFile, { contentType: c.frontFile.type || 'image/jpeg' });
-      await backRef.put(c.backFile,   { contentType: c.backFile.type  || 'image/jpeg' });
+      try {
+        await frontRef.put(c.frontFile, { contentType: c.frontFile.type || 'image/jpeg' });
+        console.log(`[submitChildren] child ${ci + 1}: front upload OK`);
+      } catch (e) {
+        console.error(`[submitChildren] child ${ci + 1}: FAILED at Storage front upload — code=${e.code} msg=${e.message}`, e);
+        throw e;
+      }
+
+      try {
+        await backRef.put(c.backFile, { contentType: c.backFile.type || 'image/jpeg' });
+        console.log(`[submitChildren] child ${ci + 1}: back upload OK`);
+      } catch (e) {
+        console.error(`[submitChildren] child ${ci + 1}: FAILED at Storage back upload — code=${e.code} msg=${e.message}`, e);
+        throw e;
+      }
 
       const [icFrontUrl, icBackUrl] = await Promise.all([
         frontRef.getDownloadURL(),
         backRef.getDownloadURL(),
       ]);
+      console.log(`[submitChildren] child ${ci + 1}: download URLs obtained`);
 
       // 3. Write URLs back to student doc
-      await db.collection('students').doc(sid).update({ icFrontUrl, icBackUrl });
+      try {
+        await db.collection('students').doc(sid).update({ icFrontUrl, icBackUrl });
+        console.log(`[submitChildren] child ${ci + 1}: Firestore student doc updated with URLs`);
+      } catch (e) {
+        console.error(`[submitChildren] child ${ci + 1}: FAILED at Firestore students.update (URLs) — code=${e.code} msg=${e.message}`, e);
+        throw e;
+      }
 
       createdIds.push(sid);
     }
 
     // 4. Link all students to parent's user doc
-    await db.collection('users').doc(pendingParentUid).update({
-      linkedStudentIds: firebase.firestore.FieldValue.arrayUnion(...createdIds),
-    });
+    console.log(`[submitChildren] linking students to parent — uid=${pendingParentUid} ids=${createdIds}`);
+    try {
+      await db.collection('users').doc(pendingParentUid).update({
+        linkedStudentIds: firebase.firestore.FieldValue.arrayUnion(...createdIds),
+      });
+      console.log(`[submitChildren] parent user doc updated — linkedStudentIds appended`);
+    } catch (e) {
+      console.error(`[submitChildren] FAILED at Firestore users.update (linkedStudentIds) — code=${e.code} msg=${e.message}`, e);
+      throw e;
+    }
 
     showToast('Children registered!', 'success');
     setTimeout(() => { window.location.href = '/parent/dashboard.html'; }, 1200);
 
   } catch (e) {
-    console.error('[submitChildren]', e);
+    console.error('[submitChildren] outer catch — operation failed:', e);
     setLoading('children-submit-btn', false);
     showToast('Registration failed. Please try again.', 'error');
   }
