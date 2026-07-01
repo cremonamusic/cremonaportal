@@ -278,53 +278,86 @@ function teardown() {
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  console.log('[auth] onAuthStateChanged fired. user:', user ? user.uid : null);
+  if (!user) {
+    console.error('[auth] FAIL at "!user" check — no Firebase user, redirecting to /index.html');
+    window.location.href = '/index.html'; return;
+  }
   try {
-    const snap = await getDoc(doc(db, 'users', user.uid));
+    let snap;
+    try {
+      snap = await getDoc(doc(db, 'users', user.uid));
+      console.log('[auth] users/{uid} getDoc ok. exists:', snap.exists(), 'data:', snap.exists() ? snap.data() : null);
+    } catch (e) {
+      console.error('[auth] FAIL at getDoc(users/{uid}) —', e.code || '', e.message, e);
+      throw e;
+    }
+
     if (!snap.exists() || snap.data().status === 'inactive') {
+      console.error('[auth] FAIL at exists/inactive check — exists:', snap.exists(), 'status:', snap.exists() ? snap.data().status : null, '— signing out, redirecting to /index.html');
       await signOut(auth); window.location.href = '/index.html'; return;
     }
 
     // Always tear down stale state/listeners before re-initializing.
     // onAuthStateChanged can fire more than once (token refresh, re-login),
     // and without this, old Maps, intervals, and listeners stack up.
-    teardown();
+    try {
+      teardown();
+      console.log('[auth] teardown() ok');
+    } catch (e) {
+      console.error('[auth] FAIL inside teardown() —', e.message, e);
+      throw e;
+    }
 
     currentUser     = user;
     currentUserData = { uid: user.uid, ...snap.data() };
     isAdmin         = currentUserData.role === 'admin';
+    console.log('[auth] currentUserData set:', currentUserData);
 
-    await init();
+    try {
+      await init();
+      console.log('[auth] init() completed ok');
+    } catch (e) {
+      console.error('[auth] FAIL inside init() —', e.message, e.stack);
+      throw e;
+    }
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
-    console.error('auth error', e);
+    console.error('[auth] OUTER CATCH — redirecting to /index.html because of:', e.message, e.stack);
     window.location.href = '/index.html';
   }
 });
 
 // ── Init (called after auth confirmed, always after teardown()) ──────────────
 async function init() {
-  // Display name in header
-  document.getElementById('header-user-name').textContent =
+  // Display name in header (element lived in the old header; may not exist post nav-rebuild)
+  console.log('[init] step 1: header name');
+  const headerNameEl = document.getElementById('header-user-name');
+  if (headerNameEl) headerNameEl.textContent =
     (currentUserData.firstName && currentUserData.lastName)
       ? `${currentUserData.firstName} ${currentUserData.lastName}`
       : (currentUserData.name || 'Account');
 
   // Presence — store IDs so teardown() can clear them on re-login
+  console.log('[init] step 2: updateOwnPresence');
   await updateOwnPresence(true);
   presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);
   visibilityHandler  = () => updateOwnPresence(!document.hidden);
   document.addEventListener('visibilitychange', visibilityHandler);
 
   // Load all users for name resolution
+  console.log('[init] step 3: loadAllUsers');
   await loadAllUsers();
 
   // Poll presence every 30s — store ID so teardown() can clear it
+  console.log('[init] step 4: pollPresence');
   await pollPresence();
   pollIntervalId = setInterval(pollPresence, 30000);
 
   // Start real-time conversations listener
+  console.log('[init] step 5: startConversationListener');
   startConversationListener();
+  console.log('[init] all steps complete');
 }
 
 // ── Presence ──────────────────────────────────────────────────────────────────

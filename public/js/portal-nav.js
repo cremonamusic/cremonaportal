@@ -65,13 +65,11 @@
 
   // ── Styles ────────────────────────────────────────────────────────────────
   var css = [
-    ":root{--cremona-top:56px;--cremona-open:240px;--cremona-mini:60px;}",
+    ":root{--cremona-top:56px;--cremona-open:240px;--cremona-mini:52px;}",
 
-    /* push page content clear of the fixed topbar + sidebar */
-    "body{padding-top:var(--cremona-top);padding-left:var(--cremona-open);",
-      "transition:padding-left .22s ease;}",
-    "html.cremona-collapsed body{padding-left:var(--cremona-mini);}",
-    "@media(max-width:1023px){body{padding-left:0 !important;}}",
+    /* content only needs to clear the fixed topbar — the sidebar is an overlay */
+    /* and never reserves layout space, on any breakpoint. */
+    "body{padding-top:var(--cremona-top);}",
 
     /* ── Topbar ── */
     "#cremona-topbar{position:fixed;top:0;left:0;right:0;height:var(--cremona-top);",
@@ -90,15 +88,18 @@
     "html.cremona-collapsed #ct-logo{display:block;}",                                    /* desktop-collapsed: shown */
     "@media(max-width:1023px){#ct-logo{display:block !important;}}",                       /* mobile: always shown */
 
-    /* ── Sidebar ── */
-    "#cremona-sidebar{position:fixed;top:var(--cremona-top);left:0;bottom:0;",
-      "width:var(--cremona-open);background:#3B2A1E;z-index:50;display:flex;flex-direction:column;",
-      "overflow:hidden;transition:width .22s ease,transform .22s ease;}",
-    "#cs-logo-wrap{padding:18px 12px 14px;text-align:center;border-bottom:1px solid rgba(255,255,255,.08);position:relative;}",
-    "#cs-logo{max-height:104px;width:auto;margin:0 auto;filter:invert(1) brightness(1.2);}",
+    /* ── Sidebar — fixed, full viewport height, overlays the topbar (higher z-index) ── */
+    "#cremona-sidebar{position:fixed;top:0;left:0;bottom:0;",
+      "width:var(--cremona-open);background:#3B2A1E;z-index:65;display:flex;flex-direction:column;",
+      "overflow:hidden;transition:width .22s ease,transform .22s ease;",
+      "box-shadow:2px 0 16px rgba(0,0,0,.35);}",
+    "#cs-logo-wrap{padding:0 12px 14px;text-align:center;border-bottom:1px solid rgba(255,255,255,.08);position:relative;}",
+    "#cs-logo{max-height:104px;width:auto;margin:0 auto;filter:invert(1) brightness(1.2);display:block;}",
     "#cs-portal-label{color:rgba(255,248,235,.6);font-size:11px;font-weight:600;",
       "letter-spacing:.09em;text-transform:uppercase;margin-top:10px;}",
-    "#cs-close{display:none;position:absolute;top:10px;right:10px;width:34px;height:34px;",
+    /* always-visible toggle inside the sidebar — needed because the sidebar sits */
+    /* above the topbar (z-index) and covers the topbar's own hamburger while open. */
+    "#cs-close{display:flex;position:absolute;top:10px;right:10px;width:34px;height:34px;",
       "align-items:center;justify-content:center;border:0;border-radius:8px;background:transparent;",
       "color:rgba(255,248,235,.8);cursor:pointer;}",
     "#cs-close:hover{background:rgba(255,255,255,.08);color:#fff;}",
@@ -118,9 +119,15 @@
 
     /* ── Collapsed (desktop only) ── */
     "@media(min-width:1024px){",
-      "html.cremona-collapsed #cs-logo-wrap{display:none;}",
+      "html.cremona-collapsed #cremona-sidebar{width:var(--cremona-mini);}",
+      /* keep #cs-logo-wrap (it holds #cs-close, the only way to re-expand once */
+      /* collapsed, since the topbar's own hamburger sits underneath the sidebar) */
+      "html.cremona-collapsed #cs-logo-wrap{padding:8px 0;}",
+      "html.cremona-collapsed #cs-logo,html.cremona-collapsed #cs-portal-label{display:none;}",
       "html.cremona-collapsed .cs-label{display:none;}",
-      "html.cremona-collapsed .cs-item{justify-content:center;padding:12px 0;gap:0;border-left-width:0;}",
+      "html.cremona-collapsed .cs-item{justify-content:center;align-items:center;padding:14px 0;gap:0;",
+        "border-left-width:0;width:100%;}",
+      "html.cremona-collapsed .cs-item .material-symbols-outlined{margin:0;}",
       "html.cremona-collapsed .cs-item.active{border-left-width:3px;}",
       "html.cremona-collapsed .cs-item:hover::after{content:attr(data-tip);position:absolute;",
         "left:100%;top:50%;transform:translateY(-50%);margin-left:10px;background:#111;color:#fff;",
@@ -130,10 +137,8 @@
 
     /* ── Mobile: off-canvas overlay ── */
     "@media(max-width:1023px){",
-      "#cremona-sidebar{transform:translateX(-100%);width:var(--cremona-open);",
-        "box-shadow:2px 0 16px rgba(0,0,0,.45);}",
+      "#cremona-sidebar{transform:translateX(-100%);width:var(--cremona-open);}",
       "#cremona-sidebar.cremona-mobile-open{transform:translateX(0);}",
-      "#cs-close{display:flex;}",
     "}",
 
     /* ── Backdrop (mobile overlay) ── */
@@ -182,7 +187,10 @@
         '<button type="button" class="ct-icon" id="ct-hamburger" aria-label="Toggle menu">' +
           '<span class="material-symbols-outlined">menu</span>' +
         '</button>' +
-        '<img id="ct-logo" src="/logo.png" alt="Cremona Music"/>' +
+        '<picture>' +
+          '<source media="(max-width:639px)" srcset="/logo_mobile.png">' +
+          '<img id="ct-logo" src="/logo.png" alt="Cremona Music"/>' +
+        '</picture>' +
       '</div>' +
       '<div class="ct-title">' + esc(title) + '</div>' +
       '<div class="ct-right">' +
@@ -196,7 +204,7 @@
     sidebar.id = "cremona-sidebar";
     sidebar.innerHTML =
       '<div id="cs-logo-wrap">' +
-        '<button type="button" id="cs-close" aria-label="Close menu"><span class="material-symbols-outlined">close</span></button>' +
+        '<button type="button" id="cs-close" aria-label="Toggle menu"><span class="material-symbols-outlined">close</span></button>' +
         '<img id="cs-logo" src="/logo_stack.png" alt="Cremona Music"/>' +
         '<div id="cs-portal-label">' + esc(def.label) + '</div>' +
       '</div>' +
@@ -219,21 +227,38 @@
       document.documentElement.classList.add("cremona-collapsed");
     }
 
-    function openMobile()  { sidebar.classList.add("cremona-mobile-open"); backdrop.classList.add("show"); }
-    function closeMobile() { sidebar.classList.remove("cremona-mobile-open"); backdrop.classList.remove("show"); }
+    var csCloseIcon = sidebar.querySelector("#cs-close .material-symbols-outlined");
+
+    // Icon reflects what clicking #cs-close will do right now: collapse/close
+    // the sidebar ("close") when it's expanded, or re-expand it ("menu") when
+    // it's collapsed/hidden — since it toggles both directions.
+    function updateToggleIcon() {
+      var isOpenState = mqDesktop.matches
+        ? !document.documentElement.classList.contains("cremona-collapsed")
+        : sidebar.classList.contains("cremona-mobile-open");
+      csCloseIcon.textContent = isOpenState ? "close" : "menu";
+    }
+
+    function openMobile()  { sidebar.classList.add("cremona-mobile-open"); backdrop.classList.add("show"); updateToggleIcon(); }
+    function closeMobile() { sidebar.classList.remove("cremona-mobile-open"); backdrop.classList.remove("show"); updateToggleIcon(); }
 
     function onHamburger() {
       if (mqDesktop.matches) {
         var collapsed = document.documentElement.classList.toggle("cremona-collapsed");
         localStorage.setItem(LS_KEY, collapsed ? "true" : "false");
+        updateToggleIcon();
       } else {
         if (sidebar.classList.contains("cremona-mobile-open")) closeMobile();
         else openMobile();
       }
     }
 
+    updateToggleIcon();
     document.getElementById("ct-hamburger").addEventListener("click", onHamburger);
-    document.getElementById("cs-close").addEventListener("click", closeMobile);
+    // Same toggle as the topbar hamburger: the sidebar sits above the topbar
+    // (z-index), so its own button is the only reliable way to re-expand/collapse
+    // once open — the topbar hamburger underneath is covered while it's up.
+    document.getElementById("cs-close").addEventListener("click", onHamburger);
     backdrop.addEventListener("click", closeMobile);
 
     // sign-out (admin) — use the page's own handler if present
