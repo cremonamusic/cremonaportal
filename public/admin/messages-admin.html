@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -80,30 +80,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </div>
 
 <div id="toast"></div>
-
-<!-- ── Header ──────────────────────────────────────────────────────────────── -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
-    <div class="flex items-center gap-8">
-      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
-      <nav class="hidden md:flex gap-6 items-center">
-        <a href="/admin/accounts.html"        class="font-body-md text-text-muted hover:text-primary transition-colors duration-200">Accounts</a>
-        <a href="/admin/security.html"        class="font-body-md text-text-muted hover:text-primary transition-colors duration-200">Security</a>
-        <a href="/admin/resources.html"       class="font-body-md text-text-muted hover:text-primary transition-colors duration-200">Resources</a>
-        <a href="/admin/students.html"        class="font-body-md text-text-muted hover:text-primary transition-colors duration-200">Students</a>
-        <a href="/admin/schedule-admin.html"  class="font-body-md text-text-muted hover:text-primary transition-colors duration-200">Schedule</a>
-        <a href="/admin/messages-admin.html"  class="font-body-md text-secondary border-b-2 border-secondary pb-1 font-bold">Messages</a>
-        <a href="/admin/comments-admin.html"   class="font-body-md text-text-muted hover:text-primary transition-colors duration-200">Comments</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-4">
-      <button onclick="adminSignOut()" class="flex items-center gap-2 cursor-pointer hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container font-body-md opacity-20 hover:opacity-100">
-        <span class="material-symbols-outlined text-sm">logout</span>
-        <span class="hidden md:inline font-bold">Sign Out</span>
-      </button>
-    </div>
-  </div>
-</header>
 
 <!-- ── Page content ───────────────────────────────────────────────────────── -->
 <main class="max-w-container-max mx-auto px-margin-desktop py-8">
@@ -1244,5 +1220,7 @@ function showToast(msg, type = 'info') {
   setTimeout(() => { t.className = ''; }, 3000);
 }
 </script>
+  <script>window.CREMONA_NAV={portal:'admin',active:'messages',title:'Messages'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

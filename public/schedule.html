@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -115,28 +115,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     </button>
   </div>
 </div>
-
-<!-- ── Header ───────────────────────────────────────────────────────────────── -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-    <div class="flex items-center gap-8">
-      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="/home.html"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
-        <a href="/books.html"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
-        <a href="/schedule.html" class="text-sm nav-active">Schedule</a>
-        <a href="/messages.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
-        <a href="/students-teacher.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
-        <a href="/comments.html"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
-      </nav>
-    </div>
-    <a href="/account.html"
-       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
-      <span class="material-symbols-outlined text-[18px]">account_circle</span>
-      <span class="hidden sm:inline">Account</span>
-    </a>
-  </div>
-</header>
 
 <!-- ── Main ─────────────────────────────────────────────────────────────────── -->
 <main class="flex-grow max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-6 flex flex-col gap-6">
@@ -460,5 +438,7 @@ function showToast(msg, type = 'info') {
   setTimeout(() => t.className = '', 3000);
 }
 </script>
+  <script>window.CREMONA_NAV={portal:'teacher',active:'schedule',title:'Schedule'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

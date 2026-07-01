@@ -55,6 +55,8 @@
   #toast.error { background: #ba1a1a; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
   #toast.info { background: #3B2A1E; color: #F5EFE4; }
+  .pref-seg { color: #8B6B52; }
+  .pref-seg.active { background: #C9A227; color: #3E2C23; box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
 </style>
 <style id="cremona-palette">
 /* Cremona Music Portal: header / footer / logo */
@@ -81,27 +83,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </div>
 
 <div id="toast"></div>
-
-<!-- TopAppBar -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
-    <div class="flex items-center gap-8">
-      <a href="/home.html" class="hover:opacity-80 transition-opacity"><img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/></a>
-      <nav class="hidden md:flex items-center gap-6">
-        <a href="/home.html"             class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
-        <a href="/books.html"            class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
-        <a href="/schedule.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
-        <a href="/messages.html"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
-        <a href="/students-teacher.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
-        <a href="/comments.html"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-2 px-3 py-1.5 text-sm font-bold text-secondary border-b-2 border-secondary">
-      <span class="material-symbols-outlined text-[18px]">account_circle</span>
-      <span class="hidden sm:inline">Account</span>
-    </div>
-  </div>
-</header>
 
 <main class="pt-8 pb-12 px-4 md:px-8 max-w-3xl mx-auto">
   <div class="mb-8">
@@ -179,6 +160,49 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
             Sign Out
           </button>
         </div>
+      </div>
+    </section>
+
+    <!-- Preferences Card -->
+    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+      <h2 class="text-base font-semibold text-on-surface mb-1">Preferences</h2>
+      <p class="text-sm text-text-muted mb-6">These settings are saved on this device. Full translation and theming are coming soon.</p>
+      <div class="space-y-5">
+
+        <!-- Language -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p class="text-sm font-semibold text-on-surface">Language</p>
+            <p class="text-sm text-text-muted mt-0.5">Choose your preferred display language.</p>
+          </div>
+          <div id="lang-toggle" class="inline-flex rounded-lg border border-border-subtle bg-surface-container-low p-0.5 self-start">
+            <button type="button" data-lang="en"
+                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all">English</button>
+            <button type="button" data-lang="zh"
+                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all">中文</button>
+          </div>
+        </div>
+
+        <div class="h-px bg-border-subtle"></div>
+
+        <!-- Theme -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <p class="text-sm font-semibold text-on-surface">Appearance</p>
+            <p class="text-sm text-text-muted mt-0.5">Switch between light and dark mode.</p>
+          </div>
+          <div id="theme-toggle" class="inline-flex rounded-lg border border-border-subtle bg-surface-container-low p-0.5 self-start">
+            <button type="button" data-theme="light"
+                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">light_mode</span> Light
+            </button>
+            <button type="button" data-theme="dark"
+                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">dark_mode</span> Dark
+            </button>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -271,11 +295,13 @@ onAuthStateChanged(auth, async (user) => {
       await signOut(auth); window.location.href = '/index.html'; return;
     }
     const data = snap.data();
-    if (data.role !== 'teacher' && data.role !== 'admin') {
+    if (data.role !== 'teacher' && data.role !== 'admin' && data.role !== 'parent') {
       window.location.href = '/index.html'; return;
     }
     currentUser = user;
     populateProfile(user, data);
+    initPortalNav(data.role);
+    initPreferences();
     document.getElementById('loading-overlay').style.display = 'none';
     // Hide change password for Google SSO users
     if (data.ssoProvider === 'google') {
@@ -388,6 +414,46 @@ window.togglePw = function(id, btn) {
   input.type = input.type === 'password' ? 'text' : 'password';
   icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
 };
+
+// Inject the role-appropriate portal sidebar/header (shared component).
+function initPortalNav(role) {
+  const portal = (role === 'admin' || role === 'parent') ? role : 'teacher';
+  window.CREMONA_NAV = { portal, active: '', title: 'Account' };
+  const s = document.createElement('script');
+  s.src = '/js/portal-nav.js';
+  document.body.appendChild(s);
+}
+
+// Language + appearance toggles — persisted on this device (UI only for now).
+function initPreferences() {
+  const lang  = localStorage.getItem('lang')  || 'en';
+  const theme = localStorage.getItem('theme') || 'light';
+
+  const paint = (containerId, attr, value) => {
+    document.querySelectorAll(`#${containerId} .pref-seg`).forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute(attr) === value);
+    });
+  };
+  paint('lang-toggle', 'data-lang', lang);
+  paint('theme-toggle', 'data-theme', theme);
+
+  document.querySelectorAll('#lang-toggle .pref-seg').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.getAttribute('data-lang');
+      localStorage.setItem('lang', v);
+      paint('lang-toggle', 'data-lang', v);
+      showToast(v === 'zh' ? '語言偏好已儲存 (顯示翻譯即將推出)' : 'Language preference saved.', 'success');
+    });
+  });
+  document.querySelectorAll('#theme-toggle .pref-seg').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.getAttribute('data-theme');
+      localStorage.setItem('theme', v);
+      paint('theme-toggle', 'data-theme', v);
+      showToast('Appearance preference saved.', 'info');
+    });
+  });
+}
 
 window.showToast = function(msg, type='info') {
   const t = document.getElementById('toast');

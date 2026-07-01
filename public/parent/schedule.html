@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -69,29 +69,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </div>
 
 <div id="toast"></div>
-
-<!-- Header -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-6">
-      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
-      <nav class="hidden sm:flex items-center gap-5">
-        <a href="dashboard.html" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
-        <a href="schedule.html"  class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Schedule</a>
-        <a href="comments.html"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
-        <a href="messages.html"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-3">
-      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
-      <button onclick="doSignOut()"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
-        <span class="material-symbols-outlined text-[18px]">logout</span>
-        <span class="hidden sm:inline">Sign Out</span>
-      </button>
-    </div>
-  </div>
-</header>
 
 <!-- Main -->
 <main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
@@ -486,5 +463,7 @@ window.doSignOut = async function() {
   window.location.href = '/index.html';
 };
 </script>
+  <script>window.CREMONA_NAV={portal:'parent',active:'schedule',title:'Schedule'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

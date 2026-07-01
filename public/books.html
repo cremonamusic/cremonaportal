@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
@@ -92,29 +92,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     <p class="text-text-muted text-sm">Loading...</p>
   </div>
 </div>
-
-<!-- Header -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-4">
-      <a href="/home.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Back to home">
-        <span class="material-symbols-outlined text-text-muted">arrow_back</span>
-      </a>
-      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
-    </div>
-    <div class="flex items-center gap-1">
-      <a href="/messages.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Messages">
-        <span class="material-symbols-outlined text-text-muted">forum</span>
-      </a>
-      <a href="/comments.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="Comments">
-        <span class="material-symbols-outlined text-text-muted">assignment</span>
-      </a>
-      <a href="/account.html" class="p-2 rounded-lg hover:bg-surface-container transition-colors" title="My Account">
-        <span class="material-symbols-outlined text-text-muted">account_circle</span>
-      </a>
-    </div>
-  </div>
-</header>
 
 <main class="flex-grow max-w-5xl mx-auto w-full px-6 py-8 flex flex-col gap-6">
 
@@ -467,5 +444,7 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
+  <script>window.CREMONA_NAV={portal:'teacher',active:'books',title:'Books'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>
