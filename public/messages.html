@@ -330,34 +330,21 @@ onAuthStateChanged(auth, async (user) => {
 
 // ── Init (called after auth confirmed, always after teardown()) ──────────────
 async function init() {
-  // Display name in header (element lived in the old header; may not exist post nav-rebuild)
-  console.log('[init] step 1: header name');
-  const headerNameEl = document.getElementById('header-user-name');
-  if (headerNameEl) headerNameEl.textContent =
-    (currentUserData.firstName && currentUserData.lastName)
-      ? `${currentUserData.firstName} ${currentUserData.lastName}`
-      : (currentUserData.name || 'Account');
-
   // Presence — store IDs so teardown() can clear them on re-login
-  console.log('[init] step 2: updateOwnPresence');
   await updateOwnPresence(true);
   presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);
   visibilityHandler  = () => updateOwnPresence(!document.hidden);
   document.addEventListener('visibilitychange', visibilityHandler);
 
   // Load all users for name resolution
-  console.log('[init] step 3: loadAllUsers');
   await loadAllUsers();
 
   // Poll presence every 30s — store ID so teardown() can clear it
-  console.log('[init] step 4: pollPresence');
   await pollPresence();
   pollIntervalId = setInterval(pollPresence, 30000);
 
   // Start real-time conversations listener
-  console.log('[init] step 5: startConversationListener');
   startConversationListener();
-  console.log('[init] all steps complete');
 }
 
 // ── Presence ──────────────────────────────────────────────────────────────────
