@@ -45,7 +45,8 @@
         { key: "students",  label: "Students",  icon: "group",           href: "/admin/students.html" },
         { key: "schedule",  label: "Schedule",  icon: "calendar_month",  href: "/admin/schedule-admin.html" },
         { key: "messages",  label: "Messages",  icon: "forum",           href: "/admin/messages-admin.html" },
-        { key: "comments",  label: "Comments",  icon: "chat",            href: "/admin/comments-admin.html" }
+        { key: "comments",  label: "Comments",  icon: "chat",            href: "/admin/comments-admin.html" },
+        { key: "announcements", label: "Announcements", icon: "campaign", href: "/admin/announcements.html" }
       ],
       signOut: true
     },

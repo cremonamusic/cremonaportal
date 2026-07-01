@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Announcements | Cremona Music Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: { extend: {
+      colors: {
+        "on-tertiary-fixed":"#3E2C23","surface-variant":"#E4D8C2","inverse-primary":"#D4A520",
+        "error-container":"#ffdad6","on-secondary-fixed":"#3E2C23","text-muted":"#8B6B52",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFDF9","surface-container-low":"#F5EFE4",
+        "primary-container":"#F5E5B0","on-secondary-container":"#3E2C23",
+        "secondary-container":"#F5E5B0","secondary":"#C9A227","on-surface-variant":"#7A5A42",
+        "primary-fixed-dim":"#D4A520","on-surface":"#3E2C23","surface-tint":"#C9A227",
+        "secondary-fixed":"#F0E8C0","surface-container-highest":"#E4D8C2",
+        "border-subtle":"#E8DCC8","background":"#FAF6EF",
+        "primary-fixed":"#F0E8C0","primary":"#C9A227","on-primary-container":"#8B6020",
+        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#3E2C23",
+        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
+        "surface-container-high":"#EAE0CE","on-primary":"#3E2C23","on-background":"#3E2C23",
+        "on-primary-fixed":"#3E2C23"
+      },
+      fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
+      fontSize:{
+        "body-sm":["14px",{"lineHeight":"20px","fontWeight":"400"}],
+        "headline-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.02em","fontWeight":"700"}],
+        "body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],
+        "label-sm":["12px",{"lineHeight":"16px","fontWeight":"500"}],
+        "headline-sm":["20px",{"lineHeight":"28px","fontWeight":"600"}],
+        "label-md":["14px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}],
+        "headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}]
+      }
+    }}
+  }
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
+  body { font-family:'Inter',sans-serif; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,.2);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity:1; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.success { background:#1e6e3b;color:#fff; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  .ann-card { transition: box-shadow .15s ease; }
+  .ann-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .swatch-input { width:44px;height:34px;padding:2px;border-radius:8px;cursor:pointer; }
+</style>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
+</head>
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+<div id="toast"></div>
+
+<!-- ── Editor Modal ────────────────────────────────────────────────────────── -->
+<div id="editor-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-10 overflow-y-auto" onclick="if(event.target===this)closeEditor()">
+  <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl mb-8">
+
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 id="editor-title" class="font-headline-sm text-headline-sm">New Announcement</h2>
+      <button onclick="closeEditor()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="px-6 py-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Form -->
+      <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-on-surface">Title <span class="text-text-muted font-normal">(optional)</span></label>
+          <input id="f-title" type="text" maxlength="120" oninput="renderPreview()"
+                 class="w-full px-3.5 py-2.5 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm"/>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-on-surface">Body <span class="text-error">*</span></label>
+          <textarea id="f-body" rows="4" oninput="renderPreview()"
+                    class="w-full px-3.5 py-2.5 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm resize-y"></textarea>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-on-surface">Photo <span class="text-text-muted font-normal">(optional)</span></label>
+          <input id="f-photo-input" type="file" accept="image/*" class="hidden" onchange="handlePhotoSelect(this)"/>
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="document.getElementById('f-photo-input').click()"
+                    class="px-3.5 py-2 text-sm font-medium border border-border-subtle rounded-lg hover:bg-surface-container-low transition-colors flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-[16px]">upload</span> Upload Photo
+            </button>
+            <button type="button" id="remove-photo-btn" onclick="removePhoto()"
+                    class="hidden px-3 py-2 text-sm font-medium text-error hover:bg-error-container rounded-lg transition-colors">
+              Remove
+            </button>
+            <span id="photo-filename" class="text-xs text-text-muted truncate"></span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-on-surface">Link URL <span class="text-text-muted font-normal">(optional)</span></label>
+            <input id="f-link-url" type="url" placeholder="https://…" oninput="renderPreview()"
+                   class="w-full px-3.5 py-2.5 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm"/>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-on-surface">Link Label</label>
+            <input id="f-link-label" type="text" placeholder="Learn more" oninput="renderPreview()"
+                   class="w-full px-3.5 py-2.5 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm"/>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-label-md text-on-surface">Audience <span class="text-error">*</span></label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" id="f-aud-teacher" onchange="renderPreview()" class="w-4 h-4 accent-secondary"/> Teachers
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" id="f-aud-parent" onchange="renderPreview()" class="w-4 h-4 accent-secondary"/> Parents
+            </label>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-on-surface">Background Color</label>
+            <div class="flex items-center gap-2">
+              <input id="f-bg-color" type="color" value="#F5E5B0" oninput="renderPreview()" class="swatch-input"/>
+              <span id="f-bg-color-label" class="text-xs text-text-muted font-mono">#F5E5B0</span>
+            </div>
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-on-surface">Text Color</label>
+            <div class="flex items-center gap-2">
+              <input id="f-text-color" type="color" value="#3E2C23" oninput="renderPreview()" class="swatch-input"/>
+              <span id="f-text-color-label" class="text-xs text-text-muted font-mono">#3E2C23</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live preview -->
+      <div class="flex flex-col gap-2">
+        <label class="font-label-md text-on-surface">Preview — exactly as users will see it</label>
+        <div class="rounded-xl border border-border-subtle bg-surface-container-low p-4 flex items-center justify-center min-h-[220px]">
+          <div id="preview-container" class="w-full max-w-sm"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="flex items-center justify-end gap-3 px-6 pb-5 border-t border-border-subtle pt-4">
+      <button onclick="closeEditor()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
+      <button id="save-btn" onclick="saveAnnouncement()" class="px-6 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm flex items-center gap-2">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
+
+<main class="max-w-[1200px] mx-auto px-10 py-6">
+
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+    <div>
+      <h1 class="font-headline-lg text-on-surface mb-1">Announcements</h1>
+      <p class="font-body-md text-text-muted">Banner announcements shown at the top of the teacher and parent portals.</p>
+    </div>
+    <button onclick="openEditor()" class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm flex items-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">add_circle</span> New Announcement
+    </button>
+  </div>
+
+  <!-- Live Now -->
+  <section class="mb-8">
+    <h2 class="text-sm font-bold uppercase tracking-wide text-text-muted mb-3">Live Now <span id="live-count" class="normal-case font-normal">(0/2 active)</span></h2>
+    <div id="live-list" class="flex flex-col gap-3">
+      <p class="text-sm text-text-muted italic">No active announcements.</p>
+    </div>
+  </section>
+
+  <!-- All / Inactive -->
+  <section>
+    <h2 class="text-sm font-bold uppercase tracking-wide text-text-muted mb-3">Inactive</h2>
+    <div id="inactive-list" class="flex flex-col gap-3">
+      <p class="text-sm text-text-muted italic">No inactive announcements.</p>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, collection, addDoc, updateDoc, deleteDoc,
+  onSnapshot, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain: "cremonamusic-portal.firebaseapp.com",
+  projectId: "cremonamusic-portal",
+  storageBucket: "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+});
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let allAnnouncements = [];   // live from onSnapshot
+let unsub            = null;
+let editingId         = null;
+let pendingPhotoFile  = null;   // newly selected file, not yet uploaded
+let pendingPhotoUrl   = null;   // existing photoUrl when editing, or null if removed/new
+const MAX_ACTIVE = 2;
+
+// ── Auth ───────────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') {
+    window.location.href = '/home.html'; return;
+  }
+  startListener();
+  document.getElementById('loading-overlay').style.display = 'none';
+});
+
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
+
+// ── Live listener ──────────────────────────────────────────────────────────────
+function startListener() {
+  unsub = onSnapshot(collection(db, 'announcements'), snap => {
+    allAnnouncements = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    renderLists();
+  }, err => {
+    console.error('[announcements listener]', err);
+    showToast('Failed to load announcements: ' + err.message, 'error');
+  });
+}
+
+// ── Render lists ───────────────────────────────────────────────────────────────
+function renderLists() {
+  const active   = allAnnouncements.filter(a => a.active);
+  const inactive = allAnnouncements.filter(a => !a.active);
+
+  document.getElementById('live-count').textContent = `(${active.length}/${MAX_ACTIVE} active)`;
+
+  const liveList = document.getElementById('live-list');
+  liveList.innerHTML = active.length
+    ? active.map((a, idx) => cardHtml(a, { active: true, idx, total: active.length })).join('')
+    : `<p class="text-sm text-text-muted italic">No active announcements.</p>`;
+
+  const inactiveList = document.getElementById('inactive-list');
+  inactiveList.innerHTML = inactive.length
+    ? inactive.map(a => cardHtml(a, { active: false })).join('')
+    : `<p class="text-sm text-text-muted italic">No inactive announcements.</p>`;
+
+  wireCardButtons();
+}
+
+function cardHtml(a, opts) {
+  const audienceLabel = (a.audience || []).map(r => r === 'teacher' ? 'Teachers' : 'Parents').join(' + ') || '—';
+  const bg   = a.bgColor   || '#F5E5B0';
+  const text = a.textColor || '#3E2C23';
+  const canActivate = allAnnouncements.filter(x => x.active).length < MAX_ACTIVE;
+
+  const reorderBtns = opts.active ? `
+    <button data-act="up" data-id="${a.id}" ${opts.idx === 0 ? 'disabled' : ''}
+            class="w-8 h-8 flex items-center justify-center rounded-lg border border-border-subtle hover:bg-surface-container-low disabled:opacity-30 disabled:cursor-not-allowed transition-colors" title="Move up">
+      <span class="material-symbols-outlined text-[18px]">arrow_upward</span>
+    </button>
+    <button data-act="down" data-id="${a.id}" ${opts.idx === opts.total - 1 ? 'disabled' : ''}
+            class="w-8 h-8 flex items-center justify-center rounded-lg border border-border-subtle hover:bg-surface-container-low disabled:opacity-30 disabled:cursor-not-allowed transition-colors" title="Move down">
+      <span class="material-symbols-outlined text-[18px]">arrow_downward</span>
+    </button>` : '';
+
+  const toggleBtn = opts.active
+    ? `<button data-act="deactivate" data-id="${a.id}"
+         class="px-3 py-1.5 text-xs font-bold border border-border-subtle rounded-lg hover:bg-surface-container-low transition-colors">Deactivate</button>`
+    : `<button data-act="activate" data-id="${a.id}" ${canActivate ? '' : 'disabled title="Maximum 2 active announcements — deactivate one first"'}
+         class="px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${canActivate ? 'bg-primary-container text-on-primary-fixed hover:brightness-105' : 'bg-surface-container text-text-muted cursor-not-allowed'}">Activate</button>`;
+
+  return `
+  <div class="ann-card bg-surface-white border border-border-subtle rounded-2xl p-4 flex flex-col sm:flex-row gap-4 items-start">
+    <div class="flex-shrink-0 rounded-xl overflow-hidden border border-border-subtle" style="width:160px;">
+      <div class="p-3" style="background:${bg};color:${text};min-height:96px;">
+        ${a.photoUrl ? `<img src="${escHtml(a.photoUrl)}" class="w-full h-16 object-cover rounded-lg mb-2"/>` : ''}
+        ${a.title ? `<p class="text-xs font-bold truncate">${escHtml(a.title)}</p>` : ''}
+        <p class="text-[11px] leading-snug line-clamp-3">${escHtml(a.body || '')}</p>
+      </div>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 flex-wrap mb-1.5">
+        ${a.active ? `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Live</span>` : `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Inactive</span>`}
+        <span class="text-xs text-text-muted">${escHtml(audienceLabel)}</span>
+      </div>
+      <p class="font-semibold text-sm text-on-surface truncate">${escHtml(a.title || '(no title)')}</p>
+      <p class="text-xs text-text-muted mt-0.5 line-clamp-2">${escHtml(a.body || '')}</p>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+      ${reorderBtns}
+      ${toggleBtn}
+      <button data-act="edit" data-id="${a.id}"
+              class="w-8 h-8 flex items-center justify-center rounded-lg border border-border-subtle hover:bg-surface-container-low transition-colors" title="Edit">
+        <span class="material-symbols-outlined text-[18px]">edit</span>
+      </button>
+      <button data-act="delete" data-id="${a.id}"
+              class="w-8 h-8 flex items-center justify-center rounded-lg border border-red-200 text-error hover:bg-red-50 transition-colors" title="Delete">
+        <span class="material-symbols-outlined text-[18px]">delete</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function wireCardButtons() {
+  document.querySelectorAll('[data-act]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const act = btn.dataset.act;
+      const id  = btn.dataset.id;
+      if (act === 'edit')       openEditor(id);
+      else if (act === 'delete')     deleteAnnouncement(id);
+      else if (act === 'activate')   setActive(id, true);
+      else if (act === 'deactivate') setActive(id, false);
+      else if (act === 'up')         reorder(id, -1);
+      else if (act === 'down')       reorder(id, 1);
+    });
+  });
+}
+
+// ── Activate / deactivate ───────────────────────────────────────────────────────
+async function setActive(id, activate) {
+  const activeCount = allAnnouncements.filter(a => a.active).length;
+  if (activate && activeCount >= MAX_ACTIVE) {
+    showToast(`Maximum ${MAX_ACTIVE} active announcements — deactivate one first.`, 'error');
+    return;
+  }
+  try {
+    const payload = { active: activate, updatedAt: serverTimestamp() };
+    if (activate) {
+      const maxOrder = Math.max(-1, ...allAnnouncements.filter(a => a.active).map(a => a.order ?? 0));
+      payload.order = maxOrder + 1;
+    }
+    await updateDoc(doc(db, 'announcements', id), payload);
+    showToast(activate ? 'Announcement activated.' : 'Announcement deactivated.', 'success');
+  } catch (e) {
+    console.error('[setActive]', e);
+    showToast('Failed to update: ' + e.message, 'error');
+  }
+}
+
+// ── Reorder (swap order with adjacent active announcement) ─────────────────────
+async function reorder(id, dir) {
+  const active = allAnnouncements.filter(a => a.active);
+  const idx = active.findIndex(a => a.id === id);
+  const swapIdx = idx + dir;
+  if (idx < 0 || swapIdx < 0 || swapIdx >= active.length) return;
+
+  const a = active[idx];
+  const b = active[swapIdx];
+  const aOrder = a.order ?? 0;
+  const bOrder = b.order ?? 0;
+  try {
+    await Promise.all([
+      updateDoc(doc(db, 'announcements', a.id), { order: bOrder, updatedAt: serverTimestamp() }),
+      updateDoc(doc(db, 'announcements', b.id), { order: aOrder, updatedAt: serverTimestamp() }),
+    ]);
+  } catch (e) {
+    console.error('[reorder]', e);
+    showToast('Failed to reorder: ' + e.message, 'error');
+  }
+}
+
+// ── Delete ───────────────────────────────────────────────────────────────────
+async function deleteAnnouncement(id) {
+  if (!confirm('Delete this announcement? This cannot be undone.')) return;
+  const a = allAnnouncements.find(x => x.id === id);
+  try {
+    await deleteDoc(doc(db, 'announcements', id));
+    if (a?.photoUrl) {
+      try { await deleteObject(ref(storage, a.photoUrl)); } catch (_) { /* best-effort */ }
+    }
+    showToast('Announcement deleted.', 'success');
+  } catch (e) {
+    console.error('[deleteAnnouncement]', e);
+    showToast('Failed to delete: ' + e.message, 'error');
+  }
+}
+
+// ── Editor modal ───────────────────────────────────────────────────────────────
+window.openEditor = function(id) {
+  editingId        = id || null;
+  pendingPhotoFile = null;
+
+  const a = id ? allAnnouncements.find(x => x.id === id) : null;
+
+  document.getElementById('editor-title').textContent = id ? 'Edit Announcement' : 'New Announcement';
+  document.getElementById('f-title').value       = a?.title || '';
+  document.getElementById('f-body').value        = a?.body  || '';
+  document.getElementById('f-link-url').value    = a?.linkUrl   || '';
+  document.getElementById('f-link-label').value  = a?.linkLabel || '';
+  document.getElementById('f-aud-teacher').checked = !!(a?.audience || []).includes('teacher');
+  document.getElementById('f-aud-parent').checked  = !!(a?.audience || []).includes('parent');
+  document.getElementById('f-bg-color').value    = a?.bgColor   || '#F5E5B0';
+  document.getElementById('f-text-color').value  = a?.textColor || '#3E2C23';
+  document.getElementById('f-bg-color-label').textContent   = document.getElementById('f-bg-color').value;
+  document.getElementById('f-text-color-label').textContent = document.getElementById('f-text-color').value;
+
+  pendingPhotoUrl = a?.photoUrl || null;
+  document.getElementById('photo-filename').textContent = pendingPhotoUrl ? 'Current photo attached' : '';
+  document.getElementById('remove-photo-btn').classList.toggle('hidden', !pendingPhotoUrl);
+  document.getElementById('f-photo-input').value = '';
+
+  document.getElementById('editor-modal').classList.remove('hidden');
+  renderPreview();
+};
+
+window.closeEditor = function() {
+  document.getElementById('editor-modal').classList.add('hidden');
+  editingId = null;
+  pendingPhotoFile = null;
+  pendingPhotoUrl = null;
+};
+
+window.handlePhotoSelect = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { showToast('Image must be under 5 MB.', 'error'); return; }
+  pendingPhotoFile = file;
+  pendingPhotoUrl  = URL.createObjectURL(file); // local preview only
+  document.getElementById('photo-filename').textContent = file.name;
+  document.getElementById('remove-photo-btn').classList.remove('hidden');
+  renderPreview();
+};
+
+window.removePhoto = function() {
+  pendingPhotoFile = null;
+  pendingPhotoUrl  = null;
+  document.getElementById('f-photo-input').value = '';
+  document.getElementById('photo-filename').textContent = '';
+  document.getElementById('remove-photo-btn').classList.add('hidden');
+  renderPreview();
+};
+
+window.renderPreview = function() {
+  document.getElementById('f-bg-color-label').textContent   = document.getElementById('f-bg-color').value;
+  document.getElementById('f-text-color-label').textContent = document.getElementById('f-text-color').value;
+
+  const title  = document.getElementById('f-title').value.trim();
+  const body   = document.getElementById('f-body').value.trim();
+  const linkUrl   = document.getElementById('f-link-url').value.trim();
+  const linkLabel = document.getElementById('f-link-label').value.trim() || 'Learn more';
+  const bg   = document.getElementById('f-bg-color').value;
+  const text = document.getElementById('f-text-color').value;
+
+  document.getElementById('preview-container').innerHTML = buildAnnouncementCardHtml({
+    title, body, linkUrl, linkLabel, bgColor: bg, textColor: text, photoUrl: pendingPhotoUrl
+  });
+};
+
+// Shared card markup — mirrors the display component on home.html / parent/dashboard.html
+function buildAnnouncementCardHtml(a) {
+  return `
+  <div class="rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start" style="background:${a.bgColor};color:${a.textColor}">
+    ${a.photoUrl ? `<img src="${escHtml(a.photoUrl)}" class="w-full sm:w-28 h-28 object-cover rounded-xl flex-shrink-0"/>` : ''}
+    <div class="flex-1 min-w-0">
+      ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
+      <p class="text-sm leading-relaxed whitespace-pre-wrap">${a.body ? escHtml(a.body) : '<span class="opacity-60">Body text preview…</span>'}</p>
+      ${a.linkUrl ? `<span class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel)} →</span>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── Save ───────────────────────────────────────────────────────────────────────
+window.saveAnnouncement = async function() {
+  const title  = document.getElementById('f-title').value.trim();
+  const body   = document.getElementById('f-body').value.trim();
+  const linkUrl   = document.getElementById('f-link-url').value.trim();
+  const linkLabel = document.getElementById('f-link-label').value.trim();
+  const bgColor   = document.getElementById('f-bg-color').value;
+  const textColor = document.getElementById('f-text-color').value;
+  const audience = [];
+  if (document.getElementById('f-aud-teacher').checked) audience.push('teacher');
+  if (document.getElementById('f-aud-parent').checked)  audience.push('parent');
+
+  if (!body)            { showToast('Body text is required.', 'error'); return; }
+  if (!audience.length) { showToast('Select at least one audience.', 'error'); return; }
+
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Saving...';
+
+  try {
+    let photoUrl = editingId ? (allAnnouncements.find(a => a.id === editingId)?.photoUrl || '') : '';
+
+    // Upload new photo if one was selected
+    if (pendingPhotoFile) {
+      const ext = (pendingPhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
+      const path = `announcements/${editingId || 'new'}_${Date.now()}.${ext}`;
+      const storageRef = ref(storage, path);
+      await uploadBytes(storageRef, pendingPhotoFile, { contentType: pendingPhotoFile.type || 'image/jpeg' });
+      photoUrl = await getDownloadURL(storageRef);
+    } else if (!pendingPhotoUrl) {
+      photoUrl = ''; // explicitly removed
+    }
+
+    const payload = {
+      title, body, linkUrl, linkLabel, audience, bgColor, textColor, photoUrl,
+      updatedAt: serverTimestamp()
+    };
+
+    if (editingId) {
+      await updateDoc(doc(db, 'announcements', editingId), payload);
+    } else {
+      payload.active    = false;
+      payload.order     = allAnnouncements.length;
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db, 'announcements'), payload);
+    }
+
+    showToast('Announcement saved.', 'success');
+    closeEditor();
+  } catch (e) {
+    console.error('[saveAnnouncement]', e);
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Save';
+  }
+};
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `show ${type}`;
+  setTimeout(() => { t.className = ''; }, 3500);
+}
+</script>
+  <script>window.CREMONA_NAV={portal:'admin',active:'announcements',title:'Announcements'};</script>
+  <script src="/js/portal-nav.js"></script>
+</body>
+</html>
