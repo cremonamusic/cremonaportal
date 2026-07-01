@@ -161,7 +161,8 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
-  if (firstName) document.getElementById('header-name').textContent = firstName;
+  const headerNameEl = document.getElementById('header-name');
+  if (firstName && headerNameEl) headerNameEl.textContent = firstName;
 
   const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
   if (!linkedIds.length) {

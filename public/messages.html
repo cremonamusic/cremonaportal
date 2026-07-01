@@ -323,8 +323,11 @@ onAuthStateChanged(auth, async (user) => {
     }
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
-    console.error('[auth] OUTER CATCH — redirecting to /index.html because of:', e.message, e.stack);
-    window.location.href = '/index.html';
+    console.error('[auth catch]', e.message, e.stack);
+    // TEMPORARY debugging delay — gives you time to read the console before
+    // the page navigates away. Remove once the root cause is found.
+    console.error('[auth] redirecting to /index.html in 5s — check the stack trace above');
+    setTimeout(() => { window.location.href = '/index.html'; }, 5000);
   }
 });
 

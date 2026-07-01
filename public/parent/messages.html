@@ -281,7 +281,8 @@ async function init() {
   const displayName = (currentUserData.firstName && currentUserData.lastName)
     ? `${currentUserData.firstName} ${currentUserData.lastName}`
     : (currentUserData.name || '');
-  document.getElementById('header-name').textContent = displayName;
+  const headerNameEl = document.getElementById('header-name');
+  if (headerNameEl) headerNameEl.textContent = displayName;
 
   await updateOwnPresence(true);
   presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);

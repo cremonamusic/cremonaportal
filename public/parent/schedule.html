@@ -416,7 +416,8 @@ onAuthStateChanged(auth, async (user) => {
 
   // Header name
   const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
-  if (firstName) document.getElementById('header-name').textContent = firstName;
+  const headerNameEl = document.getElementById('header-name');
+  if (firstName && headerNameEl) headerNameEl.textContent = firstName;
 
   // Load linked students
   const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
