@@ -67,7 +67,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 <main class="flex-grow max-w-3xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
 
   <!-- Announcements — populated by JS, hidden entirely when empty -->
-  <div id="announcements-banner" class="hidden flex-col gap-3"></div>
+  <div id="announcements-banner" class="hidden flex flex-col gap-4"></div>
 
   <!-- Welcome Banner -->
   <section class="bg-primary-container/20 border border-primary-fixed rounded-2xl px-8 py-6 relative overflow-hidden">
@@ -362,17 +362,63 @@ function startAnnouncementsListener(role) {
   );
 }
 
+// Renders one announcement card. Kept byte-identical across home.html,
+// parent/dashboard.html, and the admin live preview so the admin's preview
+// always matches what users actually see.
 function buildAnnouncementCardHtml(a) {
-  const bg   = a.bgColor   || '#F5E5B0';
-  const text = a.textColor || '#3E2C23';
+  const bg       = a.bgColor   || '#F5E5B0';
+  const text     = a.textColor || '#3E2C23';
+  const hasPhoto = !!a.photoUrl;
+  const position = a.photoPosition || 'left';    // left | right | top | center | background
+  const fit      = a.photoFit      || 'cover';   // cover | contain | original
+  const size     = (a.photoSize    != null) ? a.photoSize    : 100;  // 10-100 (%)
+  const radius   = (a.photoRadius  != null) ? a.photoRadius  : 8;    // 0-50 (% border-radius)
+  const opacity  = (a.photoOpacity != null) ? a.photoOpacity : 100;  // 0-100 (%)
+
+  const objectFit  = fit === 'original' ? '' : `object-fit:${fit};`;
+  const radiusPct  = `border-radius:${radius}%;`;
+  const opacityDec = Math.max(0, Math.min(100, opacity)) / 100;
+
+  const textHtml = `
+    ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
+    <p class="text-sm leading-relaxed whitespace-pre-wrap">${escHtml(a.body || '')}</p>
+    ${a.linkUrl ? `<a href="${escHtml(a.linkUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel || 'Learn more')} →</a>` : ''}`;
+
+  if (hasPhoto && position === 'background') {
+    return `
+    <div class="relative overflow-hidden" style="background:${bg};color:${text};min-height:140px;${radiusPct}">
+      <img src="${escHtml(a.photoUrl)}" class="absolute inset-0 w-full h-full" style="${objectFit}opacity:${opacityDec};"/>
+      <div class="relative z-10 p-5">${textHtml}</div>
+    </div>`;
+  }
+
+  const leftRightPx = Math.round(60 + (size / 100) * 180);   // 60–240px
+  const topCenterPx = Math.round(80 + (size / 100) * 220);   // 80–300px
+
+  let photoHtml = '';
+  if (hasPhoto) {
+    if (position === 'left' || position === 'right') {
+      const h = fit === 'original' ? 'height:auto;' : `height:${leftRightPx}px;`;
+      photoHtml = `<img src="${escHtml(a.photoUrl)}" class="flex-shrink-0" style="width:${leftRightPx}px;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
+    } else if (position === 'top') {
+      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
+      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:100%;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
+    } else { // center
+      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
+      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:${size}%;margin:0 auto;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
+    }
+  }
+
+  const dirClass =
+    position === 'right'  ? 'flex flex-col sm:flex-row-reverse gap-4 items-start' :
+    position === 'top'    ? 'flex flex-col gap-4' :
+    position === 'center' ? 'flex flex-col items-center text-center gap-4' :
+                             'flex flex-col sm:flex-row gap-4 items-start'; // left / no photo
+
   return `
-  <div class="rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start" style="background:${bg};color:${text}">
-    ${a.photoUrl ? `<img src="${escHtml(a.photoUrl)}" class="w-full sm:w-28 h-28 object-cover rounded-xl flex-shrink-0"/>` : ''}
-    <div class="flex-1 min-w-0">
-      ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
-      <p class="text-sm leading-relaxed whitespace-pre-wrap">${escHtml(a.body || '')}</p>
-      ${a.linkUrl ? `<a href="${escHtml(a.linkUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel || 'Learn more')} →</a>` : ''}
-    </div>
+  <div class="rounded-2xl p-5 ${dirClass}" style="background:${bg};color:${text}">
+    ${photoHtml}
+    <div class="flex-1 min-w-0${position === 'center' ? ' w-full' : ''}">${textHtml}</div>
   </div>`;
 }
 </script>

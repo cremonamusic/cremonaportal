@@ -121,6 +121,62 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           </div>
         </div>
 
+        <!-- Photo customization — only meaningful once a photo is attached -->
+        <div class="flex flex-col gap-3 p-3.5 rounded-lg bg-surface-container-low border border-border-subtle">
+          <p class="text-xs font-bold uppercase tracking-wide text-text-muted">Photo Display</p>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="font-label-md text-on-surface">Position</label>
+              <select id="f-photo-position" onchange="onPhotoPositionChange()"
+                      class="w-full px-3 py-2 rounded-lg border border-border-subtle text-sm bg-white focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+                <option value="top">Top</option>
+                <option value="center">Center</option>
+                <option value="background">Background (full card)</option>
+              </select>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="font-label-md text-on-surface">Fit</label>
+              <select id="f-photo-fit" onchange="renderPreview()"
+                      class="w-full px-3 py-2 rounded-lg border border-border-subtle text-sm bg-white focus:border-secondary focus:ring-1 focus:ring-secondary outline-none">
+                <option value="cover">Cover (fill, may crop)</option>
+                <option value="contain">Contain (fit, may letterbox)</option>
+                <option value="original">Original aspect ratio</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="font-label-md text-on-surface flex justify-between">
+              <span id="f-photo-size-row">Size</span>
+              <span id="f-photo-size-label" class="text-text-muted font-mono">100%</span>
+            </label>
+            <input id="f-photo-size" type="range" min="10" max="100" step="1" value="100" oninput="onPhotoSizeInput()"
+                   class="w-full accent-secondary"/>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="font-label-md text-on-surface flex justify-between">
+                <span>Corner Rounding</span>
+                <span id="f-photo-radius-label" class="text-text-muted font-mono">8%</span>
+              </label>
+              <input id="f-photo-radius" type="range" min="0" max="50" step="1" value="8" oninput="onPhotoRadiusInput()"
+                     class="w-full accent-secondary"/>
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label class="font-label-md text-on-surface flex justify-between">
+                <span>Opacity</span>
+                <span id="f-photo-opacity-label" class="text-text-muted font-mono">100%</span>
+              </label>
+              <input id="f-photo-opacity" type="range" min="0" max="100" step="1" value="100" oninput="onPhotoOpacityInput()"
+                     class="w-full accent-secondary"/>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div class="flex flex-col gap-1.5">
             <label class="font-label-md text-on-surface">Link URL <span class="text-text-muted font-normal">(optional)</span></label>
@@ -439,6 +495,19 @@ window.openEditor = function(id) {
   document.getElementById('remove-photo-btn').classList.toggle('hidden', !pendingPhotoUrl);
   document.getElementById('f-photo-input').value = '';
 
+  document.getElementById('f-photo-position').value = a?.photoPosition || 'left';
+  document.getElementById('f-photo-fit').value       = a?.photoFit      || 'cover';
+  const size    = (a?.photoSize    != null) ? a.photoSize    : 100;
+  const radius  = (a?.photoRadius  != null) ? a.photoRadius  : 8;
+  const opacity = (a?.photoOpacity != null) ? a.photoOpacity : 100;
+  document.getElementById('f-photo-size').value    = size;
+  document.getElementById('f-photo-radius').value  = radius;
+  document.getElementById('f-photo-opacity').value = opacity;
+  document.getElementById('f-photo-size-label').textContent    = `${size}%`;
+  document.getElementById('f-photo-radius-label').textContent  = `${radius}%`;
+  document.getElementById('f-photo-opacity-label').textContent = `${opacity}%`;
+  updatePhotoSizeAvailability();
+
   document.getElementById('editor-modal').classList.remove('hidden');
   renderPreview();
 };
@@ -470,6 +539,34 @@ window.removePhoto = function() {
   renderPreview();
 };
 
+// ── Photo-display controls ──────────────────────────────────────────────────────
+window.onPhotoPositionChange = function() {
+  updatePhotoSizeAvailability();
+  renderPreview();
+};
+
+function updatePhotoSizeAvailability() {
+  const isBackground = document.getElementById('f-photo-position').value === 'background';
+  const sizeInput = document.getElementById('f-photo-size');
+  sizeInput.disabled = isBackground;
+  sizeInput.parentElement.classList.toggle('opacity-40', isBackground);
+  document.getElementById('f-photo-size-row').textContent =
+    isBackground ? 'Size (not used in Background mode)' : 'Size';
+}
+
+window.onPhotoSizeInput = function() {
+  document.getElementById('f-photo-size-label').textContent = `${document.getElementById('f-photo-size').value}%`;
+  renderPreview();
+};
+window.onPhotoRadiusInput = function() {
+  document.getElementById('f-photo-radius-label').textContent = `${document.getElementById('f-photo-radius').value}%`;
+  renderPreview();
+};
+window.onPhotoOpacityInput = function() {
+  document.getElementById('f-photo-opacity-label').textContent = `${document.getElementById('f-photo-opacity').value}%`;
+  renderPreview();
+};
+
 window.renderPreview = function() {
   document.getElementById('f-bg-color-label').textContent   = document.getElementById('f-bg-color').value;
   document.getElementById('f-text-color-label').textContent = document.getElementById('f-text-color').value;
@@ -482,20 +579,76 @@ window.renderPreview = function() {
   const text = document.getElementById('f-text-color').value;
 
   document.getElementById('preview-container').innerHTML = buildAnnouncementCardHtml({
-    title, body, linkUrl, linkLabel, bgColor: bg, textColor: text, photoUrl: pendingPhotoUrl
+    title,
+    body: body || 'Body text preview…',
+    linkUrl, linkLabel,
+    bgColor: bg, textColor: text,
+    photoUrl: pendingPhotoUrl,
+    photoPosition: document.getElementById('f-photo-position').value,
+    photoFit:      document.getElementById('f-photo-fit').value,
+    photoSize:     Number(document.getElementById('f-photo-size').value),
+    photoRadius:   Number(document.getElementById('f-photo-radius').value),
+    photoOpacity:  Number(document.getElementById('f-photo-opacity').value)
   });
 };
 
-// Shared card markup — mirrors the display component on home.html / parent/dashboard.html
+// Renders one announcement card. Kept byte-identical across home.html,
+// parent/dashboard.html, and this admin live preview so the admin's preview
+// always matches what users actually see.
 function buildAnnouncementCardHtml(a) {
+  const bg       = a.bgColor   || '#F5E5B0';
+  const text     = a.textColor || '#3E2C23';
+  const hasPhoto = !!a.photoUrl;
+  const position = a.photoPosition || 'left';    // left | right | top | center | background
+  const fit      = a.photoFit      || 'cover';   // cover | contain | original
+  const size     = (a.photoSize    != null) ? a.photoSize    : 100;  // 10-100 (%)
+  const radius   = (a.photoRadius  != null) ? a.photoRadius  : 8;    // 0-50 (% border-radius)
+  const opacity  = (a.photoOpacity != null) ? a.photoOpacity : 100;  // 0-100 (%)
+
+  const objectFit  = fit === 'original' ? '' : `object-fit:${fit};`;
+  const radiusPct  = `border-radius:${radius}%;`;
+  const opacityDec = Math.max(0, Math.min(100, opacity)) / 100;
+
+  const textHtml = `
+    ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
+    <p class="text-sm leading-relaxed whitespace-pre-wrap">${escHtml(a.body || '')}</p>
+    ${a.linkUrl ? `<a href="${escHtml(a.linkUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel || 'Learn more')} →</a>` : ''}`;
+
+  if (hasPhoto && position === 'background') {
+    return `
+    <div class="relative overflow-hidden" style="background:${bg};color:${text};min-height:140px;${radiusPct}">
+      <img src="${escHtml(a.photoUrl)}" class="absolute inset-0 w-full h-full" style="${objectFit}opacity:${opacityDec};"/>
+      <div class="relative z-10 p-5">${textHtml}</div>
+    </div>`;
+  }
+
+  const leftRightPx = Math.round(60 + (size / 100) * 180);   // 60–240px
+  const topCenterPx = Math.round(80 + (size / 100) * 220);   // 80–300px
+
+  let photoHtml = '';
+  if (hasPhoto) {
+    if (position === 'left' || position === 'right') {
+      const h = fit === 'original' ? 'height:auto;' : `height:${leftRightPx}px;`;
+      photoHtml = `<img src="${escHtml(a.photoUrl)}" class="flex-shrink-0" style="width:${leftRightPx}px;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
+    } else if (position === 'top') {
+      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
+      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:100%;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
+    } else { // center
+      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
+      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:${size}%;margin:0 auto;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
+    }
+  }
+
+  const dirClass =
+    position === 'right'  ? 'flex flex-col sm:flex-row-reverse gap-4 items-start' :
+    position === 'top'    ? 'flex flex-col gap-4' :
+    position === 'center' ? 'flex flex-col items-center text-center gap-4' :
+                             'flex flex-col sm:flex-row gap-4 items-start'; // left / no photo
+
   return `
-  <div class="rounded-2xl p-5 flex flex-col sm:flex-row gap-4 items-start" style="background:${a.bgColor};color:${a.textColor}">
-    ${a.photoUrl ? `<img src="${escHtml(a.photoUrl)}" class="w-full sm:w-28 h-28 object-cover rounded-xl flex-shrink-0"/>` : ''}
-    <div class="flex-1 min-w-0">
-      ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
-      <p class="text-sm leading-relaxed whitespace-pre-wrap">${a.body ? escHtml(a.body) : '<span class="opacity-60">Body text preview…</span>'}</p>
-      ${a.linkUrl ? `<span class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel)} →</span>` : ''}
-    </div>
+  <div class="rounded-2xl p-5 ${dirClass}" style="background:${bg};color:${text}">
+    ${photoHtml}
+    <div class="flex-1 min-w-0${position === 'center' ? ' w-full' : ''}">${textHtml}</div>
   </div>`;
 }
 
@@ -534,6 +687,11 @@ window.saveAnnouncement = async function() {
 
     const payload = {
       title, body, linkUrl, linkLabel, audience, bgColor, textColor, photoUrl,
+      photoPosition: document.getElementById('f-photo-position').value,
+      photoFit:      document.getElementById('f-photo-fit').value,
+      photoSize:     Number(document.getElementById('f-photo-size').value),
+      photoRadius:   Number(document.getElementById('f-photo-radius').value),
+      photoOpacity:  Number(document.getElementById('f-photo-opacity').value),
       updatedAt: serverTimestamp()
     };
 
