@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script id="tailwind-config">
   tailwind.config = {
     darkMode:"class",
@@ -174,7 +175,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
             <select id="cert-type" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
               <option value="exam">Exam Result</option>
               <option value="recital">Recital</option>
-              <option value="participation">Participation</option>
+              <option value="competition">Competition</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -187,9 +188,10 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
             <textarea id="cert-notes" rows="2" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
           </div>
           <div class="col-span-2">
-            <label class="block text-xs font-semibold text-on-surface-variant mb-1">File — PDF or image *</label>
-            <input id="cert-file" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*"
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Files — PDF or image, up to 5 *</label>
+            <input id="cert-file" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,image/*" onchange="handleCertFilesSelect(this)"
                    class="w-full text-sm text-text-muted file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-border-subtle file:text-sm file:font-semibold file:bg-surface-white file:text-on-surface hover:file:bg-surface-container cursor-pointer"/>
+            <div id="cert-file-preview" class="flex flex-col gap-1 mt-2"></div>
           </div>
           <div class="col-span-2 flex justify-end gap-2">
             <button onclick="toggleCertForm()" class="px-3 py-2 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
@@ -205,6 +207,26 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <button onclick="closeProfileModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
     </div>
   </div>
+</div>
+
+<!-- ── In-portal File Viewer (PDF.js / image lightbox) ────────────────────────── -->
+<div id="file-viewer-modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex flex-col" onclick="if(event.target===this)closeFileViewer()">
+  <div class="flex items-center justify-between px-4 sm:px-6 py-3 flex-shrink-0">
+    <p id="fv-filename" class="text-white text-sm font-semibold truncate flex-1 min-w-0 pr-4">—</p>
+    <div class="flex items-center gap-1 flex-shrink-0">
+      <button id="fv-prev-btn" onclick="fvNav(-1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span id="fv-counter" class="hidden text-white/70 text-xs font-medium px-1"></span>
+      <button id="fv-next-btn" onclick="fvNav(1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+      <button onclick="closeFileViewer()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors ml-1">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  </div>
+  <div id="fv-body" class="flex-1 overflow-auto flex items-center justify-center px-4 pb-6"></div>
 </div>
 
 <main class="max-w-container-max mx-auto px-margin-desktop py-gutter">
@@ -292,10 +314,16 @@ const auth    = getAuth(app);
 const db      = getFirestore(app);
 const storage = getStorage(app);
 
+// PDF.js — used only for the stripped-down in-portal certificate viewer (no annotation/editing)
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 // Certificate type metadata (shared look across all portals)
-const CERT_TYPES = { exam:'Exam Result', recital:'Recital', participation:'Participation', other:'Other' };
-const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', participation:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+const CERT_TYPES = { exam:'Exam Result', recital:'Recital', competition:'Competition', other:'Other' };
+const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', competition:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+const MAX_CERT_FILES = 5;
 let currentAdminUid = null;
+let pendingCertFiles = [];   // File[] selected in the upload form (max 5)
+let profileCertsCache = [];  // certificates currently shown in the open profile (for delete lookups)
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let allStudents       = [];
@@ -645,6 +673,8 @@ async function openProfile(sid) {
 
   // Reset + load certificates for this student
   document.getElementById('cert-form').classList.add('hidden');
+  pendingCertFiles = [];
+  renderCertFilePreview();
   loadCertificates(sid);
 
   // Load session history
@@ -699,6 +729,15 @@ window.editCurrentStudent = function() {
 };
 
 // ── Certificates ─────────────────────────────────────────────────────────────
+// Returns a certificate's files as an array, regardless of schema version —
+// new docs store `files: [{fileUrl,fileName}]`; legacy docs store a single
+// top-level `fileUrl`/`fileName` pair (treated as a one-item array).
+function getCertFiles(c) {
+  if (Array.isArray(c.files) && c.files.length) return c.files;
+  if (c.fileUrl) return [{ fileUrl: c.fileUrl, fileName: c.fileName || 'Certificate' }];
+  return [];
+}
+
 window.toggleCertForm = function() {
   const f = document.getElementById('cert-form');
   const opening = f.classList.contains('hidden');
@@ -709,21 +748,63 @@ window.toggleCertForm = function() {
     document.getElementById('cert-date').value   = '';
     document.getElementById('cert-notes').value  = '';
     document.getElementById('cert-file').value   = '';
+    pendingCertFiles = [];
+    renderCertFilePreview();
     document.getElementById('cert-title').focus();
   }
 };
+
+// Accumulates newly picked files into pendingCertFiles (cap 5), so the admin
+// can add files across multiple picks rather than one FileList replacing another.
+window.handleCertFilesSelect = function(input) {
+  const picked = [...input.files];
+  input.value = ''; // allow re-picking the same file later
+  for (const file of picked) {
+    if (pendingCertFiles.length >= MAX_CERT_FILES) {
+      showToast(`Maximum ${MAX_CERT_FILES} files per certificate.`, 'error');
+      break;
+    }
+    if (file.size > 15 * 1024 * 1024) { showToast(`"${file.name}" is too large (max 15MB).`, 'error'); continue; }
+    if (pendingCertFiles.some(f => f.name === file.name && f.size === file.size)) continue; // skip dupes
+    pendingCertFiles.push(file);
+  }
+  renderCertFilePreview();
+};
+
+window.removeCertFile = function(idx) {
+  pendingCertFiles.splice(idx, 1);
+  renderCertFilePreview();
+};
+
+function renderCertFilePreview() {
+  const el = document.getElementById('cert-file-preview');
+  if (!pendingCertFiles.length) { el.innerHTML = ''; return; }
+  el.innerHTML = pendingCertFiles.map((f, i) => `
+    <div class="flex items-center gap-2 px-2.5 py-1.5 bg-surface-white border border-border-subtle rounded-lg text-xs">
+      <span class="material-symbols-outlined text-[15px] text-text-muted">${/\.pdf$/i.test(f.name) ? 'picture_as_pdf' : 'image'}</span>
+      <span class="flex-1 min-w-0 truncate text-on-surface">${escHtml(f.name)}</span>
+      <button type="button" onclick="removeCertFile(${i})" class="text-text-muted hover:text-error transition-colors flex-shrink-0">
+        <span class="material-symbols-outlined text-[15px]">close</span>
+      </button>
+    </div>`).join('') + `<p class="text-[11px] text-text-muted mt-0.5">${pendingCertFiles.length}/${MAX_CERT_FILES} files selected</p>`;
+}
 
 async function loadCertificates(sid) {
   const el = document.getElementById('profile-certs');
   el.innerHTML = '<span class="text-text-muted text-sm">Loading…</span>';
   try {
     const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', sid)));
-    const certs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    profileCertsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
-    if (!certs.length) { el.innerHTML = '<p class="text-text-muted text-sm">No certificates yet.</p>'; return; }
-    el.innerHTML = certs.map(certRowHtml).join('');
+    if (!profileCertsCache.length) { el.innerHTML = '<p class="text-text-muted text-sm">No certificates yet.</p>'; return; }
+    el.innerHTML = profileCertsCache.map(certRowHtml).join('');
+    el.querySelectorAll('[data-view-cert]').forEach(b =>
+      b.addEventListener('click', () => {
+        const c = profileCertsCache.find(x => x.id === b.dataset.viewCert);
+        if (c) openFileViewer(getCertFiles(c), 0);
+      }));
     el.querySelectorAll('[data-del-cert]').forEach(b =>
-      b.addEventListener('click', () => deleteCertificate(b.dataset.delCert, b.dataset.sid, b.dataset.fname)));
+      b.addEventListener('click', () => deleteCertificate(b.dataset.delCert)));
   } catch (e) {
     el.innerHTML = `<p class="text-error text-sm">Failed to load certificates: ${escHtml(e.message)}</p>`;
   }
@@ -732,6 +813,8 @@ async function loadCertificates(sid) {
 function certRowHtml(c) {
   const label = CERT_TYPES[c.type] || 'Other';
   const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
+  const files = getCertFiles(c);
+  const viewLabel = files.length > 1 ? `View (${files.length})` : 'View';
   return `
   <div class="flex items-center gap-3 py-2.5 border-t border-border-subtle first:border-t-0">
     <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
@@ -743,11 +826,11 @@ function certRowHtml(c) {
       </div>
       ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
     </div>
-    <a href="${escHtml(c.fileUrl)}" target="_blank" rel="noopener" class="p-2 rounded-lg hover:bg-surface-container text-text-muted hover:text-secondary transition-colors" title="View / download">
-      <span class="material-symbols-outlined text-[18px]">download</span>
-    </a>
-    <button data-del-cert="${escHtml(c.id)}" data-sid="${escHtml(c.studentId)}" data-fname="${escHtml(c.fileName || '')}"
-            class="p-2 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors" title="Delete">
+    <button data-view-cert="${escHtml(c.id)}" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0">
+      <span class="material-symbols-outlined text-[16px]">visibility</span> ${viewLabel}
+    </button>
+    <button data-del-cert="${escHtml(c.id)}"
+            class="p-2 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors flex-shrink-0" title="Delete">
       <span class="material-symbols-outlined text-[18px]">delete</span>
     </button>
   </div>`;
@@ -760,12 +843,10 @@ window.uploadCertificate = async function() {
   const type  = document.getElementById('cert-type').value;
   const date  = document.getElementById('cert-date').value;
   const notes = document.getElementById('cert-notes').value.trim();
-  const file  = document.getElementById('cert-file').files[0];
 
   if (!title) { showToast('Title is required.', 'error'); return; }
   if (!date)  { showToast('Issued date is required.', 'error'); return; }
-  if (!file)  { showToast('Please choose a PDF or image file.', 'error'); return; }
-  if (file.size > 15 * 1024 * 1024) { showToast('File too large (max 15MB).', 'error'); return; }
+  if (!pendingCertFiles.length) { showToast('Please choose at least one PDF or image file.', 'error'); return; }
 
   const btn = document.getElementById('cert-upload-btn');
   btn.disabled = true;
@@ -773,17 +854,20 @@ window.uploadCertificate = async function() {
   try {
     // Pre-generate the doc id so the Storage path can reference it
     const certRef = doc(collection(db, 'certificates'));
-    const path = `certificates/${sid}/${certRef.id}/${file.name}`;
-    const sref = ref(storage, path);
-    await uploadBytes(sref, file, { contentType: file.type || 'application/octet-stream' });
-    const fileUrl = await getDownloadURL(sref);
+    const files = [];
+    for (const file of pendingCertFiles) {
+      const path = `certificates/${sid}/${certRef.id}/${file.name}`;
+      const sref = ref(storage, path);
+      await uploadBytes(sref, file, { contentType: file.type || 'application/octet-stream' });
+      const fileUrl = await getDownloadURL(sref);
+      files.push({ fileUrl, fileName: file.name });
+    }
 
     await setDoc(certRef, {
       studentId:   sid,
       studentName: profileStudent?.fullName || '',
       title, type,
-      fileUrl,
-      fileName:    file.name,
+      files,
       issuedDate:  date,
       notes,
       uploadedBy:  currentAdminUid,
@@ -791,6 +875,7 @@ window.uploadCertificate = async function() {
     });
     showToast('Certificate uploaded.', 'success');
     document.getElementById('cert-form').classList.add('hidden');
+    pendingCertFiles = [];
     loadCertificates(sid);
   } catch (e) {
     console.error('[uploadCertificate]', e);
@@ -801,20 +886,98 @@ window.uploadCertificate = async function() {
   }
 };
 
-window.deleteCertificate = async function(certId, sid, fileName) {
-  if (!confirm('Delete this certificate? The file will be permanently removed.')) return;
+window.deleteCertificate = async function(certId) {
+  if (!confirm('Delete this certificate? All attached files will be permanently removed.')) return;
+  const c = profileCertsCache.find(x => x.id === certId);
   try {
     await deleteDoc(doc(db, 'certificates', certId));
-    // Best-effort Storage cleanup — path is deterministic from ids + fileName
-    if (fileName) {
-      try { await deleteObject(ref(storage, `certificates/${sid}/${certId}/${fileName}`)); } catch (_) {}
+    // Best-effort Storage cleanup — delete every file attached to this certificate
+    if (c) {
+      const files = getCertFiles(c);
+      await Promise.allSettled(files.map(f =>
+        deleteObject(ref(storage, `certificates/${c.studentId}/${certId}/${f.fileName}`))));
     }
     showToast('Certificate deleted.', 'success');
-    loadCertificates(sid);
+    loadCertificates(c?.studentId || profileStudent?.id);
   } catch (e) {
     showToast('Delete failed: ' + e.message, 'error');
   }
 };
+
+// ── In-portal file viewer (PDF.js render / image lightbox) ────────────────────
+let fvFiles = [];
+let fvIndex = 0;
+
+window.openFileViewer = function(files, startIndex) {
+  fvFiles = files || [];
+  fvIndex = startIndex || 0;
+  if (!fvFiles.length) { showToast('No files to display.', 'error'); return; }
+  document.getElementById('file-viewer-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  renderViewerFile();
+};
+
+window.closeFileViewer = function() {
+  document.getElementById('file-viewer-modal').classList.add('hidden');
+  document.getElementById('fv-body').innerHTML = '';
+  document.body.style.overflow = '';
+};
+
+window.fvNav = function(dir) {
+  fvIndex = (fvIndex + dir + fvFiles.length) % fvFiles.length;
+  renderViewerFile();
+};
+
+function renderViewerFile() {
+  const f = fvFiles[fvIndex];
+  document.getElementById('fv-filename').textContent = f.fileName || 'File';
+  const multi = fvFiles.length > 1;
+  document.getElementById('fv-prev-btn').classList.toggle('hidden', !multi);
+  document.getElementById('fv-next-btn').classList.toggle('hidden', !multi);
+  const counter = document.getElementById('fv-counter');
+  counter.classList.toggle('hidden', !multi);
+  if (multi) counter.textContent = `${fvIndex + 1} / ${fvFiles.length}`;
+
+  const body = document.getElementById('fv-body');
+  const isPdf = /\.pdf($|\?)/i.test(f.fileName || f.fileUrl || '');
+  if (isPdf) {
+    body.innerHTML = `<div id="fv-pdf-pages" class="flex flex-col items-center gap-4 py-4 w-full max-w-3xl mx-auto"></div>`;
+    renderPdfInViewer(f.fileUrl);
+  } else {
+    body.innerHTML = `<img src="${escHtml(f.fileUrl)}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="${escHtml(f.fileName || '')}"/>`;
+  }
+}
+
+async function renderPdfInViewer(url) {
+  const container = document.getElementById('fv-pdf-pages');
+  container.innerHTML = `<div class="flex items-center gap-3 text-white/70 text-sm py-10">
+    <span class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:#fff;"></span> Loading PDF…</div>`;
+  try {
+    const task   = pdfjsLib.getDocument({ url, withCredentials: false });
+    const pdfDoc = await task.promise;
+    container.innerHTML = '';
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page     = await pdfDoc.getPage(i);
+      const unscaled = page.getViewport({ scale: 1 });
+      const targetW  = Math.min(container.clientWidth || 760, 760);
+      const viewport = page.getViewport({ scale: targetW / unscaled.width });
+      const dpr      = window.devicePixelRatio || 1;
+      const canvas   = document.createElement('canvas');
+      canvas.className = 'rounded-lg shadow-2xl bg-white';
+      canvas.width  = Math.floor(viewport.width * dpr);
+      canvas.height = Math.floor(viewport.height * dpr);
+      canvas.style.width  = Math.floor(viewport.width) + 'px';
+      canvas.style.height = Math.floor(viewport.height) + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      container.appendChild(canvas);
+    }
+  } catch (e) {
+    console.error('[renderPdfInViewer]', e);
+    container.innerHTML = `<p class="text-white/70 text-sm py-10">Failed to load PDF preview.</p>`;
+  }
+}
 
 function fmtDate(str) {
   if (!str) return '';

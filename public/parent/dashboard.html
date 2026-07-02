@@ -8,6 +8,7 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script id="tailwind-config">
   tailwind.config = {
     theme: {
@@ -174,6 +175,26 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
+<!-- ── In-portal File Viewer (PDF.js / image lightbox) ────────────────────────── -->
+<div id="file-viewer-modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex flex-col" onclick="if(event.target===this)closeFileViewer()">
+  <div class="flex items-center justify-between px-4 sm:px-6 py-3 flex-shrink-0">
+    <p id="fv-filename" class="text-white text-sm font-semibold truncate flex-1 min-w-0 pr-4">—</p>
+    <div class="flex items-center gap-1 flex-shrink-0">
+      <button id="fv-prev-btn" onclick="fvNav(-1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span id="fv-counter" class="hidden text-white/70 text-xs font-medium px-1"></span>
+      <button id="fv-next-btn" onclick="fvNav(1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+      <button onclick="closeFileViewer()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors ml-1">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+  </div>
+  <div id="fv-body" class="flex-1 overflow-auto flex items-center justify-center px-4 pb-6"></div>
+</div>
+
 <footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
   © 2025 Cremona Music.
 </footer>
@@ -198,6 +219,9 @@ const auth    = getAuth(app);
 const db      = getFirestore(app);
 const storage = getStorage(app);
 
+// PDF.js — used only for the stripped-down in-portal certificate viewer (no annotation/editing)
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
 // ── Module-level state ─────────────────────────────────────────────────────────
 let currentUserId  = null;
 let linkedIds      = [];
@@ -206,8 +230,8 @@ let dashBackFile   = null;
 let certsByStudent = {};   // studentId → { name, certs[] }
 
 // Certificate type metadata (shared look across all portals)
-const CERT_TYPES = { exam:'Exam Result', recital:'Recital', participation:'Participation', other:'Other' };
-const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', participation:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+const CERT_TYPES = { exam:'Exam Result', recital:'Recital', competition:'Competition', other:'Other' };
+const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', competition:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 function escHtml(s) {
@@ -454,8 +478,20 @@ async function loadChildren(ids) {
 }
 
 // ── Certificates modal ─────────────────────────────────────────────────────────
+// Returns a certificate's files as an array, regardless of schema version —
+// new docs store `files: [{fileUrl,fileName}]`; legacy docs store a single
+// top-level `fileUrl`/`fileName` pair (treated as a one-item array).
+function getCertFiles(c) {
+  if (Array.isArray(c.files) && c.files.length) return c.files;
+  if (c.fileUrl) return [{ fileUrl: c.fileUrl, fileName: c.fileName || 'Certificate' }];
+  return [];
+}
+
+let modalCertsCache = [];
+
 window.openCertsModal = function(sid) {
   const entry = certsByStudent[sid] || { name: 'Child', certs: [] };
+  modalCertsCache = entry.certs;
   document.getElementById('certs-modal-title').textContent = `${entry.name} — Certificates`;
   const body = document.getElementById('certs-modal-body');
   if (!entry.certs.length) {
@@ -466,6 +502,11 @@ window.openCertsModal = function(sid) {
     </div>`;
   } else {
     body.innerHTML = entry.certs.map(certRowHtml).join('');
+    body.querySelectorAll('[data-view-cert]').forEach(b =>
+      b.addEventListener('click', () => {
+        const c = modalCertsCache.find(x => x.id === b.dataset.viewCert);
+        if (c) openFileViewer(getCertFiles(c), 0);
+      }));
   }
   document.getElementById('certs-modal').classList.remove('hidden');
 };
@@ -474,6 +515,8 @@ window.closeCertsModal = function() { document.getElementById('certs-modal').cla
 function certRowHtml(c) {
   const label = CERT_TYPES[c.type] || 'Other';
   const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
+  const files = getCertFiles(c);
+  const viewLabel = files.length > 1 ? `View (${files.length})` : 'View';
   return `
   <div class="flex items-center gap-3 py-3 border-t border-border-subtle first:border-t-0">
     <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
@@ -485,9 +528,9 @@ function certRowHtml(c) {
       </div>
       ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
     </div>
-    <a href="${escHtml(c.fileUrl)}" target="_blank" rel="noopener" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0" title="View / download">
-      <span class="material-symbols-outlined text-[16px]">visibility</span> View
-    </a>
+    <button data-view-cert="${escHtml(c.id)}" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0">
+      <span class="material-symbols-outlined text-[16px]">visibility</span> ${viewLabel}
+    </button>
   </div>`;
 }
 
@@ -495,6 +538,81 @@ function fmtDate(str) {
   if (!str) return '';
   const d = new Date(str + 'T00:00:00');
   return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+
+// ── In-portal file viewer (PDF.js render / image lightbox) ────────────────────
+let fvFiles = [];
+let fvIndex = 0;
+
+window.openFileViewer = function(files, startIndex) {
+  fvFiles = files || [];
+  fvIndex = startIndex || 0;
+  if (!fvFiles.length) { showToast('No files to display.', 'error'); return; }
+  document.getElementById('file-viewer-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  renderViewerFile();
+};
+
+window.closeFileViewer = function() {
+  document.getElementById('file-viewer-modal').classList.add('hidden');
+  document.getElementById('fv-body').innerHTML = '';
+  document.body.style.overflow = '';
+};
+
+window.fvNav = function(dir) {
+  fvIndex = (fvIndex + dir + fvFiles.length) % fvFiles.length;
+  renderViewerFile();
+};
+
+function renderViewerFile() {
+  const f = fvFiles[fvIndex];
+  document.getElementById('fv-filename').textContent = f.fileName || 'File';
+  const multi = fvFiles.length > 1;
+  document.getElementById('fv-prev-btn').classList.toggle('hidden', !multi);
+  document.getElementById('fv-next-btn').classList.toggle('hidden', !multi);
+  const counter = document.getElementById('fv-counter');
+  counter.classList.toggle('hidden', !multi);
+  if (multi) counter.textContent = `${fvIndex + 1} / ${fvFiles.length}`;
+
+  const body = document.getElementById('fv-body');
+  const isPdf = /\.pdf($|\?)/i.test(f.fileName || f.fileUrl || '');
+  if (isPdf) {
+    body.innerHTML = `<div id="fv-pdf-pages" class="flex flex-col items-center gap-4 py-4 w-full max-w-3xl mx-auto"></div>`;
+    renderPdfInViewer(f.fileUrl);
+  } else {
+    body.innerHTML = `<img src="${escHtml(f.fileUrl)}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="${escHtml(f.fileName || '')}"/>`;
+  }
+}
+
+async function renderPdfInViewer(url) {
+  const container = document.getElementById('fv-pdf-pages');
+  container.innerHTML = `<div class="flex items-center gap-3 text-white/70 text-sm py-10">
+    <span class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:#fff;"></span> Loading PDF…</div>`;
+  try {
+    const task   = pdfjsLib.getDocument({ url, withCredentials: false });
+    const pdfDoc = await task.promise;
+    container.innerHTML = '';
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page     = await pdfDoc.getPage(i);
+      const unscaled = page.getViewport({ scale: 1 });
+      const targetW  = Math.min(container.clientWidth || 760, 760);
+      const viewport = page.getViewport({ scale: targetW / unscaled.width });
+      const dpr      = window.devicePixelRatio || 1;
+      const canvas   = document.createElement('canvas');
+      canvas.className = 'rounded-lg shadow-2xl bg-white';
+      canvas.width  = Math.floor(viewport.width * dpr);
+      canvas.height = Math.floor(viewport.height * dpr);
+      canvas.style.width  = Math.floor(viewport.width) + 'px';
+      canvas.style.height = Math.floor(viewport.height) + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      container.appendChild(canvas);
+    }
+  } catch (e) {
+    console.error('[renderPdfInViewer]', e);
+    container.innerHTML = `<p class="text-white/70 text-sm py-10">Failed to load PDF preview.</p>`;
+  }
 }
 
 // ── Add Child modal ────────────────────────────────────────────────────────────
