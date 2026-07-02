@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <link rel="icon" href="/favicon.png"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" name="viewport"/>
 <title>Messages | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -35,14 +35,41 @@
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,0.2);border-top-color:#C9A227;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
-  #messages-area { scroll-behavior: smooth; }
-  #messages-area::-webkit-scrollbar { width:5px; }
-  #messages-area::-webkit-scrollbar-track { background:transparent; }
-  #messages-area::-webkit-scrollbar-thumb { background:#D4BCA0;border-radius:4px; }
-  #sidebar-scroll::-webkit-scrollbar { width:4px; }
-  #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
-  #sidebar-scroll::-webkit-scrollbar-thumb { background:#D4BCA0;border-radius:4px; }
-  .conv-item { transition: background 0.12s; }
+
+  /* ── Two-panel shell ─────────────────────────────────────────────────────── */
+  #msg-root { display:flex; height:calc(100dvh - 56px); overflow:hidden; background:#FAF6EF; }
+  #conv-panel { width:340px; flex-shrink:0; border-right:1px solid #E8DCC8; background:#FFFDF9; display:flex; flex-direction:column; overflow:hidden; }
+  #chat-panel { flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; background:#FAF6EF; }
+  #back-btn { display:none; }
+
+  @media (max-width:767px) {
+    #conv-panel { width:100%; }
+    #chat-panel {
+      position:fixed; top:56px; left:0; right:0; height:calc(100dvh - 56px);
+      transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
+      z-index:40; box-shadow:-4px 0 20px rgba(0,0,0,.12);
+    }
+    #msg-root.chat-open #chat-panel { transform:translateX(0); }
+    #back-btn { display:flex; }
+  }
+
+  #messages-area, #sidebar-scroll { scroll-behavior:smooth; }
+  #messages-area::-webkit-scrollbar, #sidebar-scroll::-webkit-scrollbar { width:5px; }
+  #messages-area::-webkit-scrollbar-thumb, #sidebar-scroll::-webkit-scrollbar-thumb { background:#D4BCA0;border-radius:4px; }
+  #messages-area::-webkit-scrollbar-track, #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+
+  .conv-item { transition: background .12s; }
+  .conv-item:hover:not(.active) { background:#F5EFE4; }
+  .conv-item.active { background:rgba(201,162,39,0.14); }
+
+  .msg-row { display:flex; align-items:flex-end; gap:8px; padding:1px 16px; }
+  .msg-row.own { justify-content:flex-end; }
+  .bubble { max-width:74%; padding:8px 13px; border-radius:20px; font-size:14px; line-height:1.45; word-break:break-word; white-space:pre-wrap; }
+  .bubble.own  { background:#F5E5B0; color:#3E2C23; border-bottom-right-radius:6px; }
+  .bubble.recv { background:#FFFDF9; color:#3E2C23; border-bottom-left-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
+  .time-divider { text-align:center; font-size:11px; color:#8B6B52; padding:14px 0 6px; font-weight:500; }
+  .msg-meta { font-size:10px; color:#8B6B52; }
+
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
   #toast.show { opacity:1; }
   #toast.error   { background:#ba1a1a;color:#fff; }
@@ -50,7 +77,6 @@
   #toast.info    { background:#3B2A1E;color:#F5EFE4; }
 </style>
 <style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
 header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
 header img[src*="logo"] { filter: invert(1) brightness(1.2); }
 header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
@@ -64,7 +90,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </style>
 </head>
 
-<body class="bg-background text-on-surface flex flex-col">
+<body class="bg-background text-on-surface">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -76,75 +102,65 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
-<!-- ── Main layout ─────────────────────────────────────────────────────────── -->
-<div class="flex flex-1 overflow-hidden" style="height:calc(100dvh - 56px)">
+<!-- ── Two-panel messenger ─────────────────────────────────────────────────── -->
+<div id="msg-root">
 
-  <!-- ── Left sidebar ──────────────────────────────────────────────────────── -->
-  <div class="w-72 flex-shrink-0 border-r border-border-subtle bg-surface-white flex flex-col overflow-hidden">
-
-    <!-- Search -->
-    <div class="p-3 border-b border-border-subtle flex-shrink-0">
+  <!-- ── Conversation list panel ───────────────────────────────────────────── -->
+  <aside id="conv-panel">
+    <div class="px-4 pt-4 pb-3 flex-shrink-0">
+      <h1 class="text-lg font-bold text-on-surface mb-3">Messages</h1>
       <div class="relative">
-        <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
-        <input id="sidebar-search" type="text" placeholder="Search conversations…"
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
+        <input id="sidebar-search" type="text" placeholder="Search"
                oninput="filterSidebar(this.value)"
-               class="w-full pl-8 pr-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all"/>
+               class="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low rounded-full border border-transparent focus:border-secondary focus:bg-surface-white focus:ring-1 focus:ring-secondary outline-none transition-all"/>
       </div>
     </div>
 
-    <!-- Conversation list: Announcements + DMs only (no group chats for parents) -->
-    <div id="sidebar-scroll" class="flex-1 overflow-y-auto py-2">
-
+    <div id="sidebar-scroll" class="flex-1 overflow-y-auto pb-3">
       <div class="mb-1">
-        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
-        <div id="sidebar-announcements">
-          <p class="px-3 py-2 text-xs text-text-muted italic">No announcements</p>
-        </div>
+        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
+        <div id="sidebar-announcements"></div>
       </div>
-
       <div>
-        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
-        <div id="sidebar-dms">
-          <p class="px-3 py-2 text-xs text-text-muted italic">No direct messages</p>
-        </div>
+        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
+        <div id="sidebar-dms"></div>
       </div>
-
     </div>
-  </div>
+  </aside>
 
-  <!-- ── Right chat area ───────────────────────────────────────────────────── -->
-  <div class="flex-1 flex flex-col overflow-hidden bg-surface">
+  <!-- ── Chat panel ────────────────────────────────────────────────────────── -->
+  <section id="chat-panel">
 
-    <!-- Empty state -->
-    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-text-muted gap-3">
-      <span class="material-symbols-outlined text-[56px] opacity-25">forum</span>
-      <p class="text-base font-medium opacity-50">Select a conversation</p>
+    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center px-6 gap-3">
+      <div class="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center">
+        <span class="material-symbols-outlined text-[44px] text-outline-variant">forum</span>
+      </div>
+      <p class="text-base font-semibold text-on-surface-variant">Your messages</p>
+      <p class="text-sm text-text-muted max-w-[240px]">Select a conversation from the list to start reading and replying.</p>
     </div>
 
-    <!-- Conversation view -->
     <div id="conv-view" class="hidden flex-col h-full overflow-hidden" style="display:none">
 
-      <!-- Chat header -->
-      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-5 py-3 flex items-center gap-3">
-        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background:#C9A227">—</div>
+      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-3 sm:px-5 py-2.5 flex items-center gap-2 sm:gap-3">
+        <button id="back-btn" onclick="closeChat()" aria-label="Back"
+                class="flex-shrink-0 w-9 h-9 items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 overflow-hidden" style="background:#C9A227">—</div>
         <div class="flex-1 min-w-0">
           <p id="chat-header-name" class="font-semibold text-sm text-on-surface truncate">—</p>
-          <p id="chat-header-sub"  class="text-xs text-text-muted"></p>
+          <p id="chat-header-sub"  class="text-xs text-text-muted truncate"></p>
         </div>
       </div>
 
-      <!-- Messages area -->
-      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5">
-        <!-- populated by JS -->
-      </div>
+      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col"></div>
 
-      <!-- Read-only notice (announcements are always read-only for parents) -->
-      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center gap-2 text-sm text-text-muted">
+      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center justify-center gap-2 text-sm text-text-muted">
         <span class="material-symbols-outlined text-[18px]">lock</span>
         Read only — only admins can post in announcements
       </div>
 
-      <!-- File preview bar -->
       <div id="file-preview" class="hidden flex-shrink-0 bg-surface border-t border-border-subtle px-4 py-2 flex items-center gap-2 text-sm">
         <span class="material-symbols-outlined text-[18px] text-secondary">attach_file</span>
         <span id="file-preview-name" class="truncate max-w-[200px] text-on-surface"></span>
@@ -153,17 +169,18 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         </button>
       </div>
 
-      <!-- Input bar -->
-      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-3 flex items-end gap-2">
-        <label for="file-input" class="flex-shrink-0 p-2 rounded-lg text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
-          <span class="material-symbols-outlined text-[22px]">attach_file</span>
+      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-2.5 flex items-end gap-2">
+        <label for="file-input" class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-[22px]">add_photo_alternate</span>
         </label>
         <input id="file-input" type="file" class="hidden" onchange="handleFileSelect(this)"/>
-        <textarea id="msg-input" rows="1"
-                  placeholder="Type a message…"
-                  onkeydown="handleMsgKeydown(event)"
-                  oninput="autoResize(this)"
-                  class="flex-1 resize-none rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface max-h-32 overflow-y-auto"></textarea>
+        <div class="flex-1 flex items-end bg-surface-container-low rounded-3xl px-1 border border-transparent focus-within:border-secondary transition-colors">
+          <textarea id="msg-input" rows="1"
+                    placeholder="Message…"
+                    onkeydown="handleMsgKeydown(event)"
+                    oninput="autoResize(this)"
+                    class="flex-1 resize-none bg-transparent outline-none text-sm px-3 py-2 max-h-32 overflow-y-auto"></textarea>
+        </div>
         <button id="send-btn" onclick="sendMessage()"
                 class="flex-shrink-0 w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white hover:bg-secondary/90 active:scale-95 transition-all shadow-sm">
           <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">send</span>
@@ -171,7 +188,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
 
     </div>
-  </div>
+  </section>
 </div>
 
 
@@ -185,8 +202,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// ── Firebase init ─────────────────────────────────────────────────────────────
-// ── Firebase init ─────────────────────────────────────────────────────────────
 const app  = initializeApp({
   apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
   authDomain: "cremonamusic-portal.firebaseapp.com",
@@ -199,7 +214,7 @@ const auth    = getAuth(app);
 const db      = getFirestore(app);
 const storage = getStorage(app);
 
-// ── State ─────────────────────────────────────────────────────────────────────
+// ── State ───────────────────────────────────────────────────────────────────
 let currentUser     = null;
 let currentUserData = null;
 let conversations   = new Map();
@@ -212,7 +227,7 @@ let msgUnsub            = null;
 let pendingFile         = null;
 let sidebarFilter       = '';
 let dmDisplayNames      = new Map();
-let readTimes           = new Map();
+let locallyRead         = new Map();
 let presenceIntervalId  = null;
 let pollIntervalId      = null;
 let visibilityHandler   = null;
@@ -229,13 +244,14 @@ function teardown() {
   allUsers.clear();
   presenceMap.clear();
   dmDisplayNames.clear();
-  readTimes.clear();
+  locallyRead.clear();
   activeConvId  = null;
   msgArr        = [];
   pendingFile   = null;
   sidebarFilter = '';
   clearFile();
 
+  document.getElementById('msg-root')?.classList.remove('chat-open');
   const emptyState = document.getElementById('empty-state');
   const convView   = document.getElementById('conv-view');
   if (emptyState) emptyState.style.display = '';
@@ -260,16 +276,14 @@ onAuthStateChanged(auth, async (user) => {
     teardown();
     currentUser     = user;
     currentUserData = { uid: user.uid, ...data };
-
     await init();
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
-    console.error('auth error', e);
+    console.error('[messages] auth/init error', e);
     window.location.href = '/index.html';
   }
 });
 
-// ── Sign out ──────────────────────────────────────────────────────────────────
 window.doSignOut = async function() {
   teardown();
   await signOut(auth);
@@ -278,22 +292,14 @@ window.doSignOut = async function() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
-  const displayName = (currentUserData.firstName && currentUserData.lastName)
-    ? `${currentUserData.firstName} ${currentUserData.lastName}`
-    : (currentUserData.name || '');
-  const headerNameEl = document.getElementById('header-name');
-  if (headerNameEl) headerNameEl.textContent = displayName;
-
   await updateOwnPresence(true);
   presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);
   visibilityHandler  = () => updateOwnPresence(!document.hidden);
   document.addEventListener('visibilitychange', visibilityHandler);
 
   await loadAllUsers();
-
   await pollPresence();
   pollIntervalId = setInterval(pollPresence, 30000);
-
   startConversationListener();
 }
 
@@ -301,18 +307,14 @@ async function init() {
 async function updateOwnPresence(online) {
   if (!currentUser) return;
   try {
-    await setDoc(doc(db, 'userPresence', currentUser.uid),
-      { online, lastSeen: serverTimestamp() }, { merge: true });
+    await setDoc(doc(db, 'userPresence', currentUser.uid), { online, lastSeen: serverTimestamp() }, { merge: true });
   } catch (_) {}
 }
-
 async function pollPresence() {
   if (!conversations.size) return;
   try {
     const uids = new Set();
-    conversations.forEach(c => (c.members || []).forEach(u => {
-      if (u !== currentUser.uid) uids.add(u);
-    }));
+    conversations.forEach(c => (c.members || []).forEach(u => { if (u !== currentUser.uid) uids.add(u); }));
     await Promise.all([...uids].map(async uid => {
       const s = await getDoc(doc(db, 'userPresence', uid));
       if (s.exists()) presenceMap.set(uid, s.data());
@@ -320,11 +322,9 @@ async function pollPresence() {
     renderSidebar();
   } catch (_) {}
 }
-
 function isOnline(uid) {
   const p = presenceMap.get(uid);
-  if (!p) return false;
-  if (p.online === false) return false;
+  if (!p || p.online === false) return false;
   const ls = p.lastSeen?.toDate ? p.lastSeen.toDate() : null;
   return ls ? (Date.now() - ls.getTime()) < 2 * 60 * 1000 : false;
 }
@@ -340,34 +340,23 @@ async function loadAllUsers() {
 // ── Conversations listener ────────────────────────────────────────────────────
 function startConversationListener() {
   if (convUnsub) { convUnsub(); convUnsub = null; }
-  const q = query(
-    collection(db, 'conversations'),
-    where('members', 'array-contains', currentUser.uid)
-  );
+  const q = query(collection(db, 'conversations'), where('members', 'array-contains', currentUser.uid));
   convUnsub = onSnapshot(q, async snap => {
     snap.docChanges().forEach(change => {
       if (change.type === 'removed') conversations.delete(change.doc.id);
       else conversations.set(change.doc.id, { id: change.doc.id, ...change.doc.data() });
     });
-
-    // Fetch any DM member docs not yet cached
     const missing = new Set();
     conversations.forEach(conv => {
       if (conv.type === 'direct') {
-        (conv.members || []).forEach(uid => {
-          if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid);
-        });
+        (conv.members || []).forEach(uid => { if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid); });
       }
     });
     if (missing.size > 0) {
       await Promise.all([...missing].map(async uid => {
-        try {
-          const s = await getDoc(doc(db, 'users', uid));
-          if (s.exists()) allUsers.set(uid, { uid, ...s.data() });
-        } catch (_) {}
+        try { const s = await getDoc(doc(db, 'users', uid)); if (s.exists()) allUsers.set(uid, { uid, ...s.data() }); } catch (_) {}
       }));
     }
-
     renderSidebar();
   }, err => console.error('convListener', err));
 }
@@ -376,30 +365,23 @@ function startConversationListener() {
 function renderSidebar() {
   const ann = [], dms = [];
   const filter = sidebarFilter.toLowerCase();
-
   conversations.forEach(conv => {
-    // Parents see Announcements and DMs only — skip group chats
-    if (conv.type === 'group') return;
+    if (conv.type === 'group') return;   // parents see announcements + DMs only
     const displayName = getConvDisplayName(conv);
     if (filter && !displayName.toLowerCase().includes(filter)) return;
     if (conv.type === 'announcement') ann.push(conv);
     else                              dms.push(conv);
   });
-
-  const byTime = (a, b) => {
-    const ta = a.lastMessageAt?.toDate?.()?.getTime() || 0;
-    const tb = b.lastMessageAt?.toDate?.()?.getTime() || 0;
-    return tb - ta;
-  };
-
+  const byTime = (a, b) =>
+    (b.lastMessageAt?.toDate?.()?.getTime() || 0) - (a.lastMessageAt?.toDate?.()?.getTime() || 0);
   const render = (list, elId, empty) => {
     const el = document.getElementById(elId);
+    if (!el) return;
     el.innerHTML = list.sort(byTime).map(convItemHtml).join('')
-      || `<p class="px-3 py-2 text-xs text-text-muted italic">${empty}</p>`;
+      || `<p class="px-4 py-2 text-xs text-text-muted italic">${empty}</p>`;
   };
-
   render(ann, 'sidebar-announcements', 'No announcements');
-  render(dms, 'sidebar-dms',           'No direct messages');
+  render(dms, 'sidebar-dms',           'No direct messages yet');
 }
 
 function getConvDisplayName(conv) {
@@ -413,7 +395,6 @@ function getConvDisplayName(conv) {
   }
   return conv.name || 'Unnamed';
 }
-
 async function fetchAndCacheDMName(uid) {
   if (dmDisplayNames.has(uid)) return;
   dmDisplayNames.set(uid, '__pending__');
@@ -421,17 +402,21 @@ async function fetchAndCacheDMName(uid) {
     const snap = await getDoc(doc(db, 'users', uid));
     if (snap.exists()) {
       const d = snap.data();
-      dmDisplayNames.set(uid, (d.firstName && d.lastName)
-        ? `${d.firstName} ${d.lastName}`
-        : (d.name || d.email || 'Unknown'));
-    } else {
-      dmDisplayNames.set(uid, 'Unknown');
-    }
-  } catch (err) {
-    dmDisplayNames.delete(uid);
-    return;
-  }
+      dmDisplayNames.set(uid, (d.firstName && d.lastName) ? `${d.firstName} ${d.lastName}` : (d.name || d.email || 'Unknown'));
+    } else { dmDisplayNames.set(uid, 'Unknown'); }
+  } catch (err) { dmDisplayNames.delete(uid); return; }
   renderSidebar();
+}
+
+function isUnread(conv) {
+  if (conv.id === activeConvId) return false;
+  if (!conv.lastMessage) return false;
+  const lastSender = String(conv.lastMessageBy || '').trim();
+  if (lastSender === '' || lastSender === String(currentUser.uid).trim()) return false;
+  const lastMsgMs = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
+  const serverReadMs = conv.readAt?.[currentUser.uid]?.toDate?.()?.getTime() || 0;
+  const localReadMs  = locallyRead.get(conv.id) || 0;
+  return lastMsgMs > Math.max(serverReadMs, localReadMs);
 }
 
 function convItemHtml(conv) {
@@ -439,62 +424,58 @@ function convItemHtml(conv) {
   const displayName = getConvDisplayName(conv);
   const avatarColor = getAvatarColor(displayName);
   const initials    = getInitials(displayName);
-  const lastMsg     = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 45) : '';
+  const lastMsg     = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 48) : '';
   const lastTime    = conv.lastMessageAt?.toDate ? formatTime(conv.lastMessageAt.toDate()) : '';
   const isAnn       = conv.type === 'announcement';
-  const lastMsgTime  = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
-  const lastReadTime = readTimes.get(conv.id) || 0;
-  const lastSender   = String(conv.lastMessageBy || '').trim();
-  const myUid        = String(currentUser.uid || '').trim();
-  const hasUnread    = !!conv.lastMessage && lastSender !== '' && lastSender !== myUid && lastMsgTime > lastReadTime;
+  const hasUnread   = isUnread(conv);
 
   let avatarHtml, onlineDot = '';
   if (isAnn) {
-    avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+    avatarHtml = `<span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
   } else {
     const otherUid  = (conv.members || []).find(u => u !== currentUser.uid);
     const otherUser = otherUid ? allUsers.get(otherUid) : null;
-    if (otherUser?.photoUrl) {
-      avatarHtml = `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="${escHtml(displayName)}"/>`;
-    } else {
-      avatarHtml = `<span class="text-[13px] font-bold">${escHtml(initials)}</span>`;
-    }
-    if (otherUid) {
-      const online = isOnline(otherUid);
-      onlineDot = `<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${online ? 'bg-green-500' : 'bg-gray-300'}"></span>`;
+    avatarHtml = otherUser?.photoUrl
+      ? `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover" alt="${escHtml(displayName)}"/>`
+      : `<span class="text-sm font-bold">${escHtml(initials)}</span>`;
+    if (otherUid && isOnline(otherUid)) {
+      onlineDot = `<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface-white bg-green-500"></span>`;
     }
   }
 
   return `
   <button onclick="openConversation('${conv.id}')"
-    class="conv-item w-full flex items-center gap-2.5 px-2.5 py-2 mx-0.5 rounded-xl text-left ${isActive ? 'bg-secondary-fixed/60' : 'hover:bg-surface-container'} ${isAnn ? 'border-l-[3px] border-primary-container pl-2' : ''}">
+    class="conv-item ${isActive ? 'active' : ''} w-full flex items-center gap-3 px-4 py-2.5 text-left">
     <div class="relative flex-shrink-0">
-      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white"
-           style="background:${avatarColor}">${avatarHtml}</div>
+      <div class="w-12 h-12 rounded-full flex items-center justify-center text-white overflow-hidden" style="background:${avatarColor}">${avatarHtml}</div>
       ${onlineDot}
     </div>
     <div class="flex-1 min-w-0">
-      <div class="flex items-center justify-between gap-1">
-        <span class="text-sm font-semibold text-on-surface truncate">${escHtml(displayName)}</span>
-        ${lastTime ? `<span class="text-[10px] text-text-muted flex-shrink-0">${lastTime}</span>` : ''}
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-sm ${hasUnread ? 'font-bold' : 'font-semibold'} text-on-surface truncate">${escHtml(displayName)}</span>
+        ${lastTime ? `<span class="text-[11px] ${hasUnread ? 'text-secondary font-semibold' : 'text-text-muted'} flex-shrink-0">${lastTime}</span>` : ''}
       </div>
-      <p class="text-xs truncate mt-0.5 ${hasUnread ? 'text-on-surface font-medium' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
+      <div class="flex items-center gap-1.5 mt-0.5">
+        <p class="text-xs truncate flex-1 ${hasUnread ? 'text-on-surface font-semibold' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
+        ${hasUnread ? '<span class="w-2.5 h-2.5 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
+      </div>
     </div>
-    ${hasUnread ? '<span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
   </button>`;
 }
 
 // ── Open conversation ─────────────────────────────────────────────────────────
 window.openConversation = async function(convId) {
   activeConvId = convId;
-  readTimes.set(convId, Date.now());
+  locallyRead.set(convId, Date.now());
   renderSidebar();
+  markConversationRead(convId);
 
   const conv = conversations.get(convId);
   if (!conv) return;
 
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('conv-view').style.display   = 'flex';
+  document.getElementById('msg-root').classList.add('chat-open');
 
   const avatarEl = document.getElementById('chat-avatar');
 
@@ -506,149 +487,171 @@ window.openConversation = async function(convId) {
         const uSnap = await getDoc(doc(db, 'users', otherUid));
         if (uSnap.exists()) {
           const d = uSnap.data();
-          headerName = (d.firstName && d.lastName)
-            ? `${d.firstName} ${d.lastName}`
-            : (d.name || d.email || 'Unknown');
+          headerName = (d.firstName && d.lastName) ? `${d.firstName} ${d.lastName}` : (d.name || d.email || 'Unknown');
           dmDisplayNames.set(otherUid, headerName);
         }
       } catch (_) {}
     }
+    const otherUser = otherUid ? allUsers.get(otherUid) : null;
     document.getElementById('chat-header-name').textContent = headerName;
     avatarEl.style.background = getAvatarColor(headerName);
-    avatarEl.textContent      = getInitials(headerName);
+    avatarEl.innerHTML = otherUser?.photoUrl
+      ? `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover" alt=""/>`
+      : escHtml(getInitials(headerName));
     const online = otherUid ? isOnline(otherUid) : false;
     document.getElementById('chat-header-sub').innerHTML =
-      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">● ${online ? 'Online' : 'Offline'}</span>`;
+      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">${online ? 'Active now' : 'Offline'}</span>`;
     renderSidebar();
   } else {
-    // Announcement channel
     const displayName = conv.name || 'Announcements';
     document.getElementById('chat-header-name').textContent = displayName;
     avatarEl.style.background = getAvatarColor(displayName);
-    avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+    avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[19px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
     document.getElementById('chat-header-sub').textContent = 'Announcements channel';
   }
 
-  // Announcements are always read-only for parents
-  const isReadOnly = conv.type === 'announcement';
+  const isReadOnly = conv.type === 'announcement';   // always read-only for parents
   document.getElementById('input-bar').style.display     = isReadOnly ? 'none' : 'flex';
   document.getElementById('readonly-note').style.display = isReadOnly ? 'flex' : 'none';
 
   startMessageListener(convId);
 };
 
+window.closeChat = function() {
+  document.getElementById('msg-root').classList.remove('chat-open');
+  if (msgUnsub) { msgUnsub(); msgUnsub = null; }
+  activeConvId = null;
+  document.getElementById('conv-view').style.display = 'none';
+  document.getElementById('empty-state').style.display = '';
+  renderSidebar();
+};
+
 // ── Messages listener ─────────────────────────────────────────────────────────
 function startMessageListener(convId) {
   if (msgUnsub) { msgUnsub(); msgUnsub = null; }
   const area = document.getElementById('messages-area');
-  area.innerHTML = `<div class="flex justify-center py-8"><div class="spinner"></div></div>`;
+  area.innerHTML = `<div class="flex-1 flex justify-center items-center py-8"><div class="spinner"></div></div>`;
 
   const q = query(collection(db, 'messages'), where('conversationId', '==', convId));
-
   msgUnsub = onSnapshot(q, async snap => {
     msgArr = [];
     snap.forEach(d => msgArr.push({ id: d.id, ...d.data() }));
-    msgArr.sort((a, b) =>
-      (a.timestamp?.toDate?.()?.getTime() || 0) -
-      (b.timestamp?.toDate?.()?.getTime() || 0));
+    msgArr.sort((a, b) => (a.timestamp?.toDate?.()?.getTime() || 0) - (b.timestamp?.toDate?.()?.getTime() || 0));
     renderMessages();
     await markAllRead(convId);
-    readTimes.set(convId, Date.now());
+    locallyRead.set(convId, Date.now());
+    markConversationRead(convId);
     renderSidebar();
   }, err => console.error('msgListener', err));
 }
 
-// ── Render messages ───────────────────────────────────────────────────────────
+// ── Render messages (grouped, with time dividers) ──────────────────────────────
 function renderMessages() {
   const area = document.getElementById('messages-area');
+  const conv = conversations.get(activeConvId);
   if (!msgArr.length) {
-    area.innerHTML = `<div class="flex-1 flex items-center justify-center py-16 text-sm text-text-muted italic">No messages yet.</div>`;
+    area.innerHTML = `
+      <div class="flex-1 flex flex-col items-center justify-center text-center gap-2 py-16 px-6">
+        <span class="material-symbols-outlined text-[40px] text-outline-variant">chat_bubble</span>
+        <p class="text-sm text-text-muted">No messages yet.${conv?.type === 'announcement' ? '' : ' Say hello!'}</p>
+      </div>`;
     return;
   }
+
   const wasAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 120;
-  area.innerHTML = msgArr.map(buildMessageHtml).join('');
+  const lastOwnIdx  = (() => { for (let i = msgArr.length - 1; i >= 0; i--) if (msgArr[i].senderUid === currentUser.uid) return i; return -1; })();
+
+  let html = '';
+  let prev = null;
+  msgArr.forEach((msg, i) => {
+    const t = msg.timestamp?.toDate ? msg.timestamp.toDate() : null;
+    const pt = prev?.timestamp?.toDate ? prev.timestamp.toDate() : null;
+    const showDivider = !pt || !t || (t - pt) > 15 * 60 * 1000 || t.toDateString() !== pt.toDateString();
+    if (showDivider && t) html += `<div class="time-divider">${dividerLabel(t)}</div>`;
+    const showMeta = showDivider || !prev || prev.senderUid !== msg.senderUid;
+    html += buildMessageHtml(msg, { conv, showMeta, isLastOwn: i === lastOwnIdx });
+    prev = msg;
+  });
+  area.innerHTML = html;
   if (wasAtBottom || msgArr.length < 20) area.scrollTop = area.scrollHeight;
 }
 
-function buildMessageHtml(msg) {
-  const isOwn  = msg.senderUid === currentUser.uid;
-  const ts     = msg.timestamp?.toDate ? formatTimeFull(msg.timestamp.toDate()) : '';
-  const sender = escHtml(msg.senderName || 'Unknown');
-
-  const receipts = (msg.readBy || [])
-    .filter(u => u !== currentUser.uid)
-    .slice(-3)
-    .map(u => {
-      const usr  = allUsers.get(u);
-      const nm   = usr?.name || '?';
-      return `<div class="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold text-white" style="background:${getAvatarColor(nm)}" title="${escHtml(nm)}">${escHtml(getInitials(nm))}</div>`;
-    }).join('');
+function buildMessageHtml(msg, { conv, showMeta, isLastOwn }) {
+  const isOwn    = msg.senderUid === currentUser.uid;
+  const convType = conv?.type || 'direct';
+  const timeAttr = msg.timestamp?.toDate ? ` title="${escHtml(formatTimeFull(msg.timestamp.toDate()))}"` : '';
 
   let fileHtml = '';
   if (msg.fileUrl) {
     const isImg = (msg.fileType || '').startsWith('image/');
     fileHtml = isImg
-      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[200px] rounded-lg border border-border-subtle" alt="attachment"/></a>`
+      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[220px] rounded-xl" alt="attachment"/></a>`
       : `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener"
-           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-lg border ${isOwn ? 'border-amber-200 bg-amber-50' : 'border-border-subtle bg-surface'} text-xs hover:opacity-80 transition-opacity">
+           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-xl ${isOwn ? 'bg-black/5' : 'bg-surface-container-low'} text-xs hover:opacity-80 transition-opacity">
            <span class="material-symbols-outlined text-[16px]">description</span>
            <span class="truncate max-w-[150px]">${escHtml(msg.fileName || 'Attachment')}</span>
            <span class="material-symbols-outlined text-[14px] ml-auto opacity-60">download</span>
          </a>`;
   }
+  const body = `${msg.text ? escHtml(msg.text) : ''}${fileHtml}`;
+
+  // Read receipts: DMs show "Seen" under the last own message once read.
+  // Announcements: never shown to parents.
+  let receiptHtml = '';
+  if (isOwn && isLastOwn && convType === 'direct') {
+    const others = (msg.readBy || []).filter(u => u !== currentUser.uid);
+    if (others.length) receiptHtml = `<div class="flex justify-end mt-0.5 pr-1"><span class="msg-meta">Seen</span></div>`;
+  }
 
   if (isOwn) {
     return `
-    <div class="flex flex-col items-end px-4 py-0.5">
-      <div class="max-w-[72%]">
-        <div class="bg-amber-100 text-on-primary-fixed rounded-2xl rounded-tr-sm px-4 py-2 text-sm leading-relaxed break-words">
-          ${msg.text ? escHtml(msg.text) : ''}${fileHtml}
-        </div>
-        <div class="flex items-center justify-end gap-1 mt-0.5 pr-0.5">
-          <span class="text-[10px] text-text-muted">${ts}</span>
-          ${receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
-        </div>
+    <div class="msg-row own"${timeAttr}>
+      <div class="flex flex-col items-end" style="max-width:74%">
+        <div class="bubble own">${body}</div>
+        ${receiptHtml}
       </div>
     </div>`;
   }
 
   const senderUser = msg.senderUid ? allUsers.get(msg.senderUid) : null;
-  const senderAvatar = senderUser?.photoUrl
-    ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-6 h-6 rounded-full flex-shrink-0 object-cover" alt="${escHtml(msg.senderName || '')}"/>`
-    : `<div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`;
+  const avatarSlot = showMeta
+    ? (senderUser?.photoUrl
+        ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-7 h-7 rounded-full flex-shrink-0 object-cover" alt=""/>`
+        : `<div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`)
+    : `<div class="w-7 flex-shrink-0"></div>`;
+  const nameHtml = (showMeta && convType !== 'direct')
+    ? `<p class="text-[11px] text-text-muted mb-0.5 ml-1">${escHtml(msg.senderName || 'Unknown')}</p>` : '';
 
   return `
-  <div class="flex items-end gap-2 px-4 py-0.5">
-    ${senderAvatar}
-    <div class="max-w-[72%]">
-      <p class="text-[11px] text-text-muted mb-1 ml-1">${sender}</p>
-      <div class="bg-surface-white border border-border-subtle rounded-2xl rounded-tl-sm px-4 py-2 text-sm leading-relaxed text-on-surface break-words">
-        ${msg.text ? escHtml(msg.text) : ''}${fileHtml}
-      </div>
-      <div class="flex items-center gap-1 mt-0.5 ml-1">
-        <span class="text-[10px] text-text-muted">${ts}</span>
-        ${receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
-      </div>
+  <div class="msg-row"${timeAttr} style="padding-top:${showMeta ? '4px' : '1px'}">
+    ${avatarSlot}
+    <div style="max-width:74%">
+      ${nameHtml}
+      <div class="bubble recv">${body}</div>
     </div>
   </div>`;
 }
 
-// ── Mark all read ─────────────────────────────────────────────────────────────
+// ── Mark read ───────────────────────────────────────────────────────────────
 async function markAllRead(convId) {
   if (!currentUser || !msgArr.length) return;
   const myUid = String(currentUser.uid).trim();
   try {
     const batch = writeBatch(db);
-    let   count = 0;
+    let count = 0;
     msgArr.forEach(msg => {
       const alreadyRead = (msg.readBy || []).some(u => String(u).trim() === myUid);
-      if (!alreadyRead) {
-        batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) });
-        count++;
-      }
+      if (!alreadyRead) { batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) }); count++; }
     });
     if (count > 0) await batch.commit();
   } catch (e) { console.error('[markAllRead]', e); }
+}
+
+async function markConversationRead(convId) {
+  if (!currentUser) return;
+  try {
+    await updateDoc(doc(db, 'conversations', convId), { [`readAt.${currentUser.uid}`]: serverTimestamp() });
+  } catch (e) { console.error('[markConversationRead]', e); }
 }
 
 // ── Send message ──────────────────────────────────────────────────────────────
@@ -669,28 +672,27 @@ window.sendMessage = async function() {
       ({ fileUrl, fileName, fileType } = await uploadFile(pendingFile));
       clearFile();
     }
-
     const senderName = (currentUserData.firstName && currentUserData.lastName)
       ? `${currentUserData.firstName} ${currentUserData.lastName}`
       : (currentUserData.name || currentUser.email || 'Unknown');
 
     const msgData = {
       conversationId: activeConvId,
-      senderUid:      currentUser.uid,
+      senderUid: currentUser.uid,
       senderName,
       text,
-      timestamp:      serverTimestamp(),
-      readBy:         [currentUser.uid]
+      timestamp: serverTimestamp(),
+      readBy: [currentUser.uid]
     };
     if (fileUrl) { msgData.fileUrl = fileUrl; msgData.fileName = fileName; msgData.fileType = fileType; }
 
     await addDoc(collection(db, 'messages'), msgData);
     await updateDoc(doc(db, 'conversations', activeConvId), {
-      lastMessage:   text || fileName,
+      lastMessage: text || fileName,
       lastMessageAt: serverTimestamp(),
-      lastMessageBy: currentUser.uid
+      lastMessageBy: currentUser.uid,
+      [`readAt.${currentUser.uid}`]: serverTimestamp()
     });
-
     input.value = '';
   } catch (e) {
     console.error('sendMessage', e);
@@ -710,14 +712,13 @@ window.handleFileSelect = function(input) {
   document.getElementById('file-preview-name').textContent = file.name;
   document.getElementById('file-preview').style.display = 'flex';
 };
-
 window.clearFile = function() {
   pendingFile = null;
-  document.getElementById('file-preview').style.display = 'none';
+  const fp = document.getElementById('file-preview');
+  if (fp) fp.style.display = 'none';
   const fi = document.getElementById('file-input');
   if (fi) fi.value = '';
 };
-
 async function uploadFile(file) {
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const path = `messages/${activeConvId}/${Date.now()}_${safeName}`;
@@ -731,55 +732,41 @@ async function uploadFile(file) {
 window.handleMsgKeydown = function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 };
-
 window.autoResize = function(el) {
   el.style.height = '';
   el.style.height = Math.min(el.scrollHeight, 128) + 'px';
 };
+window.filterSidebar = function(val) { sidebarFilter = val; renderSidebar(); };
 
-window.filterSidebar = function(val) {
-  sidebarFilter = val;
-  renderSidebar();
-};
-
-// ── Avatar helpers ────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 function getAvatarColor(str) {
-  const palette = ['#C9A227','#7A5230','#1e6e3b','#b91c1c','#7c3aed',
-                   '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
+  const palette = ['#C9A227','#7A5230','#1e6e3b','#b91c1c','#7c3aed','#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
   let h = 0;
   for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
   return palette[h % palette.length];
 }
-
 function getInitials(name) {
   const parts = (name || '').trim().split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   return (name || '?').slice(0, 2).toUpperCase();
 }
-
-// ── Time helpers ──────────────────────────────────────────────────────────────
 function formatTime(date) {
-  const now  = new Date();
-  const diff = now - date;
-  if (diff < 60000)   return 'now';
+  const now = new Date(), diff = now - date;
+  if (diff < 60000) return 'now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-  if (date.toDateString() === now.toDateString())
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
-
-function formatTimeFull(date) {
-  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+function formatTimeFull(date) { return date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+function dividerLabel(date) {
+  const now = new Date();
+  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (date.toDateString() === now.toDateString()) return `Today ${time}`;
+  const y = new Date(now); y.setDate(now.getDate() - 1);
+  if (date.toDateString() === y.toDateString()) return `Yesterday ${time}`;
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' · ' + time;
 }
-
-// ── Escape HTML ───────────────────────────────────────────────────────────────
-function escHtml(s) {
-  return String(s)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function showToast(msg, type = 'info') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = `show ${type}`;
