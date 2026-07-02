@@ -361,9 +361,18 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <!-- Teacher colour legend -->
       <div id="week-legend" class="flex flex-wrap items-center gap-3 text-xs text-text-muted"></div>
     </div>
+    <!-- Teacher filter -->
+    <div class="flex items-center gap-2 mb-4">
+      <span class="material-symbols-outlined text-[18px] text-text-muted">filter_alt</span>
+      <label class="text-sm text-text-muted">Teacher:</label>
+      <select id="week-teacher-filter" onchange="onWeekTeacherFilter()"
+              class="border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white min-w-[200px]">
+        <option value="">All teachers</option>
+      </select>
+    </div>
     <!-- Calendar grid -->
     <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
+      <div class="overflow-auto" style="max-height:calc(100dvh - 300px)">
         <div id="admin-calendar" class="min-w-[640px]">
           <div class="flex items-center justify-center py-16 text-text-muted text-sm gap-3">
             <div class="spinner"></div> Loading calendar…
@@ -404,12 +413,13 @@ let currentAdmin = null;
 let selectedIds  = new Set();
 let currentView  = 'list';
 let adminWeekStart = getMonday(new Date());
+let adminWeekTeacher = '';   // week-view teacher filter ('' = all)
 
 // ── Calendar constants ─────────────────────────────────────────────────────────
-const CAL_START   = 0;   // midnight
-const CAL_END     = 24;  // midnight (next day)
-const PX_PER_HOUR = 60;
-const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 1440 px
+const CAL_START   = 8;    // 08:00 — schedule spans 8am–10pm only
+const CAL_END     = 22;   // 22:00
+const PX_PER_HOUR = 40;   // compact rows
+const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 560 px
 const TIME_W      = 52;
 const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const MONTHS      = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -526,10 +536,18 @@ async function loadTeachers() {
   });
 
   const filterSel = document.getElementById('f-filter-teacher');
+  const weekSel   = document.getElementById('week-teacher-filter');
   allTeachers.forEach(t => {
-    filterSel.appendChild(new Option(t.name || t.email || t.id, t.id));
+    const label = t.name || t.email || t.id;
+    filterSel.appendChild(new Option(label, t.id));
+    if (weekSel) weekSel.appendChild(new Option(label, t.id));
   });
 }
+
+window.onWeekTeacherFilter = function() {
+  adminWeekTeacher = document.getElementById('week-teacher-filter').value;
+  renderAdminCalendar();
+};
 
 async function loadStudents() {
   const snap = await getDocs(collection(db, 'students'));
@@ -943,8 +961,11 @@ function renderAdminCalendar() {
 
   document.getElementById('admin-week-label').textContent = fmtWeekLabel(days);
 
-  // ── Header row ─────────────────────────────────────────────────────────────
-  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));border-bottom:1px solid #e5e7eb;">
+  // Apply the week-view teacher filter (empty = all teachers)
+  const srcSessions = adminWeekTeacher ? allSessions.filter(s => s.teacherUid === adminWeekTeacher) : allSessions;
+
+  // ── Header row (sticky so it stays visible while scrolling) ─────────────────
+  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:5;background:#fff;">
     <div style="background:#f9fafb;"></div>`;
 
   days.forEach((day, i) => {
@@ -976,7 +997,7 @@ function renderAdminCalendar() {
   // Day columns
   days.forEach((day, i) => {
     const isToday    = day.toDateString() === today.toDateString();
-    const sessions   = sessionsForDay(day, allSessions);
+    const sessions   = sessionsForDay(day, srcSessions);
 
     html += `<div style="position:relative;border-left:1px solid #f3f4f6;background:${isToday ? 'rgba(59,130,246,0.03)' : 'transparent'};">`;
 

@@ -29,7 +29,7 @@
   }
 </script>
 <style>
-  body { font-family:'Inter',sans-serif; background:#FAF6EF; }
+  body { font-family:'Inter',sans-serif; background:#FAF6EF; height:100dvh; overflow:hidden; }
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
   .spinner { width:28px;height:28px;border:3px solid rgba(201,162,39,.15);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
@@ -39,11 +39,15 @@
   #toast.success{ background:#1e6e3b;color:#fff; }
   #toast.info   { background:#3B2A1E;color:#F5EFE4; }
   .session-block { transition:filter .12s,transform .1s; }
-  .session-block:hover { filter:brightness(.93);transform:scaleX(.98); }
-  .nav-active { color:#C9A227;border-bottom:2px solid #C9A227;padding-bottom:2px;font-weight:700; }
+  .session-block:hover { filter:brightness(.94); }
+  .seg-btn { transition:all .15s; }
+  .seg-btn.active { background:#FFFDF9; color:#C9A227; font-weight:700; box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  .seg-btn:not(.active) { color:#8B6B52; }
+  #cal-scroll::-webkit-scrollbar { width:6px;height:6px; }
+  #cal-scroll::-webkit-scrollbar-thumb { background:#D4BCA0;border-radius:4px; }
+  #cal-scroll::-webkit-scrollbar-track { background:transparent; }
 </style>
 <style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
 header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
 header img[src*="logo"] { filter: invert(1) brightness(1.2); }
 header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
@@ -52,11 +56,10 @@ header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[cla
 footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
 footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
 footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
 footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </style>
 </head>
-<body class="text-on-surface min-h-screen flex flex-col">
+<body class="text-on-surface">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -76,92 +79,65 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         <span class="material-symbols-outlined">close</span>
       </button>
     </div>
-
-    <!-- Status badge -->
-    <span id="modal-status-badge"
-          class="inline-block px-3 py-1 rounded-full text-xs font-bold border mb-4">Scheduled</span>
-
+    <span id="modal-status-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold border mb-4">Scheduled</span>
     <dl class="space-y-3">
-      <div>
-        <dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Student</dt>
-        <dd id="modal-student" class="font-semibold text-on-surface mt-0.5">—</dd>
-      </div>
-      <div>
-        <dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Subject</dt>
-        <dd id="modal-subject" class="text-on-surface mt-0.5">—</dd>
-      </div>
-      <div>
-        <dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Date & Time</dt>
-        <dd id="modal-datetime" class="text-on-surface mt-0.5">—</dd>
-      </div>
-      <div>
-        <dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Duration</dt>
-        <dd id="modal-duration" class="text-on-surface mt-0.5">—</dd>
-      </div>
-      <div>
-        <dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Teacher</dt>
-        <dd id="modal-teacher" class="text-on-surface mt-0.5">—</dd>
-      </div>
+      <div><dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Student</dt><dd id="modal-student" class="font-semibold text-on-surface mt-0.5">—</dd></div>
+      <div><dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Instrument</dt><dd id="modal-subject" class="text-on-surface mt-0.5">—</dd></div>
+      <div><dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Date & Time</dt><dd id="modal-datetime" class="text-on-surface mt-0.5">—</dd></div>
+      <div><dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Duration</dt><dd id="modal-duration" class="text-on-surface mt-0.5">—</dd></div>
+      <div><dt class="text-xs font-semibold text-text-muted uppercase tracking-wide">Teacher</dt><dd id="modal-teacher" class="text-on-surface mt-0.5">—</dd></div>
     </dl>
-
     <a id="modal-meet" href="#" target="_blank" rel="noopener"
        class="hidden mt-5 w-full flex items-center justify-center gap-2 bg-secondary text-white rounded-xl py-3 font-bold text-sm hover:brightness-110 transition-all">
       <span class="material-symbols-outlined" style="font-size:18px;font-variation-settings:'FILL' 1">video_call</span>
       Join Google Meet
     </a>
-    <button onclick="closeModal()"
-            class="mt-3 w-full border border-border-subtle rounded-xl py-2.5 text-sm text-text-muted hover:bg-surface-container transition-colors">
-      Close
-    </button>
+    <button onclick="closeModal()" class="mt-3 w-full border border-border-subtle rounded-xl py-2.5 text-sm text-text-muted hover:bg-surface-container transition-colors">Close</button>
   </div>
 </div>
 
 <!-- ── Main ─────────────────────────────────────────────────────────────────── -->
-<main class="flex-grow max-w-[1200px] mx-auto w-full px-4 sm:px-6 py-6 flex flex-col gap-6">
+<main class="max-w-[1200px] mx-auto w-full px-3 sm:px-6 py-4 flex flex-col gap-4" style="height:calc(100dvh - 56px)">
 
-  <!-- Week navigation bar -->
-  <div class="flex flex-wrap items-center justify-between gap-3">
+  <!-- Toolbar -->
+  <div class="flex items-center justify-between gap-3 flex-shrink-0 flex-wrap">
     <div class="flex items-center gap-2">
-      <button onclick="prevWeek()"
-              class="flex items-center gap-1 px-3 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-on-surface hover:bg-surface-container transition-colors shadow-sm">
-        <span class="material-symbols-outlined text-[16px]">chevron_left</span>
-        Prev
+      <div class="flex gap-0.5 bg-surface-container rounded-xl p-1">
+        <button id="seg-week" onclick="setView('week')" class="seg-btn active px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">calendar_view_week</span><span class="hidden sm:inline">Week</span>
+        </button>
+        <button id="seg-day" onclick="setView('day')" class="seg-btn px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[16px]">calendar_view_day</span><span class="hidden sm:inline">Day</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-1.5 order-3 sm:order-2 w-full sm:w-auto justify-center">
+      <button onclick="navPrev()" class="w-9 h-9 flex items-center justify-center bg-surface-white border border-border-subtle rounded-lg text-on-surface hover:bg-surface-container transition-colors shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">chevron_left</span>
       </button>
-      <button onclick="goToToday()"
-              class="px-3 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-secondary hover:bg-secondary/5 transition-colors shadow-sm">
-        Today
-      </button>
-      <button onclick="nextWeek()"
-              class="flex items-center gap-1 px-3 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-on-surface hover:bg-surface-container transition-colors shadow-sm">
-        Next
-        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+      <button onclick="goToToday()" class="px-3 h-9 bg-surface-white border border-border-subtle rounded-lg text-sm font-semibold text-secondary hover:bg-secondary/5 transition-colors shadow-sm">Today</button>
+      <button onclick="navNext()" class="w-9 h-9 flex items-center justify-center bg-surface-white border border-border-subtle rounded-lg text-on-surface hover:bg-surface-container transition-colors shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
       </button>
     </div>
-    <h2 id="week-label" class="font-bold text-base sm:text-lg text-on-surface">—</h2>
-    <!-- Legend -->
-    <div class="hidden sm:flex items-center gap-4 text-xs text-text-muted">
-      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-blue-100 border-l-2 border-blue-500 inline-block"></span>Scheduled</span>
-      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-green-50 border-l-2 border-green-500 inline-block"></span>Completed</span>
-      <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm bg-gray-100 border-l-2 border-gray-400 inline-block"></span>Cancelled</span>
-    </div>
+
+    <h2 id="range-label" class="font-bold text-sm sm:text-base text-on-surface order-2 sm:order-3 flex-1 sm:flex-none text-right sm:text-left min-w-0 truncate">—</h2>
   </div>
 
-  <!-- Calendar grid -->
-  <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden">
-    <div class="overflow-x-auto">
-      <div id="calendar" class="min-w-[600px]">
-        <div class="flex items-center justify-center py-16 text-text-muted text-sm gap-3">
-          <div class="spinner"></div> Loading calendar…
-        </div>
+  <!-- Calendar -->
+  <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden flex-1 min-h-0 flex flex-col">
+    <div id="cal-scroll" class="overflow-auto flex-1 min-h-0">
+      <div id="calendar" class="h-full">
+        <div class="flex items-center justify-center py-16 text-text-muted text-sm gap-3"><div class="spinner"></div> Loading…</div>
       </div>
     </div>
   </div>
 
-  <!-- Empty state (shown when week has no sessions) -->
-  <div id="empty-week" class="hidden text-center py-10 text-text-muted">
-    <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">calendar_today</span>
-    <p class="text-sm font-semibold">No sessions this week</p>
-    <p class="text-xs mt-1">Sessions assigned to you will appear here.</p>
+  <!-- Empty state -->
+  <div id="empty-range" class="hidden text-center py-6 text-text-muted flex-shrink-0">
+    <span class="material-symbols-outlined text-3xl block mb-1 opacity-30">calendar_today</span>
+    <p class="text-sm font-semibold">No sessions in this period</p>
   </div>
 
 </main>
@@ -169,9 +145,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import {
-  getFirestore, doc, getDoc, collection, query, where, getDocs
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
@@ -182,29 +156,29 @@ const app = initializeApp({
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// ── Calendar constants ─────────────────────────────────────────────────────────
-const CAL_START   = 0;   // midnight
-const CAL_END     = 24;  // midnight (next day)
-const PX_PER_HOUR = 60;
-const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 1440 px
-const TIME_W      = 52;  // px width of time label column
+// ── Calendar constants — 8am to 10pm only ──────────────────────────────────────
+const CAL_START   = 8;    // 08:00
+const CAL_END     = 22;   // 22:00
+const PX_PER_HOUR = 46;
+const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR;
+const TIME_W      = 46;
 const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const MONTHS      = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const STATUS = {
   scheduled: { bg:'#eff6ff', border:'#3b82f6', text:'#1d4ed8', label:'Scheduled' },
-  completed:  { bg:'#f0fdf4', border:'#22c55e', text:'#15803d', label:'Completed' },
-  cancelled:  { bg:'#f9fafb', border:'#9ca3af', text:'#6b7280', label:'Cancelled' },
+  completed: { bg:'#f0fdf4', border:'#22c55e', text:'#15803d', label:'Completed' },
+  cancelled: { bg:'#f9fafb', border:'#9ca3af', text:'#6b7280', label:'Cancelled' },
 };
-
-// Dynamic status — never written to Firestore; computed from dateTime each render
 function getDisplayStatus(s) {
   if (s.status === 'cancelled') return 'cancelled';
   return toDate(s.dateTime) < new Date() ? 'completed' : 'scheduled';
 }
 
 // ── State ──────────────────────────────────────────────────────────────────────
-let currentWeekStart = getMonday(new Date());
+let viewMode = window.matchMedia('(max-width:640px)').matches ? 'day' : 'week';
+let weekStart = getMonday(new Date());
+let currentDay = new Date(); currentDay.setHours(0,0,0,0);
 let allSessions = [];
 let currentUser = null;
 
@@ -216,125 +190,136 @@ onAuthStateChanged(auth, async user => {
     await signOut(auth); window.location.href = '/index.html'; return;
   }
   const role = snap.data().role;
-  if (role !== 'teacher' && role !== 'admin') {
-    window.location.href = '/index.html'; return;
-  }
+  if (role !== 'teacher' && role !== 'admin') { window.location.href = '/index.html'; return; }
   currentUser = { uid: user.uid, name: snap.data().name || user.email };
   await loadSessions(user.uid);
-  renderCalendar();
+  setView(viewMode);
   document.getElementById('loading-overlay').style.display = 'none';
 });
 
-// ── Data ───────────────────────────────────────────────────────────────────────
 async function loadSessions(uid) {
   try {
-    const q    = query(collection(db, 'sessions'), where('teacherUid', '==', uid));
-    const snap = await getDocs(q);
+    const snap = await getDocs(query(collection(db, 'sessions'), where('teacherUid', '==', uid)));
     allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    console.error('loadSessions:', e);
-    showToast('Failed to load sessions.', 'error');
-  }
+  } catch (e) { console.error('loadSessions:', e); showToast('Failed to load sessions.', 'error'); }
 }
 
-// ── Calendar render ────────────────────────────────────────────────────────────
-function renderCalendar() {
-  const days  = getWeekDays(currentWeekStart);
-  const today = new Date();
+// ── View switching ───────────────────────────────────────────────────────────
+window.setView = function(v) {
+  viewMode = v;
+  document.getElementById('seg-week').classList.toggle('active', v === 'week');
+  document.getElementById('seg-day').classList.toggle('active', v === 'day');
+  render();
+};
+window.navPrev  = function() { if (viewMode === 'week') weekStart = offsetDays(weekStart, -7); else currentDay = offsetDays(currentDay, -1); render(); };
+window.navNext  = function() { if (viewMode === 'week') weekStart = offsetDays(weekStart,  7); else currentDay = offsetDays(currentDay,  1); render(); };
+window.goToToday = function() { weekStart = getMonday(new Date()); currentDay = new Date(); currentDay.setHours(0,0,0,0); render(); };
 
-  document.getElementById('week-label').textContent = fmtWeekLabel(days);
+function render() { viewMode === 'week' ? renderWeek() : renderDay(); }
 
-  // Count sessions this week
-  const weekSessions = days.flatMap(d => sessionsForDay(d));
-  document.getElementById('empty-week').classList.toggle('hidden', weekSessions.length > 0);
-
-  // ── Header row ──────────────────────────────────────────────────────────────
-  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));border-bottom:1px solid #e5e7eb;">
-    <div style="background:#f9fafb;"></div>`;
-
-  days.forEach((day, i) => {
-    const isToday = day.toDateString() === today.toDateString();
-    html += `
-      <div style="background:${isToday ? '#eff6ff' : '#f9fafb'};border-left:1px solid #f3f4f6;
-                  height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
-        <span style="font-size:11px;font-weight:600;color:${isToday ? '#1d4ed8' : '#6b7280'};">${DAY_NAMES[i]}</span>
-        <span style="font-size:14px;font-weight:700;width:28px;height:28px;border-radius:50%;
-                     display:flex;align-items:center;justify-content:center;
-                     background:${isToday ? '#3b82f6' : 'transparent'};
-                     color:${isToday ? '#fff' : '#3E2C23'};">${day.getDate()}</span>
-      </div>`;
-  });
-  html += `</div>`;
-
-  // ── Body grid ───────────────────────────────────────────────────────────────
-  html += `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));
-                       height:${CAL_HEIGHT}px;position:relative;overflow:hidden;">`;
-
-  // Time labels column
-  html += `<div style="position:relative;border-right:1px solid #f3f4f6;background:#fafafa;">`;
-  for (let h = CAL_START; h <= CAL_END; h++) {
-    const top = (h - CAL_START) * PX_PER_HOUR;
-    html += `<div style="position:absolute;top:${top - 8}px;right:6px;
-                          font-size:10px;color:#9ca3af;font-weight:500;line-height:1;
-                          text-align:right;">${String(h).padStart(2,'0')}:00</div>`;
+// ── Shared column builder ──────────────────────────────────────────────────────
+function hourLinesHtml() {
+  let h = '';
+  for (let hr = CAL_START; hr <= CAL_END; hr++) {
+    const top = (hr - CAL_START) * PX_PER_HOUR;
+    h += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:#f1eee7;"></div>`;
   }
-  html += `</div>`;
+  return h;
+}
+function timeColumnHtml() {
+  let h = `<div style="position:relative;border-right:1px solid #eee7da;background:#faf7f0;">`;
+  for (let hr = CAL_START; hr <= CAL_END; hr++) {
+    const top = (hr - CAL_START) * PX_PER_HOUR;
+    const lbl = hr === 12 ? '12p' : hr < 12 ? hr + 'a' : (hr - 12) + 'p';
+    h += `<div style="position:absolute;top:${top - 6}px;right:5px;font-size:9px;color:#a89a86;font-weight:600;line-height:1;">${lbl}</div>`;
+  }
+  return h + `</div>`;
+}
+function sessionBlocksHtml(sessions, detailed) {
+  return sessions.map(s => {
+    const disp = getDisplayStatus(s);
+    const cfg  = STATUS[disp] || STATUS.scheduled;
+    const top  = sessionTop(s), height = sessionH(s);
+    const time = fmtTime(toDate(s.dateTime));
+    const name = detailed ? (s.studentName || '—') : (s.studentName || '—').split(' ')[0];
+    const cancelled = disp === 'cancelled';
+    return `
+      <div class="session-block" data-sid="${s.id}" style="
+            position:absolute;left:3px;right:3px;top:${top}px;height:${height}px;min-height:20px;
+            background:${cfg.bg};border-left:3px solid ${cfg.border};border-radius:5px;
+            padding:2px 6px;cursor:pointer;overflow:hidden;z-index:2;${cancelled ? 'opacity:.55;' : ''}">
+        <div style="font-size:11px;font-weight:700;color:${cfg.text};line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${cancelled ? 'text-decoration:line-through;' : ''}">${escHtml(name)}</div>
+        ${height >= 32 ? `<div style="font-size:10px;color:${cfg.text};opacity:.85;line-height:1.2;">${time}${detailed && s.duration ? ' · ' + s.duration + 'm' : ''}</div>` : ''}
+        ${height >= 44 && s.subject ? `<div style="font-size:10px;color:${cfg.text};opacity:.7;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.subject)}</div>` : ''}
+      </div>`;
+  }).join('');
+}
 
-  // Day columns
+// ── Week view ──────────────────────────────────────────────────────────────────
+function renderWeek() {
+  const days = getWeekDays(weekStart);
+  const today = new Date();
+  document.getElementById('range-label').textContent = fmtWeekLabel(days);
+
+  const weekSessions = days.flatMap(d => sessionsForDay(d));
+  document.getElementById('empty-range').classList.toggle('hidden', weekSessions.length > 0);
+
+  const cols = `${TIME_W}px repeat(7,minmax(88px,1fr))`;
+  // Header (sticky)
+  let html = `<div style="display:grid;grid-template-columns:${cols};position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #eee7da;">
+    <div style="background:#faf7f0;"></div>`;
   days.forEach((day, i) => {
     const isToday = day.toDateString() === today.toDateString();
-    const sessions = sessionsForDay(day);
-
-    html += `<div style="position:relative;border-left:1px solid #f3f4f6;
-                          background:${isToday ? 'rgba(59,130,246,0.03)' : 'transparent'};">`;
-
-    // Horizontal hour lines
-    for (let h = CAL_START; h <= CAL_END; h++) {
-      const top = (h - CAL_START) * PX_PER_HOUR;
-      html += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:#f3f4f6;"></div>`;
-      // Half-hour line
-      if (h < CAL_END) {
-        html += `<div style="position:absolute;left:0;right:0;top:${top + 30}px;height:1px;background:#fafafa;border-top:1px dashed #f0f0f0;"></div>`;
-      }
-    }
-
-    // Session blocks
-    sessions.forEach(s => {
-      const cfg    = STATUS[getDisplayStatus(s)] || STATUS.scheduled;
-      const top    = sessionTop(s);
-      const height = sessionH(s);
-      const dt     = toDate(s.dateTime);
-      const time   = fmtTime(dt);
-      const name   = (s.studentName || '—').split(' ')[0];
-      const cancelled = getDisplayStatus(s) === 'cancelled';
-
-      html += `
-        <div class="session-block" data-sid="${s.id}" style="
-              position:absolute;left:3px;right:3px;top:${top}px;height:${height}px;
-              background:${cfg.bg};border-left:3px solid ${cfg.border};
-              border-radius:4px;padding:3px 5px;cursor:pointer;overflow:hidden;z-index:2;
-              ${cancelled ? 'opacity:.55;' : ''}">
-          <div style="font-size:11px;font-weight:700;color:${cfg.text};line-height:1.3;
-                      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-                      ${cancelled ? 'text-decoration:line-through;' : ''}">${escHtml(name)}</div>
-          ${height >= 36 ? `<div style="font-size:10px;color:${cfg.text};opacity:.8;line-height:1.2">${time}</div>` : ''}
-          ${height >= 50 ? `<div style="font-size:10px;color:${cfg.text};opacity:.7;line-height:1.2;
-                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(s.subject || '')}</div>` : ''}
-        </div>`;
-    });
-
-    html += `</div>`;
+    html += `<div style="height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-left:1px solid #f4f0e8;background:${isToday ? '#fbf7ea' : '#fff'};">
+      <span style="font-size:10px;font-weight:600;color:${isToday ? '#C9A227' : '#8B6B52'};text-transform:uppercase;">${DAY_NAMES[i]}</span>
+      <span style="width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:700;background:${isToday ? '#C9A227' : 'transparent'};color:${isToday ? '#fff' : '#3E2C23'};">${day.getDate()}</span>
+    </div>`;
   });
-
   html += `</div>`;
 
-  document.getElementById('calendar').innerHTML = html;
-
-  // Event delegation for session clicks
-  document.getElementById('calendar').addEventListener('click', e => {
-    const block = e.target.closest('.session-block');
-    if (block) openModal(block.dataset.sid);
+  // Body
+  html += `<div style="display:grid;grid-template-columns:${cols};height:${CAL_HEIGHT}px;">`;
+  html += timeColumnHtml();
+  days.forEach(day => {
+    const isToday = day.toDateString() === today.toDateString();
+    html += `<div style="position:relative;border-left:1px solid #f4f0e8;background:${isToday ? 'rgba(201,162,39,0.04)' : 'transparent'};">
+      ${hourLinesHtml()}${sessionBlocksHtml(sessionsForDay(day), false)}</div>`;
   });
+  html += `</div>`;
+
+  paint(html);
+}
+
+// ── Day view ───────────────────────────────────────────────────────────────────
+function renderDay() {
+  const today = new Date();
+  const isToday = currentDay.toDateString() === today.toDateString();
+  document.getElementById('range-label').textContent =
+    (isToday ? 'Today · ' : '') + currentDay.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+
+  const sessions = sessionsForDay(currentDay);
+  document.getElementById('empty-range').classList.toggle('hidden', sessions.length > 0);
+
+  const cols = `${TIME_W}px 1fr`;
+  let html = `<div style="display:grid;grid-template-columns:${cols};position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #eee7da;">
+    <div style="background:#faf7f0;"></div>
+    <div style="height:46px;display:flex;align-items:center;justify-content:center;gap:2px;background:${isToday ? '#fbf7ea' : '#fff'};">
+      <span style="font-size:13px;font-weight:700;color:${isToday ? '#C9A227' : '#3E2C23'};">${sessions.length} session${sessions.length !== 1 ? 's' : ''}</span>
+    </div>
+  </div>`;
+  html += `<div style="display:grid;grid-template-columns:${cols};height:${CAL_HEIGHT}px;">`;
+  html += timeColumnHtml();
+  html += `<div style="position:relative;background:${isToday ? 'rgba(201,162,39,0.04)' : 'transparent'};">
+    ${hourLinesHtml()}${sessionBlocksHtml(sessions, true)}</div>`;
+  html += `</div>`;
+
+  paint(html);
+}
+
+function paint(html) {
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = html;
+  cal.querySelectorAll('.session-block').forEach(b => b.addEventListener('click', () => openModal(b.dataset.sid)));
 }
 
 // ── Modal ──────────────────────────────────────────────────────────────────────
@@ -343,100 +328,47 @@ function openModal(sid) {
   if (!s) return;
   const cfg = STATUS[getDisplayStatus(s)] || STATUS.scheduled;
   const dt  = toDate(s.dateTime);
-
   document.getElementById('modal-student').textContent  = s.studentName || '—';
   document.getElementById('modal-subject').textContent  = s.subject || '—';
   document.getElementById('modal-duration').textContent = `${s.duration || '—'} minutes`;
   document.getElementById('modal-teacher').textContent  = s.teacherName || currentUser?.name || '—';
   document.getElementById('modal-datetime').textContent =
-    dt.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) +
-    ' at ' + fmtTime(dt);
-
+    dt.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) + ' at ' + fmtTime(dt);
   const badge = document.getElementById('modal-status-badge');
   badge.textContent = cfg.label;
   badge.style.cssText = `background:${cfg.bg};color:${cfg.text};border-color:${cfg.border};display:inline-block;padding:2px 12px;border-radius:9999px;font-size:12px;font-weight:700;border-width:1px;border-style:solid;margin-bottom:16px;`;
-
   const meetBtn = document.getElementById('modal-meet');
   if (s.meetLink && s.status !== 'cancelled') {
     meetBtn.classList.remove('hidden');
     meetBtn.href = s.meetLink.startsWith('http') ? s.meetLink : 'https://' + s.meetLink;
-  } else {
-    meetBtn.classList.add('hidden');
-  }
-
+  } else { meetBtn.classList.add('hidden'); }
   document.getElementById('session-modal').classList.remove('hidden');
 }
-
-window.closeModal   = function() { document.getElementById('session-modal').classList.add('hidden'); };
-window.prevWeek     = function() { currentWeekStart = offsetWeek(currentWeekStart, -7); renderCalendar(); };
-window.nextWeek     = function() { currentWeekStart = offsetWeek(currentWeekStart,  7); renderCalendar(); };
-window.goToToday    = function() { currentWeekStart = getMonday(new Date()); renderCalendar(); };
+window.closeModal = function() { document.getElementById('session-modal').classList.add('hidden'); };
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
-function getMonday(d) {
-  const day = d.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  const m = new Date(d);
-  m.setDate(m.getDate() + diff);
-  m.setHours(0, 0, 0, 0);
-  return m;
-}
-
-function getWeekDays(mon) {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(mon);
-    d.setDate(d.getDate() + i);
-    return d;
-  });
-}
-
-function offsetWeek(d, days) {
-  const n = new Date(d);
-  n.setDate(n.getDate() + days);
-  return n;
-}
-
+function getMonday(d) { const day = d.getDay(), diff = day === 0 ? -6 : 1 - day; const m = new Date(d); m.setDate(m.getDate() + diff); m.setHours(0,0,0,0); return m; }
+function getWeekDays(mon) { return Array.from({ length: 7 }, (_, i) => { const d = new Date(mon); d.setDate(d.getDate() + i); return d; }); }
+function offsetDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 function fmtWeekLabel(days) {
   const s = days[0], e = days[6];
   return s.getMonth() === e.getMonth()
     ? `${MONTHS[s.getMonth()]} ${s.getDate()}–${e.getDate()}, ${s.getFullYear()}`
     : `${MONTHS[s.getMonth()]} ${s.getDate()} – ${MONTHS[e.getMonth()]} ${e.getDate()}, ${e.getFullYear()}`;
 }
-
-function fmtTime(d) {
-  return d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false });
-}
-
-function toDate(v) {
-  if (!v) return new Date(0);
-  if (typeof v.toDate === 'function') return v.toDate();
-  return new Date(v);
-}
-
+function fmtTime(d) { return d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }); }
+function toDate(v) { if (!v) return new Date(0); if (typeof v.toDate === 'function') return v.toDate(); return new Date(v); }
 function sessionsForDay(day) {
-  return allSessions
-    .filter(s => toDate(s.dateTime).toDateString() === day.toDateString())
+  return allSessions.filter(s => toDate(s.dateTime).toDateString() === day.toDateString())
     .sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
 }
-
 function sessionTop(s) {
   const dt = toDate(s.dateTime);
   return Math.max(0, ((dt.getHours() + dt.getMinutes() / 60) - CAL_START) * PX_PER_HOUR);
 }
-
-function sessionH(s) {
-  return Math.max(24, ((s.duration || 30) / 60) * PX_PER_HOUR);
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function showToast(msg, type = 'info') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `show ${type}`;
-  setTimeout(() => t.className = '', 3000);
-}
+function sessionH(s) { return Math.max(20, ((s.duration || 30) / 60) * PX_PER_HOUR); }
+function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function showToast(msg, type = 'info') { const t = document.getElementById('toast'); t.textContent = msg; t.className = `show ${type}`; setTimeout(() => t.className = '', 3000); }
 </script>
   <script>window.CREMONA_NAV={portal:'teacher',active:'schedule',title:'Schedule'};</script>
   <script src="/js/portal-nav.js"></script>
