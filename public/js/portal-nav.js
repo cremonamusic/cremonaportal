@@ -53,10 +53,11 @@
     parent: {
       label: "Parent Portal",
       items: [
-        { key: "dashboard", label: "Dashboard", icon: "dashboard",      href: "/parent/dashboard.html" },
-        { key: "comments",  label: "Comments",  icon: "chat",           href: "/parent/comments.html" },
-        { key: "schedule",  label: "Schedule",  icon: "calendar_month", href: "/parent/schedule.html" },
-        { key: "messages",  label: "Messages",  icon: "forum",          href: "/parent/messages.html" }
+        { key: "dashboard",    label: "Dashboard",    icon: "dashboard",           href: "/parent/dashboard.html" },
+        { key: "comments",     label: "Comments",     icon: "chat",                href: "/parent/comments.html" },
+        { key: "schedule",     label: "Schedule",     icon: "calendar_month",      href: "/parent/schedule.html" },
+        { key: "certificates", label: "Certificates", icon: "workspace_premium",   href: "/parent/certificates.html" },
+        { key: "messages",     label: "Messages",     icon: "forum",               href: "/parent/messages.html" }
       ],
       signOut: false
     }

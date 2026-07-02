@@ -152,6 +152,53 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <!-- Session history -->
       <h3 class="font-headline-sm text-sm mb-3 text-on-surface-variant uppercase tracking-wide text-xs font-bold">Session History</h3>
       <div id="profile-sessions" class="text-sm text-text-muted">Loading…</div>
+
+      <!-- Certificates -->
+      <div class="mt-6 pt-5 border-t border-border-subtle">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wide text-on-surface-variant">Certificates</h3>
+          <button onclick="toggleCertForm()" class="text-sm font-semibold text-secondary flex items-center gap-1 hover:underline">
+            <span class="material-symbols-outlined text-[16px]">add</span> Add Certificate
+          </button>
+        </div>
+
+        <!-- Upload form -->
+        <div id="cert-form" class="hidden bg-surface-container-low border border-border-subtle rounded-xl p-4 mb-4 grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Title *</label>
+            <input id="cert-title" type="text" placeholder='e.g. Grade 3 Violin Exam'
+                   class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Type *</label>
+            <select id="cert-type" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+              <option value="exam">Exam Result</option>
+              <option value="recital">Recital</option>
+              <option value="participation">Participation</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Issued Date *</label>
+            <input id="cert-date" type="date" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Notes <span class="font-normal text-text-muted">(optional)</span></label>
+            <textarea id="cert-notes" rows="2" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">File — PDF or image *</label>
+            <input id="cert-file" type="file" accept=".pdf,.jpg,.jpeg,.png,image/*"
+                   class="w-full text-sm text-text-muted file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-border-subtle file:text-sm file:font-semibold file:bg-surface-white file:text-on-surface hover:file:bg-surface-container cursor-pointer"/>
+          </div>
+          <div class="col-span-2 flex justify-end gap-2">
+            <button onclick="toggleCertForm()" class="px-3 py-2 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
+            <button id="cert-upload-btn" onclick="uploadCertificate()" class="px-4 py-2 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm">Upload</button>
+          </div>
+        </div>
+
+        <div id="profile-certs" class="text-sm text-text-muted">Loading…</div>
+      </div>
     </div>
     <div class="flex justify-end px-6 pb-5 gap-3">
       <button id="profile-edit-btn" onclick="editCurrentStudent()" class="px-4 py-2.5 text-sm font-bold border border-secondary text-secondary rounded-lg hover:bg-secondary/5 transition-colors">Edit Student</button>
@@ -231,8 +278,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, collection, query, where,
-  getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp
+  getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
@@ -240,8 +288,14 @@ const app = initializeApp({
   storageBucket:"cremonamusic-portal.firebasestorage.app",
   messagingSenderId:"227259733472",appId:"1:227259733472:web:3cb86ab0da1d5338858785"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+// Certificate type metadata (shared look across all portals)
+const CERT_TYPES = { exam:'Exam Result', recital:'Recital', participation:'Participation', other:'Other' };
+const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', participation:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+let currentAdminUid = null;
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let allStudents       = [];
@@ -259,6 +313,7 @@ onAuthStateChanged(auth, async user => {
   if (!snap.exists() || snap.data().role !== 'admin') {
     window.location.href = '/index.html'; return;
   }
+  currentAdminUid = user.uid;
   await Promise.all([loadStudents(), loadTeachers(), loadParentEmails()]);
   console.log('[students] initial load complete — rendering table');
   applyFilters();
@@ -588,6 +643,10 @@ async function openProfile(sid) {
 
   document.getElementById('profile-modal').classList.remove('hidden');
 
+  // Reset + load certificates for this student
+  document.getElementById('cert-form').classList.add('hidden');
+  loadCertificates(sid);
+
   // Load session history
   const sessDiv = document.getElementById('profile-sessions');
   sessDiv.innerHTML = '<div class="text-text-muted text-sm">Loading…</div>';
@@ -638,6 +697,130 @@ window.editCurrentStudent = function() {
   closeProfileModal();
   openEditStudent(profileStudent.id);
 };
+
+// ── Certificates ─────────────────────────────────────────────────────────────
+window.toggleCertForm = function() {
+  const f = document.getElementById('cert-form');
+  const opening = f.classList.contains('hidden');
+  f.classList.toggle('hidden');
+  if (opening) {
+    document.getElementById('cert-title').value = '';
+    document.getElementById('cert-type').value  = 'exam';
+    document.getElementById('cert-date').value   = '';
+    document.getElementById('cert-notes').value  = '';
+    document.getElementById('cert-file').value   = '';
+    document.getElementById('cert-title').focus();
+  }
+};
+
+async function loadCertificates(sid) {
+  const el = document.getElementById('profile-certs');
+  el.innerHTML = '<span class="text-text-muted text-sm">Loading…</span>';
+  try {
+    const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', sid)));
+    const certs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
+    if (!certs.length) { el.innerHTML = '<p class="text-text-muted text-sm">No certificates yet.</p>'; return; }
+    el.innerHTML = certs.map(certRowHtml).join('');
+    el.querySelectorAll('[data-del-cert]').forEach(b =>
+      b.addEventListener('click', () => deleteCertificate(b.dataset.delCert, b.dataset.sid, b.dataset.fname)));
+  } catch (e) {
+    el.innerHTML = `<p class="text-error text-sm">Failed to load certificates: ${escHtml(e.message)}</p>`;
+  }
+}
+
+function certRowHtml(c) {
+  const label = CERT_TYPES[c.type] || 'Other';
+  const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
+  return `
+  <div class="flex items-center gap-3 py-2.5 border-t border-border-subtle first:border-t-0">
+    <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-semibold text-on-surface truncate">${escHtml(c.title || 'Certificate')}</p>
+      <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${label}</span>
+        <span class="text-xs text-text-muted">${escHtml(fmtDate(c.issuedDate))}</span>
+      </div>
+      ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
+    </div>
+    <a href="${escHtml(c.fileUrl)}" target="_blank" rel="noopener" class="p-2 rounded-lg hover:bg-surface-container text-text-muted hover:text-secondary transition-colors" title="View / download">
+      <span class="material-symbols-outlined text-[18px]">download</span>
+    </a>
+    <button data-del-cert="${escHtml(c.id)}" data-sid="${escHtml(c.studentId)}" data-fname="${escHtml(c.fileName || '')}"
+            class="p-2 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors" title="Delete">
+      <span class="material-symbols-outlined text-[18px]">delete</span>
+    </button>
+  </div>`;
+}
+
+window.uploadCertificate = async function() {
+  const sid = profileStudent?.id;
+  if (!sid) return;
+  const title = document.getElementById('cert-title').value.trim();
+  const type  = document.getElementById('cert-type').value;
+  const date  = document.getElementById('cert-date').value;
+  const notes = document.getElementById('cert-notes').value.trim();
+  const file  = document.getElementById('cert-file').files[0];
+
+  if (!title) { showToast('Title is required.', 'error'); return; }
+  if (!date)  { showToast('Issued date is required.', 'error'); return; }
+  if (!file)  { showToast('Please choose a PDF or image file.', 'error'); return; }
+  if (file.size > 15 * 1024 * 1024) { showToast('File too large (max 15MB).', 'error'); return; }
+
+  const btn = document.getElementById('cert-upload-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px"></span> Uploading…';
+  try {
+    // Pre-generate the doc id so the Storage path can reference it
+    const certRef = doc(collection(db, 'certificates'));
+    const path = `certificates/${sid}/${certRef.id}/${file.name}`;
+    const sref = ref(storage, path);
+    await uploadBytes(sref, file, { contentType: file.type || 'application/octet-stream' });
+    const fileUrl = await getDownloadURL(sref);
+
+    await setDoc(certRef, {
+      studentId:   sid,
+      studentName: profileStudent?.fullName || '',
+      title, type,
+      fileUrl,
+      fileName:    file.name,
+      issuedDate:  date,
+      notes,
+      uploadedBy:  currentAdminUid,
+      uploadedAt:  serverTimestamp(),
+    });
+    showToast('Certificate uploaded.', 'success');
+    document.getElementById('cert-form').classList.add('hidden');
+    loadCertificates(sid);
+  } catch (e) {
+    console.error('[uploadCertificate]', e);
+    showToast('Upload failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Upload';
+  }
+};
+
+window.deleteCertificate = async function(certId, sid, fileName) {
+  if (!confirm('Delete this certificate? The file will be permanently removed.')) return;
+  try {
+    await deleteDoc(doc(db, 'certificates', certId));
+    // Best-effort Storage cleanup — path is deterministic from ids + fileName
+    if (fileName) {
+      try { await deleteObject(ref(storage, `certificates/${sid}/${certId}/${fileName}`)); } catch (_) {}
+    }
+    showToast('Certificate deleted.', 'success');
+    loadCertificates(sid);
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+};
+
+function fmtDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function toDate(v) {

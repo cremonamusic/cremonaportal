@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Certificates | Cremona Music Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#C9A227", "primary-container": "#F5E5B0",
+          "on-primary-fixed": "#3E2C23", "on-primary-container": "#8B6020",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9",
+          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
+          "error": "#ba1a1a", "background": "#FAF6EF"
+        },
+        fontFamily: { sans: ["Inter", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .cert-card { transition: box-shadow .15s, transform .1s; }
+  .cert-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+  #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+  #toast.show { opacity: 1; }
+  #toast.error { background:#ba1a1a; color:#fff; }
+</style>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<main class="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-6">
+  <h1 class="text-2xl font-bold text-on-surface mb-1">Certificates</h1>
+  <p class="text-sm text-text-muted mb-6">Awards and achievements for your children.</p>
+
+  <div id="certs-content" class="flex flex-col gap-8">
+    <div class="flex items-center justify-center py-16 gap-3 text-text-muted text-sm"><div class="spinner"></div> Loading…</div>
+  </div>
+</main>
+
+<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
+  © 2025 Cremona Music.
+</footer>
+
+<script type="module">
+import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app  = initializeApp({
+  apiKey:            "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain:        "cremonamusic-portal.firebaseapp.com",
+  projectId:         "cremonamusic-portal",
+  storageBucket:     "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const CERT_TYPES = { exam:'Exam Result', recital:'Recital', participation:'Participation', other:'Other' };
+const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', participation:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+
+let allStudents = [];
+
+function escHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg, type = 'info') { const el = document.getElementById('toast'); el.textContent = msg; el.className = `show ${type}`; setTimeout(() => { el.className = ''; }, 3500); }
+function avatarBg(name) { const colors = ['#C9A227','#7A5230','#1e6e3b','#c2410c','#6d28d9','#0369a1']; let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff; return colors[Math.abs(h) % colors.length]; }
+function initials(name) { return (name || '?').split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2); }
+function fmtDate(str) { if (!str) return ''; const d = new Date(str + 'T00:00:00'); return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }); }
+
+function certCardHtml(c) {
+  const label = CERT_TYPES[c.type] || 'Other';
+  const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
+  return `
+  <div class="cert-card bg-surface-white border border-border-subtle rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+    <div class="w-10 h-10 rounded-xl bg-secondary-fixed/50 flex items-center justify-center flex-shrink-0">
+      <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
+    </div>
+    <div class="flex-1 min-w-0">
+      <p class="font-bold text-sm text-on-surface">${escHtml(c.title || 'Certificate')}</p>
+      <div class="flex items-center gap-2 mt-1 flex-wrap">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${label}</span>
+        <span class="text-xs text-text-muted">${escHtml(fmtDate(c.issuedDate))}</span>
+      </div>
+      ${c.notes ? `<p class="text-xs text-text-muted mt-2 leading-relaxed">${escHtml(c.notes)}</p>` : ''}
+    </div>
+    <a href="${escHtml(c.fileUrl)}" target="_blank" rel="noopener"
+       class="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary/10 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors flex-shrink-0" title="View / download">
+      <span class="material-symbols-outlined text-[16px]">visibility</span> View
+    </a>
+  </div>`;
+}
+
+function render(childCerts) {
+  const content = document.getElementById('certs-content');
+  const total = childCerts.reduce((n, c) => n + c.certs.length, 0);
+
+  if (!total) {
+    content.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center">
+          <span class="material-symbols-outlined text-[36px] opacity-40">workspace_premium</span>
+        </div>
+        <p class="font-semibold text-on-surface-variant">No certificates yet</p>
+        <p class="text-xs max-w-[260px]">Awards and achievements from Cremona Music will appear here.</p>
+      </div>`;
+    return;
+  }
+
+  const multi = childCerts.length > 1;
+  content.innerHTML = childCerts.map(entry => {
+    if (!entry.certs.length) return '';
+    const header = multi ? `
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold" style="background:${avatarBg(entry.name)}">${escHtml(initials(entry.name))}</span>
+        <h2 class="font-bold text-base text-on-surface">${escHtml(entry.name)}</h2>
+        <span class="text-xs text-text-muted">· ${entry.certs.length}</span>
+      </div>` : '';
+    return `<section>${header}<div class="flex flex-col gap-3">${entry.certs.map(certCardHtml).join('')}</div></section>`;
+  }).join('');
+}
+
+async function loadAll() {
+  const childCerts = await Promise.all(allStudents.map(async st => {
+    let certs = [];
+    try {
+      const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', st.id)));
+      certs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
+    } catch (e) { console.error('load certs', st.id, e); }
+    return { name: st.fullName || 'Child', certs };
+  }));
+  render(childCerts);
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/index.html'; return; }
+  let parentData;
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().role !== 'parent') { await signOut(auth); window.location.href = '/index.html'; return; }
+    parentData = snap.data();
+  } catch (e) { window.location.href = '/index.html'; return; }
+
+  const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
+  if (!linkedIds.length) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    document.getElementById('certs-content').innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <span class="material-symbols-outlined text-5xl opacity-30">child_care</span>
+        <p class="font-semibold text-sm">No children linked to your account yet.</p>
+      </div>`;
+    return;
+  }
+
+  try {
+    const snaps = await Promise.all(linkedIds.map(id => getDoc(doc(db, 'students', id))));
+    allStudents = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
+  } catch (e) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('Failed to load student data.', 'error');
+    return;
+  }
+
+  await loadAll();
+  document.getElementById('loading-overlay').style.display = 'none';
+});
+
+window.doSignOut = async function() { await signOut(auth); window.location.href = '/index.html'; };
+</script>
+  <script>window.CREMONA_NAV={portal:'parent',active:'certificates',title:'Certificates'};</script>
+  <script src="/js/portal-nav.js"></script>
+</body>
+</html>

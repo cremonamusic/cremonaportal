@@ -158,6 +158,22 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
+<!-- ── Certificates Modal ─────────────────────────────────────────────────────── -->
+<div id="certs-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-12 overflow-y-auto" onclick="if(event.target===this)closeCertsModal()">
+  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl mb-8">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
+      <h2 id="certs-modal-title" class="font-semibold text-base text-on-surface">Certificates</h2>
+      <button onclick="closeCertsModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div id="certs-modal-body" class="px-6 py-4"></div>
+    <div class="flex justify-end px-6 pb-5">
+      <button onclick="closeCertsModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
+    </div>
+  </div>
+</div>
+
 <footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
   © 2025 Cremona Music.
 </footer>
@@ -187,6 +203,11 @@ let currentUserId  = null;
 let linkedIds      = [];
 let dashFrontFile  = null;
 let dashBackFile   = null;
+let certsByStudent = {};   // studentId → { name, certs[] }
+
+// Certificate type metadata (shared look across all portals)
+const CERT_TYPES = { exam:'Exam Result', recital:'Recital', participation:'Participation', other:'Other' };
+const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', participation:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 function escHtml(s) {
@@ -398,18 +419,82 @@ async function loadChildren(ids) {
           ${teachers.length ? `<p class="text-xs text-text-muted mt-1 flex items-center justify-center gap-1">
             <span class="material-symbols-outlined text-[13px]">person</span>${escHtml(teachers.join(', '))}</p>` : ''}
         </div>
-        <div class="flex gap-2 w-full">
-          <a href="schedule.html?studentId=${sid}"
-             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors no-underline">
-            <span class="material-symbols-outlined text-[14px]">calendar_month</span>Schedule
-          </a>
-          <a href="comments.html?studentId=${sid}"
-             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-secondary/10 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors no-underline">
-            <span class="material-symbols-outlined text-[14px]">chat</span>Comments
-          </a>
+        <div class="flex flex-col gap-2 w-full">
+          <div class="flex gap-2 w-full">
+            <a href="schedule.html?studentId=${sid}"
+               class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors no-underline">
+              <span class="material-symbols-outlined text-[14px]">calendar_month</span>Schedule
+            </a>
+            <a href="comments.html?studentId=${sid}"
+               class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-secondary/10 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors no-underline">
+              <span class="material-symbols-outlined text-[14px]">chat</span>Comments
+            </a>
+          </div>
+          <button onclick="openCertsModal('${escHtml(s.id)}')"
+             class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
+            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">workspace_premium</span>Certificates
+            <span id="cert-count-${escHtml(s.id)}" class="ml-0.5 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[10px] font-bold hidden">0</span>
+          </button>
         </div>
       </div>`;
   }).join('');
+
+  // Fetch certificate counts per child, update badges, and cache for the modal
+  certsByStudent = {};
+  await Promise.all(students.map(async st => {
+    try {
+      const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', st.id)));
+      const certs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
+      certsByStudent[st.id] = { name: st.fullName || 'Child', certs };
+      const badge = document.getElementById('cert-count-' + st.id);
+      if (badge && certs.length) { badge.textContent = certs.length; badge.classList.remove('hidden'); }
+    } catch (_) { /* non-fatal */ }
+  }));
+}
+
+// ── Certificates modal ─────────────────────────────────────────────────────────
+window.openCertsModal = function(sid) {
+  const entry = certsByStudent[sid] || { name: 'Child', certs: [] };
+  document.getElementById('certs-modal-title').textContent = `${entry.name} — Certificates`;
+  const body = document.getElementById('certs-modal-body');
+  if (!entry.certs.length) {
+    body.innerHTML = `<div class="flex flex-col items-center justify-center py-10 text-center text-text-muted gap-2">
+      <span class="material-symbols-outlined text-4xl opacity-30">workspace_premium</span>
+      <p class="text-sm font-semibold">No certificates yet</p>
+      <p class="text-xs">Certificates awarded to your child will appear here.</p>
+    </div>`;
+  } else {
+    body.innerHTML = entry.certs.map(certRowHtml).join('');
+  }
+  document.getElementById('certs-modal').classList.remove('hidden');
+};
+window.closeCertsModal = function() { document.getElementById('certs-modal').classList.add('hidden'); };
+
+function certRowHtml(c) {
+  const label = CERT_TYPES[c.type] || 'Other';
+  const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
+  return `
+  <div class="flex items-center gap-3 py-3 border-t border-border-subtle first:border-t-0">
+    <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-semibold text-on-surface truncate">${escHtml(c.title || 'Certificate')}</p>
+      <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${label}</span>
+        <span class="text-xs text-text-muted">${escHtml(fmtDate(c.issuedDate))}</span>
+      </div>
+      ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
+    </div>
+    <a href="${escHtml(c.fileUrl)}" target="_blank" rel="noopener" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0" title="View / download">
+      <span class="material-symbols-outlined text-[16px]">visibility</span> View
+    </a>
+  </div>`;
+}
+
+function fmtDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
 }
 
 // ── Add Child modal ────────────────────────────────────────────────────────────
