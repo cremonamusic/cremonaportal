@@ -11,11 +11,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-
-<!-- EmailJS -->
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script>emailjs.init('dc-ORwhDtS1wn-ezz');</script>
 
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -54,7 +49,6 @@
   @keyframes slideUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
   @keyframes spin     { to { transform:rotate(360deg); } }
-  @keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
 
   .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
   .animate-fade-in  { animation: fadeIn  0.5s ease-out forwards; }
@@ -64,17 +58,6 @@
     border:2px solid rgba(255,255,255,0.3); border-top-color:#fff;
     border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block;
   }
-
-  /* OTP digit boxes */
-  .otp-input {
-    width:48px; height:56px;
-    text-align:center; font-size:22px; font-weight:700;
-    border:2px solid #E8DCC8; border-radius:10px;
-    outline:none; transition:border-color 0.15s, box-shadow 0.15s;
-    background:#fff; color:#3E2C23;
-  }
-  .otp-input:focus { border-color:#C9A227; box-shadow:0 0 0 3px rgba(201,162,39,0.25); }
-  .otp-input.filled { border-color:#C9A227; }
 
   /* Toast */
   #toast {
@@ -241,88 +224,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
     </div>
 
-    <!-- ── OTP CARD ───────────────────────────────────────────────────────────── -->
-    <div id="otp-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
-      <div class="flex flex-col items-center text-center gap-5">
-
-        <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:#dbeafe;">
-          <span class="material-symbols-outlined text-[32px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">mark_email_unread</span>
-        </div>
-
-        <div>
-          <h2 class="text-lg font-bold text-on-surface mb-1">Check your email</h2>
-          <p class="text-sm text-text-muted leading-relaxed">
-            We sent a 6-digit code to<br>
-            <span id="otp-email-display" class="font-semibold text-on-surface"></span>
-          </p>
-        </div>
-
-        <!-- 6 digit boxes -->
-        <div class="flex gap-2 justify-center" id="otp-boxes">
-          <input class="otp-input" id="otp-0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code"/>
-          <input class="otp-input" id="otp-1" type="text" inputmode="numeric" maxlength="1"/>
-          <input class="otp-input" id="otp-2" type="text" inputmode="numeric" maxlength="1"/>
-          <input class="otp-input" id="otp-3" type="text" inputmode="numeric" maxlength="1"/>
-          <input class="otp-input" id="otp-4" type="text" inputmode="numeric" maxlength="1"/>
-          <input class="otp-input" id="otp-5" type="text" inputmode="numeric" maxlength="1"/>
-        </div>
-
-        <p id="otp-error" class="hidden text-sm font-medium text-error -mt-2"></p>
-
-        <button id="otp-verify-btn" onclick="verifyOtp()"
-                class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">verified</span>
-          Verify Code
-        </button>
-
-        <div class="w-full border-t border-border-subtle"></div>
-
-        <div class="flex flex-col items-center gap-2">
-          <button id="otp-resend-btn" onclick="resendOtp()"
-                  class="flex items-center gap-1.5 text-sm font-medium text-secondary hover:underline transition-colors">
-            <span class="material-symbols-outlined text-[16px]">refresh</span>
-            Resend code
-          </button>
-          <button onclick="otpGoBack()" class="text-xs text-text-muted hover:underline">
-            ← Back
-          </button>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ── CHILDREN REGISTRATION CARD ──────────────────────────────────────── -->
-    <div id="children-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
-      <div class="flex flex-col items-center gap-2 mb-6 text-center">
-        <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:#fef9c3;">
-          <span class="material-symbols-outlined text-[32px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">child_care</span>
-        </div>
-        <h2 class="text-lg font-bold text-on-surface">Register Your Child(ren)</h2>
-        <p class="text-sm text-text-muted leading-relaxed">Add up to 5 children. Full name, date of birth, and IC photos (front + back) are required per child.</p>
-      </div>
-
-      <div id="children-list" class="flex flex-col gap-5">
-        <!-- rendered by JS -->
-      </div>
-
-      <button id="add-child-btn" onclick="addChildEntry()"
-              class="mt-4 flex items-center gap-1.5 text-sm font-medium text-secondary hover:underline transition-colors">
-        <span class="material-symbols-outlined text-[18px]">add_circle</span>
-        Add another child
-      </button>
-
-      <div class="mt-6 flex flex-col gap-3">
-        <button id="children-submit-btn" onclick="childrenNextStep()"
-                class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
-          <span class="material-symbols-outlined text-[18px]">email</span>
-          Continue — Verify Email
-        </button>
-        <button onclick="showCard('signup')" class="text-xs text-text-muted hover:underline text-center">
-          ← Back to account info
-        </button>
-      </div>
-    </div>
-
     <!-- ── FORGOT PASSWORD CARD ────────────────────────────────────────────── -->
     <div id="forgot-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
       <h2 class="text-lg font-bold text-on-surface mb-2">Reset Password</h2>
@@ -361,22 +262,10 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth     = firebase.auth();
 const db       = firebase.firestore();
-const storage  = firebase.storage();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let _skipAuthHandler = false; // prevents onAuthStateChanged firing mid-signup
-
-// Pending signup data — set after validation, used when OTP is confirmed
-let pendingSignup = null;
-// { firstName, lastName, email, rawCode, password, codeDocId }
-
-// Active OTP (signup)
-let otpCode   = null;  // string '123456'
-let otpExpiry = null;  // Date
-
-// Children registration state (parent signups only)
-let childEntries = []; // [{name, dob, frontFile, backFile}]
 
 
 // ── Auth state: redirect any signed-in user ────────────────────────────────────
@@ -412,22 +301,7 @@ async function redirectByRole(uid) {
   }
 }
 
-// ── Generate & send OTP ────────────────────────────────────────────────────────
-async function generateAndSendOtp(email, name) {
-  otpCode   = String(Math.floor(100000 + Math.random() * 900000));
-  otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
-
-  const result = await emailjs.send('service_1vo2fln', 'template_xa9n0xb', {
-    email:    email,
-    passcode: otpCode
-  }, 'dc-ORwhDtS1wn-ezz').catch(err => {
-    console.error('[emailjs error]', JSON.stringify(err));
-    throw err;
-  });
-  console.log('[emailjs ok]', result);
-}
-
-// ── Step 1: Validate form + code → send OTP → show OTP card ──────────────────
+// ── Sign up: validate form + invitation code → create account → redirect ──────
 window.signUpWithEmail = async function() {
   const firstName = document.getElementById('signup-firstname').value.trim();
   const lastName  = document.getElementById('signup-lastname').value.trim();
@@ -450,17 +324,14 @@ window.signUpWithEmail = async function() {
   let codePurpose = 'teacher';
   try {
     const normalizedCode = rawCode.toUpperCase();
-    console.log('[signup] querying invitationCodes where code ==', JSON.stringify(normalizedCode));
     const snap = await db.collection('invitationCodes')
       .where('code', '==', normalizedCode).get();
-    console.log('[signup] query returned', snap.size, 'doc(s)');
     if (snap.empty) {
       setLoading('signup-btn', false);
       return showToast('Invalid code.', 'error');
     }
     const codeDoc  = snap.docs[0];
     const codeData = codeDoc.data();
-    console.log('[signup] matched doc id:', codeDoc.id, '| data:', JSON.stringify(codeData));
     if (codeData.expiresAt && codeData.expiresAt.toDate() < new Date()) {
       setLoading('signup-btn', false);
       return showToast('This code has expired.', 'error');
@@ -471,148 +342,40 @@ window.signUpWithEmail = async function() {
     }
     codeDocId   = codeDoc.id;
     codePurpose = codeData.purpose === 'parent' ? 'parent' : 'teacher';
-    console.log('[signup] code valid — docId:', codeDocId, '| purpose:', codePurpose);
   } catch (e) {
     console.error('[signup] error validating invitation code:', e.code, e.message, e);
     setLoading('signup-btn', false);
     return showToast('Error validating code. Try again.', 'error');
   }
 
-  // Store everything — used after OTP confirmed
-  pendingSignup = { firstName, lastName, email, rawCode, password, codeDocId, codePurpose };
-
-  if (codePurpose === 'parent') {
-    // Parent: collect children info before sending OTP
-    setLoading('signup-btn', false);
-    initChildrenCard();
-    showCard('children');
-  } else {
-    // Teacher: send OTP immediately
-    setLoading('signup-btn', true, 'Sending code...');
-    try {
-      await generateAndSendOtp(email, firstName + ' ' + lastName);
-    } catch (e) {
-      console.error('[otp send error]', e);
-      setLoading('signup-btn', false);
-      return showToast('Failed to send verification code. Please try again.', 'error');
-    }
-    setLoading('signup-btn', false);
-    document.getElementById('otp-email-display').textContent = email;
-    clearOtpBoxes();
-    setOtpError('');
-    showCard('otp');
-    document.getElementById('otp-0').focus();
-  }
-};
-
-// ── Step 2: Verify OTP → create account ───────────────────────────────────────
-window.verifyOtp = async function() {
-  const entered = [0,1,2,3,4,5]
-    .map(i => document.getElementById('otp-' + i).value)
-    .join('');
-
-  if (entered.length < 6) {
-    return setOtpError('Please enter all 6 digits.');
-  }
-
-  if (new Date() > otpExpiry) {
-    setOtpError('');
-    showToast('Code expired. Please request a new one.', 'error');
-    document.getElementById('otp-resend-btn').focus();
-    return;
-  }
-
-  if (entered !== otpCode) {
-    setOtpError('Incorrect code. Please try again.');
-    // Shake animation
-    document.getElementById('otp-boxes').style.animation = 'none';
-    requestAnimationFrame(() => {
-      document.getElementById('otp-boxes').style.animation = 'shake 0.4s ease';
-    });
-    return;
-  }
-
-  // OTP correct — dispatch to account creation
-  setOtpError('');
-  const { codePurpose } = pendingSignup;
-  if (codePurpose === 'parent') {
-    await createParentAccountWithChildren();
-  } else {
-    await createTeacherAccount();
-  }
-};
-
-// ── Resend OTP ─────────────────────────────────────────────────────────────────
-window.resendOtp = async function() {
-  if (!pendingSignup) return;
-  const btn = document.getElementById('otp-resend-btn');
-  btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#C9A227;border-color:rgba(201,162,39,.2)"></div>';
-
+  // Create the account — the invitation code is the access gate, so the
+  // account is usable immediately, no separate email-verification step.
+  setLoading('signup-btn', true, 'Creating account...');
+  _skipAuthHandler = true;
+  let newUser = null;
   try {
-    const { email, firstName, lastName } = pendingSignup;
-    await generateAndSendOtp(email, firstName + ' ' + lastName);
-    clearOtpBoxes();
-    setOtpError('');
-    showToast('New code sent!', 'success');
-    document.getElementById('otp-0').focus();
+    const cred = await auth.createUserWithEmailAndPassword(email, password);
+    newUser = cred.user;
+    await db.collection('users').doc(newUser.uid).set({
+      name: firstName + ' ' + lastName, firstName, lastName, email,
+      role: codePurpose, institution: '', ssoProvider: 'email', status: 'active',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      invitationCode: rawCode.toUpperCase(),
+    });
+    await db.collection('invitationCodes').doc(codeDocId).update({
+      usageCount: firebase.firestore.FieldValue.increment(1)
+    });
   } catch (e) {
-    console.error('[resend otp]', e);
-    showToast('Failed to resend. Please try again.', 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">refresh</span> Resend code';
+    console.error('[signup] account creation failed', e.code, e.message);
+    if (newUser) { try { await newUser.delete(); } catch (_) {} }
+    _skipAuthHandler = false;
+    setLoading('signup-btn', false);
+    showToast(friendlyError(e.code) || 'Something went wrong. Please try again.', 'error');
+    return;
   }
+  _skipAuthHandler = false;
+  await redirectByRole(newUser.uid);
 };
-
-// ── OTP helpers ────────────────────────────────────────────────────────────────
-function clearOtpBoxes() {
-  for (let i = 0; i < 6; i++) {
-    const el = document.getElementById('otp-' + i);
-    el.value = '';
-    el.classList.remove('filled');
-  }
-}
-
-function setOtpError(msg) {
-  const el = document.getElementById('otp-error');
-  if (msg) { el.textContent = msg; el.classList.remove('hidden'); }
-  else      { el.textContent = ''; el.classList.add('hidden'); }
-}
-
-// ── OTP input behaviour (auto-advance, backspace, paste) ──────────────────────
-function wireOtpBoxes(prefix, verifyFn) {
-  for (let i = 0; i < 6; i++) {
-    const input = document.getElementById(prefix + i);
-    input.addEventListener('input', function() {
-      const val = this.value.replace(/\D/g, '');
-      this.value = val ? val[val.length - 1] : '';
-      this.classList.toggle('filled', !!this.value);
-      if (this.value && i < 5) document.getElementById(prefix + (i + 1)).focus();
-      if (i === 5 && this.value) verifyFn();
-    });
-    input.addEventListener('keydown', function(e) {
-      if (e.key === 'Backspace' && !this.value && i > 0)
-        document.getElementById(prefix + (i - 1)).focus();
-    });
-    input.addEventListener('paste', function(e) {
-      e.preventDefault();
-      const pasted = (e.clipboardData || window.clipboardData)
-        .getData('text').replace(/\D/g, '').slice(0, 6);
-      for (let j = 0; j < pasted.length; j++) {
-        const box = document.getElementById(prefix + j);
-        if (box) { box.value = pasted[j]; box.classList.add('filled'); }
-      }
-      document.getElementById(prefix + Math.min(pasted.length, 5)).focus();
-      if (pasted.length === 6) verifyFn();
-    });
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  wireOtpBoxes('otp-',  verifyOtp);
-
-});
 
 // ── Sign in with Email/Password ────────────────────────────────────────────────
 window.signInWithEmail = async function() {
@@ -700,8 +463,6 @@ function setLoading(btnId, loading, text = '') {
       'login-btn':         'Sign In',
       'signup-btn':        'Continue',
       'forgot-btn':        'Send Reset Link',
-      'otp-verify-btn':       '<span class="material-symbols-outlined text-[18px]">verified</span> Verify Code',
-      'children-submit-btn':  '<span class="material-symbols-outlined text-[18px]">email</span> Continue — Verify Email',
       'google-signin-btn': `<svg height="18" viewBox="0 0 18 18" width="18"><path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.7l2.79 2.17C16.46 14.12 18 11.89 18 9c0-.61-.06-1.14-.16-1.8z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.79-2.17c-.77.52-1.76.83-3.17.83-2.44 0-4.51-1.64-5.25-3.84L.91 13.04C2.39 15.99 5.45 18 9 18z" fill="#34A853"/><path d="M3.75 10.64c-.19-.57-.3-1.18-.3-1.82s.11-1.25.3-1.82L.91 4.67C.33 5.83 0 7.13 0 8.5s.33 2.67.91 3.83l2.84-2.19z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.45 0 2.39 2.01.91 4.96l2.84 2.19C4.49 4.95 6.56 3.58 9 3.58z" fill="#EA4335"/></svg><span class="text-sm font-medium text-on-surface">Continue with Google</span>`
     };
     btn.innerHTML = defaults[btnId] || btn.textContent;
@@ -710,7 +471,7 @@ function setLoading(btnId, loading, text = '') {
 
 // ── Card switching ─────────────────────────────────────────────────────────────
 window.showCard = function(card) {
-  ['login-card', 'signup-card', 'otp-card', 'forgot-card', 'children-card'].forEach(id => {
+  ['login-card', 'signup-card', 'forgot-card'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   const target = document.getElementById(`${card}-card`);
@@ -738,270 +499,6 @@ window.showToast = function(message, type = 'info') {
   toast.className = `show ${type}`;
   setTimeout(() => { toast.className = ''; }, 3500);
 };
-
-// ── Children / account creation helpers ───────────────────────────────────────
-function esc(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Smart back from OTP card: parent goes to children-card, teacher to signup-card
-window.otpGoBack = function() {
-  if (pendingSignup && pendingSignup.codePurpose === 'parent') showCard('children');
-  else showCard('signup');
-};
-
-// Children-card "Continue" — validates children then sends OTP
-window.childrenNextStep = async function() {
-  if (!childEntries.length) return showToast('Please add at least one child.', 'error');
-  for (let i = 0; i < childEntries.length; i++) {
-    const c = childEntries[i];
-    if (!c.name.trim()) return showToast(`Child ${i + 1}: Full name is required.`, 'error');
-    if (!c.dob)         return showToast(`Child ${i + 1}: Date of birth is required.`, 'error');
-    if (!c.frontFile)   return showToast(`Child ${i + 1}: IC Front photo is required.`, 'error');
-    if (!c.backFile)    return showToast(`Child ${i + 1}: IC Back photo is required.`, 'error');
-  }
-  setLoading('children-submit-btn', true, 'Sending code...');
-  try {
-    const { email, firstName, lastName } = pendingSignup;
-    await generateAndSendOtp(email, firstName + ' ' + lastName);
-  } catch (e) {
-    console.error('[otp send error]', e);
-    setLoading('children-submit-btn', false);
-    return showToast('Failed to send verification code. Please try again.', 'error');
-  }
-  setLoading('children-submit-btn', false);
-  document.getElementById('otp-email-display').textContent = pendingSignup.email;
-  clearOtpBoxes();
-  setOtpError('');
-  showCard('otp');
-  document.getElementById('otp-0').focus();
-};
-
-// Teacher account creation (called after OTP verified)
-async function createTeacherAccount() {
-  const { firstName, lastName, email, rawCode, password, codeDocId } = pendingSignup;
-  setLoading('otp-verify-btn', true, 'Creating account...');
-  _skipAuthHandler = true;
-  let newUser = null;
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
-    newUser = cred.user;
-    await db.collection('users').doc(newUser.uid).set({
-      name: firstName + ' ' + lastName, firstName, lastName, email,
-      role: 'teacher', institution: '', ssoProvider: 'email', status: 'active',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      invitationCode: rawCode.toUpperCase(),
-    });
-    await db.collection('invitationCodes').doc(codeDocId).update({
-      usageCount: firebase.firestore.FieldValue.increment(1)
-    });
-    _skipAuthHandler = false;
-    await redirectByRole(newUser.uid);
-  } catch (e) {
-    console.error('[teacher-signup]', e.code, e.message);
-    if (newUser) { try { await newUser.delete(); } catch (_) {} }
-    _skipAuthHandler = false;
-    setLoading('otp-verify-btn', false);
-    showToast(friendlyError(e.code) || 'Something went wrong. Please try again.', 'error');
-  }
-}
-
-// Parent account + children creation — atomic, with rollback at each step
-async function createParentAccountWithChildren() {
-  const { firstName, lastName, email, rawCode, password, codeDocId } = pendingSignup;
-
-  // Pre-generate student doc refs (reserves IDs — no Firestore write yet)
-  const studentRefs  = childEntries.map(() => db.collection('students').doc());
-  const uploadedRefs = []; // track for rollback
-
-  // ── Step 1: Create Firebase Auth account first (establishes request.auth) ──
-  setLoading('otp-verify-btn', true, 'Creating account...');
-  _skipAuthHandler = true;
-  let newUser = null;
-  try {
-    const cred = await auth.createUserWithEmailAndPassword(email, password);
-    newUser = cred.user;
-  } catch (e) {
-    console.error('[parent-signup] auth creation failed', e);
-    _skipAuthHandler = false;
-    setLoading('otp-verify-btn', false);
-    showToast(friendlyError(e.code) || 'Account creation failed. Please try again.', 'error');
-    return;
-  }
-
-  // ── Step 2: Upload IC photos — now authenticated, Storage rules will pass ──
-  setLoading('otp-verify-btn', true, 'Uploading photos...');
-  const photoUrls = [];
-  try {
-    for (let i = 0; i < childEntries.length; i++) {
-      const c   = childEntries[i];
-      const sid = studentRefs[i].id;
-      const ext = f => f.name.toLowerCase().endsWith('.heic') ? 'heic'
-                     : f.name.toLowerCase().endsWith('.png')  ? 'png' : 'jpg';
-      const fRef = storage.ref(`studentIC/${sid}/front.${ext(c.frontFile)}`);
-      const bRef = storage.ref(`studentIC/${sid}/back.${ext(c.backFile)}`);
-      await fRef.put(c.frontFile, { contentType: c.frontFile.type || 'image/jpeg' });
-      uploadedRefs.push(fRef);
-      await bRef.put(c.backFile,  { contentType: c.backFile.type  || 'image/jpeg' });
-      uploadedRefs.push(bRef);
-      const [icFrontUrl, icBackUrl] = await Promise.all([
-        fRef.getDownloadURL(), bRef.getDownloadURL(),
-      ]);
-      photoUrls.push({ icFrontUrl, icBackUrl });
-    }
-  } catch (e) {
-    console.error('[parent-signup] photo upload failed', e);
-    // Rollback: delete Auth account + any partial uploads
-    try { await newUser.delete(); } catch (_) {}
-    _skipAuthHandler = false;
-    await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
-    setLoading('otp-verify-btn', false);
-    showToast('Photo upload failed. Please try again.', 'error');
-    return;
-  }
-
-  // ── Step 3: Batch write — users/{uid} + all students/{id} atomically ──────
-  setLoading('otp-verify-btn', true, 'Saving records...');
-  try {
-    const studentIds = studentRefs.map(r => r.id);
-    const batch = db.batch();
-
-    batch.set(db.collection('users').doc(newUser.uid), {
-      name: firstName + ' ' + lastName, firstName, lastName, email,
-      role: 'parent', institution: '', ssoProvider: 'email', status: 'active',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      invitationCode: rawCode.toUpperCase(),
-      linkedStudentIds: studentIds,
-    });
-
-    for (let i = 0; i < childEntries.length; i++) {
-      const c = childEntries[i];
-      batch.set(studentRefs[i], {
-        fullName: c.name.trim(), dateOfBirth: c.dob,
-        grade: '', notes: '', assignedTeachers: [],
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        registeredViaParentSignup: true,
-        icFrontUrl: photoUrls[i].icFrontUrl,
-        icBackUrl:  photoUrls[i].icBackUrl,
-      });
-    }
-
-    await batch.commit();
-
-    // Non-critical: mark invite code used (don't roll back account if this fails)
-    db.collection('invitationCodes').doc(codeDocId)
-      .update({ usageCount: firebase.firestore.FieldValue.increment(1) })
-      .catch(e => console.warn('[parent-signup] invite code update failed (non-critical)', e));
-
-    _skipAuthHandler = false;
-    window.location.href = '/parent/dashboard.html';
-
-  } catch (e) {
-    console.error('[parent-signup] batch write failed', e);
-    try { await newUser.delete(); } catch (_) {}
-    _skipAuthHandler = false;
-    await Promise.allSettled(uploadedRefs.map(r => r.delete().catch(() => {})));
-    setLoading('otp-verify-btn', false);
-    showToast('Failed to save records. Please try again.', 'error');
-  }
-}
-
-function initChildrenCard() {
-  childEntries = [{ name: '', dob: '', frontFile: null, backFile: null }];
-  renderChildEntries();
-}
-
-function renderChildEntries() {
-  const container = document.getElementById('children-list');
-  container.innerHTML = childEntries.map((c, i) => `
-    <div class="border border-border-subtle rounded-xl p-4 flex flex-col gap-3">
-      <div class="flex items-center justify-between">
-        <h3 class="text-sm font-semibold text-on-surface">Child ${i + 1}</h3>
-        ${childEntries.length > 1
-          ? `<button onclick="removeChildEntry(${i})" class="text-text-muted hover:text-error transition-colors p-1 rounded-lg" type="button">
-               <span class="material-symbols-outlined text-[18px]">close</span>
-             </button>`
-          : ''}
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-on-surface-variant">Full Name *</label>
-        <input id="child-name-${i}" type="text" value="${esc(c.name)}" placeholder="Child's full name"
-               oninput="childEntries[${i}].name = this.value"
-               class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-on-surface-variant">Date of Birth *</label>
-        <input id="child-dob-${i}" type="date" value="${esc(c.dob)}"
-               oninput="childEntries[${i}].dob = this.value"
-               class="w-full px-4 py-2.5 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        ${icUploadZoneHtml(i, 'front', c.frontFile)}
-        ${icUploadZoneHtml(i, 'back',  c.backFile)}
-      </div>
-    </div>
-  `).join('');
-
-  // Wire file inputs after DOM injection
-  childEntries.forEach((_, i) => {
-    ['front', 'back'].forEach(side => {
-      const input = document.getElementById(`child-${side}-file-${i}`);
-      if (input) input.addEventListener('change', function() {
-        handleChildFile(i, side, this.files[0]);
-      });
-    });
-  });
-
-  const addBtn = document.getElementById('add-child-btn');
-  if (addBtn) addBtn.style.display = childEntries.length >= 5 ? 'none' : '';
-}
-
-function icUploadZoneHtml(i, side, file) {
-  const label    = side === 'front' ? 'IC Front *' : 'IC Back *';
-  const hasFile  = !!file;
-  const inner    = hasFile
-    ? `<span class="material-symbols-outlined text-[20px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">check_circle</span>
-       <span class="text-[11px] font-medium mt-0.5 block truncate max-w-full px-1" style="color:#C9A227;">${esc(file.name)}</span>`
-    : `<span class="material-symbols-outlined text-text-muted text-[24px]">upload</span>
-       <span class="text-[11px] text-text-muted mt-0.5 block">Click to upload</span>`;
-  const border   = hasFile ? 'border-secondary bg-secondary/5' : 'border-dashed border-border-subtle hover:border-secondary/40';
-  return `
-    <div class="flex flex-col gap-1.5">
-      <label class="text-xs font-medium text-on-surface-variant">${label}</label>
-      <input id="child-${side}-file-${i}" type="file"
-             accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic" class="hidden"/>
-      <button type="button" onclick="document.getElementById('child-${side}-file-${i}').click()"
-              class="flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 ${border} p-3 min-h-[80px] text-center transition-colors w-full">
-        ${inner}
-      </button>
-    </div>`;
-}
-
-function handleChildFile(i, side, file) {
-  if (!file) return;
-  const ALLOWED = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
-  if (!ALLOWED.includes(file.type) && !file.name.toLowerCase().match(/\.(jpg|jpeg|png|heic)$/)) {
-    return showToast('Only JPG, PNG, or HEIC files are allowed.', 'error');
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    return showToast('Image must be under 5 MB.', 'error');
-  }
-  if (side === 'front') childEntries[i].frontFile = file;
-  else                  childEntries[i].backFile  = file;
-  renderChildEntries();
-}
-
-window.addChildEntry = function() {
-  if (childEntries.length >= 5) return;
-  childEntries.push({ name: '', dob: '', frontFile: null, backFile: null });
-  renderChildEntries();
-};
-
-window.removeChildEntry = function(idx) {
-  childEntries.splice(idx, 1);
-  renderChildEntries();
-};
-
 
 // ── Access code formatter ──────────────────────────────────────────────────────
 document.getElementById('signup-code').addEventListener('input', function() {
