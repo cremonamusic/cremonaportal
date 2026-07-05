@@ -403,6 +403,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
+<script src="/js/email.js"></script>
 <script type="module">
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -876,6 +877,8 @@ window.submitAddParent = async function() {
     document.getElementById('created-parent-password').textContent = password;
     document.getElementById('parent-created-modal').classList.remove('hidden');
 
+    notifyNewParentAccount(firstName, email, password);
+
     if (currentTab === 'parents') applyFilters();
   } catch (e) {
     showToast(e.message, 'error');
@@ -1020,6 +1023,22 @@ window.doSignOut = async function() {
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Welcome email with login details for a newly-created parent account —
+// best-effort, doesn't block the "account created" flow if it fails to send.
+function notifyNewParentAccount(firstName, email, password) {
+  if (typeof window.sendEmail !== 'function') return;
+  const subject = 'Your Cremona Music Portal account is ready';
+  const bodyHtml = window.cremonaEmailWrapper(`
+    <p style="margin:0 0 12px;">Hi ${escHtml(firstName)},</p>
+    <p style="margin:0 0 12px;">Welcome to the Cremona Music Portal! Your parent account has been created — here are your login details:</p>
+    <p style="margin:0 0 4px;"><strong>Email:</strong> ${escHtml(email)}</p>
+    <p style="margin:0 0 12px;"><strong>Temporary password:</strong> ${escHtml(password)}</p>
+    <p style="margin:0 0 12px;">For your security, please change this password after you log in for the first time (Account &rarr; Change Password).</p>
+    ${window.cremonaEmailButton('https://cremonamusic-portal.web.app', 'Go to Portal Login')}
+  `);
+  window.sendEmail(email, subject, bodyHtml);
 }
 
 function absUrl(url) {
