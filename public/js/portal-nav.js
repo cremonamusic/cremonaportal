@@ -43,6 +43,7 @@
         { key: "security",  label: "Security",  icon: "security",        href: "/admin/security.html" },
         { key: "resources", label: "Resources", icon: "folder",          href: "/admin/resources.html" },
         { key: "students",  label: "Students",  icon: "group",           href: "/admin/students.html" },
+        { key: "enrollments", label: "Enrollments", icon: "assignment_turned_in", href: "/admin/enrollments.html" },
         { key: "schedule",  label: "Schedule",  icon: "calendar_month",  href: "/admin/schedule-admin.html" },
         { key: "messages",  label: "Messages",  icon: "forum",           href: "/admin/messages-admin.html" },
         { key: "comments",  label: "Comments",  icon: "chat",            href: "/admin/comments-admin.html" },

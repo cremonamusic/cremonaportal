@@ -297,16 +297,22 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('add-parent-modal').classList.add('hidden')"></div>
   <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <h3 class="font-headline-sm text-on-surface">Add Parent Account</h3>
-    <p class="font-body-sm text-text-muted -mt-2">Creates a parent login and links them to their child(ren).</p>
+    <p class="font-body-sm text-text-muted -mt-2">Pick the child — the parent's name, email &amp; phone fill in from their enrollment form. Then just set a temporary password.</p>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Select Child(ren) <span class="text-text-muted font-normal text-xs">— at least one; parent details auto-fill</span></label>
+      <div id="ap-student-list" class="max-h-44 overflow-y-auto border border-border-subtle rounded-lg divide-y divide-border-subtle">
+        <p class="text-sm text-text-muted text-center py-4">Loading students...</p>
+      </div>
+    </div>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">First Name</label>
-        <input id="ap-firstname" type="text" placeholder="John"
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Surname</label>
+        <input id="ap-lastname" type="text" placeholder="Tan"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
       </div>
       <div>
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Last Name</label>
-        <input id="ap-lastname" type="text" placeholder="Park"
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Name</label>
+        <input id="ap-firstname" type="text" placeholder="Wei Ming"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
       </div>
     </div>
@@ -331,12 +337,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         </button>
       </div>
       <p class="text-xs text-text-muted mt-1">You will see this after creation to share with the parent.</p>
-    </div>
-    <div>
-      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Link Students <span class="text-text-muted font-normal text-xs">— select at least one</span></label>
-      <div id="ap-student-list" class="max-h-44 overflow-y-auto border border-border-subtle rounded-lg divide-y divide-border-subtle">
-        <p class="text-sm text-text-muted text-center py-4">Loading students...</p>
-      </div>
     </div>
     <div class="flex justify-end gap-3 pt-1">
       <button onclick="document.getElementById('add-parent-modal').classList.add('hidden')"
@@ -788,9 +788,8 @@ window.openAddParentModal = function() {
   document.getElementById('ap-email').value     = '';
   document.getElementById('ap-phone').value     = '';
   document.getElementById('ap-password').value  = '';
-  renderStudentPicker('ap-student-list', []);
+  renderStudentPicker('ap-student-list', [], true);
   document.getElementById('add-parent-modal').classList.remove('hidden');
-  document.getElementById('ap-firstname').focus();
 };
 
 window.toggleApPassword = function() {
@@ -801,23 +800,47 @@ window.toggleApPassword = function() {
   eye.textContent = show ? 'visibility_off' : 'visibility';
 };
 
-function renderStudentPicker(containerId, selectedIds) {
+function renderStudentPicker(containerId, selectedIds, autofill = false) {
   const el = document.getElementById(containerId);
   if (!allStudents.length) {
     el.innerHTML = '<p class="text-sm text-text-muted text-center py-4">No students found.</p>';
     return;
   }
-  el.innerHTML = allStudents.map(s => `
+  el.innerHTML = allStudents.map(s => {
+    const pe  = Array.isArray(s.parentEmails) && s.parentEmails.length ? s.parentEmails[0] : (s.parentEmail || '');
+    const sub = pe ? escHtml(pe) : (s.grade ? escHtml(s.grade) : '');
+    const onch = autofill ? `onchange="if(this.checked)apAutofillFromStudent('${escHtml(s.id)}')"` : '';
+    return `
     <label class="flex items-center gap-3 px-3 py-2 hover:bg-surface-container-low cursor-pointer">
       <input type="checkbox" value="${escHtml(s.id)}" ${selectedIds.includes(s.id)?'checked':''}
-             class="accent-secondary w-4 h-4 flex-shrink-0"
-             />
-      <div>
-        <p class="text-sm font-medium text-on-surface">${escHtml(s.fullName||'Unnamed')}</p>
-        ${s.grade ? `<p class="text-xs text-text-muted">${escHtml(s.grade)}</p>` : ''}
+             ${onch} class="accent-secondary w-4 h-4 flex-shrink-0"/>
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-on-surface truncate">${escHtml(s.fullName||'Unnamed')}</p>
+        ${sub ? `<p class="text-xs text-text-muted truncate">${sub}</p>` : ''}
       </div>
-    </label>`).join('');
+    </label>`;
+  }).join('');
 }
+
+// When a child is ticked in the Add-Parent modal, pre-fill the parent's details
+// from that student's enrollment record. Fields stay editable. Null-safe so it's
+// a no-op if called from a context without the ap-* inputs (e.g. edit-students).
+window.apAutofillFromStudent = function(sid) {
+  const emailEl = document.getElementById('ap-email');
+  if (!emailEl) return;
+  const s = allStudents.find(x => x.id === sid);
+  if (!s) return;
+  const email = Array.isArray(s.parentEmails) && s.parentEmails.length ? s.parentEmails[0] : (s.parentEmail || '');
+  const phone = s.parentPhone || '';
+  const name  = s.parentName  || '';
+  if (email) emailEl.value = email;
+  if (phone) document.getElementById('ap-phone').value = phone;
+  if (name) {
+    const parts = name.trim().split(/\s+/);
+    document.getElementById('ap-firstname').value = parts[0] || '';
+    document.getElementById('ap-lastname').value  = parts.slice(1).join(' ') || '';
+  }
+};
 
 function getCheckedStudents(containerId) {
   return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(cb => cb.value);

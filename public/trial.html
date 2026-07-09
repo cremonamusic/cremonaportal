@@ -611,6 +611,7 @@ window.submitEnrollment = async function() {
       preferredAppointmentTime: appointment,
       paymentReceiptUrl,
       registeredViaEnrollmentForm: true,
+      formType:                 'trial',
       createdAt:                serverTimestamp(),
       status:                   'pending',
     });

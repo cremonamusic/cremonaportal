@@ -356,12 +356,31 @@ window.signUpWithEmail = async function() {
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, password);
     newUser = cred.user;
-    await db.collection('users').doc(newUser.uid).set({
+
+    const userData = {
       name: firstName + ' ' + lastName, firstName, lastName, email,
       role: codePurpose, institution: '', ssoProvider: 'email', status: 'active',
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       invitationCode: rawCode.toUpperCase(),
-    });
+    };
+
+    // Parent accounts auto-link to any student already tagged with this email —
+    // e.g. a child registered earlier through the public enrollment form.
+    // Best-effort: if the query is blocked or empty, the parent just starts with
+    // no linked children and an admin can link them manually.
+    if (codePurpose === 'parent') {
+      try {
+        const emailLc = email.trim().toLowerCase();
+        const sSnap = await db.collection('students')
+          .where('parentEmails', 'array-contains', emailLc).get();
+        userData.linkedStudentIds = sSnap.docs.map(d => d.id);
+      } catch (err) {
+        console.warn('[signup] auto-link query failed (non-fatal)', err);
+        userData.linkedStudentIds = [];
+      }
+    }
+
+    await db.collection('users').doc(newUser.uid).set(userData);
     await db.collection('invitationCodes').doc(codeDocId).update({
       usageCount: firebase.firestore.FieldValue.increment(1)
     });

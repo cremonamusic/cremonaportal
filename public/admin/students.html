@@ -203,6 +203,9 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
     </div>
     <div class="flex justify-end px-6 pb-5 gap-3">
+      <a id="profile-enroll-btn" href="#" class="hidden px-4 py-2.5 text-sm font-bold border border-border-subtle text-text-muted rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors inline-flex items-center gap-1.5 no-underline">
+        <span class="material-symbols-outlined text-[16px]">assignment</span> View Enrollment Form
+      </a>
       <button id="profile-edit-btn" onclick="editCurrentStudent()" class="px-4 py-2.5 text-sm font-bold border border-secondary text-secondary rounded-lg hover:bg-secondary/5 transition-colors">Edit Student</button>
       <button onclick="closeProfileModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
     </div>
@@ -654,20 +657,16 @@ async function openProfile(sid) {
     teacherPills ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Assigned Teachers</p><div class="flex flex-wrap gap-1">${teacherPills}</div></div>` : '',
     linkedParents.length ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Linked Parent${linkedParents.length > 1 ? 's' : ''}</p><div class="flex flex-col gap-1">${linkedParents.map(p => `<div class="flex items-center gap-2"><span class="font-medium">${escHtml(p.name || '—')}</span>${p.email ? `<span class="text-xs text-text-muted">${escHtml(p.email)}</span>` : ''}</div>`).join('')}</div></div>` : '',
     s.notes ? `<div class="col-span-2">${field('Notes', s.notes)}</div>` : '',
-    (s.icFrontUrl || s.icBackUrl) ? `<div class="col-span-2">
-      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-2">IC Photos</p>
-      <div class="flex gap-3">
-        ${s.icFrontUrl ? `<a href="${escHtml(s.icFrontUrl)}" target="_blank" rel="noopener" class="group flex flex-col items-center gap-1">
-          <img src="${escHtml(s.icFrontUrl)}" alt="IC Front" class="w-32 h-20 object-cover rounded-lg border border-border-subtle shadow-sm group-hover:opacity-80 transition-opacity"/>
-          <span class="text-[11px] text-text-muted font-medium">Front</span>
-        </a>` : ''}
-        ${s.icBackUrl ? `<a href="${escHtml(s.icBackUrl)}" target="_blank" rel="noopener" class="group flex flex-col items-center gap-1">
-          <img src="${escHtml(s.icBackUrl)}" alt="IC Back" class="w-32 h-20 object-cover rounded-lg border border-border-subtle shadow-sm group-hover:opacity-80 transition-opacity"/>
-          <span class="text-[11px] text-text-muted font-medium">Back</span>
-        </a>` : ''}
-      </div>
-    </div>` : '',
   ].join('');
+
+  // "View Enrollment Form" button — only for students who came in via a form
+  const enrollBtn = document.getElementById('profile-enroll-btn');
+  if (s.registeredViaEnrollmentForm) {
+    enrollBtn.href = `/admin/enrollments.html?studentId=${encodeURIComponent(s.id)}`;
+    enrollBtn.classList.remove('hidden');
+  } else {
+    enrollBtn.classList.add('hidden');
+  }
 
   document.getElementById('profile-modal').classList.remove('hidden');
 
