@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Enrollment | Cremona Music of Strings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          "primary": "#C9A227", "primary-container": "#F5E5B0", "on-primary-container": "#8B6020",
+          "on-primary-fixed": "#3E2C23", "secondary": "#C9A227",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "surface-container": "#F0E8D6",
+          "surface-container-low": "#F5EFE4", "surface-container-highest": "#E4D8C2",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
+          "walnut": "#3B2A1E", "error": "#ba1a1a"
+        },
+        fontFamily: { sans: ["Inter", "Noto Sans TC", "sans-serif"] }
+      }
+    }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', 'Noto Sans TC', sans-serif; background-color: #FAF6EF; }
+  html[data-lang="zh"] body { font-family: 'Noto Sans TC', 'Inter', sans-serif; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  .field-label { font-size: 0.8125rem; font-weight: 600; color: #7A5A42; margin-bottom: 0.375rem; display: block; }
+  .req::after { content: " *"; color: #ba1a1a; }
+  .input {
+    width: 100%; padding: 0.6875rem 0.875rem; border: 1px solid #E8DCC8; border-radius: 0.5rem;
+    font-size: 0.875rem; background: #FFFDF9; outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .input:focus { border-color: #C9A227; box-shadow: 0 0 0 3px rgba(201,162,39,0.18); }
+  .section-card { background: #FFFDF9; border: 1px solid #E8DCC8; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+  .tc-box { max-height: 300px; overflow-y: auto; border: 1px solid #E8DCC8; border-radius: 0.5rem; background: #F5EFE4; padding: 1rem 1.25rem; }
+  .tc-box h3 { font-size: 0.9375rem; font-weight: 700; color: #3E2C23; margin: 1rem 0 0.375rem; }
+  .tc-box h3:first-child { margin-top: 0; }
+  .tc-box p, .tc-box li { font-size: 0.8125rem; color: #5d4a3a; line-height: 1.65; margin-bottom: 0.5rem; }
+  .tc-box ul, .tc-box ol { padding-left: 1.25rem; margin-bottom: 0.5rem; }
+  .tc-box ul { list-style: disc; }
+  .tc-box ol { list-style: decimal; }
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500;
+    z-index: 999; opacity: 0; transition: opacity .3s; max-width: 90vw; text-align: center;
+  }
+  #toast.show { opacity: 1; }
+  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.success { background: #1e6e3b; color: #fff; }
+  .upload-zone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;
+    border: 2px dashed #E8DCC8; border-radius: 0.5rem; padding: 1.25rem; min-height: 110px;
+    text-align: center; cursor: pointer; transition: border-color .15s, background .15s; width: 100%;
+  }
+  .upload-zone:hover { border-color: rgba(201,162,39,0.5); }
+  .upload-zone.filled { border-style: solid; border-color: #C9A227; background: rgba(201,162,39,0.05); }
+  .thumb { max-height: 90px; max-width: 100%; border-radius: 0.375rem; margin-top: 0.5rem; }
+  /* language visibility helpers */
+  html[data-lang="en"] .lang-zh { display: none; }
+  html[data-lang="zh"] .lang-en { display: none; }
+</style>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<div id="toast"></div>
+
+<!-- ── Top bar: logo + language toggle ─────────────────────────────────────── -->
+<header class="bg-walnut">
+  <div class="max-w-3xl mx-auto px-5 h-16 flex items-center justify-between">
+    <img src="/logo.png" alt="Cremona Music" class="h-9 w-auto" style="filter:invert(1) brightness(1.2);"/>
+    <button id="lang-toggle" onclick="toggleLang()"
+            class="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-semibold text-[#F5EFE4] border border-white/20 hover:bg-white/10 transition-colors">
+      <span class="material-symbols-outlined text-[18px]">translate</span>
+      <span class="lang-en">中文</span>
+      <span class="lang-zh">English</span>
+    </button>
+  </div>
+</header>
+
+<!-- ── Hero band ───────────────────────────────────────────────────────────── -->
+<div class="bg-walnut text-white pb-9 pt-2 px-5 border-t border-white/5">
+  <div class="max-w-3xl mx-auto">
+    <p class="text-xs font-semibold uppercase tracking-widest text-[#C9A227] mb-1">Cremona Music of Strings</p>
+    <h1 class="text-2xl font-bold">
+      <span class="lang-en">Enrollment Form</span>
+      <span class="lang-zh">報名表格</span>
+    </h1>
+    <p class="text-sm text-white/70 mt-1">
+      <span class="lang-en">Please complete all required fields to register your child.</span>
+      <span class="lang-zh">請填寫所有必填欄位以為您的孩子報名。</span>
+    </p>
+  </div>
+</div>
+
+<main class="flex-grow max-w-3xl mx-auto w-full px-5 py-8">
+
+  <!-- ════════════════ FORM ════════════════ -->
+  <form id="enroll-form" class="flex flex-col gap-6" onsubmit="return false;">
+
+    <!-- ── Parent Information ─────────────────────────────────────────────── -->
+    <section class="section-card p-6">
+      <h2 class="text-base font-bold text-on-surface mb-5 pb-2.5 border-b border-border-subtle">
+        <span class="lang-en">Parent Information</span>
+        <span class="lang-zh">家長資料</span>
+      </h2>
+
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="field-label req" for="p-email"><span class="lang-en">Email</span><span class="lang-zh">電子郵件</span></label>
+          <input id="p-email" type="email" class="input" data-en-ph="your@email.com" data-zh-ph="your@email.com" placeholder="your@email.com"/>
+        </div>
+        <div>
+          <label class="field-label req" for="p-name"><span class="lang-en">Full Name</span><span class="lang-zh">姓名</span></label>
+          <input id="p-name" type="text" class="input"/>
+        </div>
+        <div>
+          <label class="field-label req" for="p-address"><span class="lang-en">Home Address</span><span class="lang-zh">現居地址</span></label>
+          <textarea id="p-address" rows="2" class="input resize-y"></textarea>
+        </div>
+        <div>
+          <label class="field-label req" for="p-phone"><span class="lang-en">Contact Number</span><span class="lang-zh">聯絡電話</span></label>
+          <input id="p-phone" type="tel" class="input"/>
+        </div>
+        <div>
+          <label class="field-label" for="p-heard"><span class="lang-en">How did you hear about us?</span><span class="lang-zh">你從何處知道 Cremona？</span></label>
+          <select id="p-heard" class="input" onchange="toggleHeardOther()">
+            <option value="">—</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Website">Website</option>
+            <option value="Friends">Friends</option>
+            <option value="Other">Other 其他</option>
+          </select>
+        </div>
+        <div id="heard-other-wrap" class="hidden">
+          <label class="field-label" for="p-heard-other"><span class="lang-en">If Other, please specify</span><span class="lang-zh">如選 Other 請填寫</span></label>
+          <input id="p-heard-other" type="text" class="input"/>
+        </div>
+        <div>
+          <label class="field-label"><span class="lang-en">Do you have other children/siblings learning at Cremona?</span><span class="lang-zh">您有其他孩子/兄弟姊妹正在 Cremona 上課嗎？</span></label>
+          <div class="flex items-center gap-6 mt-1">
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="siblings" value="yes" class="accent-secondary w-4 h-4" onchange="toggleSiblings()"/>
+              <span class="lang-en">Yes</span><span class="lang-zh">有</span>
+            </label>
+            <label class="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="radio" name="siblings" value="no" class="accent-secondary w-4 h-4" onchange="toggleSiblings()" checked/>
+              <span class="lang-en">No</span><span class="lang-zh">沒有</span>
+            </label>
+          </div>
+        </div>
+        <div id="siblings-name-wrap" class="hidden">
+          <label class="field-label" for="p-siblings-name"><span class="lang-en">If yes, please let us know their name</span><span class="lang-zh">如有，請告知姓名</span></label>
+          <input id="p-siblings-name" type="text" class="input"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Student Information ────────────────────────────────────────────── -->
+    <section class="section-card p-6">
+      <h2 class="text-base font-bold text-on-surface mb-5 pb-2.5 border-b border-border-subtle">
+        <span class="lang-en">Student Information</span>
+        <span class="lang-zh">學生資料</span>
+      </h2>
+
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="field-label req" for="s-name"><span class="lang-en">Student Full Name</span><span class="lang-zh">學生姓名</span></label>
+          <input id="s-name" type="text" class="input"/>
+        </div>
+        <div>
+          <label class="field-label req" for="s-dob"><span class="lang-en">Student Date of Birth</span><span class="lang-zh">學生出生年月日</span></label>
+          <input id="s-dob" type="date" class="input"/>
+        </div>
+        <div>
+          <label class="field-label req" for="s-ic"><span class="lang-en">Student IC Number / Passport Number</span><span class="lang-zh">學生證件號碼</span></label>
+          <input id="s-ic" type="text" class="input"/>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="field-label req"><span class="lang-en">Student IC Photo — Front</span><span class="lang-zh">證件正面照片</span></label>
+            <input id="ic-front-input" type="file" accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic" class="hidden" onchange="handleImage('front', this.files[0])"/>
+            <div id="ic-front-zone" class="upload-zone" onclick="document.getElementById('ic-front-input').click()">
+              <span class="material-symbols-outlined text-text-muted text-[26px]">add_photo_alternate</span>
+              <span class="text-xs text-text-muted"><span class="lang-en">Click to upload</span><span class="lang-zh">點擊上傳</span></span>
+              <span class="text-[11px] text-text-muted">JPG / PNG / HEIC · ≤ 5MB</span>
+            </div>
+          </div>
+          <div>
+            <label class="field-label req"><span class="lang-en">Student IC Photo — Back</span><span class="lang-zh">證件背面照片</span></label>
+            <input id="ic-back-input" type="file" accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic" class="hidden" onchange="handleImage('back', this.files[0])"/>
+            <div id="ic-back-zone" class="upload-zone" onclick="document.getElementById('ic-back-input').click()">
+              <span class="material-symbols-outlined text-text-muted text-[26px]">add_photo_alternate</span>
+              <span class="text-xs text-text-muted"><span class="lang-en">Click to upload</span><span class="lang-zh">點擊上傳</span></span>
+              <span class="text-[11px] text-text-muted">JPG / PNG / HEIC · ≤ 5MB</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label req" for="s-school"><span class="lang-en">Student Current School</span><span class="lang-zh">現就讀學校</span></label>
+          <select id="s-school" class="input" onchange="toggleSchoolOther()">
+            <option value="">—</option>
+            <option value="Tenby SST SEP">Tenby SST SEP</option>
+            <option value="Tenby International School SEP">Tenby International School SEP</option>
+            <option value="PinHwa 1">PinHwa 1</option>
+            <option value="PinHwa 2">PinHwa 2</option>
+            <option value="Peninsula International School">Peninsula International School</option>
+            <option value="KDU International School Klang">KDU International School Klang</option>
+            <option value="Others">Others 其他</option>
+          </select>
+        </div>
+        <div id="school-other-wrap" class="hidden">
+          <label class="field-label" for="s-school-other"><span class="lang-en">If Others, please specify</span><span class="lang-zh">如選 Others 請填寫</span></label>
+          <input id="s-school-other" type="text" class="input"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Course Information ─────────────────────────────────────────────── -->
+    <section class="section-card p-6">
+      <h2 class="text-base font-bold text-on-surface mb-5 pb-2.5 border-b border-border-subtle">
+        <span class="lang-en">Course Information</span>
+        <span class="lang-zh">課程資料</span>
+      </h2>
+
+      <div class="flex flex-col gap-4">
+        <div>
+          <label class="field-label req"><span class="lang-en">Courses (select at least one)</span><span class="lang-zh">課程（至少選擇一項）</span></label>
+          <div id="courses-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+            <!-- rendered by JS so EN/ZH labels stay in sync -->
+          </div>
+        </div>
+        <div id="course-other-wrap" class="hidden">
+          <label class="field-label" for="c-other"><span class="lang-en">If Others, please specify</span><span class="lang-zh">如選其他請填寫</span></label>
+          <input id="c-other" type="text" class="input"/>
+        </div>
+        <div>
+          <label class="field-label req" for="c-appointment"><span class="lang-en">Preferred Appointment Day &amp; Time</span><span class="lang-zh">預約諮詢時間</span></label>
+          <input id="c-appointment" type="text" class="input" data-en-ph="e.g. Saturday afternoon, 2–4pm" data-zh-ph="例如：星期六下午 2–4 時" placeholder="e.g. Saturday afternoon, 2–4pm"/>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Payment ────────────────────────────────────────────────────────── -->
+    <section class="section-card p-6">
+      <h2 class="text-base font-bold text-on-surface mb-5 pb-2.5 border-b border-border-subtle">
+        <span class="lang-en">Payment</span>
+        <span class="lang-zh">付款</span>
+      </h2>
+
+      <div class="flex flex-col gap-4">
+        <div class="bg-surface-container-low border border-border-subtle rounded-lg p-4 text-sm">
+          <p class="font-semibold text-on-surface mb-2">
+            <span class="lang-en">Payment Method</span><span class="lang-zh">付款方式</span>
+            <span class="text-text-muted font-normal">— RM150 <span class="lang-en">registration fee</span><span class="lang-zh">報名費</span></span>
+          </p>
+          <div class="flex flex-col gap-2 text-on-surface-variant">
+            <div class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-[18px] text-primary flex-shrink-0">account_balance</span>
+              <span><strong class="text-on-surface"><span class="lang-en">Bank Transfer:</span><span class="lang-zh">銀行轉帳：</span></strong>
+                AmBank Account 245-202-200-3182 (Setia Alam) — CREMONA MUSIC OF STRINGS</span>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="material-symbols-outlined text-[18px] text-primary flex-shrink-0">qr_code_2</span>
+              <span><strong class="text-on-surface">TnG E-wallet:</strong>
+                <span class="lang-en">kindly ask for QR code</span><span class="lang-zh">請向我們索取 QR code</span></span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="field-label req" for="pay-receipt-input"><span class="lang-en">Payment Receipt Upload</span><span class="lang-zh">付款收據上傳</span></label>
+          <input id="pay-receipt-input" type="file" accept=".jpg,.jpeg,.png,.heic,.pdf,image/jpeg,image/png,image/heic,application/pdf" class="hidden" onchange="handleReceipt(this.files[0])"/>
+          <div id="pay-receipt-zone" class="upload-zone" onclick="document.getElementById('pay-receipt-input').click()">
+            <span class="material-symbols-outlined text-text-muted text-[26px]">upload_file</span>
+            <span class="text-xs text-text-muted"><span class="lang-en">Click to upload receipt</span><span class="lang-zh">點擊上傳收據</span></span>
+            <span class="text-[11px] text-text-muted">JPG / PNG / HEIC / PDF · ≤ 10MB</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Terms & Conditions (English only) ──────────────────────────────── -->
+    <section class="section-card p-6">
+      <h2 class="text-base font-bold text-on-surface mb-4 pb-2.5 border-b border-border-subtle">Terms &amp; Conditions</h2>
+
+      <div class="tc-box">
+        <h3>Cremona Music of Strings — Terms and Conditions</h3>
+
+        <h3>Payment of Fees</h3>
+        <ul>
+          <li>All school fees are to be paid before the 7th of the month, failing which a penalty charge of RM20 will be levied after the 8th of the month. No reminder letters or invoices will be given. The school reserves the right to suspend or terminate the students' lessons until all outstanding fees are paid.</li>
+          <li>Lesson fees can be paid through Bank Transfer (CREMONA MUSIC OF STRINGS, Ambank, 245-2022003-182). Fees made through bank in and online transfers have to screenshot payment slip to 012-2988255 or Email: cremonastrings@gmail.com.</li>
+          <li>New students upon enrolment pay a non-refundable registration fee of RM150 as well as one month advance fee.</li>
+          <li>Fees are payable throughout the year, inclusive of school vacation periods and public holidays. If the teacher is absent, the teacher will arrange replacement lessons. Alternatively, the school will arrange for a relief teacher to take over the class.</li>
+          <li>To terminate lessons, one month (calendar month) advance written notice must be given. Upon notification of termination, the remaining 4 weeks' lesson will be made good subject to the teacher and the school justification. All lessons are to be consumed within the period of 4 consecutive weeks from the official date of termination. No additional replacement will be made if a lesson falls on public or school holidays.</li>
+          <li>Students who absent themselves for any period of the time must continue to pay fees. Otherwise it is considered a termination.</li>
+          <li>The school reserves all rights to amend its fee periodically.</li>
+        </ul>
+
+        <h3>Attendance</h3>
+        <ul>
+          <li>Students are responsible for regular attendance. Students who are late for a lesson cannot be guaranteed their full lesson time.</li>
+          <li>If lessons must be cancelled, parents may notify through mobile phone (012-2988255). Please give at least two days notice when cancelling a lesson. No rescheduling of lessons if given notification on its day.</li>
+          <li>Lessons missed due to medical conditions can be rescheduled if given a valid medical certificate.</li>
+          <li>Lessons change not more than 6 times a year.</li>
+          <li>Replacement lessons can only be rescheduled once.</li>
+          <li>Failure to notify absence of lessons are declared forfeit.</li>
+        </ul>
+
+        <h3>Trial Lesson Terms &amp; Conditions</h3>
+        <ol>
+          <li>The purpose of a trial lesson is to allow the teacher to assess the readiness and suitability of the student for the particular course.</li>
+          <li>It is not a guarantee that the trial student's enrolment for the course is confirmed. There is a possibility that the teacher may decide that the student is not ready or suited to pick up the instrument at that particular point in time. As such, the trial fee paid for the trial lesson is non-refundable and will not be used to offset for a course taken at a later stage in time.</li>
+          <li>Confirmation of the trial lesson is upon payment of trial fee, at least one day before the trial lesson date.</li>
+          <li>Trial fee can only be offset as one regular lesson fee if the student signs up on the same day of the trial lesson, for the same course type (e.g. instrument, individual/group, length of duration), under the same teacher (pending teacher's assessment). Thus, the course is considered to have commenced with immediate effect. There should be no postponement on the date of commencement of the course. Otherwise, it is considered as one trial lesson and is non-transferable and non-refundable.</li>
+          <li>All Trial Lessons are not given priority over regular lessons even if the trial fee has been paid. If there is no vacancy left in a group class, the trial student will be scheduled onto another time slot, depending on availability. Otherwise, the trial fee will be refunded upon request.</li>
+        </ol>
+
+        <h3>General</h3>
+        <ul>
+          <li>Lesson fees are payable through Bank Transfer or TnG e-wallet.</li>
+          <li>Cremona Music reserves the right to take pictures of students for publicity and promotional purposes.</li>
+          <li>Cremona Music reserves the right to include, delete or change any of the above terms and conditions with or without prior notice.</li>
+        </ul>
+      </div>
+
+      <label class="flex items-start gap-2.5 mt-4 cursor-pointer">
+        <input id="tc-agree" type="checkbox" class="mt-0.5 rounded border-border-subtle accent-secondary w-4 h-4 flex-shrink-0"/>
+        <span class="text-sm text-on-surface">I have read and agree to the Terms and Conditions above.</span>
+      </label>
+    </section>
+
+    <!-- ── Submit ─────────────────────────────────────────────────────────── -->
+    <button id="submit-btn" onclick="submitEnrollment()"
+            class="w-full bg-primary-container text-on-primary-fixed font-bold py-3.5 rounded-lg shadow-sm hover:brightness-105 active:scale-[0.99] transition-all text-sm flex items-center justify-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">send</span>
+      <span class="lang-en">Submit Enrollment</span><span class="lang-zh">提交報名</span>
+    </button>
+
+  </form>
+
+  <!-- ════════════════ SUCCESS SCREEN ════════════════ -->
+  <div id="success-screen" class="hidden section-card p-8 text-center flex flex-col items-center gap-4">
+    <div class="w-16 h-16 rounded-full flex items-center justify-center" style="background:#dcfce7;">
+      <span class="material-symbols-outlined text-[36px]" style="color:#1e6e3b;font-variation-settings:'FILL' 1;">check_circle</span>
+    </div>
+    <h2 class="text-xl font-bold text-on-surface">
+      <span class="lang-en">Enrollment submitted successfully!</span>
+      <span class="lang-zh">報名已成功提交！</span>
+    </h2>
+    <p class="text-sm text-text-muted leading-relaxed max-w-md">
+      <span class="lang-en">We will be in touch shortly. Please sign up for your parent portal account using this same email address to access weekly comments and your child's schedule.</span>
+      <span class="lang-zh">我們將盡快與您聯繫。請使用相同的電子郵件地址註冊您的家長入口網站帳戶，以查看每週評語及孩子的課程時間表。</span>
+    </p>
+    <a href="/index.html"
+       class="inline-flex items-center gap-2 mt-2 px-6 py-3 bg-primary-container text-on-primary-fixed font-bold rounded-lg shadow-sm hover:brightness-105 active:scale-95 transition-all text-sm">
+      <span class="material-symbols-outlined text-[18px]">person_add</span>
+      <span class="lang-en">Create Portal Account</span><span class="lang-zh">建立入口網站帳戶</span>
+    </a>
+  </div>
+
+</main>
+
+<footer class="bg-walnut py-6 px-5 mt-4">
+  <div class="max-w-3xl mx-auto text-center text-xs text-white/60 leading-relaxed">
+    <p class="font-semibold text-[#C9A227] mb-1">Cremona Music of Strings (SA0147428-W)</p>
+    <p>EduSentral, VB04-01, No.1, Jalan Setia Murni U13/51, Seksyen U13, Setia Alam, 40170 Shah Alam, Selangor, Malaysia</p>
+    <p class="mt-1">T +60 12 298 8255 | www.cremonastrings-music.com</p>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, collection, setDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject }
+  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey:            "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain:        "cremonamusic-portal.firebaseapp.com",
+  projectId:         "cremonamusic-portal",
+  storageBucket:     "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
+});
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+// ── Course definitions (canonical English value + bilingual label) ───────────
+const COURSES = [
+  { value: 'Piano',        en: 'Piano',                          zh: '鋼琴' },
+  { value: 'Violin',       en: 'Violin',                         zh: '小提琴' },
+  { value: 'Viola',        en: 'Viola',                          zh: '中提琴' },
+  { value: 'Cello',        en: 'Cello',                          zh: '大提琴' },
+  { value: 'Guitar',       en: 'Guitar (Acoustic/Electric)',     zh: '吉他（民謠/電子）' },
+  { value: 'Singing',      en: 'Singing',                        zh: '唱歌' },
+  { value: 'Percussion',   en: 'Percussion (Xylophone/Snare Drum)', zh: '打擊樂（木琴/小鼓）' },
+  { value: 'Music Theory', en: 'Music Theory',                   zh: '樂理班' },
+  { value: 'Others',       en: 'Others',                         zh: '其他' },
+];
+
+// ── Upload state ─────────────────────────────────────────────────────────────
+let icFrontFile = null;
+let icBackFile  = null;
+let receiptFile = null;
+
+// ── Language ─────────────────────────────────────────────────────────────────
+window.toggleLang = function() {
+  const cur = document.documentElement.getAttribute('data-lang');
+  setLang(cur === 'en' ? 'zh' : 'en');
+};
+
+function setLang(lang) {
+  document.documentElement.setAttribute('data-lang', lang);
+  document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
+  // swap placeholders
+  document.querySelectorAll('[data-en-ph]').forEach(el => {
+    el.placeholder = lang === 'zh' ? el.getAttribute('data-zh-ph') : el.getAttribute('data-en-ph');
+  });
+}
+
+// ── Render courses ───────────────────────────────────────────────────────────
+function renderCourses() {
+  const grid = document.getElementById('courses-grid');
+  grid.innerHTML = COURSES.map(c => `
+    <label class="flex items-center gap-2.5 px-3 py-2.5 border border-border-subtle rounded-lg cursor-pointer hover:bg-surface-container-low transition-colors">
+      <input type="checkbox" class="course-cb accent-secondary w-4 h-4 flex-shrink-0" value="${c.value}" data-other="${c.value === 'Others'}"/>
+      <span class="text-sm">
+        <span class="lang-en">${c.en}</span><span class="lang-zh">${c.zh}</span>
+      </span>
+    </label>`).join('');
+  grid.querySelectorAll('.course-cb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      if (cb.dataset.other === 'true') {
+        document.getElementById('course-other-wrap').classList.toggle('hidden', !cb.checked);
+      }
+    });
+  });
+}
+renderCourses();
+
+// ── Conditional field toggles ────────────────────────────────────────────────
+window.toggleHeardOther = function() {
+  const show = document.getElementById('p-heard').value === 'Other';
+  document.getElementById('heard-other-wrap').classList.toggle('hidden', !show);
+};
+window.toggleSiblings = function() {
+  const yes = document.querySelector('input[name="siblings"]:checked')?.value === 'yes';
+  document.getElementById('siblings-name-wrap').classList.toggle('hidden', !yes);
+};
+window.toggleSchoolOther = function() {
+  const show = document.getElementById('s-school').value === 'Others';
+  document.getElementById('school-other-wrap').classList.toggle('hidden', !show);
+};
+
+// ── File handling ────────────────────────────────────────────────────────────
+const IMG_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
+
+window.handleImage = function(side, file) {
+  if (!file) return;
+  const okType = IMG_TYPES.includes(file.type) || /\.(jpg|jpeg|png|heic)$/i.test(file.name);
+  if (!okType) { showToast(t('Only JPG, PNG, or HEIC images are allowed.', '只接受 JPG、PNG 或 HEIC 圖片。'), 'error'); return; }
+  if (file.size > 5 * 1024 * 1024) { showToast(t('Image must be under 5 MB.', '圖片必須小於 5 MB。'), 'error'); return; }
+
+  if (side === 'front') icFrontFile = file; else icBackFile = file;
+  fillZone(side === 'front' ? 'ic-front-zone' : 'ic-back-zone', file, true);
+};
+
+window.handleReceipt = function(file) {
+  if (!file) return;
+  const okType = IMG_TYPES.includes(file.type) || file.type === 'application/pdf'
+              || /\.(jpg|jpeg|png|heic|pdf)$/i.test(file.name);
+  if (!okType) { showToast(t('Receipt must be an image or PDF.', '收據必須為圖片或 PDF。'), 'error'); return; }
+  if (file.size > 10 * 1024 * 1024) { showToast(t('Receipt must be under 10 MB.', '收據必須小於 10 MB。'), 'error'); return; }
+
+  receiptFile = file;
+  const isImg = IMG_TYPES.includes(file.type) || /\.(jpg|jpeg|png|heic)$/i.test(file.name);
+  fillZone('pay-receipt-zone', file, isImg);
+};
+
+function fillZone(zoneId, file, showThumb) {
+  const zone = document.getElementById(zoneId);
+  zone.classList.add('filled');
+  const name = escHtml(file.name);
+  let inner = `<span class="material-symbols-outlined text-[22px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">check_circle</span>
+               <span class="text-xs font-medium px-1 truncate max-w-full" style="color:#8B6020;">${name}</span>`;
+  if (showThumb) {
+    const url = URL.createObjectURL(file);
+    inner += `<img src="${url}" class="thumb" alt="preview"/>`;
+  } else {
+    inner += `<span class="material-symbols-outlined text-[28px] text-text-muted mt-1">picture_as_pdf</span>`;
+  }
+  zone.innerHTML = inner;
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function t(en, zh) { return document.documentElement.getAttribute('data-lang') === 'zh' ? zh : en; }
+function escHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function val(id) { return document.getElementById(id).value.trim(); }
+function extOf(file) {
+  const n = file.name.toLowerCase();
+  if (n.endsWith('.png')) return 'png';
+  if (n.endsWith('.heic')) return 'heic';
+  if (n.endsWith('.pdf')) return 'pdf';
+  return 'jpg';
+}
+function showToast(msg, type = 'error') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 4000);
+}
+
+// ── Submit ───────────────────────────────────────────────────────────────────
+window.submitEnrollment = async function() {
+  // Collect
+  const parentEmail = val('p-email');
+  const parentName  = val('p-name');
+  const parentAddr  = val('p-address');
+  const parentPhone = val('p-phone');
+  const heard       = val('p-heard');
+  const heardOther  = val('p-heard-other');
+  const siblings    = document.querySelector('input[name="siblings"]:checked')?.value || 'no';
+  const siblingName = val('p-siblings-name');
+  const sName       = val('s-name');
+  const sDob        = val('s-dob');
+  const sIc         = val('s-ic');
+  const school      = val('s-school');
+  const schoolOther = val('s-school-other');
+  const courses     = Array.from(document.querySelectorAll('.course-cb:checked')).map(cb => cb.value);
+  const courseOther = val('c-other');
+  const appointment = val('c-appointment');
+  const agreed      = document.getElementById('tc-agree').checked;
+
+  // Validate
+  if (!parentEmail) return showToast(t('Please enter your email.', '請輸入電子郵件。'));
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail)) return showToast(t('Please enter a valid email.', '請輸入有效的電子郵件。'));
+  if (!parentName)  return showToast(t('Please enter parent full name.', '請輸入家長姓名。'));
+  if (!parentAddr)  return showToast(t('Please enter your home address.', '請輸入現居地址。'));
+  if (!parentPhone) return showToast(t('Please enter your contact number.', '請輸入聯絡電話。'));
+  if (!sName)       return showToast(t('Please enter the student name.', '請輸入學生姓名。'));
+  if (!sDob)        return showToast(t('Please enter the student date of birth.', '請輸入學生出生年月日。'));
+  if (!sIc)         return showToast(t('Please enter the student IC / passport number.', '請輸入學生證件號碼。'));
+  if (!icFrontFile) return showToast(t('Please upload the IC front photo.', '請上傳證件正面照片。'));
+  if (!icBackFile)  return showToast(t('Please upload the IC back photo.', '請上傳證件背面照片。'));
+  if (!school)      return showToast(t('Please select the student current school.', '請選擇現就讀學校。'));
+  if (school === 'Others' && !schoolOther) return showToast(t('Please specify the school.', '請填寫學校名稱。'));
+  if (!courses.length) return showToast(t('Please select at least one course.', '請至少選擇一項課程。'));
+  if (courses.includes('Others') && !courseOther) return showToast(t('Please specify the other course.', '請填寫其他課程。'));
+  if (!appointment) return showToast(t('Please enter your preferred appointment time.', '請填寫預約諮詢時間。'));
+  if (!receiptFile) return showToast(t('Please upload your payment receipt.', '請上傳付款收據。'));
+  if (!agreed)      return showToast(t('Please agree to the Terms and Conditions.', '請同意條款與細則。'));
+
+  const btn = document.getElementById('submit-btn');
+  const btnHtml = btn.innerHTML;
+  btn.disabled = true;
+
+  // Reserve a student doc id up front so Storage paths and the Firestore doc share it
+  const studentRef = doc(collection(db, 'students'));
+  const sid = studentRef.id;
+  const uploaded = []; // for rollback
+
+  try {
+    // ── Uploads ──
+    btn.innerHTML = '<div class="spinner"></div>' + `<span>${t('Uploading photos…','正在上傳照片…')}</span>`;
+    const frontRef   = sRef(storage, `studentIC/${sid}/front.${extOf(icFrontFile)}`);
+    const backRef    = sRef(storage, `studentIC/${sid}/back.${extOf(icBackFile)}`);
+    const receiptRef = sRef(storage, `enrollmentReceipts/${sid}/receipt.${extOf(receiptFile)}`);
+
+    await uploadBytes(frontRef, icFrontFile, { contentType: icFrontFile.type || 'image/jpeg' });
+    uploaded.push(frontRef);
+    await uploadBytes(backRef, icBackFile, { contentType: icBackFile.type || 'image/jpeg' });
+    uploaded.push(backRef);
+
+    btn.innerHTML = '<div class="spinner"></div>' + `<span>${t('Uploading receipt…','正在上傳收據…')}</span>`;
+    await uploadBytes(receiptRef, receiptFile, { contentType: receiptFile.type || 'application/octet-stream' });
+    uploaded.push(receiptRef);
+
+    const [icFrontUrl, icBackUrl, paymentReceiptUrl] = await Promise.all([
+      getDownloadURL(frontRef), getDownloadURL(backRef), getDownloadURL(receiptRef),
+    ]);
+
+    // ── Firestore doc ──
+    btn.innerHTML = '<div class="spinner"></div>' + `<span>${t('Submitting…','正在提交…')}</span>`;
+    await setDoc(studentRef, {
+      fullName:                 sName,
+      dateOfBirth:              sDob,
+      icNumber:                 sIc,
+      icFrontUrl,
+      icBackUrl,
+      parentName,
+      parentEmails:             [parentEmail.toLowerCase()],
+      parentPhone,
+      parentAddress:            parentAddr,
+      howHeardAboutUs:          heard === 'Other' ? `Other: ${heardOther}` : heard,
+      siblingsAtCremona:        siblings === 'yes' ? `Yes: ${siblingName}` : 'No',
+      currentSchool:            school === 'Others' ? `Others: ${schoolOther}` : school,
+      courses:                  courses.map(c => c === 'Others' ? `Others: ${courseOther}` : c),
+      preferredAppointmentTime: appointment,
+      paymentReceiptUrl,
+      registeredViaEnrollmentForm: true,
+      createdAt:                serverTimestamp(),
+      status:                   'pending',
+    });
+
+    // ── Success ──
+    document.getElementById('enroll-form').classList.add('hidden');
+    document.getElementById('success-screen').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch (e) {
+    console.error('[enroll submit]', e);
+    // Best-effort rollback of uploaded files so a retry doesn't orphan storage objects
+    await Promise.allSettled(uploaded.map(r => deleteObject(r).catch(() => {})));
+    showToast(t('Submission failed. Please check your connection and try again.',
+                '提交失敗，請檢查您的網絡連線後再試一次。'), 'error');
+    btn.disabled = false;
+    btn.innerHTML = btnHtml;
+  }
+};
+</script>
+
+</body>
+</html>
