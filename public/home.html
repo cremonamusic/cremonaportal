@@ -2,9 +2,8 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Home | Cremona Music Portal</title>
+<title>Cremona Music Portal - Home</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -13,16 +12,16 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#C9A227", "primary-container": "#F5E5B0", "on-primary-container": "#8B6020",
-          "on-primary-fixed": "#3E2C23", "primary-fixed": "#F0E8C0", "primary-fixed-dim": "#D4A520",
-          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0", "on-secondary-fixed": "#3E2C23",
-          "secondary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
-          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "surface-container": "#F0E8D6",
-          "surface-container-low": "#F5EFE4", "surface-container-high": "#EAE0CE",
-          "surface-container-highest": "#E4D8C2", "surface-container-lowest": "#FFFDF9",
-          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle": "#E8DCC8", "outline-variant": "#D4BCA0", "outline": "#7A5230",
-          "text-muted": "#8B6B52", "error": "#ba1a1a", "error-container": "#ffdad6",
+          "primary": "#3B2A1E", "primary-container": "#C8A951", "on-primary-container": "#5A4A22",
+          "on-primary-fixed": "#2A1D14", "primary-fixed": "#F0E2C4", "primary-fixed-dim": "#C8A951",
+          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC", "on-secondary-fixed": "#2A1D14",
+          "secondary-container": "#9A7524", "on-secondary-container": "#FFFDF8",
+          "surface": "#FAF6EF", "surface-white": "#FFFFFF", "surface-container": "#F1E9DC",
+          "surface-container-low": "#F6F0E6", "surface-container-high": "#EAE0D0",
+          "surface-container-highest": "#E3D8C6", "surface-container-lowest": "#ffffff",
+          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle": "#E2D7C6", "outline-variant": "#D8C5A8", "outline": "#8A7A63",
+          "text-muted": "#7A6A57", "error": "#B3261E", "error-container": "#F9DEDC",
           "background": "#FAF6EF"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
@@ -33,28 +32,16 @@
 <style>
   body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,0.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .quick-card { transition: transform .15s ease, box-shadow .15s ease; }
   .quick-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(33,33,33,0.12); }
   .quick-card:active { transform: scale(0.97); }
   .recent-item { transition: background .15s ease; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
-<body class="text-on-surface min-h-screen flex flex-col">
+<body class="text-on-surface min-h-screen flex flex-col" data-portal="teacher" data-page="home">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -64,17 +51,38 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
-<main class="flex-grow max-w-3xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/home"     class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Home</a>
+        <a href="/books"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/level-tests"      class="whitespace-nowrap text-sm font-medium text-text-muted hover:text-primary transition-colors">Level Tests</a>
+        <a href="/comments"           class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a href="/salary"           class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
+      </nav>
+    </div>
+    <a href="/account"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </a>
+  </div>
+</header>
 
-  <!-- Announcements — populated by JS, hidden entirely when empty -->
-  <div id="announcements-banner" class="hidden flex flex-col gap-4"></div>
+<main class="flex-grow max-w-3xl mx-auto w-full px-6 py-8 flex flex-col gap-8">
 
   <!-- Welcome Banner -->
   <section class="bg-primary-container/20 border border-primary-fixed rounded-2xl px-8 py-6 relative overflow-hidden">
     <div class="relative z-10 flex items-center justify-between gap-4">
       <!-- Left: greeting + date -->
       <div class="flex items-center gap-4">
-        <span class="material-symbols-outlined text-[36px] text-amber-400 flex-shrink-0" style="font-variation-settings:'FILL' 1;">wb_sunny</span>
+        <span id="greeting-icon" class="material-symbols-outlined text-[36px] text-amber-400 flex-shrink-0" style="font-variation-settings:'FILL' 1;">wb_sunny</span>
         <div>
           <div class="flex items-center gap-2 mb-0.5">
             <p id="greeting-text" class="text-sm text-text-muted font-medium">Good morning</p>
@@ -83,11 +91,64 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <p id="date-text" class="text-base font-bold text-on-surface">—</p>
         </div>
       </div>
+      <!-- Right: Start Class button -->
+      <a id="start-class-btn" href="https://meet.google.com" target="_blank" rel="noopener"
+         class="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white font-bold text-sm rounded-full shadow-md hover:brightness-110 active:scale-95 transition-all flex-shrink-0">
+        <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">videocam</span>
+        <span class="hidden sm:inline">Start Class</span>
+      </a>
     </div>
     <!-- decorative blobs -->
     <div class="absolute -right-10 -top-10 w-40 h-40 bg-primary-container/30 rounded-full blur-3xl pointer-events-none"></div>
     <div class="absolute -right-4 -bottom-8 w-28 h-28 bg-primary-fixed/40 rounded-full blur-2xl pointer-events-none"></div>
   </section>
+
+  <!-- Dashboard stats -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <a href="/schedule" class="bg-surface-white border border-border-subtle rounded-2xl p-4 hover:border-secondary transition-colors">
+      <p id="st-classes" class="text-2xl font-extrabold text-secondary">–</p>
+      <p class="text-xs text-text-muted font-semibold mt-1">Classes Today</p>
+    </a>
+    <a href="/students-teacher" class="bg-surface-white border border-border-subtle rounded-2xl p-4 hover:border-secondary transition-colors">
+      <p id="st-students" class="text-2xl font-extrabold">–</p>
+      <p class="text-xs text-text-muted font-semibold mt-1">My Students</p>
+    </a>
+    <a href="/level-tests" class="bg-surface-white border border-border-subtle rounded-2xl p-4 hover:border-secondary transition-colors">
+      <p id="st-tests" class="text-2xl font-extrabold text-success" style="color:#1e6e3b;">–</p>
+      <p class="text-xs text-text-muted font-semibold mt-1">Level Tests Done</p>
+    </a>
+    <a href="/messages" class="bg-surface-white border border-border-subtle rounded-2xl p-4 hover:border-secondary transition-colors">
+      <p id="st-unread" class="text-2xl font-extrabold" style="color:#7c3aed;">–</p>
+      <p class="text-xs text-text-muted font-semibold mt-1">Unread Messages</p>
+    </a>
+    <a href="/comments" class="bg-surface-white border border-border-subtle rounded-2xl p-4 hover:border-secondary transition-colors">
+      <p id="st-reports-due" class="text-2xl font-extrabold text-error">–</p>
+      <p class="text-xs text-text-muted font-semibold mt-1">Comments to Write</p>
+    </a>
+    <a href="/documents" class="bg-surface-white border border-border-subtle rounded-2xl p-4 hover:border-secondary transition-colors">
+      <p id="st-docs" class="text-2xl font-extrabold text-amber-600">–</p>
+      <p class="text-xs text-text-muted font-semibold mt-1">To Sign</p>
+    </a>
+  </div>
+
+  <!-- Today's classes + attention -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-on-surface">Today's Classes</h2>
+        <a href="/schedule" class="text-xs font-bold text-secondary hover:underline">Full Schedule →</a>
+      </div>
+      <div id="today-classes" class="flex flex-col gap-2">
+        <p class="text-sm text-text-muted">Loading…</p>
+      </div>
+    </section>
+    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+      <h2 class="text-base font-semibold text-on-surface mb-4">Needs Your Attention</h2>
+      <div id="attention" class="flex flex-col gap-2">
+        <p class="text-sm text-text-muted">Loading…</p>
+      </div>
+    </section>
+  </div>
 
   <!-- Quick Access -->
   <section>
@@ -95,7 +156,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
       <!-- Books -->
-      <a href="/books.html"
+      <a href="/books"
          class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
         <div class="w-14 h-14 rounded-xl bg-primary-container/20 flex items-center justify-center flex-shrink-0">
           <span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings:'FILL' 1;">menu_book</span>
@@ -108,7 +169,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </a>
 
       <!-- Schedule -->
-      <a href="/schedule.html"
+      <a href="/schedule"
          class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
         <div class="w-14 h-14 rounded-xl bg-secondary-fixed/40 flex items-center justify-center flex-shrink-0">
           <span class="material-symbols-outlined text-3xl text-secondary" style="font-variation-settings:'FILL' 1;">calendar_month</span>
@@ -121,9 +182,9 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </a>
 
       <!-- Messages -->
-      <a href="/messages.html"
+      <a href="/messages"
          class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f5f3ff;">
+        <div class="plate-violet w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f5f3ff;">
           <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#7c3aed;">forum</span>
         </div>
         <div>
@@ -134,9 +195,9 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </a>
 
       <!-- Students -->
-      <a href="/students-teacher.html"
+      <a href="/students-teacher"
          class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f0fdfa;">
+        <div class="plate-teal w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#f0fdfa;">
           <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#0f766e;">group</span>
         </div>
         <div>
@@ -147,16 +208,55 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </a>
 
       <!-- Comments -->
-      <a href="/comments.html"
+      <a href="/comments"
          class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
-        <div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff7ed;">
-          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#c2410c;">chat</span>
+        <div class="plate-orange w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff7ed;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#c2410c;">description</span>
         </div>
         <div>
           <p class="font-bold text-base text-on-surface">Comments</p>
-          <p class="text-sm text-text-muted mt-0.5">Write and manage student comments</p>
+          <p class="text-sm text-text-muted mt-0.5">Write and manage student reports</p>
         </div>
         <span class="material-symbols-outlined text-outline ml-auto">chevron_right</span>
+      </a>
+
+      <!-- Gmail -->
+      <a href="https://mail.google.com/" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+          <svg viewBox="0 0 48 48" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M6 40h6V23.8L4 18v18q0 1.65 1.175 2.825T6 40Z"/><path fill="#34A853" d="M36 40h6q1.65 0 2.825-1.175T46 36V18l-8 5.8Z"/><path fill="#FBBC04" d="M36 12v11.8l8-5.8V14q0-3.7-3.25-5.8Z"/><path fill="#EA4335" d="M12 23.8V12L24 21l12-9v11.8L24 33Z"/><path fill="#C5221F" d="M4 14v3.8l8 5.8V12L7.25 8.2Q4 10.3 4 14Z"/></svg>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">Gmail</p>
+          <p class="text-sm text-text-muted mt-0.5">Open Gmail</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
+      </a>
+
+      <!-- EBricks -->
+      <a href="https://www.ebricks.co.kr/" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="plate-amber w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#fff3e0;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#ff6600;">auto_stories</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">EBricks</p>
+          <p class="text-sm text-text-muted mt-0.5">Digital English learning platform</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
+      </a>
+
+      <!-- NE Times -->
+      <a href="https://www.netimes.co.kr/" target="_blank" rel="noopener"
+         class="quick-card bg-surface-white border border-border-subtle rounded-2xl p-6 flex items-center gap-5 shadow-sm cursor-pointer">
+        <div class="plate-green w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0" style="background:#e8f5e9;">
+          <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;color:#2e7d32;">newspaper</span>
+        </div>
+        <div>
+          <p class="font-bold text-base text-on-surface">NE Times</p>
+          <p class="text-sm text-text-muted mt-0.5">English news for students</p>
+        </div>
+        <span class="material-symbols-outlined text-outline ml-auto">open_in_new</span>
       </a>
 
     </div>
@@ -179,8 +279,11 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 <!-- Footer -->
 <footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
   <div class="max-w-3xl mx-auto px-6 flex justify-between items-center">
-    <p class="text-xs text-text-muted">© 2025 Cremona Music.</p>
-    <a href="/account.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+    <p class="text-xs text-text-muted">© 2026 Cremona Music Portal.</p>
+    <div class="flex gap-4">
+      <a href="/guide?role=teacher" class="text-xs text-text-muted hover:text-primary transition-colors underline">User Guide</a>
+      <a href="/account" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+    </div>
   </div>
 </footer>
 
@@ -188,56 +291,183 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, collection, query, where, limit, getDocs, onSnapshot
+  getFirestore, doc, getDoc, collection, query, where, limit, getDocs, Timestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
 
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
     const data = snap.data();
-    if (data.role === 'admin') { window.location.href = '/admin/accounts.html'; return; }
-    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+    if (data.role === 'admin') { window.location.href = '/admin/dashboard'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/'; return; }
 
-    // Greeting
+    // Greeting — text, icon, and color all follow the time of day
     const hour = new Date().getHours();
-    document.getElementById('greeting-text').textContent =
-      hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+    const greeting =
+      hour < 5  ? { text: 'Good night',     icon: 'bedtime',     color: '#6366f1' } :
+      hour < 12 ? { text: 'Good morning',   icon: 'wb_sunny',    color: '#fbbf24' } :
+      hour < 17 ? { text: 'Good afternoon', icon: 'clear_day',   color: '#f59e0b' } :
+      hour < 21 ? { text: 'Good evening',   icon: 'wb_twilight', color: '#f97316' } :
+                  { text: 'Good night',     icon: 'bedtime',     color: '#6366f1' };
+    document.getElementById('greeting-text').textContent = greeting.text;
+    const gIcon = document.getElementById('greeting-icon');
+    gIcon.textContent = greeting.icon;
+    gIcon.classList.remove('text-amber-400');
+    gIcon.style.color = greeting.color;
 
     // Date
     document.getElementById('date-text').textContent =
       new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    // Load recent books
-    await loadRecent(user.uid);
+    // Meet link — ensure absolute URL so it doesn't resolve relative to the app origin
+    let meetLink = data.googleMeetLink || 'https://meet.google.com';
+    if (meetLink && !/^https?:\/\//i.test(meetLink)) meetLink = 'https://' + meetLink;
+    document.getElementById('start-class-btn').href = meetLink;
 
-    // Live announcements banner
-    startAnnouncementsListener('teacher');
+    // Load recent books
+    loadDashboard(user.uid);
+    await loadRecent(user.uid);
 
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
     console.error(e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
 
+function escT(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+async function loadDashboard(uid) {
+  // today's classes
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const end = new Date(); end.setHours(23, 59, 59, 999);
+  getDocs(query(collection(db, 'sessions'),
+      where('teacherUid', '==', uid)))
+    .then(snap => {
+      const all = snap.docs.map(x => ({ id: x.id, ...x.data() }));
+      const today = all
+        .filter(s => s.dateTime?.seconds * 1000 >= start.getTime() && s.dateTime?.seconds * 1000 <= end.getTime())
+        .sort((a, b) => (a.dateTime?.seconds || 0) - (b.dateTime?.seconds || 0));
+      document.getElementById('st-classes').textContent = today.filter(s => s.status !== 'cancelled').length;
+      const box = document.getElementById('today-classes');
+      if (!today.length) {
+        box.innerHTML = '<p class="text-sm text-text-muted italic">No classes today — enjoy the free time! 🌤</p>';
+        return;
+      }
+      box.innerHTML = today.slice(0, 8).map(s => {
+        const when = s.dateTime?.seconds ? new Date(s.dateTime.seconds * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) : '—';
+        const cancelled = s.status === 'cancelled';
+        return `<div class="flex items-center gap-3 px-3 py-2 rounded-lg border border-border-subtle ${cancelled ? 'opacity-50' : ''}">
+          <span class="text-sm font-bold w-12 flex-shrink-0 ${cancelled ? 'line-through' : 'text-secondary'}">${escT(when)}</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold truncate">${escT(s.studentName || '—')}</p>
+            <p class="text-xs text-text-muted truncate">${escT(s.subject || '')}${s.duration ? ' · ' + s.duration + ' min' : ''}</p>
+          </div>
+          ${cancelled ? '<span class="text-[10px] font-bold uppercase text-error flex-shrink-0">Cancelled</span>'
+            : s.isReplacement ? '<span class="text-[10px] font-bold uppercase" style="color:#7c3aed;">보강</span>'
+            : (s.meetLink ? `<a href="${escT(s.meetLink)}" target="_blank" rel="noopener" class="text-xs font-bold text-white bg-emerald-600 rounded-full px-3 py-1 flex-shrink-0 hover:brightness-110">Join</a>` : '')}
+        </div>`;
+      }).join('');
+    }).catch(() => {
+      document.getElementById('today-classes').innerHTML = '<p class="text-xs" style="color:#B3261E;">Failed to load classes.</p>';
+      document.getElementById('st-classes').textContent = '—';
+    });
+
+  // my students
+  getDocs(query(collection(db, 'students'), where('assignedTeachers', 'array-contains', uid)))
+    .then(snap => { document.getElementById('st-students').textContent = snap.size; })
+    .catch(() => { document.getElementById('st-students').textContent = '—'; });
+
+  // unread conversations — same rule as the Messages page:
+  // last message exists, wasn't sent by me, and is newer than my read marker
+  getDocs(query(collection(db, 'conversations'), where('members', 'array-contains', uid)))
+    .then(snap => {
+      let unread = 0;
+      snap.forEach(x => {
+        const c = x.data();
+        if (!c.lastMessage || !c.lastMessageBy || c.lastMessageBy === uid) return;
+        const lastMsg = c.lastMessageAt?.seconds ? c.lastMessageAt.seconds * 1000 : 0;
+        const lastRead = c.lastRead?.[uid]?.seconds ? c.lastRead[uid].seconds * 1000 : 0;
+        if (lastMsg > lastRead) unread++;
+      });
+      document.getElementById('st-unread').textContent = unread;
+    }).catch(() => { document.getElementById('st-unread').textContent = '—'; });
+
+  // level tests completed
+  getDocs(query(collection(db, 'levelTestCodes'), where('teacherUid', '==', uid)))
+    .then(snap => {
+      document.getElementById('st-tests').textContent = snap.docs.filter(x => x.data().used).length;
+    }).catch(() => { document.getElementById('st-tests').textContent = '—'; });
+
+  // needs attention: contracts waiting for my signature + pending certificate requests
+  Promise.all([
+    getDocs(query(collection(db, 'contracts'), where('teacherUid', '==', uid))).catch(() => null),
+    getDocs(query(collection(db, 'certificateRequests'), where('teacherUid', '==', uid))).catch(() => null),
+    getDocs(query(collection(db, 'reportRequests'), where('teacherUid', '==', uid), where('status', '==', 'pending'))).catch(() => null),
+    getDocs(query(collection(db, 'homework'), where('teacherUid', '==', uid), where('status', '==', 'submitted'))).catch(() => null),
+  ]).then(([contracts, certs, reportReqs, hwSubs]) => {
+    const items = [];
+    if (hwSubs) hwSubs.docs.forEach(x => {
+      const h = x.data();
+      items.push(`<a href="/homework" class="flex items-center gap-3 px-3 py-2 rounded-lg border border-purple-200 hover:border-purple-400 transition-colors" style="background:rgba(250,245,255,.6);">
+        <span class="material-symbols-outlined text-[18px]" style="color:#7c3aed;">photo_library</span>
+        <span class="text-sm min-w-0 truncate"><b>${escT(h.studentName || 'A student')}</b> submitted homework — review it</span>
+      </a>`);
+    });
+    document.getElementById('st-reports-due').textContent = reportReqs ? reportReqs.size : '—';
+    if (reportReqs) reportReqs.docs
+      .sort((a, b) => (a.data().studentName || '').localeCompare(b.data().studentName || ''))
+      .forEach(x => {
+        const r = x.data();
+        const monthLabel = r.period ? new Date(r.period + '-15').toLocaleDateString('en-US', { month: 'long' }) : 'this month';
+        items.push(`<a href="/comments" class="flex items-center gap-3 px-3 py-2 rounded-lg border border-blue-200 hover:border-secondary transition-colors" style="background:rgba(239,246,255,.6);">
+          <span class="material-symbols-outlined text-secondary text-[18px]">edit_note</span>
+          <span class="text-sm min-w-0 truncate">Write the <b>${escT(monthLabel)}</b> report for <b>${escT(r.studentName || 'a student')}</b></span>
+        </a>`);
+      });
+    let toSign = 0;
+    if (contracts) contracts.forEach(x => {
+      const c = x.data();
+      if (c.status !== 'pending_signature') return;
+      toSign++;
+      items.push(`<a href="/contract?id=${x.id}" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-lg border border-amber-200 hover:border-amber-400 transition-colors" style="background:rgba(255,251,235,.6);">
+        <span class="material-symbols-outlined text-amber-600 text-[18px]">contract_edit</span>
+        <span class="text-sm min-w-0 truncate">Contract "<b>${escT(c.title || 'Contract')}</b>" is waiting for your signature</span>
+      </a>`);
+    });
+    document.getElementById('st-docs').textContent = toSign;
+    if (certs) certs.forEach(x => {
+      const r = x.data();
+      if (r.status === 'approved' && r.decidedAt?.seconds && Date.now() - r.decidedAt.seconds * 1000 < 7 * 86400000) {
+        items.push(`<a href="/certificate?id=${x.id}" target="_blank" class="flex items-center gap-3 px-3 py-2 rounded-lg border border-green-200 hover:border-green-400 transition-colors" style="background:rgba(240,253,244,.6);">
+          <span class="material-symbols-outlined text-[18px]" style="color:#1e6e3b;">workspace_premium</span>
+          <span class="text-sm min-w-0 truncate">Your certificate was approved — open &amp; print it</span>
+        </a>`);
+      }
+    });
+    document.getElementById('attention').innerHTML = items.join('')
+      || '<p class="text-sm text-text-muted italic">All clear — nothing waiting on you. 🎉</p>';
+  });
+}
+
 async function loadRecent(uid) {
-  // Field names confirmed from reader.html:
+  // Field names confirmed from reader:
   //   teacherUid  — the auth user's UID
   //   fileAccessed — bookData.title (book title shown to user)
   //   bookId       — Firestore doc ID in the 'books' collection
@@ -286,7 +516,7 @@ async function loadRecent(uid) {
         <div class="text-center py-8 text-text-muted">
           <span class="material-symbols-outlined text-4xl block mb-2 opacity-40">history</span>
           <p class="text-sm">No recently viewed books yet.</p>
-          <a href="/books.html" class="text-sm text-secondary hover:underline mt-1 inline-block">Browse Books →</a>
+          <a href="/books" class="text-sm text-secondary hover:underline mt-1 inline-block">Browse Books →</a>
         </div>`;
       return;
     }
@@ -294,7 +524,7 @@ async function loadRecent(uid) {
     container.innerHTML = unique.map((log) => {
       const ts    = log.timestamp?.toDate ? log.timestamp.toDate() : null;
       const when  = ts ? relativeTime(ts) : '';
-      const href  = log.bookId ? `/reader.html?bookId=${log.bookId}` : (log.r2Url || log.driveUrl || '/books.html');
+      const href  = log.bookId ? `/reader?bookId=${log.bookId}` : (log.r2Url || log.driveUrl || '/books');
       const isExternal = href.startsWith('http');
       return `
       <a href="${href}" ${isExternal ? 'target="_blank" rel="noopener"' : ''}
@@ -318,7 +548,7 @@ async function loadRecent(uid) {
       <div class="text-center py-8 text-text-muted">
         <span class="material-symbols-outlined text-4xl block mb-2 opacity-40">history</span>
         <p class="text-sm">${isPermission ? 'Permission denied — check Firestore rules.' : 'Could not load recent books.'}</p>
-        <a href="/books.html" class="text-sm text-secondary hover:underline mt-1 inline-block">Browse Books →</a>
+        <a href="/books" class="text-sm text-secondary hover:underline mt-1 inline-block">Browse Books →</a>
       </div>`;
   }
 }
@@ -335,94 +565,8 @@ function relativeTime(date) {
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
-
-// ── Announcements banner ──────────────────────────────────────────────────────
-// Single array-contains filter (no composite index needed); active + ordering
-// + the 2-item cap are all done client-side in the snapshot callback.
-function startAnnouncementsListener(role) {
-  const container = document.getElementById('announcements-banner');
-  onSnapshot(
-    query(collection(db, 'announcements'), where('audience', 'array-contains', role)),
-    snap => {
-      const anns = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .filter(a => a.active)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .slice(0, 2);
-
-      if (!anns.length) {
-        container.innerHTML = '';
-        container.classList.add('hidden');
-        return;
-      }
-
-      container.classList.remove('hidden');
-      container.innerHTML = anns.map(buildAnnouncementCardHtml).join('');
-    },
-    err => console.error('[announcements listener]', err)
-  );
-}
-
-// Renders one announcement card. Kept byte-identical across home.html,
-// parent/dashboard.html, and the admin live preview so the admin's preview
-// always matches what users actually see.
-function buildAnnouncementCardHtml(a) {
-  const bg       = a.bgColor   || '#F5E5B0';
-  const text     = a.textColor || '#3E2C23';
-  const hasPhoto = !!a.photoUrl;
-  const position = a.photoPosition || 'left';    // left | right | top | center | background
-  const fit      = a.photoFit      || 'cover';   // cover | contain | original
-  const size     = (a.photoSize    != null) ? a.photoSize    : 100;  // 10-100 (%)
-  const radius   = (a.photoRadius  != null) ? a.photoRadius  : 8;    // 0-50 (% border-radius)
-  const opacity  = (a.photoOpacity != null) ? a.photoOpacity : 100;  // 0-100 (%)
-
-  const objectFit  = fit === 'original' ? '' : `object-fit:${fit};`;
-  const radiusPct  = `border-radius:${radius}%;`;
-  const opacityDec = Math.max(0, Math.min(100, opacity)) / 100;
-
-  const textHtml = `
-    ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
-    <p class="text-sm leading-relaxed whitespace-pre-wrap">${escHtml(a.body || '')}</p>
-    ${a.linkUrl ? `<a href="${escHtml(a.linkUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel || 'Learn more')} →</a>` : ''}`;
-
-  if (hasPhoto && position === 'background') {
-    return `
-    <div class="relative overflow-hidden" style="background:${bg};color:${text};min-height:140px;${radiusPct}">
-      <img src="${escHtml(a.photoUrl)}" class="absolute inset-0 w-full h-full" style="${objectFit}opacity:${opacityDec};"/>
-      <div class="relative z-10 p-5">${textHtml}</div>
-    </div>`;
-  }
-
-  const leftRightPx = Math.round(60 + (size / 100) * 180);   // 60–240px
-  const topCenterPx = Math.round(80 + (size / 100) * 220);   // 80–300px
-
-  let photoHtml = '';
-  if (hasPhoto) {
-    if (position === 'left' || position === 'right') {
-      const h = fit === 'original' ? 'height:auto;' : `height:${leftRightPx}px;`;
-      photoHtml = `<img src="${escHtml(a.photoUrl)}" class="flex-shrink-0" style="width:${leftRightPx}px;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
-    } else if (position === 'top') {
-      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
-      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:100%;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
-    } else { // center
-      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
-      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:${size}%;margin:0 auto;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
-    }
-  }
-
-  const dirClass =
-    position === 'right'  ? 'flex flex-col sm:flex-row-reverse gap-4 items-start' :
-    position === 'top'    ? 'flex flex-col gap-4' :
-    position === 'center' ? 'flex flex-col items-center text-center gap-4' :
-                             'flex flex-col sm:flex-row gap-4 items-start'; // left / no photo
-
-  return `
-  <div class="rounded-2xl p-5 ${dirClass}" style="background:${bg};color:${text}">
-    ${photoHtml}
-    <div class="flex-1 min-w-0${position === 'center' ? ' w-full' : ''}">${textHtml}</div>
-  </div>`;
-}
 </script>
-  <script>window.CREMONA_NAV={portal:'teacher',active:'home',title:'Home'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

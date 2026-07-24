@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Documents | Cremona Music</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style> body { font-family: 'Inter', sans-serif; } .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; } </style>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    'primary': '#3B2A1E', 'primary-container': '#C8A951', 'on-primary-fixed': '#2A1D14',
+    'secondary': '#7A5A16', 'surface-white': '#FFFFFF', 'surface': '#FAF6EF',
+    'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+    'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+    'border-subtle': '#E2D7C6', 'text-muted': '#7A6A57', 'error': '#B3261E', 'success': '#1e6e3b',
+  }}}};
+</script>
+<script src="/js/theme.js"></script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+  </div>
+</header>
+
+<main class="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Documents</h1>
+    <p class="text-sm text-text-muted mt-1">Employment certificates and payment slips — request, print, or save as PDF.</p>
+  </div>
+
+  <!-- ── Employment Certificate ─────────────────────────────────────────────── -->
+  <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle mb-6">
+    <h2 class="text-base font-semibold text-on-surface mb-1">Employment Certificate <span class="text-text-muted font-normal">· 재직증명서</span></h2>
+    <p class="text-sm text-text-muted mb-6">Fill in your details, then request a certificate. An admin approves it before you can print.</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-4">
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Date of Birth</label>
+        <input id="cert-dob" type="date" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none text-on-surface"/>
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Passport / ID Number</label>
+        <input id="cert-idnum" type="text" placeholder="P1234567A" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none text-on-surface"/>
+      </div>
+      <div class="flex flex-col gap-1.5 sm:col-span-2">
+        <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Present Address</label>
+        <input id="cert-address" type="text" placeholder="House/Unit, Street, City, Country" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none text-on-surface"/>
+      </div>
+      <div class="flex flex-col gap-1.5 sm:col-span-2">
+        <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">ID Photo <span class="normal-case font-normal">(passport-style)</span></label>
+        <div class="flex items-center gap-4">
+          <div id="idphoto-box" class="w-20 h-24 rounded-lg border border-dashed border-border-subtle flex items-center justify-center text-text-muted overflow-hidden flex-shrink-0 bg-surface-container-low">
+            <span class="material-symbols-outlined text-[24px]">person</span>
+          </div>
+          <button onclick="uploadMyIdPhoto()" class="px-4 py-2 border border-border-subtle rounded-lg text-sm font-medium hover:bg-surface-container-low transition-all">Upload ID Photo</button>
+        </div>
+      </div>
+    </div>
+    <button onclick="saveCertDetails()" id="cert-save-btn"
+            class="px-4 py-2 border border-border-subtle rounded-lg text-sm font-medium hover:bg-surface-container-low transition-all mb-6">Save Details</button>
+
+    <div class="h-px bg-border-subtle mb-5"></div>
+
+    <div class="flex flex-col gap-3 mb-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <select id="cert-type" onchange="document.getElementById('cert-end-wrap').classList.toggle('hidden', this.value !== 'leaving')"
+                class="bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none text-on-surface">
+          <option value="employment">Employment Certificate — currently working · 재직증명서</option>
+          <option value="leaving">Certificate of Employment — after leaving · 경력증명서</option>
+        </select>
+        <div id="cert-end-wrap" class="hidden">
+          <input id="cert-end" type="date" title="Your last working day"
+                 class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none text-on-surface"/>
+          <p class="text-[11px] text-text-muted mt-1">Last working day (end of employment)</p>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="cert-purpose" type="text" placeholder="Use of certificate — e.g. Visa application, Bank, new employer"
+               class="flex-1 bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none text-on-surface"/>
+        <button onclick="requestCertificate()" id="cert-request-btn"
+                class="px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold rounded-lg text-sm hover:brightness-105 active:scale-95 whitespace-nowrap">Request Certificate</button>
+      </div>
+    </div>
+
+    <div id="cert-requests" class="flex flex-col gap-2">
+      <p class="text-sm text-text-muted">Loading…</p>
+    </div>
+  </section>
+
+  <!-- ── Contracts ──────────────────────────────────────────────────────────── -->
+  <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle mb-6">
+    <h2 class="text-base font-semibold text-on-surface mb-1">Contracts <span class="text-text-muted font-normal">· 근로계약서</span></h2>
+    <p class="text-sm text-text-muted mb-6">Your contracts from the academy — download them, and sign new ones electronically.</p>
+    <div id="contract-list" class="flex flex-col gap-2">
+      <p class="text-sm text-text-muted">Loading…</p>
+    </div>
+  </section>
+
+  <!-- ── Payment Slips ──────────────────────────────────────────────────────── -->
+  <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+    <h2 class="text-base font-semibold text-on-surface mb-1">Payment Slips <span class="text-text-muted font-normal">· 급여명세서</span></h2>
+    <p class="text-sm text-text-muted mb-6">One slip per salary record — open it to print or save as PDF.</p>
+    <div id="payslip-list" class="flex flex-col gap-2">
+      <p class="text-sm text-text-muted">Loading…</p>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-on-surface text-white text-sm font-semibold px-5 py-3 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-[200]"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com", projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID", appId: "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let me = null;
+let meData = null;
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+function esc(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = '/'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'teacher' || snap.data().status === 'inactive' || snap.data().status === 'deleted') {
+    location.href = '/';
+    return;
+  }
+  me = user;
+  meData = snap.data();
+  document.getElementById('cert-dob').value = meData.dob || '';
+  document.getElementById('cert-idnum').value = meData.idNumber || '';
+  document.getElementById('cert-address').value = meData.address || '';
+  renderIdPhoto();
+  loadCertRequests();
+  loadContracts();
+  loadPayslips();
+});
+
+const WORKER_URL = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
+
+// Uploads go through /api/upload (same-origin) — the R2 worker's CORS only
+// allows the old .web.app origin, so direct browser PUTs fail on this domain.
+async function apiUpload(key, blob, contentType) {
+  const dataBase64 = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(',')[1]);
+    fr.onerror = () => rej(new Error('Could not read file'));
+    fr.readAsDataURL(blob);
+  });
+  const idToken = await auth.currentUser.getIdToken();
+  const r = await fetch('/api/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken, key, contentType, dataBase64 }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Upload failed');
+  return d.url;
+}
+
+function renderIdPhoto() {
+  const box = document.getElementById('idphoto-box');
+  box.innerHTML = meData.idPhotoUrl
+    ? `<img src="${esc(meData.idPhotoUrl)}" class="w-full h-full object-cover" alt="ID photo"/>`
+    : '<span class="material-symbols-outlined text-[24px]">person</span>';
+}
+
+window.uploadMyIdPhoto = function() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 7 * 1024 * 1024) return showToast('Image too large (max 7 MB).');
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const key = `idphotos/${me.uid}/${Date.now()}.${ext}`;
+    showToast('Uploading ID photo…');
+    try {
+      const idPhotoUrl = await apiUpload(key, file, file.type || 'image/jpeg');
+      await updateDoc(doc(db, 'users', me.uid), { idPhotoUrl });
+      meData.idPhotoUrl = idPhotoUrl;
+      renderIdPhoto();
+      showToast('ID photo saved.');
+    } catch (e) {
+      showToast('Upload failed: ' + e.message);
+    }
+  };
+  input.click();
+};
+
+async function loadContracts() {
+  const box = document.getElementById('contract-list');
+  try {
+    const snap = await getDocs(query(collection(db, 'contracts'), where('teacherUid', '==', me.uid)));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const legacy = meData.contracts || [];
+    const rows = docs.map(c => {
+      const when = c.createdAt?.seconds ? new Date(c.createdAt.seconds * 1000).toLocaleDateString() : '';
+      const needsSig = c.status === 'pending_signature';
+      const badge = c.status === 'signed'
+        ? '<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase">Signed</span>'
+        : needsSig
+        ? '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase">Needs your signature</span>'
+        : '<span class="px-2 py-0.5 rounded-full bg-surface-container text-text-muted text-[10px] font-bold uppercase">File</span>';
+      return `<div class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border ${needsSig ? 'border-amber-300 bg-amber-50/40' : 'border-border-subtle'}">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-text-muted text-[18px]">${c.type === 'file' ? 'description' : 'contract'}</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-on-surface truncate">${esc(c.title || 'Contract')}</p>
+            <p class="text-xs text-text-muted">${when}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          ${badge}
+          ${c.type === 'file' && c.fileUrl ? `<a href="${esc(c.fileUrl)}" target="_blank" rel="noopener" class="px-3 py-1.5 border border-border-subtle rounded-lg text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary">Download</a>` : ''}
+          <a href="/contract?id=${c.id}" target="_blank" class="px-3 py-1.5 ${needsSig ? 'bg-primary-container text-on-primary-fixed' : 'bg-secondary text-white'} rounded-lg text-xs font-bold hover:brightness-110">${needsSig ? 'Read & Sign' : 'Open'}</a>
+        </div>
+      </div>`;
+    });
+    const legacyRows = legacy.map(c => `
+      <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border border-border-subtle">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-text-muted text-[18px]">description</span>
+          </div>
+          <p class="text-sm font-semibold text-on-surface truncate">${esc(c.name)}</p>
+        </div>
+        <a href="${esc(c.url)}" target="_blank" rel="noopener" class="px-3 py-1.5 border border-border-subtle rounded-lg text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary flex-shrink-0">Download</a>
+      </div>`);
+    box.innerHTML = [...rows, ...legacyRows].join('')
+      || '<p class="text-xs text-text-muted italic">No contracts yet — they appear here when the academy issues one.</p>';
+  } catch (e) {
+    console.error(e);
+    box.innerHTML = '<p class="text-xs text-error">Failed to load contracts.</p>';
+  }
+}
+
+// ── Employment certificate ────────────────────────────────────────────────────
+window.saveCertDetails = async function() {
+  const btn = document.getElementById('cert-save-btn');
+  btn.disabled = true;
+  try {
+    const updates = {
+      dob: document.getElementById('cert-dob').value,
+      idNumber: document.getElementById('cert-idnum').value.trim(),
+      address: document.getElementById('cert-address').value.trim(),
+    };
+    await updateDoc(doc(db, 'users', me.uid), updates);
+    Object.assign(meData, updates);
+    showToast('Details saved.');
+  } catch (e) {
+    showToast('Failed to save: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+window.requestCertificate = async function() {
+  const purpose = document.getElementById('cert-purpose').value.trim();
+  const certType = document.getElementById('cert-type').value;
+  const endDate = document.getElementById('cert-end').value;
+  if (!purpose) return showToast('Please write what the certificate is for.');
+  if (certType === 'leaving' && !endDate) return showToast('Please set your last working day.');
+  if (!document.getElementById('cert-dob').value || !document.getElementById('cert-idnum').value.trim() || !document.getElementById('cert-address').value.trim())
+    return showToast('Fill in and save your date of birth, ID number, and address first.');
+  const btn = document.getElementById('cert-request-btn');
+  btn.disabled = true;
+  try {
+    await saveCertDetails();
+    await addDoc(collection(db, 'certificateRequests'), {
+      teacherUid: me.uid,
+      teacherName: meData.name || me.email,
+      teacherEmail: meData.email || me.email || '',
+      purpose,
+      certType,
+      endDate: certType === 'leaving' ? endDate : '',
+      status: 'pending',
+      requestedAt: serverTimestamp(),
+    });
+    document.getElementById('cert-purpose').value = '';
+    showToast('Request sent — an admin will review it.');
+    loadCertRequests();
+  } catch (e) {
+    showToast('Failed to request: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+async function loadCertRequests() {
+  const box = document.getElementById('cert-requests');
+  try {
+    const snap = await getDocs(query(collection(db, 'certificateRequests'), where('teacherUid', '==', me.uid)));
+    const reqs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.requestedAt?.seconds || 0) - (a.requestedAt?.seconds || 0));
+    if (!reqs.length) {
+      box.innerHTML = '<p class="text-xs text-text-muted italic">No certificate requests yet.</p>';
+      return;
+    }
+    box.innerHTML = reqs.map(r => {
+      const when = r.requestedAt?.seconds ? new Date(r.requestedAt.seconds * 1000).toLocaleDateString() : '';
+      const badge = r.status === 'approved'
+        ? '<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase">Approved</span>'
+        : r.status === 'rejected'
+        ? '<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase">Rejected</span>'
+        : '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase">Pending</span>';
+      const typeLabel = r.certType === 'leaving' ? 'Certificate of Employment (leaving)' : 'Employment Certificate (재직)';
+      return `<div class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border border-border-subtle">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-on-surface truncate">${esc(r.purpose)}</p>
+          <p class="text-xs text-text-muted">${esc(typeLabel)} · ${when}${r.status === 'rejected' && r.rejectReason ? ' · ' + esc(r.rejectReason) : ''}</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          ${badge}
+          ${r.status === 'approved' ? `<a href="/certificate?id=${r.id}" target="_blank" class="px-3 py-1.5 bg-secondary text-white rounded-lg text-xs font-bold hover:brightness-110">Open</a>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    box.innerHTML = '<p class="text-xs text-error">Failed to load requests.</p>';
+  }
+}
+
+// ── Payment slips ─────────────────────────────────────────────────────────────
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+function fmtAmount(amount, currency) {
+  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'KRW', maximumFractionDigits: currency === 'KRW' || !currency ? 0 : 2 }).format(amount || 0); }
+  catch { return (amount || 0).toLocaleString() + ' ' + (currency || ''); }
+}
+
+async function loadPayslips() {
+  const box = document.getElementById('payslip-list');
+  try {
+    const snap = await getDocs(query(collection(db, 'salaries'), where('teacherUid', '==', me.uid)));
+    const recs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.periodYear - a.periodYear) || (b.periodMonth - a.periodMonth));
+    if (!recs.length) {
+      box.innerHTML = '<p class="text-xs text-text-muted italic">No salary records yet — slips appear here once admin sets up your salary.</p>';
+      return;
+    }
+    box.innerHTML = recs.map(r => {
+      const period = `${MONTHS[(r.periodMonth || 1) - 1]} ${r.periodYear || ''}`;
+      const paid = r.status === 'paid';
+      return `<div class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-lg border border-border-subtle">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-text-muted text-[18px]">receipt_long</span>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-on-surface truncate">${esc(period)}</p>
+            <p class="text-xs text-text-muted">${esc(fmtAmount(r.amount, r.currency))}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <span class="px-2 py-0.5 rounded-full ${paid ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'} text-[10px] font-bold uppercase">${esc(r.status || 'pending')}</span>
+          ${r.payslipUrl ? `<a href="${esc(r.payslipUrl)}" target="_blank" rel="noopener" class="px-3 py-1.5 border border-border-subtle rounded-lg text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary">File</a>` : ''}
+          <a href="/payslip?id=${r.id}" target="_blank" class="px-3 py-1.5 bg-secondary text-white rounded-lg text-xs font-bold hover:brightness-110">Open Slip</a>
+        </div>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    console.error(e);
+    box.innerHTML = '<p class="text-xs text-error">Failed to load salary records.</p>';
+  }
+}
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+</body>
+</html>

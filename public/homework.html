@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Homework | Cremona Music</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style> body { font-family: 'Inter', sans-serif; } .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; } </style>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    'primary': '#3B2A1E', 'primary-container': '#C8A951', 'on-primary-fixed': '#2A1D14',
+    'secondary': '#7A5A16', 'surface-white': '#FFFFFF', 'surface': '#FAF6EF',
+    'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+    'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+    'border-subtle': '#E2D7C6', 'text-muted': '#7A6A57', 'error': '#B3261E', 'success': '#1e6e3b',
+  }}}};
+</script>
+<script src="/js/theme.js"></script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+  </div>
+</header>
+
+<main class="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold">Homework</h1>
+    <p class="text-sm text-text-muted mt-1">Assign homework from your Schedule (open a class → Homework). Review submissions here.</p>
+  </div>
+
+  <div class="flex items-center gap-2 mb-5" id="filter-tabs">
+    <button data-f="submitted" class="hw-tab px-4 py-2 rounded-full text-sm font-bold bg-primary-container text-on-primary-fixed" onclick="setFilter('submitted')">To Review</button>
+    <button data-f="assigned" class="hw-tab px-4 py-2 rounded-full text-sm font-bold border border-border-subtle text-text-muted" onclick="setFilter('assigned')">Waiting</button>
+    <button data-f="reviewed" class="hw-tab px-4 py-2 rounded-full text-sm font-bold border border-border-subtle text-text-muted" onclick="setFilter('reviewed')">Checked</button>
+  </div>
+
+  <div id="hw-list" class="flex flex-col gap-3">
+    <p class="text-sm text-text-muted">Loading…</p>
+  </div>
+</main>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-on-surface text-white text-sm font-semibold px-5 py-3 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-[200]"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com", projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID", appId: "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let me = null;
+let allHw = [];
+let filter = 'submitted';
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2800);
+}
+function esc(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = '/'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'teacher') { location.href = '/'; return; }
+  me = user;
+  load();
+});
+
+async function load() {
+  try {
+    const snap = await getDocs(query(collection(db, 'homework'), where('teacherUid', '==', me.uid)));
+    allHw = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    render();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('hw-list').innerHTML = '<p class="text-sm text-error">Failed to load homework.</p>';
+  }
+}
+
+window.setFilter = function(f) {
+  filter = f;
+  document.querySelectorAll('.hw-tab').forEach(b => {
+    const on = b.dataset.f === f;
+    b.className = 'hw-tab px-4 py-2 rounded-full text-sm font-bold ' +
+      (on ? 'bg-primary-container text-on-primary-fixed' : 'border border-border-subtle text-text-muted');
+  });
+  render();
+};
+
+function render() {
+  const list = allHw.filter(h => (h.status || 'assigned') === filter);
+  const counts = { submitted: 0, assigned: 0, reviewed: 0 };
+  allHw.forEach(h => { counts[h.status || 'assigned'] = (counts[h.status || 'assigned'] || 0) + 1; });
+  document.querySelectorAll('.hw-tab').forEach(b => {
+    const base = b.dataset.f === 'submitted' ? 'To Review' : b.dataset.f === 'assigned' ? 'Waiting' : 'Checked';
+    b.textContent = counts[b.dataset.f] ? `${base} (${counts[b.dataset.f]})` : base;
+  });
+  const box = document.getElementById('hw-list');
+  if (!list.length) {
+    box.innerHTML = `<p class="text-sm text-text-muted bg-surface-white border border-border-subtle rounded-xl p-6 text-center">${
+      filter === 'submitted' ? 'No submissions waiting for review. 🎉'
+      : filter === 'assigned' ? 'Nothing waiting on students right now.'
+      : 'No checked homework yet.'}</p>`;
+    return;
+  }
+  box.innerHTML = list.map(h => {
+    const when = h.createdAt?.seconds ? new Date(h.createdAt.seconds * 1000).toLocaleDateString() : '';
+    const photos = (h.submissionPhotos || []).map(u =>
+      `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" class="w-20 h-20 object-cover rounded-lg border border-border-subtle hover:opacity-80"/></a>`).join('');
+    return `<div class="bg-surface-white border border-border-subtle rounded-2xl p-5">
+      <div class="flex items-start justify-between gap-3 mb-2">
+        <div class="min-w-0">
+          <p class="font-bold text-on-surface">${esc(h.studentName || '—')}</p>
+          <p class="text-xs text-text-muted">Assigned ${esc(when)}${h.dueDate ? ' · due ' + esc(h.dueDate) : ''}</p>
+        </div>
+        ${h.status === 'submitted'
+          ? '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase flex-shrink-0">Submitted</span>'
+          : h.status === 'reviewed'
+          ? '<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase flex-shrink-0">Checked</span>'
+          : '<span class="px-2 py-0.5 rounded-full bg-surface-container text-text-muted text-[10px] font-bold uppercase flex-shrink-0">Waiting</span>'}
+      </div>
+      <p class="text-sm whitespace-pre-wrap mb-2">${esc(h.instructions || '')}</p>
+      ${h.attachmentUrl ? `<a href="${esc(h.attachmentUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-bold text-secondary hover:underline mb-2"><span class="material-symbols-outlined text-[14px]">attach_file</span>${esc(h.attachmentName || 'Attachment')}</a>` : ''}
+      ${photos ? `<div class="flex flex-wrap gap-2 my-3">${photos}</div>` : ''}
+      ${h.submissionNote ? `<p class="text-xs text-text-muted bg-surface-container-low rounded-lg px-3 py-2 mb-3">💬 ${esc(h.submissionNote)}</p>` : ''}
+      ${h.status === 'submitted' ? `
+        <div class="flex flex-col sm:flex-row gap-2 mt-2">
+          <input id="fb-${h.id}" type="text" placeholder="Feedback for the student… (optional)"
+                 class="flex-1 border border-border-subtle rounded-lg px-3 py-2 text-sm"/>
+          <button onclick="markReviewed('${h.id}')" class="px-4 py-2 bg-primary-container text-on-primary-fixed rounded-lg text-sm font-bold hover:brightness-105 whitespace-nowrap">Mark Checked ✓</button>
+        </div>` : ''}
+      ${h.status === 'reviewed' && h.feedback ? `<p class="text-sm bg-green-50 border border-green-200 rounded-lg px-3 py-2 mt-1">✅ ${esc(h.feedback)}</p>` : ''}
+      ${h.status === 'assigned' ? `<button onclick="removeHw('${h.id}')" class="text-xs text-error hover:underline mt-1">Delete assignment</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.markReviewed = async function(id) {
+  try {
+    await updateDoc(doc(db, 'homework', id), {
+      status: 'reviewed',
+      feedback: (document.getElementById('fb-' + id)?.value || '').trim(),
+      reviewedAt: serverTimestamp(),
+    });
+    showToast('Checked — the parents have been notified.');
+    load();
+  } catch (e) { showToast('Failed: ' + e.message); }
+};
+
+window.removeHw = async function(id) {
+  if (!confirm('Delete this homework assignment?')) return;
+  try { await deleteDoc(doc(db, 'homework', id)); load(); }
+  catch (e) { showToast('Failed: ' + e.message); }
+};
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+</body>
+</html>

@@ -1,157 +1,265 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Privacy Policy | Cremona Music Portal</title>
+<title>Privacy Policy | Cremona Music</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
   body { font-family: 'Inter', sans-serif; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .prose h2 { font-size: 1.1rem; font-weight: 700; color: #3E2C23; margin-top: 2rem; margin-bottom: 0.5rem; padding-bottom: 0.375rem; border-bottom: 1px solid #E8DCC8; }
-  .prose h3 { font-size: 0.95rem; font-weight: 600; color: #3E2C23; margin-top: 1.25rem; margin-bottom: 0.25rem; }
+  .prose h2 { font-size: 1.1rem; font-weight: 700; color: #2B2019; margin-top: 2rem; margin-bottom: 0.5rem; padding-bottom: 0.375rem; border-bottom: 1px solid #E2D7C6; }
+  .prose h3 { font-size: 0.95rem; font-weight: 600; color: #2B2019; margin-top: 1.25rem; margin-bottom: 0.25rem; }
   .prose p  { font-size: 0.9375rem; color: #3c3c3c; line-height: 1.75; margin-bottom: 0.75rem; }
   .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
   .prose ul li { font-size: 0.9375rem; color: #3c3c3c; line-height: 1.75; margin-bottom: 0.25rem; }
-  .prose a { color: #A07818; text-decoration: underline; }
-  .prose a:hover { color: #C9A227; }
+  .prose a { color: #7A5A16; text-decoration: underline; }
+  .prose a:hover { color: #3B2A1E; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
-<body class="bg-[#FAF6EF] text-[#3E2C23] min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
 
 <!-- Header -->
-<header class="bg-white border-b border-[#E8DCC8] shadow-sm sticky top-0 z-50">
+<header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
   <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <a href="javascript:history.back()"
-         class="p-2 rounded-lg hover:bg-[#F0E8D6] transition-colors text-[#8B6B52] hover:text-[#3E2C23]" title="Go back">
+         class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-800" title="Go back">
         <span class="material-symbols-outlined">arrow_back</span>
       </a>
-      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
     </div>
-    <span class="text-sm font-semibold text-[#8B6B52] hidden sm:inline">Privacy Policy</span>
+    <span class="text-sm font-semibold text-gray-500 hidden sm:inline">Privacy Policy</span>
   </div>
 </header>
 
 <!-- Hero band -->
 <div style="background:#3B2A1E;" class="text-white py-10 px-6">
   <div class="max-w-4xl mx-auto">
-    <p class="text-sm font-semibold uppercase tracking-widest text-[#F5E5B0] mb-1">Legal</p>
+    <p class="text-sm font-semibold uppercase tracking-widest text-yellow-300 mb-1">Legal</p>
     <h1 class="text-3xl font-bold mb-2">Privacy Policy</h1>
-    <p class="text-sm text-white/70">Last updated: June 2025 &nbsp;·&nbsp; Cremona Music</p>
+    <p class="text-sm text-white/70">Last updated: July 2026 &nbsp;·&nbsp; CREMONA CO. LTD</p>
   </div>
 </div>
 
 <!-- Content -->
+
+<div class="max-w-4xl mx-auto px-6 pt-4 flex justify-end">
+  <button id="legal-lang-btn" onclick="toggleLegalLang()"
+    class="text-xs font-bold border border-gray-300 rounded-full px-4 py-1.5 text-gray-600 hover:border-gray-500">한국어</button>
+</div>
 <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-10">
-  <div class="bg-white rounded-2xl border border-[#E8DCC8] shadow-sm px-8 py-8 prose max-w-none">
+<div id="legal-en" class="prose">
+  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-8 py-8 prose max-w-none">
 
     <h2>1. Introduction</h2>
-    <p>Cremona Music ("Cremona Music", "we", "us", "our") is committed to protecting the privacy of all individuals who access the Cremona Music Portal ("Portal"). This Privacy Policy explains what information we collect, how we use it, and your rights in relation to it. By using this Portal, you agree to the practices described in this policy.</p>
+    <p>CREMONA CO. LTD ("CREMONA", "we", "us", "our") is committed to protecting the privacy of everyone who uses the Cremona Music Portal at <a href="https://cremonamusic.com" target="_blank" rel="noopener">cremonamusic.com</a> ("Portal"). This Privacy Policy explains what information we collect, how we use it, and your rights in relation to it. By using the Portal, you agree to the practices described in this policy.</p>
 
     <h2>2. Who This Policy Applies To</h2>
-    <p>This policy applies to all authorised users of the Cremona Music Portal — current employees, teachers, and contractors of Cremona Music who have been granted access to the Portal.</p>
+    <p>This policy applies to all users of the Portal: teachers and staff of CREMONA, and parents or guardians of enrolled students. It also covers student information that CREMONA processes in order to provide its services.</p>
 
     <h2>3. Information We Collect</h2>
 
-    <h3>3.1 Information You Provide</h3>
-    <p>We do not require you to create an account or submit personal information to use this Portal. However, if you contact us via email (<a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a>), we will receive your name and email address as part of that communication.</p>
-
-    <h3>3.2 Information Collected Automatically</h3>
-    <p>When you access the Portal, our server or hosting provider may automatically log:</p>
+    <h3>3.1 Account Information</h3>
     <ul>
-      <li>IP address</li>
-      <li>Browser type and version</li>
-      <li>Device type and operating system</li>
-      <li>Pages accessed and time of access</li>
-      <li>Referring URL</li>
+      <li>Name and email address (provided at registration or via Google sign-in)</li>
+      <li>Profile photo, if you choose to upload one</li>
+      <li>Account role (teacher, parent, administrator) and account status</li>
     </ul>
-    <p>This information is collected for security monitoring, troubleshooting, and usage analytics only.</p>
 
-    <h3>3.3 Third-Party Services</h3>
-    <p>This Portal links to third-party services (Google Drive, Google Classroom, Google Meet, EBricks, NE Times, etc.). When you click through to these services, those providers may collect data about you independently. Cremona Music has no control over and accepts no responsibility for the data practices of third-party services. Please review their respective privacy policies.</p>
+    <h3>3.2 Student &amp; Educational Information</h3>
+    <ul>
+      <li>Student name, grade, assigned teachers, and class schedule</li>
+      <li>Progress reports and teacher feedback</li>
+      <li>Attendance and lesson records</li>
+    </ul>
+
+    <h3>3.3 Messages</h3>
+    <p>Messages and attachments you send through the Portal's messaging feature are stored so they can be delivered and displayed to conversation members. Administrators may access conversations for safeguarding, support, and moderation purposes.</p>
+
+    <h3>3.4 Payment &amp; Salary Information</h3>
+    <p>For parents, we record tuition and fee amounts, due dates, and payment status. For teachers, we record salary amounts and payslips. We do not collect or store payment card numbers through the Portal.</p>
+
+    <h3>3.5 Information Collected Automatically</h3>
+    <p>When you access the Portal, our hosting and security providers may automatically log IP address, browser and device type, pages accessed, and time of access. Book access is logged for copyright-protection purposes. This information is used for security monitoring, troubleshooting, and usage analytics only.</p>
 
     <h2>4. How We Use Your Information</h2>
-    <p>We use the information collected solely for the following purposes:</p>
     <ul>
-      <li>To maintain the security and integrity of the Portal</li>
-      <li>To monitor for unauthorised access or misuse</li>
-      <li>To troubleshoot technical issues</li>
-      <li>To respond to enquiries or support requests sent to <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a></li>
+      <li>To operate the Portal — schedules, reports, messaging, books, and payment information</li>
+      <li>To send service emails (verification codes, welcome emails, report notifications, payment reminders)</li>
+      <li>To maintain the security and integrity of the Portal and monitor for misuse</li>
+      <li>To respond to enquiries sent to <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a></li>
       <li>To comply with legal obligations</li>
     </ul>
-    <p>We do not use your information for marketing, advertising, or any purpose unrelated to the operation of this Portal.</p>
+    <p>We do not use your information for advertising and we never sell it.</p>
 
-    <h2>5. How We Store &amp; Protect Your Information</h2>
-    <p>Access logs and any data collected are stored on secured servers. We apply reasonable technical and organisational measures to protect your data against unauthorised access, loss, or disclosure. Access to log data is restricted to authorised Cremona Music management personnel only.</p>
-    <p>We retain access logs for a maximum of 90 days, after which they are deleted unless required for an ongoing security investigation or legal matter.</p>
+    <h2>5. Service Providers</h2>
+    <p>The Portal is built on trusted third-party infrastructure that processes data on our behalf:</p>
+    <ul>
+      <li><strong>Google Firebase</strong> — authentication, database, and hosting</li>
+      <li><strong>Cloudflare</strong> — file storage and delivery (books, attachments, payslips)</li>
+      <li><strong>EmailJS</strong> — transactional email delivery</li>
+      <li><strong>Google</strong> — optional Google sign-in and Google Meet lesson links</li>
+    </ul>
+    <p>Each provider processes data under its own privacy policy and appropriate confidentiality obligations.</p>
 
-    <h2>6. Sharing of Information</h2>
+    <h2>6. How We Store &amp; Protect Your Information</h2>
+    <p>Data is stored on secured cloud infrastructure with access restricted by role: parents can only see their own children's information, teachers can only see their assigned students, and administrative data is restricted to authorised CREMONA personnel. We apply reasonable technical and organisational measures to protect your data against unauthorised access, loss, or disclosure.</p>
+    <p>Access logs are retained for a maximum of 90 days unless required for an ongoing security investigation or legal matter. Educational and financial records are retained for as long as required by our legal and accounting obligations.</p>
+
+    <h2>7. Sharing of Information</h2>
     <p>We do not sell, rent, or share your personal data with any third party except:</p>
     <ul>
-      <li>Service providers who assist in operating the Portal, under strict confidentiality obligations.</li>
-      <li>Legal authorities, if required by applicable law, court order, or to protect the rights and safety of Cremona Music or its staff.</li>
+      <li>The service providers listed above, strictly to operate the Portal.</li>
+      <li>Between Portal users as part of the service (e.g. a teacher sees their students' names; a parent sees their child's teacher's name; conversation members see each other's messages).</li>
+      <li>Legal authorities, if required by applicable law, court order, or to protect the rights and safety of CREMONA, its staff, or its students.</li>
     </ul>
 
-    <h2>7. Cookies</h2>
-    <p>This Portal does not use cookies directly. However, third-party services you access through the Portal (e.g. Google) may place cookies on your device. Please refer to those providers' cookie policies for details.</p>
+    <h2>8. Cookies</h2>
+    <p>The Portal uses browser storage only to keep you signed in and remember preferences such as language. Third-party services you access through the Portal (e.g. Google) may place cookies on your device; refer to those providers' cookie policies for details.</p>
 
-    <h2>8. Your Rights</h2>
+    <h2>9. Your Rights</h2>
     <p>As a data subject under applicable law, you have the right to:</p>
     <ul>
       <li><strong>Access</strong> — request a copy of any personal data we hold about you.</li>
       <li><strong>Correction</strong> — request correction of inaccurate data.</li>
-      <li><strong>Deletion</strong> — request deletion of your data, where we are not legally required to retain it.</li>
+      <li><strong>Deletion</strong> — delete your account yourself using the "Delete My Account" option in the Portal, or request deletion of your data where we are not legally required to retain it.</li>
       <li><strong>Objection</strong> — object to processing of your data in certain circumstances.</li>
     </ul>
-    <p>To exercise any of these rights, contact us at <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a>. We will respond within 30 days.</p>
+    <p>To exercise any of these rights, contact us at <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a>. We will respond within 30 days.</p>
 
-    <h2>9. Children's Privacy</h2>
-    <p>This Portal is intended for adult teaching professionals only. We do not knowingly collect personal data from minors. If you believe a minor has accessed the Portal inappropriately, please notify us immediately at <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a>.</p>
+    <h2>10. Children's Privacy</h2>
+    <p>Portal accounts are held by adults (teachers, staff, and parents/guardians). Student information is provided to us by the academy and by parents as part of enrolment, and is processed only to deliver our educational services. We do not knowingly allow minors to create accounts. If you believe a minor has created an account, notify us immediately at <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a>.</p>
 
-    <h2>10. Changes to This Policy</h2>
+    <h2>11. Changes to This Policy</h2>
     <p>We may update this Privacy Policy from time to time. The "Last updated" date at the top will reflect any revisions. Continued use of the Portal after changes are posted constitutes acceptance of the updated policy. For significant changes, we will notify users via email where possible.</p>
 
-    <h2>11. Contact</h2>
+    <h2>12. Contact</h2>
     <p>For any questions, concerns, or requests regarding this Privacy Policy:</p>
     <ul>
-      <li><strong>Cremona Music</strong></li>
-      <li>Email: <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a></li>
+      <li><strong>CREMONA CO. LTD</strong></li>
+      <li>Email: <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a></li>
       <li>Website: <a href="https://cremonamusic.com" target="_blank" rel="noopener">cremonamusic.com</a></li>
     </ul>
 
   </div>
+</div>
+<div id="legal-ko" class="prose hidden">
+<p style="font-size:12px;color:#888;margin-bottom:1rem">최종 업데이트: 2026년 6월 · CREMONA CO. LTD</p>
+<h2>1. 소개</h2>
+<p>CREMONA CO. LTD("CREMONA", "당사")는 CREMONA 포털("포털")의 모든 사용자의 개인정보와 보안을 보호하기 위해 최선을 다하고 있습니다.</p>
+<p>본 개인정보처리방침은 포털의 학생, 학부모, 보호자, 교사, 직원, 계약자, 관리자 및 기타 인가된 사용자와 관련된 정보를 당사가 어떻게 수집, 이용, 저장, 보호 및 공개하는지 설명합니다.</p>
+<p>포털에 접속하거나 이를 사용함으로써 귀하는 본 개인정보처리방침을 읽고 이해했음을 인정하는 것으로 간주됩니다.</p>
+<h2>2. 본 방침의 적용 대상</h2>
+<p>본 개인정보처리방침은 학생, 학부모 및 보호자, 교사, 직원, 계약자, 관리자 및 CREMONA가 승인한 기타 인가된 사용자를 포함하여 CREMONA 포털의 모든 인가된 사용자에게 적용됩니다.</p>
+<h2>3. 당사가 수집하는 정보</h2>
+<p>귀하의 역할 및 포털 이용 방식에 따라 당사는 다음을 포함한 정보를 수집할 수 있습니다:</p>
+<ul>
+<li>성명</li>
+<li>이메일 주소</li>
+<li>전화번호</li>
+<li>학부모 또는 보호자 정보</li>
+<li>학생 정보</li>
+<li>계정 정보</li>
+<li>청구 및 결제 정보</li>
+<li>포털을 통해 제출된 커뮤니케이션</li>
+<li>지원 요청 및 문의사항</li>
+</ul>
+<p>사용자는 제공한 정보가 정확하고 최신 상태로 유지되도록 할 책임이 있습니다.</p>
+<p>귀하가 포털에 접속하거나 이를 사용할 때, 당사는 다음을 자동으로 수집할 수 있습니다:</p>
+<ul>
+<li>IP 주소</li>
+<li>기기 및 브라우저/운영체제 유형</li>
+<li>로그인 활동, 사용한 페이지/기능, 접속 시간</li>
+<li>오류 기록 및 진단 정보</li>
+</ul>
+<p>이 정보는 보안, 관리, 시스템 유지보수, 분석 및 서비스 개선 목적으로 수집됩니다.</p>
+<p>해당하는 경우, 포털은 학생 등록 정보, 출석 기록, 학업 리포트, 수업 일정, 교사 배정, 급여 기록, 결제 기록, 청구서 정보 및 행정 기록을 처리할 수 있습니다. 이러한 정보에 대한 접근은 사용자 권한에 따라 제한됩니다.</p>
+<p>포털은 Google Drive, Google Meet, EBricks, NE Times, Zoom, Microsoft 서비스 및 결제 서비스 제공업체를 포함하되 이에 국한되지 않는 제3자 서비스에 대한 접근을 제공할 수 있습니다. 이러한 서비스는 독립적으로 운영되며 자체 개인정보처리방침에 따라 정보를 수집할 수 있습니다. CREMONA는 제3자 서비스의 개인정보 처리 방식을 통제하지 않으며 이에 대해 책임을 지지 않습니다.</p>
+<h2>4. 정보의 이용 방법</h2>
+<p>당사는 수집한 정보를 다음 목적으로 이용할 수 있습니다:</p>
+<ul>
+<li>교육 서비스 제공 및 사용자 계정 관리</li>
+<li>포털 기능 유지</li>
+<li>등록 및 학생 기록 처리</li>
+<li>일정 및 출석 관리</li>
+<li>결제, 청구 및 급여 정보 처리</li>
+<li>사용자 간 커뮤니케이션 지원</li>
+<li>지원 요청에 대한 응답</li>
+<li>포털 성능 및 사용자 경험 개선</li>
+<li>사기, 오남용 또는 무단 접근의 탐지 및 방지</li>
+<li>법적 및 규제 의무 준수</li>
+</ul>
+<p>당사는 개인정보를 제3자에게 판매하지 않습니다.</p>
+<h2>5. 처리의 법적 근거</h2>
+<p>관련 법률이 요구하는 경우, CREMONA는 교육 또는 서비스 관련 의무의 이행, 법적 의무 준수, 정당한 사업상 이익, 또는 필요한 경우 사용자 동의 중 하나 이상을 근거로 개인정보를 처리합니다.</p>
+<h2>6. 정보의 공유</h2>
+<p>호스팅, 결제 처리, 커뮤니케이션 서비스, 기술 지원 및 보안 모니터링을 지원하는 신뢰할 수 있는 서비스 제공업체와 정보를 공유할 수 있습니다. 이러한 제공업체는 적절한 기밀 유지 및 보안 보호 조치를 준수해야 합니다.</p>
+<p>당사는 관련 법률, 법원 명령, 정부 기관 또는 규제 기관이 요구하는 경우, 또는 CREMONA, 사용자 또는 타인의 권리, 안전, 재산 또는 보안을 보호하기 위해 필요한 경우 정보를 공개할 수 있습니다.</p>
+<h2>7. 데이터 보안</h2>
+<p>CREMONA는 개인정보를 무단 접근, 손실, 오용, 변경, 공개 및 파기로부터 보호하기 위해 합리적인 기술적, 조직적, 관리적 보호 조치를 시행합니다. 이러한 조치에는 접근 통제, 인증 시스템, 활동 기록, 암호화된 커뮤니케이션 및 보안 모니터링이 포함될 수 있습니다.</p>
+<p>다만, 어떠한 시스템도 절대적인 보안을 보장할 수는 없습니다.</p>
+<h2>8. 데이터 보관</h2>
+<p>당사는 교육 및 행정 서비스 제공, 계약상 의무 이행, 사업 기록 유지, 분쟁 해결 및 법적 요건 준수에 합리적으로 필요한 기간 동안만 정보를 보관합니다. 보관 기간은 정보의 유형 및 관련 법적 의무에 따라 달라질 수 있습니다.</p>
+<h2>9. 쿠키 및 유사 기술</h2>
+<p>포털은 사용자 세션 유지, 보안 개선, 사용자 환경설정 기억 및 포털 사용 분석을 위해 쿠키, 세션 식별자 및 유사 기술을 사용할 수 있습니다. 쿠키가 비활성화된 경우 일부 포털 기능이 제대로 작동하지 않을 수 있습니다.</p>
+<p>포털을 통해 접근 가능한 제3자 서비스도 자체 쿠키 및 추적 기술을 사용할 수 있습니다.</p>
+<h2>10. 귀하의 권리</h2>
+<p>관련 법률에 따라 사용자는 다음 권리를 가질 수 있습니다:</p>
+<ul>
+<li>개인정보에 대한 접근 요청</li>
+<li>부정확한 정보의 수정 요청</li>
+<li>법적으로 허용되는 경우 정보의 삭제 요청</li>
+<li>처리의 제한 요청</li>
+<li>특정 처리 활동에 대한 이의 제기</li>
+<li>동의에 근거한 처리의 경우 동의 철회</li>
+</ul>
+<p>요청은 아래 연락처 정보를 통해 제출할 수 있습니다. CREMONA는 요청을 처리하기 전에 신원 확인을 요구할 수 있습니다.</p>
+<h2>11. 아동의 개인정보</h2>
+<p>포털은 CREMONA가 제공하는 교육 서비스의 일환으로 미성년자인 학생이 이용할 수 있습니다. 법률이 요구하는 경우, 학생 정보의 수집 및 처리를 위해 학부모 또는 보호자의 동의를 받을 수 있습니다. 학부모 및 보호자는 자녀와 관련된 정보에 대해 CREMONA에 문의할 수 있습니다.</p>
+<h2>12. 국제 데이터 이전</h2>
+<p>포털에서 사용하는 일부 제3자 서비스는 말레이시아 외부에서 정보를 처리하거나 저장할 수 있습니다. 포털을 이용함으로써 사용자는 관련 법률이 허용하고 적절한 보호 조치가 유지되는 경우 정보가 다른 관할권으로 이전되어 처리될 수 있음을 인정합니다.</p>
+<h2>13. 본 개인정보처리방침의 변경</h2>
+<p>CREMONA는 수시로 본 개인정보처리방침을 업데이트할 수 있습니다. 업데이트된 버전은 포털 또는 기타 공식 커뮤니케이션 채널을 통해 게시됩니다. 변경 사항이 발효된 후 포털을 계속 사용하는 것은 개정된 개인정보처리방침에 대한 동의로 간주됩니다. 중요한 변경 사항의 경우, CREMONA는 합리적으로 실행 가능한 범위에서 추가 통지를 제공할 수 있습니다.</p>
+<h2>14. 연락처 정보</h2>
+<p>웹사이트: <a href="https://cremonamusic.com">cremonamusic.com</a></p>
+<p>지원 이메일: <a href="mailto:support@cremonamusic.com">support@cremonamusic.com</a></p>
+<p>본 개인정보처리방침 또는 귀하의 개인정보와 관련하여 질문, 우려사항 또는 요청이 있으신 경우 <a href="mailto:support@cremonamusic.com">support@cremonamusic.com</a>로 연락해 주시기 바랍니다.</p>
+</div>
 </main>
 
 <!-- Footer -->
-<footer class="bg-[#F0E8D6] border-t border-[#E8DCC8] py-6 mt-4">
+<footer class="bg-gray-100 border-t border-gray-200 py-6 mt-4">
   <div class="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3">
     <div class="flex items-center gap-3">
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto"/>
-      <p class="text-xs text-[#8B6B52]">© 2025 Cremona Music. All rights reserved.</p>
+      <img src="/logo.png" alt="Cremona Music" class="h-7 w-auto rounded"/>
+      <p class="text-xs text-gray-500">© 2026 CREMONA CO. LTD. All rights reserved.</p>
     </div>
     <div class="flex gap-5">
-      <a href="/terms.html" class="text-xs text-[#8B6B52] hover:text-[#A07818] underline transition-colors">Terms &amp; Conditions</a>
-      <a href="/privacy.html" class="text-xs font-semibold text-[#A07818] underline transition-colors">Privacy Policy</a>
+      <a href="/terms" class="text-xs text-gray-500 hover:text-amber-700 underline transition-colors">Terms &amp; Conditions</a>
+      <a href="/privacy" class="text-xs font-semibold text-amber-700 underline transition-colors">Privacy Policy</a>
     </div>
   </div>
 </footer>
 
+
+<script>
+(function () {
+  var lang = localStorage.getItem('cremona-lang') || 'en';
+  window.setLegalLang = function (l) {
+    document.getElementById('legal-en').classList.toggle('hidden', l === 'ko');
+    document.getElementById('legal-ko').classList.toggle('hidden', l !== 'ko');
+    document.getElementById('legal-lang-btn').textContent = l === 'ko' ? 'English' : '한국어';
+    window._legalLang = l;
+  };
+  window.toggleLegalLang = function () {
+    setLegalLang(window._legalLang === 'ko' ? 'en' : 'ko');
+  };
+  setLegalLang(lang === 'ko' ? 'ko' : 'en');
+})();
+</script>
 </body>
 </html>

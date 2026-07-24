@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Level Tests | Cremona Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style> body { font-family: 'Inter', sans-serif; } .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; } </style>
+<script>
+  tailwind.config = { theme: { extend: { colors: {
+    'primary': '#3B2A1E', 'primary-container': '#C8A951', 'on-primary-fixed': '#2A1D14',
+    'secondary': '#7A5A16', 'surface-white': '#FFFFFF', 'surface': '#FAF6EF',
+    'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+    'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+    'border-subtle': '#E2D7C6', 'text-muted': '#7A6A57', 'error': '#B3261E', 'success': '#1e6e3b',
+  }}}};
+</script>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col" data-portal="admin">
+
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+  </div>
+</header>
+
+<main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+  <div class="flex items-start justify-between gap-4 flex-wrap mb-2">
+    <div>
+      <h1 class="text-2xl font-bold">Level Tests</h1>
+      <p class="text-sm text-text-muted mt-1">Every code and result across all teachers. You can generate codes too.</p>
+    </div>
+    <button id="gen-btn" onclick="generateCode()"
+            class="bg-primary-container text-on-primary-fixed font-bold px-5 py-2.5 rounded-lg text-sm shadow hover:brightness-105 active:scale-95 flex items-center gap-2">
+      <span class="material-symbols-outlined text-[18px]">qr_code_2</span> Generate Code
+    </button>
+  </div>
+
+  <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 text-sm text-blue-900 mb-6 flex items-center gap-2 flex-wrap">
+    <span class="material-symbols-outlined text-[18px]">link</span>
+    Test site: <a href="https://level.cremonamusic.com" target="_blank" class="font-bold underline">level.cremonamusic.com</a>
+    <button onclick="copyText('https://level.cremonamusic.com')" class="text-xs font-bold border border-blue-300 rounded-full px-3 py-1 hover:bg-blue-100">Copy link</button>
+  </div>
+
+  <!-- stats -->
+  <div class="grid grid-cols-3 gap-3 mb-6">
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 text-center">
+      <p id="stat-total" class="text-2xl font-extrabold">–</p>
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mt-1">Codes</p>
+    </div>
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 text-center">
+      <p id="stat-done" class="text-2xl font-extrabold text-success">–</p>
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mt-1">Completed</p>
+    </div>
+    <div class="bg-surface-white border border-border-subtle rounded-xl p-4 text-center">
+      <p id="stat-wait" class="text-2xl font-extrabold text-amber-600">–</p>
+      <p class="text-xs text-text-muted font-semibold uppercase tracking-wide mt-1">Waiting</p>
+    </div>
+  </div>
+
+  <!-- filters -->
+  <div class="flex items-center gap-3 flex-wrap mb-4">
+    <div class="relative flex-1 min-w-[220px]">
+      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-text-muted">search</span>
+      <input id="f-search" type="search" placeholder="Search by code, student, or teacher…"
+             class="w-full pl-10 pr-3 py-2 text-sm border border-border-subtle rounded-lg bg-surface-white"/>
+    </div>
+    <select id="f-teacher" class="text-sm border border-border-subtle rounded-lg py-2 pl-3 pr-8 bg-surface-white">
+      <option value="">All teachers</option>
+    </select>
+    <select id="f-status" class="text-sm border border-border-subtle rounded-lg py-2 pl-3 pr-8 bg-surface-white">
+      <option value="">All status</option>
+      <option value="done">Completed</option>
+      <option value="wait">Waiting</option>
+    </select>
+  </div>
+
+  <div id="codes-list" class="flex flex-col gap-3">
+    <p class="text-sm text-text-muted">Loading…</p>
+  </div>
+</main>
+
+<div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-on-surface text-white text-sm font-semibold px-5 py-3 rounded-full shadow-lg opacity-0 transition-opacity pointer-events-none z-[200]"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+  getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com", projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID", appId: "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let me = null;
+let allCodes = [];
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  setTimeout(() => { t.style.opacity = '0'; }, 2500);
+}
+window.copyText = async function(text) {
+  try { await navigator.clipboard.writeText(text); showToast('Copied!'); }
+  catch { showToast('Copy failed — select it manually.'); }
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/'; return; }
+  const snap = await getDoc(doc(db, 'users', user.uid));
+  if (!snap.exists() || snap.data().role !== 'admin') {
+    window.location.href = '/';
+    return;
+  }
+  if (!window.applyAdminPermissions(snap.data(), 'leveltests')) return;
+  me = { uid: user.uid, name: snap.data().name || user.email };
+  loadCodes();
+});
+
+async function loadCodes() {
+  const snap = await getDocs(collection(db, 'levelTestCodes'));
+  allCodes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  allCodes.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+
+  // teacher filter options
+  const teachers = [...new Set(allCodes.map(c => c.teacherName).filter(Boolean))].sort();
+  const sel = document.getElementById('f-teacher');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">All teachers</option>' +
+    teachers.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+  sel.value = cur;
+
+  render();
+}
+
+function esc(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function render() {
+  const q = (document.getElementById('f-search').value || '').toLowerCase().trim();
+  const ft = document.getElementById('f-teacher').value;
+  const fs = document.getElementById('f-status').value;
+
+  const shown = allCodes.filter(c => {
+    if (ft && c.teacherName !== ft) return false;
+    if (fs === 'done' && !c.used) return false;
+    if (fs === 'wait' && c.used) return false;
+    if (q && !(c.id.toLowerCase().includes(q)
+      || (c.studentName || '').toLowerCase().includes(q)
+      || (c.teacherName || '').toLowerCase().includes(q))) return false;
+    return true;
+  });
+
+  document.getElementById('stat-total').textContent = allCodes.length;
+  document.getElementById('stat-done').textContent = allCodes.filter(c => c.used).length;
+  document.getElementById('stat-wait').textContent = allCodes.filter(c => !c.used).length;
+
+  const list = document.getElementById('codes-list');
+  if (!shown.length) {
+    list.innerHTML = '<p class="text-sm text-text-muted bg-surface-white border border-border-subtle rounded-xl p-6 text-center">' +
+      (allCodes.length ? 'No codes match your filters.' : 'No codes yet — click <b>Generate Code</b> or ask a teacher to create one.') + '</p>';
+    return;
+  }
+  list.innerHTML = shown.map(c => {
+    const created = c.createdAt?.seconds ? new Date(c.createdAt.seconds * 1000).toLocaleDateString() : '';
+    const r = c.result;
+    return `<div class="bg-surface-white border border-border-subtle rounded-xl p-5 flex items-center justify-between gap-4 flex-wrap">
+      <div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="text-xl font-extrabold tracking-[0.25em] text-on-surface">${esc(c.id)}</span>
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant">${esc(c.teacherName || 'Unknown teacher')}</span>
+          <button onclick="copyText('영어 레벨 테스트: https://level.cremonamusic.com  ·  코드: ${esc(c.id)}')"
+                  class="text-xs font-bold border border-border-subtle rounded-full px-3 py-1 hover:border-secondary hover:text-secondary">Copy for student</button>
+        </div>
+        <p class="text-xs text-text-muted mt-1.5">Created ${esc(created)}${c.studentName ? ' · Taken by <b>' + esc(c.studentName) + '</b>' : ''}</p>
+      </div>
+      <div class="text-right">
+        ${c.used && r
+          ? `<span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-success border border-green-200 mb-1.5">COMPLETED</span>
+             <p class="text-sm font-bold">${esc(r.levelLabel || r.level)}</p>
+             <p class="text-xs text-text-muted">Reading ${r.reading}/15 · Listening ${r.listening}/10 · Total ${r.total}/25</p>`
+          : `<span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">WAITING</span>`}
+        <p class="mt-1.5"><button data-del="${esc(c.id)}" class="del-code text-xs text-error hover:underline">Delete</button></p>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.del-code').forEach(btn => btn.addEventListener('click', () => deleteCode(btn.dataset.del)));
+}
+
+['f-search', 'f-teacher', 'f-status'].forEach(id =>
+  document.getElementById(id).addEventListener('input', render));
+
+window.generateCode = async function() {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  try {
+    // unambiguous characters only (no 0/O, 1/I/L)
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    await setDoc(doc(db, 'levelTestCodes', code), {
+      teacherUid: me.uid,
+      teacherName: me.name,
+      used: false,
+      createdAt: serverTimestamp(),
+    });
+    await loadCodes();
+    copyText(`영어 레벨 테스트: https://level.cremonamusic.com  ·  코드: ${code}`);
+    showToast(`Code ${code} created and copied — send it to the student!`);
+  } catch (e) {
+    showToast('Failed to create code: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+async function deleteCode(id) {
+  if (!confirm(`Delete code ${id}?`)) return;
+  try {
+    await deleteDoc(doc(db, 'levelTestCodes', id));
+    loadCodes();
+  } catch (e) {
+    showToast('Failed to delete: ' + e.message);
+  }
+}
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
+</body>
+</html>

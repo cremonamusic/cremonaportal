@@ -1,10 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Account | Cremona Music Portal</title>
+<title>Account - Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -14,20 +13,20 @@
     theme: {
       extend: {
         colors: {
-          "error-container": "#ffdad6", "on-secondary-container": "#3E2C23", "on-secondary": "#3E2C23",
-          "border-subtle": "#E8DCC8", "surface-container-lowest": "#FFFDF9", "error": "#ba1a1a",
-          "primary-container": "#F5E5B0", "primary-fixed": "#F0E8C0", "on-error": "#ffffff",
-          "on-background": "#3E2C23", "secondary-container": "#F5E5B0", "surface-dim": "#D4BCA0",
-          "surface-container-highest": "#E4D8C2", "secondary-fixed": "#F0E8C0",
-          "on-surface-variant": "#7A5A42", "surface-container-high": "#EAE0CE",
-          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "text-muted": "#8B6B52",
-          "on-primary-fixed": "#3E2C23", "primary": "#C9A227", "secondary": "#C9A227",
-          "on-error-container": "#93000a", "primary-fixed-dim": "#D4A520",
-          "on-secondary-fixed": "#3E2C23", "surface-container": "#F0E8D6",
-          "outline-variant": "#D4BCA0", "outline": "#7A5230", "on-surface": "#3E2C23",
-          "background": "#FAF6EF", "on-secondary-fixed-variant": "#7A5230",
-          "on-primary-container": "#8B6020", "on-primary": "#3E2C23",
-          "surface-container-low": "#F5EFE4"
+          "error-container": "#F9DEDC", "on-secondary-container": "#FFFDF8", "on-secondary": "#ffffff",
+          "border-subtle": "#E2D7C6", "surface-container-lowest": "#ffffff", "error": "#B3261E",
+          "primary-container": "#C8A951", "primary-fixed": "#F0E2C4", "on-error": "#ffffff",
+          "on-background": "#2B2019", "secondary-container": "#9A7524", "surface-dim": "#d9dadb",
+          "surface-container-highest": "#E3D8C6", "secondary-fixed": "#F2E6CC",
+          "on-surface-variant": "#6B5844", "surface-container-high": "#EAE0D0",
+          "surface": "#FAF6EF", "surface-white": "#FFFFFF", "text-muted": "#7A6A57",
+          "on-primary-fixed": "#2A1D14", "primary": "#3B2A1E", "secondary": "#7A5A16",
+          "on-error-container": "#93000a", "primary-fixed-dim": "#C8A951",
+          "on-secondary-fixed": "#2A1D14", "surface-container": "#F1E9DC",
+          "outline-variant": "#D8C5A8", "outline": "#8A7A63", "on-surface": "#2B2019",
+          "background": "#FAF6EF", "on-secondary-fixed-variant": "#004493",
+          "on-primary-container": "#5A4A22", "on-primary": "#ffffff",
+          "surface-container-low": "#F6F0E6"
         },
         spacing: { "base": "8px", "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px" },
         fontFamily: { "body-md": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "label-sm": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-lg": ["Inter"], "headline-md": ["Inter"] },
@@ -48,29 +47,15 @@
 <style>
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
-  .spinner { width: 20px; height: 20px; border: 2px solid rgba(201,162,39,0.2); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(59,42,30,0.2); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
   #toast.show { opacity: 1; }
-  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.error { background: #B3261E; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
-  #toast.info { background: #3B2A1E; color: #F5EFE4; }
-  .pref-seg { color: #8B6B52; }
-  .pref-seg.active { background: #C9A227; color: #3E2C23; box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+  #toast.info { background: #7A5A16; color: #fff; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
 <body class="bg-background text-on-surface">
 
@@ -84,17 +69,42 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
-<main class="pt-8 pb-12 px-4 md:px-8 max-w-3xl mx-auto">
+<!-- TopAppBar -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm fixed top-0 left-0 w-full z-50">
+  <div class="flex items-center justify-between w-full px-6 h-16 max-w-[1200px] mx-auto">
+    <div class="flex items-center gap-8">
+      <a href="/home" id="logo-link" class="hover:opacity-80 transition-opacity"><img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/></a>
+      <nav id="main-nav" class="hidden md:flex items-center gap-6">
+        <a href="/home"             class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books"            class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/comments"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a href="/salary"           class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="lang-toggle" onclick="toggleLang()" class="text-xs font-semibold px-2.5 py-1 rounded-lg border border-border-subtle text-text-muted hover:text-primary transition-colors">한국어</button>
+      <div class="flex items-center gap-2 px-3 py-1.5 text-sm font-bold text-secondary border-b-2 border-secondary">
+        <span class="material-symbols-outlined text-[18px]">account_circle</span>
+        <span class="hidden sm:inline" data-i18n="acct_nav">Account</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="pt-24 pb-12 px-4 md:px-8 max-w-3xl mx-auto">
   <div class="mb-8">
-    <h1 class="text-2xl font-bold text-on-surface mb-1">Account</h1>
-    <p class="text-sm text-text-muted">Manage your profile and account settings.</p>
+    <h1 data-i18n="acct_title" class="text-2xl font-bold text-on-surface mb-1">Account</h1>
+    <p data-i18n="acct_sub" class="text-sm text-text-muted">Manage your profile and account settings.</p>
   </div>
 
   <div class="space-y-6">
 
     <!-- Profile Card -->
     <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
-      <h2 class="text-base font-semibold text-on-surface mb-6">Profile Information</h2>
+      <h2 data-i18n="acct_profile" class="text-base font-semibold text-on-surface mb-6">Profile Information</h2>
 
       <!-- Avatar + name row -->
       <div class="flex items-center gap-5 mb-7">
@@ -112,7 +122,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <p id="display-email" class="text-sm text-text-muted mt-0.5 truncate">—</p>
           <span class="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-secondary-fixed text-on-secondary-fixed-variant">
             <span class="material-symbols-outlined text-xs mr-1" style="font-variation-settings:'FILL' 1;">verified</span>
-            Full Access
+            <span data-i18n="acct_fullaccess">Full Access</span>
           </span>
         </div>
       </div>
@@ -120,39 +130,53 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <!-- Fields -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">First Name</label>
+          <label data-i18n="acct_firstname" class="text-xs font-semibold text-text-muted uppercase tracking-wider">First Name</label>
           <input id="field-firstname" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none cursor-default text-on-surface" readonly type="text" value=""/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Last Name</label>
+          <label data-i18n="acct_lastname" class="text-xs font-semibold text-text-muted uppercase tracking-wider">Last Name</label>
           <input id="field-lastname" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none cursor-default text-on-surface" readonly type="text" value=""/>
         </div>
         <div class="flex flex-col gap-1.5 sm:col-span-2">
-          <label class="text-xs font-semibold text-text-muted uppercase tracking-wider">Email Address</label>
+          <label data-i18n="acct_email" class="text-xs font-semibold text-text-muted uppercase tracking-wider">Email Address</label>
           <input id="field-email" class="w-full bg-surface-container-low border border-border-subtle rounded-lg px-3.5 py-2.5 text-sm focus:outline-none cursor-default text-on-surface" readonly type="email" value=""/>
         </div>
       </div>
     </section>
 
+    <!-- Documents shortcut (teachers) -->
+    <section id="docs-link-card" class="hidden bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-on-surface">Documents · 서류</p>
+          <p data-i18n="acct_docs_desc" class="text-sm text-text-muted mt-0.5">Employment certificates and payment slips moved to their own page.</p>
+        </div>
+        <a href="/documents" class="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-primary-container text-on-primary-fixed rounded-lg text-sm font-bold hover:brightness-105 transition-all whitespace-nowrap">
+          <span class="material-symbols-outlined text-sm">description</span>
+          <span data-i18n="acct_docs_btn">Open Documents</span>
+        </a>
+      </div>
+    </section>
+
     <!-- Security Card -->
     <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
-      <h2 class="text-base font-semibold text-on-surface mb-6">Security</h2>
+      <h2 data-i18n="acct_security" class="text-base font-semibold text-on-surface mb-6">Security</h2>
       <div class="space-y-5">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <p class="text-sm font-semibold text-on-surface">Password</p>
-            <p class="text-sm text-text-muted mt-0.5" id="password-hint">Update your account password.</p>
+            <p data-i18n="acct_password" class="text-sm font-semibold text-on-surface">Password</p>
+            <p class="text-sm text-text-muted mt-0.5" id="password-hint" data-i18n="acct_password_hint">Update your account password.</p>
           </div>
           <button onclick="showPasswordModal()" id="change-pw-btn"
                   class="self-start sm:self-auto px-4 py-2 border border-border-subtle rounded-lg text-sm font-medium hover:bg-surface-container-low transition-all whitespace-nowrap">
-            Change Password
+            <span data-i18n="acct_change_pw">Change Password</span>
           </button>
         </div>
         <div class="h-px bg-border-subtle"></div>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <p class="text-sm font-semibold text-on-surface">Sign Out</p>
-            <p class="text-sm text-text-muted mt-0.5">Sign out from this device.</p>
+            <p data-i18n="acct_signout" class="text-sm font-semibold text-on-surface">Sign Out</p>
+            <p data-i18n="acct_signout_desc" class="text-sm text-text-muted mt-0.5">Sign out from this device.</p>
           </div>
           <button onclick="doSignOut()"
                   class="self-start sm:self-auto flex items-center gap-2 px-4 py-2 border border-error text-error rounded-lg text-sm font-medium hover:bg-error-container transition-all">
@@ -163,62 +187,64 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
     </section>
 
-    <!-- Preferences Card -->
-    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-border-subtle">
-      <h2 class="text-base font-semibold text-on-surface mb-1">Preferences</h2>
-      <p class="text-sm text-text-muted mb-6">These settings are saved on this device. Full translation and theming are coming soon.</p>
-      <div class="space-y-5">
-
-        <!-- Language -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p class="text-sm font-semibold text-on-surface">Language</p>
-            <p class="text-sm text-text-muted mt-0.5">Choose your preferred display language.</p>
-          </div>
-          <div id="lang-toggle" class="inline-flex rounded-lg border border-border-subtle bg-surface-container-low p-0.5 self-start">
-            <button type="button" data-lang="en"
-                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all">English</button>
-            <button type="button" data-lang="zh"
-                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all">中文</button>
-          </div>
+    <!-- Danger Zone -->
+    <section class="bg-surface-white p-6 rounded-2xl shadow-sm border border-error/30">
+      <h2 data-i18n="acct_danger" class="text-base font-semibold text-error mb-6">Danger Zone</h2>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <p data-i18n="acct_delete" class="text-sm font-semibold text-on-surface">Delete My Account</p>
+          <p data-i18n="acct_delete_desc" class="text-sm text-text-muted mt-0.5">Permanently delete your account and sign-in access. This cannot be undone.</p>
         </div>
-
-        <div class="h-px bg-border-subtle"></div>
-
-        <!-- Theme -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <p class="text-sm font-semibold text-on-surface">Appearance</p>
-            <p class="text-sm text-text-muted mt-0.5">Switch between light and dark mode.</p>
-          </div>
-          <div id="theme-toggle" class="inline-flex rounded-lg border border-border-subtle bg-surface-container-low p-0.5 self-start">
-            <button type="button" data-theme="light"
-                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-[16px]">light_mode</span> Light
-            </button>
-            <button type="button" data-theme="dark"
-                    class="pref-seg px-4 py-1.5 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5">
-              <span class="material-symbols-outlined text-[16px]">dark_mode</span> Dark
-            </button>
-          </div>
-        </div>
-
+        <button onclick="showDeleteAccountModal()"
+                class="self-start sm:self-auto flex items-center gap-2 px-4 py-2 bg-error text-white rounded-lg text-sm font-bold hover:brightness-110 transition-all whitespace-nowrap">
+          <span class="material-symbols-outlined text-sm">delete_forever</span>
+          <span data-i18n="acct_delete_btn">Delete Account</span>
+        </button>
       </div>
     </section>
 
   </div>
 </main>
 
+<!-- Delete Account Modal -->
+<div id="delacct-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="hideDeleteAccountModal()"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl border border-border-subtle p-6 flex flex-col gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-error">warning</span>
+      </div>
+      <div>
+        <h2 data-i18n="acct_del_modal_title" class="font-headline-sm text-headline-sm">Delete My Account</h2>
+        <p data-i18n="acct_del_modal_sub" class="font-body-sm text-text-muted mt-0.5">This permanently deletes your account. It cannot be undone.</p>
+      </div>
+    </div>
+    <div id="delacct-pw-wrap" class="flex flex-col gap-1.5">
+      <label data-i18n="acct_confirm_pw" class="font-label-md text-on-surface">Confirm your password</label>
+      <input id="delacct-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-error focus:ring-1 focus:ring-error outline-none text-sm" type="password" placeholder="Your current password" data-i18n-ph="acct_ph_current_pw" autocomplete="current-password"/>
+    </div>
+    <p id="delacct-google-note" class="hidden font-body-sm text-text-muted bg-surface-container-low rounded-lg px-3 py-2">
+      <span data-i18n="acct_google_note">You signed in with Google — you'll be asked to confirm with your Google account.</span>
+    </p>
+    <div class="flex justify-end gap-3 mt-2">
+      <button data-i18n="acct_cancel" onclick="hideDeleteAccountModal()" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="delacct-btn" onclick="confirmDeleteAccount()" class="px-6 py-2 bg-error text-white rounded-lg font-bold font-label-md shadow hover:brightness-110 active:scale-95 flex items-center gap-2">
+        Delete Account
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Password Change Modal -->
 <div id="pw-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/40" onclick="hidePwModal()"></div>
   <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl border border-border-subtle p-6 flex flex-col gap-4">
     <div>
-      <h2 class="font-headline-sm text-headline-sm">Change Password</h2>
-      <p class="font-body-sm text-text-muted mt-1">Confirm your current password, then choose a new one.</p>
+      <h2 data-i18n="acct_pw_modal_title" class="font-headline-sm text-headline-sm">Change Password</h2>
+      <p data-i18n="acct_pw_modal_sub" class="font-body-sm text-text-muted mt-1">Confirm your current password, then choose a new one.</p>
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="font-label-md text-on-surface">Current Password</label>
+      <label data-i18n="acct_current_pw" class="font-label-md text-on-surface">Current Password</label>
       <div class="relative">
         <input id="current-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Your current password" autocomplete="current-password"/>
         <button type="button" onclick="togglePw('current-pw',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface">
@@ -228,27 +254,27 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     </div>
     <div class="h-px bg-border-subtle"></div>
     <div class="flex flex-col gap-1.5">
-      <label class="font-label-md text-on-surface">New Password</label>
+      <label data-i18n="acct_new_pw" class="font-label-md text-on-surface">New Password</label>
       <div class="relative">
-        <input id="new-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Min. 8 characters" autocomplete="new-password"/>
+        <input id="new-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Min. 8 characters" data-i18n-ph="acct_ph_new_pw" autocomplete="new-password"/>
         <button type="button" onclick="togglePw('new-pw',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface">
           <span class="material-symbols-outlined text-[20px]">visibility</span>
         </button>
       </div>
     </div>
     <div class="flex flex-col gap-1.5">
-      <label class="font-label-md text-on-surface">Confirm New Password</label>
+      <label data-i18n="acct_confirm_new_pw" class="font-label-md text-on-surface">Confirm New Password</label>
       <div class="relative">
-        <input id="confirm-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Repeat new password" autocomplete="new-password"/>
+        <input id="confirm-pw" class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm pr-10" type="password" placeholder="Repeat new password" data-i18n-ph="acct_ph_repeat_pw" autocomplete="new-password"/>
         <button type="button" onclick="togglePw('confirm-pw',this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface">
           <span class="material-symbols-outlined text-[20px]">visibility</span>
         </button>
       </div>
     </div>
     <div class="flex justify-end gap-3 mt-2">
-      <button onclick="hidePwModal()" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button data-i18n="acct_cancel" onclick="hidePwModal()" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
       <button id="save-pw-btn" onclick="savePassword()" class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold font-label-md shadow hover:brightness-105 active:scale-95 flex items-center gap-2">
-        Update Password
+        <span data-i18n="acct_update_pw">Update Password</span>
       </button>
     </div>
   </div>
@@ -258,50 +284,67 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 <footer class="bg-surface-container-highest border-t border-border-subtle mt-12">
   <div class="w-full py-gutter px-margin-desktop flex flex-col md:flex-row justify-between items-center max-w-container-max mx-auto gap-4">
     <div class="flex flex-col items-center md:items-start">
-      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
-      <p class="font-body-sm text-text-muted mt-1">© 2025 Cremona Music.</p>
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <p class="font-body-sm text-text-muted mt-1">© 2026 Cremona Music Portal.</p>
     </div>
     <div class="flex flex-wrap justify-center gap-gutter">
-      <a class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/terms.html">Terms of Service</a>
-      <a class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/privacy.html">Privacy Policy</a>
+      <a id="user-guide-link" class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/guide?role=teacher" data-i18n="acct_user_guide">User Guide</a>
+      <a class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/terms" data-i18n="acct_terms">Terms of Service</a>
+      <a class="font-body-sm text-text-muted hover:text-primary transition-all underline" href="/privacy" data-i18n="acct_privacy">Privacy Policy</a>
     </div>
   </div>
 </footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { getAuth, onAuthStateChanged, signOut, updatePassword, reauthenticateWithCredential,
+         reauthenticateWithPopup, GoogleAuthProvider, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
-const auth    = getAuth(app);
-const db      = getFirestore(app);
-const storage = getStorage(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 let currentUser = null;
+let currentUserData = null;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
     const data = snap.data();
-    if (data.role !== 'teacher' && data.role !== 'admin' && data.role !== 'parent') {
-      window.location.href = '/index.html'; return;
+    // Parents use this page too (profile photo, password, delete account) — the
+    // header nav is teacher-oriented, so swap it for the parent's own links.
+    if (data.role === 'parent') {
+      const logo = document.getElementById('logo-link');
+      if (logo) logo.href = '/parent/dashboard';
+      const guideLink = document.getElementById('user-guide-link');
+      if (guideLink) guideLink.href = '/guide?role=parent';
+      const nav = document.getElementById('main-nav');
+      if (nav) {
+        const cls = 'text-sm font-medium text-text-muted hover:text-primary transition-colors';
+        nav.innerHTML = [
+          ['/parent/dashboard', 'Dashboard'],
+          ['/parent/schedule',  'Schedule'],
+          ['/parent/messages',  'Messages'],
+          ['/parent/payments',  'Payments'],
+          ['/parent/comments',   'Comments'],
+        ].map(([href, label]) => `<a href="${href}" class="${cls}">${label}</a>`).join('');
+      }
     }
     currentUser = user;
+    currentUserData = data;
     populateProfile(user, data);
-    initPortalNav(data.role);
-    initPreferences();
+    if (data.role === 'teacher') document.getElementById('docs-link-card').classList.remove('hidden');
     document.getElementById('loading-overlay').style.display = 'none';
     // Hide change password for Google SSO users
     if (data.ssoProvider === 'google') {
@@ -310,9 +353,29 @@ onAuthStateChanged(auth, async (user) => {
     }
   } catch (e) {
     console.error(e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
+
+
+// Uploads go through /api/upload (same-origin) — the R2 worker's CORS only
+// allows the old .web.app origin, so direct browser PUTs fail on this domain.
+async function apiUpload(key, blob, contentType) {
+  const dataBase64 = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(',')[1]);
+    fr.onerror = () => rej(new Error('Could not read file'));
+    fr.readAsDataURL(blob);
+  });
+  const idToken = await auth.currentUser.getIdToken();
+  const r = await fetch('/api/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken, key, contentType, dataBase64 }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Upload failed');
+  return d.url;
+}
 
 function populateProfile(user, data) {
   const firstName = data.firstName || (data.name ? data.name.split(' ')[0] : '');
@@ -334,18 +397,19 @@ function populateProfile(user, data) {
   }
 }
 
+const WORKER_URL     = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
 window.uploadProfilePhoto = async function(input) {
   const file = input.files[0];
   if (!file || !currentUser) return;
   const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-  const path = `avatars/${currentUser.uid}_${Date.now()}.${ext}`;
+  const key = `avatars/${currentUser.uid}_${Date.now()}.${ext}`;
   const circle = document.getElementById('avatar-circle');
   const prevContent = circle.innerHTML;
   circle.innerHTML = '<div class="w-full h-full flex items-center justify-center"><div class="spinner" style="width:24px;height:24px;border-width:3px"></div></div>';
   try {
-    const storageRef = ref(storage, path);
-    await uploadBytes(storageRef, file, { contentType: file.type || 'image/jpeg' });
-    const photoUrl = await getDownloadURL(storageRef);
+    const photoUrl = await apiUpload(key, file, file.type || 'image/jpeg');
     await updateDoc(doc(db, 'users', currentUser.uid), { photoUrl });
     circle.innerHTML = `<img src="${photoUrl}" class="w-full h-full object-cover rounded-full" alt="profile photo"/>`;
   } catch (err) {
@@ -363,7 +427,7 @@ function escHtml(s) {
 
 window.doSignOut = async function() {
   await signOut(auth);
-  window.location.href = '/index.html';
+  window.location.href = '/';
 };
 
 window.showPasswordModal = function() {
@@ -404,7 +468,52 @@ window.savePassword = async function() {
     }
   } finally {
     btn.disabled = false;
-    btn.innerHTML = 'Update Password';
+    btn.innerHTML = (window._acctT ? window._acctT('acct_update_pw') : 'Update Password');
+  }
+};
+
+// ── Delete My Account ─────────────────────────────────────────────────────────
+window.showDeleteAccountModal = function() {
+  const isGoogle = currentUserData?.ssoProvider === 'google';
+  document.getElementById('delacct-pw-wrap').style.display     = isGoogle ? 'none' : '';
+  document.getElementById('delacct-google-note').style.display = isGoogle ? 'block' : 'none';
+  document.getElementById('delacct-pw').value = '';
+  document.getElementById('delacct-modal').classList.remove('hidden');
+};
+
+window.hideDeleteAccountModal = function() {
+  document.getElementById('delacct-modal').classList.add('hidden');
+};
+
+window.confirmDeleteAccount = async function() {
+  if (!currentUser) return;
+  const isGoogle = currentUserData?.ssoProvider === 'google';
+  const pw = document.getElementById('delacct-pw').value;
+  if (!isGoogle && !pw) return showToast('Please enter your password.', 'error');
+
+  const btn = document.getElementById('delacct-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></div> Deleting…';
+  try {
+    if (isGoogle) {
+      await reauthenticateWithPopup(currentUser, new GoogleAuthProvider());
+    } else {
+      await reauthenticateWithCredential(currentUser, EmailAuthProvider.credential(currentUser.email, pw));
+    }
+    await deleteDoc(doc(db, 'users', currentUser.uid));
+    await deleteUser(currentUser);
+    window.location.href = '/';
+  } catch (e) {
+    console.error('[deleteAccount]', e);
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      showToast('Incorrect password.', 'error');
+    } else if (e.code === 'auth/popup-closed-by-user') {
+      showToast('Confirmation popup was closed.', 'error');
+    } else {
+      showToast('Failed to delete account. Please try again.', 'error');
+    }
+    btn.disabled = false;
+    btn.innerHTML = 'Delete Account';
   }
 };
 
@@ -415,51 +524,89 @@ window.togglePw = function(id, btn) {
   icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
 };
 
-// Inject the role-appropriate portal sidebar/header (shared component).
-function initPortalNav(role) {
-  const portal = (role === 'admin' || role === 'parent') ? role : 'teacher';
-  window.CREMONA_NAV = { portal, active: '', title: 'Account' };
-  const s = document.createElement('script');
-  s.src = '/js/portal-nav.js';
-  document.body.appendChild(s);
-}
-
-// Language + appearance toggles — persisted on this device (UI only for now).
-function initPreferences() {
-  const lang  = localStorage.getItem('lang')  || 'en';
-  const theme = localStorage.getItem('theme') || 'light';
-
-  const paint = (containerId, attr, value) => {
-    document.querySelectorAll(`#${containerId} .pref-seg`).forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute(attr) === value);
-    });
-  };
-  paint('lang-toggle', 'data-lang', lang);
-  paint('theme-toggle', 'data-theme', theme);
-
-  document.querySelectorAll('#lang-toggle .pref-seg').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const v = btn.getAttribute('data-lang');
-      localStorage.setItem('lang', v);
-      paint('lang-toggle', 'data-lang', v);
-      showToast(v === 'zh' ? '語言偏好已儲存 (顯示翻譯即將推出)' : 'Language preference saved.', 'success');
-    });
-  });
-  document.querySelectorAll('#theme-toggle .pref-seg').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const v = btn.getAttribute('data-theme');
-      localStorage.setItem('theme', v);
-      paint('theme-toggle', 'data-theme', v);
-      showToast('Appearance preference saved.', 'info');
-    });
-  });
-}
-
 window.showToast = function(msg, type='info') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = `show ${type}`;
   setTimeout(() => t.className = '', 3500);
 };
 </script>
+<script src="/js/notifbell.js?v=4" defer></script>
+
+<script>
+/* Account page i18n — shares the portal-wide `cremona-lang` preference. */
+(function () {
+  const TRANS = {
+    en: {
+      acct_nav:'Account', acct_title:'Account',
+      acct_sub:'Manage your profile and account settings.',
+      acct_profile:'Profile Information', acct_fullaccess:'Full Access',
+      acct_firstname:'First Name', acct_lastname:'Last Name', acct_email:'Email Address',
+      acct_docs_desc:'Employment certificates and payment slips moved to their own page.',
+      acct_docs_btn:'Open Documents',
+      acct_security:'Security', acct_password:'Password',
+      acct_password_hint:'Update your account password.',
+      acct_change_pw:'Change Password',
+      acct_signout:'Sign Out', acct_signout_desc:'Sign out from this device.',
+      acct_danger:'Danger Zone', acct_delete:'Delete My Account',
+      acct_delete_desc:'Permanently delete your account and sign-in access. This cannot be undone.',
+      acct_del_modal_title:'Delete My Account',
+      acct_del_modal_sub:'This permanently deletes your account. It cannot be undone.',
+      acct_confirm_pw:'Confirm your password', acct_ph_current_pw:'Your current password',
+      acct_google_note:"You signed in with Google — you'll be asked to confirm with your Google account.",
+      acct_cancel:'Cancel', acct_delete_btn:'Delete Account',
+      acct_pw_modal_title:'Change Password',
+      acct_pw_modal_sub:'Confirm your current password, then choose a new one.',
+      acct_current_pw:'Current Password', acct_new_pw:'New Password',
+      acct_ph_new_pw:'Min. 8 characters', acct_confirm_new_pw:'Confirm New Password',
+      acct_ph_repeat_pw:'Repeat new password', acct_update_pw:'Update Password',
+      acct_user_guide:'User Guide', acct_terms:'Terms of Service', acct_privacy:'Privacy Policy'
+    },
+    ko: {
+      acct_nav:'계정', acct_title:'계정',
+      acct_sub:'프로필과 계정 설정을 관리하세요.',
+      acct_profile:'프로필 정보', acct_fullaccess:'전체 이용',
+      acct_firstname:'이름', acct_lastname:'성', acct_email:'이메일 주소',
+      acct_docs_desc:'재직증명서와 급여명세서는 별도 페이지로 이동했습니다.',
+      acct_docs_btn:'서류 열기',
+      acct_security:'보안', acct_password:'비밀번호',
+      acct_password_hint:'계정 비밀번호를 변경합니다.',
+      acct_change_pw:'비밀번호 변경',
+      acct_signout:'로그아웃', acct_signout_desc:'이 기기에서 로그아웃합니다.',
+      acct_danger:'위험 구역', acct_delete:'계정 삭제',
+      acct_delete_desc:'계정과 로그인 권한이 영구히 삭제됩니다. 되돌릴 수 없습니다.',
+      acct_del_modal_title:'계정 삭제',
+      acct_del_modal_sub:'계정이 영구히 삭제되며 되돌릴 수 없습니다.',
+      acct_confirm_pw:'비밀번호 확인', acct_ph_current_pw:'현재 비밀번호',
+      acct_google_note:'Google 계정으로 로그인하셨습니다 — Google 계정으로 확인이 필요합니다.',
+      acct_cancel:'취소', acct_delete_btn:'계정 삭제',
+      acct_pw_modal_title:'비밀번호 변경',
+      acct_pw_modal_sub:'현재 비밀번호를 확인한 뒤 새 비밀번호를 설정하세요.',
+      acct_current_pw:'현재 비밀번호', acct_new_pw:'새 비밀번호',
+      acct_ph_new_pw:'8자 이상', acct_confirm_new_pw:'새 비밀번호 확인',
+      acct_ph_repeat_pw:'새 비밀번호 다시 입력', acct_update_pw:'비밀번호 변경',
+      acct_user_guide:'사용 안내', acct_terms:'이용약관', acct_privacy:'개인정보처리방침'
+    }
+  };
+  function L() { return localStorage.getItem('cremona-lang') === 'ko' ? 'ko' : 'en'; }
+  function t(k) { return (TRANS[L()] && TRANS[L()][k]) || TRANS.en[k] || k; }
+  function apply() {
+    document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.dataset.i18n); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.dataset.i18nPh); });
+    var b = document.getElementById('lang-toggle');
+    if (b) b.textContent = L() === 'en' ? '한국어' : 'English';
+    document.documentElement.lang = L();
+  }
+  window._acctT = t;
+  window._acctApplyI18n = apply;
+  window.toggleLang = function () {
+    localStorage.setItem('cremona-lang', L() === 'en' ? 'ko' : 'en');
+    localStorage.setItem('cremona-lang-explicit', '1');   // explicit choice wins over the stored profile value
+    apply();
+  };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', apply);
+  else apply();
+})();
+</script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

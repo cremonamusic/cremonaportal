@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contract | Cremona Music</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard Variable', Pretendard, 'Times New Roman', serif;
+    background: #eceef0; color: #1A1410;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .toolbar { max-width: 210mm; margin: 0 auto; padding: 16px 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .toolbar button { border: none; background: #C8A951; color: #2A1D14; font-weight: 800; font-size: 14px; padding: 10px 22px; border-radius: 10px; cursor: pointer; font-family: inherit; box-shadow: 0 6px 16px -6px rgba(59,42,30,.5); }
+  .toolbar p { font-size: 12px; color: #7A6A57; }
+  .sheet { width: 210mm; min-height: 297mm; margin: 0 auto 40px; background: #fff; padding: 20mm 18mm; box-shadow: 0 10px 40px -12px rgba(0,0,0,.25); }
+  .frame { border: 2px solid #1A1410; min-height: 257mm; padding: 12mm 11mm; }
+  h1 { text-align: center; font-size: 24px; letter-spacing: 3px; font-weight: 800; }
+  .h-sub { text-align: center; font-size: 13px; color: #444; margin-top: 4px; letter-spacing: 6px; }
+  .h-rule { width: 62%; margin: 12px auto 18px; border-bottom: 2px solid #1A1410; }
+  .parties { font-size: 13px; line-height: 1.7; margin-bottom: 14px; }
+  .parties b { font-weight: 700; }
+  table.data { width: 100%; border-collapse: collapse; margin: 8px 0 14px; font-size: 13px; }
+  table.data th, table.data td { border: 1px solid #1A1410; padding: 8px 11px; text-align: left; }
+  table.data th { width: 180px; background: #f2f2f2; font-weight: 600; }
+  .terms { font-size: 12.8px; line-height: 1.75; }
+  .terms h3 { font-size: 13px; margin: 12px 0 3px; }
+  .fileblock { margin: 16px 0; padding: 14px; border: 1px dashed #888; border-radius: 8px; font-size: 13px; }
+  .fileblock a { color: #7A5A16; font-weight: 700; }
+  .sigs { display: flex; gap: 24px; margin-top: 30px; }
+  .sig { flex: 1; font-size: 12.5px; line-height: 1.7; }
+  .sig .box { height: 88px; border: 1px solid #1A1410; border-radius: 4px; margin: 6px 0; display: flex; align-items: center; justify-content: center; background: #fcfcfc; overflow: hidden; }
+  .sig .box img { max-height: 80px; max-width: 100%; }
+  .sig .stamp { font-weight: 800; font-size: 15px; letter-spacing: 2px; color: #a33; transform: rotate(-6deg); border: 2px solid #a33; border-radius: 6px; padding: 4px 12px; }
+  .sign-ui { max-width: 210mm; margin: 0 auto 60px; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 10px 40px -12px rgba(0,0,0,.2); }
+  .sign-ui h2 { font-size: 16px; margin-bottom: 4px; }
+  .sign-ui p { font-size: 12.5px; color: #7A6A57; margin-bottom: 12px; }
+  #sig-canvas { border: 2px dashed #b8ac8d; border-radius: 12px; background: #fffdf7; touch-action: none; width: 100%; max-width: 480px; height: 160px; display: block; cursor: crosshair; }
+  .sign-ui .row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+  .sign-ui button { border: none; font-family: inherit; font-weight: 800; font-size: 13px; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
+  #sig-submit { background: #C8A951; color: #2A1D14; }
+  #sig-clear { background: #F1E9DC; color: #444; }
+  .err { max-width: 480px; margin: 15vh auto; background: #fff; border-radius: 16px; padding: 40px; text-align: center; font-size: 14px; color: #444; }
+  @media print {
+    body { background: #fff; }
+    .toolbar, .sign-ui { display: none; }
+    .sheet { box-shadow: none; margin: 0; width: auto; }
+  }
+  @page { size: A4; margin: 0; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <p>Contract · 근로계약서</p>
+  <button onclick="window.print()">🖨 Print / Save PDF</button>
+</div>
+
+<div id="content"><div class="err">Loading contract…</div></div>
+<div id="sign-area"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com", projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID", appId: "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const WORKER_URL = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+const COMPANY = {
+  nameEn: 'CREMONA CO. LTD',
+  rep: '정찬미 (JUNG CHANMI)',
+  bizNo: '130-47-60022',
+  tel: '010-9052-5935',
+  email: 'op@cremonamusic.com',
+  addrKo: '서울특별시 서초구 서초대로77길 9 누드죤빌딩 9층 902호',
+  addrEn: '9F #902, Nudejon Bldg., 9 Seocho-daero 77-gil, Seocho-gu, Seoul, Korea',
+};
+
+function esc(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fail(msg) { document.getElementById('content').innerHTML = `<div class="err">${esc(msg)}</div>`; }
+function fmtDate(d) { return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
+function fmtAmount(amount, currency) {
+  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency || 'KRW', maximumFractionDigits: currency === 'KRW' || !currency ? 0 : 2 }).format(amount || 0); }
+  catch { return (amount || 0).toLocaleString() + ' ' + (currency || ''); }
+}
+
+let contractId = null;
+let contract = null;
+let me = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = '/'; return; }
+  me = user;
+  contractId = new URLSearchParams(location.search).get('id');
+  if (!contractId) return fail('No contract specified.');
+  try {
+    const snap = await getDoc(doc(db, 'contracts', contractId));
+    if (!snap.exists()) return fail('This contract was not found.');
+    contract = snap.data();
+    const tSnap = await getDoc(doc(db, 'users', contract.teacherUid));
+    render(tSnap.exists() ? tSnap.data() : {});
+  } catch (e) {
+    console.error(e);
+    fail(e.code === 'permission-denied' ? 'You do not have permission to view this contract.' : 'Failed to load: ' + e.message);
+  }
+});
+
+function render(t) {
+  const c = contract;
+  const f = c.fields || {};
+  const created = c.createdAt?.toDate ? c.createdAt.toDate() : new Date();
+  const start = f.startDate ? fmtDate(new Date(f.startDate + 'T00:00:00')) : '—';
+  const dob = t.dob ? fmtDate(new Date(t.dob + 'T00:00:00')) : '—';
+  const signed = c.status === 'signed';
+  const signedDate = c.signedAt?.toDate ? fmtDate(c.signedAt.toDate()) : '';
+
+  document.title = `${c.title || 'Contract'} — ${c.teacherName || ''}`;
+
+  const employeeSigBox = signed
+    ? `<div class="box"><img src="${esc(c.signatureUrl)}" alt="signature"/></div>
+       Name: <b>${esc(c.signedName || c.teacherName || '')}</b><br/>Signed: ${esc(signedDate)}`
+    : `<div class="box" style="color:#999;font-size:12px;">Awaiting signature</div>
+       Name: <b>${esc(c.teacherName || '')}</b><br/>Signed: —`;
+
+  const body = c.type === 'file'
+    ? `<div class="fileblock">
+        📎 This contract is provided as an attached document:&nbsp;
+        <a href="${esc(c.fileUrl)}" target="_blank" rel="noopener">${esc(c.title || 'Open contract file')}</a><br/>
+        <span style="color:#666;">Please read the full document before signing below.</span>
+      </div>
+      ${f.notes ? `<div class="terms"><h3>Additional terms</h3><p>${esc(f.notes)}</p></div>` : ''}`
+    : `<div class="parties">
+        This Teacher Service Agreement ("Agreement") is made and entered into by and between:<br/>
+        <b>Company:</b> ${esc(COMPANY.nameEn)} (Business Reg. No. ${esc(COMPANY.bizNo)}), ${esc(COMPANY.addrEn)}, represented by ${esc(COMPANY.rep)} ("Company"); and<br/>
+        <b>Teacher:</b> ${esc(t.name || c.teacherName || '—')}, an independent contractor ("Teacher").
+      </div>
+      <table class="data">
+        <tr><th>Employee Name</th><td>${esc(t.name || c.teacherName || '—')}</td></tr>
+        <tr><th>Date of Birth</th><td>${esc(dob)}</td></tr>
+        <tr><th>Passport / ID No.</th><td>${esc(t.idNumber || '—')}</td></tr>
+        <tr><th>Present Address</th><td>${esc(t.address || '—')}</td></tr>
+        <tr><th>Phone</th><td>${esc(t.phone || '—')}</td></tr>
+        <tr><th>Email</th><td>${esc(t.email || '—')}</td></tr>
+      </table>
+      <div class="terms">
+        <h3>1. Engagement (Independent Contractor)</h3>
+        <p>The Company engages the Teacher as an <b>independent contractor</b> to provide online English (ESL) instruction to students assigned by the Company, beginning on <b>${esc(start)}</b>. This Agreement does not create an employer–employee relationship, partnership, or agency. The first <b>3 months</b> are an evaluation period during which the Teacher's service quality is assessed; the Company may end the engagement during this period if the evaluation is unsatisfactory.</p>
+
+        <h3>2. Service Fees — based on assigned students</h3>
+        <p>Fees are calculated from the <b>students assigned to the Teacher and the classes actually delivered</b>, at the per-student rates recorded in the Company's system${f.payNote ? ` (${esc(f.payNote)})` : ''}. Unless recorded otherwise, the standard rates are <b>₱140 per hour during the evaluation period</b> and <b>₱200 per hour thereafter</b>, with each class running a full 30 minutes. Student assignments may increase or decrease with enrollment and performance; the Company does not guarantee any minimum number of students, classes, or income. Fees are paid on the <b>Wednesday following the end of each monthly session (4 weeks)</b>, as itemized on the Teacher's payment slips.</p>
+
+        <h3>3. Service Standards — only delivered classes are payable</h3>
+        <p>The Teacher connects at least <b>30 minutes before the first scheduled class</b> and starts every class on time. A fee is earned only for a class <b>delivered in full and on time</b>:</p>
+        <p>(a) If a class cannot proceed due to a problem on the student's side, the Teacher waits 15 minutes and teaches the remaining time — that class is payable in full.<br/>
+        (b) If a class is prevented by a problem on the Teacher's side, the Teacher informs the Head Teacher or Korean Manager immediately; affected classes are <b>not payable</b> and are delivered at a rescheduled time (that rescheduled session being the delivery of the same class).<br/>
+        (c) A class started more than <b>3 minutes late without notice</b>, or missed without notice, is <b>not payable</b>; the Teacher delivers it at a rescheduled time. Where the Teacher connects within 3 minutes, the class continues and is extended to the full 30 minutes.<br/>
+        (d) For absences, the Teacher provides supporting proof (e.g. a medical certificate) where applicable.</p>
+
+        <h3>4. Comments, Meetings, and Assignments</h3>
+        <p>The Teacher submits monthly Development Comments <b>on or before the 4th Wednesday of each monthly session</b> and participates in monthly coordination meetings. Timely reports, meeting participation, punctuality, and parent feedback form the Teacher's service record. The Company assigns and re-assigns students <b>at its discretion based on this record</b> — strong records earn more students; late reports, missed meetings, or repeated complaints (1st — notice; 2nd — written notice; further — reduced assignments) result in fewer or no assignments.</p>
+
+        <h3>5. Independent Contractor Status</h3>
+        <p>The Teacher provides their own workspace, computer, and stable internet connection suitable for uninterrupted classes, and is responsible for their own taxes and government contributions. The Teacher is free to provide services to others, provided Section 6 is respected and scheduled classes are honored.</p>
+
+        <h3>6. Confidentiality and Non-Solicitation</h3>
+        <p>All student information, parent contacts, teaching materials, and Company business information remain the property of the Company and must be kept confidential during and after the engagement. During the engagement and for <b>12 months after it ends</b>, the Teacher shall not privately teach, solicit, or accept the Company's students or their families outside the Company, nor recruit the Company's teachers or students for another service. A breach of this Section entitles the Company to end the engagement immediately and to seek damages.</p>
+
+        <h3>7. Term and Ending the Engagement</h3>
+        <p>Either party may end this Agreement with <b>30 days' written notice</b>; alternatively, the Company may reduce the Teacher's student load so the engagement ends after <b>15 days</b> of rendered classes. The Company may end the Agreement with immediate effect for material breach, including unauthorized no-shows, breach of confidentiality or non-solicitation, or conduct harmful to students or the Company. Classes already delivered are always paid.</p>
+
+        <h3>8. Incentives and Awards</h3>
+        <p>At its discretion, the Company may give occasion tokens (birthday, Chuseok, Christmas, Seolnal) and performance awards with commendations from parents and managers. These are gestures of appreciation, not compensation owed.</p>
+
+        <h3>9. Governing Law</h3>
+        <p>This Agreement is governed by the laws of the <b>Republic of Korea</b>. The parties will first attempt in good faith to resolve any dispute amicably.</p>
+
+        ${f.notes ? `<h3>10. Additional Terms</h3><p>${esc(f.notes)}</p><h3>11. Effect</h3>` : '<h3>10. Effect</h3>'}
+        <p>This Agreement takes effect on the date of signature below. An electronic signature has the same effect as a handwritten signature and supersedes prior discussions about the same engagement.</p>
+      </div>`;
+
+  document.getElementById('content').innerHTML = `
+  <div class="sheet"><div class="frame">
+    <h1>${esc((c.title || 'TEACHER SERVICE AGREEMENT').toUpperCase())}</h1>
+    <p class="h-sub">${c.type === 'file' ? '계 약 서' : '강 사 위 촉 계 약 서'}</p>
+    <div class="h-rule"></div>
+    ${body}
+    <div class="sigs">
+      <div class="sig">
+        <b>COMPANY</b><br/>
+        <div class="box"><span class="stamp">CREMONA CO. LTD</span></div>
+        ${esc(COMPANY.nameEn)}<br/>Rep. Director: <b>${esc(COMPANY.rep)}</b><br/>Date: ${esc(fmtDate(created))}
+      </div>
+      <div class="sig">
+        <b>TEACHER</b><br/>
+        ${employeeSigBox}
+      </div>
+    </div>
+  </div></div>`;
+
+  // signature pad for the owner while pending
+  if (!signed && me.uid === contract.teacherUid) initSignUi();
+  else document.getElementById('sign-area').innerHTML = '';
+}
+
+
+// Uploads go through /api/upload (same-origin) — the R2 worker's CORS only
+// allows the old .web.app origin, so direct browser PUTs fail on this domain.
+async function apiUpload(key, blob, contentType) {
+  const dataBase64 = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(',')[1]);
+    fr.onerror = () => rej(new Error('Could not read file'));
+    fr.readAsDataURL(blob);
+  });
+  const idToken = await auth.currentUser.getIdToken();
+  const r = await fetch('/api/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken, key, contentType, dataBase64 }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Upload failed');
+  return d.url;
+}
+
+function initSignUi() {
+  document.getElementById('sign-area').innerHTML = `
+  <div class="sign-ui">
+    <h2>✍️ Sign this contract</h2>
+    <p>Draw your signature below with your mouse or finger, then press "Agree &amp; Sign". This counts as your electronic signature.</p>
+    <canvas id="sig-canvas" width="960" height="320"></canvas>
+    <div class="row">
+      <button id="sig-clear">Clear</button>
+      <button id="sig-submit">Agree &amp; Sign</button>
+      <span id="sig-msg" style="font-size:12px;color:#7A6A57;"></span>
+    </div>
+  </div>`;
+
+  const canvas = document.getElementById('sig-canvas');
+  const ctx = canvas.getContext('2d');
+  ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#16223a';
+  let drawing = false, drew = false;
+  const pos = (e) => {
+    const r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * canvas.width / r.width, (e.clientY - r.top) * canvas.height / r.height];
+  };
+  canvas.addEventListener('pointerdown', (e) => { drawing = true; drew = true; const [x, y] = pos(e); ctx.beginPath(); ctx.moveTo(x, y); e.preventDefault(); });
+  canvas.addEventListener('pointermove', (e) => { if (!drawing) return; const [x, y] = pos(e); ctx.lineTo(x, y); ctx.stroke(); e.preventDefault(); });
+  ['pointerup', 'pointerleave'].forEach(ev => canvas.addEventListener(ev, () => { drawing = false; }));
+
+  document.getElementById('sig-clear').addEventListener('click', () => { ctx.clearRect(0, 0, canvas.width, canvas.height); drew = false; });
+  document.getElementById('sig-submit').addEventListener('click', async () => {
+    if (!drew) { document.getElementById('sig-msg').textContent = 'Please draw your signature first.'; return; }
+    if (!confirm('Sign this contract? This is legally binding and cannot be undone.')) return;
+    const btn = document.getElementById('sig-submit');
+    btn.disabled = true;
+    document.getElementById('sig-msg').textContent = 'Saving signature…';
+    try {
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      const key = `signatures/${me.uid}/${Date.now()}.png`;
+      const signatureUrl = await apiUpload(key, blob, 'image/png');
+      await updateDoc(doc(db, 'contracts', contractId), {
+        status: 'signed',
+        signedAt: serverTimestamp(),
+        signatureUrl,
+        signedName: contract.teacherName || '',
+      });
+      location.reload();
+    } catch (e) {
+      document.getElementById('sig-msg').textContent = 'Failed: ' + e.message;
+      btn.disabled = false;
+    }
+  });
+}
+</script>
+</body>
+</html>

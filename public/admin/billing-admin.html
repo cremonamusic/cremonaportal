@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Billing Summary | Cremona Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#3B2A1E', 'primary-container': '#C8A951',
+        'on-primary-fixed': '#2A1D14', 'on-primary-container': '#5A4A22',
+        'secondary': '#7A5A16', 'secondary-fixed': '#F2E6CC',
+        'secondary-container': '#9A7524', 'on-secondary-container': '#FFFDF8',
+        'surface': '#FAF6EF', 'surface-white': '#FFFFFF',
+        'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+        'surface-container-high': '#EAE0D0',
+        'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+        'border-subtle': '#E2D7C6', 'text-muted': '#7A6A57',
+        'error': '#B3261E', 'error-container': '#F9DEDC',
+        'background': '#FAF6EF'
+      },
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      fontSize: {
+        'body-md':     ['16px', { lineHeight: '24px' }],
+        'headline-sm': ['20px', { lineHeight: '28px', fontWeight: '600' }]
+      }
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin .7s linear infinite; }
+#toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+#toast.show { opacity:1; }
+#toast.error   { background:#B3261E;color:#fff; }
+#toast.success { background:#1e6e3b;color:#fff; }
+#toast.info    { background:#7A5A16;color:#fff; }
+.nav-active { color:#3B2A1E;font-weight:700;border-bottom:2px solid #3B2A1E;padding-bottom:2px; }
+th { text-align:left;font-weight:600;font-size:12px;color:#7A6A57;text-transform:uppercase;letter-spacing:.05em;padding:10px 16px; }
+td { padding:12px 16px;font-size:14px;border-top:1px solid #E2D7C6;vertical-align:middle; }
+tbody tr:hover td { background:#F6F0E6; }
+.stat-card { background:#fff;border:1px solid #E2D7C6;border-radius:16px;padding:20px 24px; }
+</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
+</head>
+<body class="bg-background text-on-surface min-h-screen" data-portal="admin">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading billing data…</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+
+<!-- ── Header ──────────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-10 h-16 max-w-[1200px] mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
+        <a class="font-body-md nav-active" href="billing-admin">Billing</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────────────── -->
+<main class="max-w-[1200px] mx-auto px-10 py-8">
+
+  <!-- Title + filter -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl font-bold">Billing Rates</h1>
+      <p class="text-sm text-text-muted mt-1">Monthly rates per student — what parents pay and what teachers earn each month.</p>
+    </div>
+    <select id="filter-teacher" onchange="applyFilters()"
+            class="border border-border-subtle rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+      <option value="">All Teachers</option>
+    </select>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+    <div class="stat-card">
+      <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Active Students</p>
+      <p id="stat-students" class="text-2xl font-bold text-on-surface">—</p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Monthly Parent Billing</p>
+      <p id="stat-parent" class="text-lg font-bold text-secondary leading-snug">—</p>
+    </div>
+    <div class="stat-card">
+      <p class="text-xs font-semibold text-text-muted uppercase tracking-wide mb-1">Monthly Teacher Cost</p>
+      <p id="stat-teacher" class="text-lg font-bold text-on-surface leading-snug">—</p>
+    </div>
+  </div>
+
+  <!-- Per-student table -->
+  <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-border-subtle">
+      <h2 class="font-headline-sm">Monthly Rates by Student</h2>
+      <p class="text-sm text-text-muted mt-0.5">Rates set on each student profile. Edit in Students page.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-surface-container-low">
+            <th>Student</th><th>Teacher(s)</th><th>Parent Pays / mo</th><th>Teacher Earns / mo</th>
+          </tr>
+        </thead>
+        <tbody id="summary-tbody">
+          <tr><td colspan="4" class="text-center py-12 text-text-muted text-sm">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection }
+                           from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:            "REPLACE_ME_CREMONA_API_KEY",
+  authDomain:        "portal.cremonamusic.com",
+  projectId:         "cremona-portal",
+  storageBucket:     "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId:             "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let allStudents = [];          // [{id, fullName, assignedTeachers, parentMonthlyRate, parentCurrency, teacherMonthlyRate, teacherCurrency, grade}]
+let allTeachers = new Map();   // uid → name
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/'; return;
+    }
+    if (snap.data().role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(snap.data(), 'billing')) return;
+    await init();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) { console.error(e); window.location.href = '/'; }
+});
+
+async function init() {
+  const [studSnap, userSnap] = await Promise.all([
+    getDocs(collection(db, 'students')),
+    getDocs(collection(db, 'users'))
+  ]);
+  allStudents = studSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  userSnap.forEach(d => {
+    const data = d.data();
+    if (data.role === 'teacher') allTeachers.set(d.id, data.name || data.email || d.id);
+  });
+  populateTeacherFilter();
+  applyFilters();
+}
+
+function populateTeacherFilter() {
+  const sel = document.getElementById('filter-teacher');
+  allTeachers.forEach((name, uid) => {
+    const opt = document.createElement('option');
+    opt.value = uid; opt.textContent = escHtml(name);
+    sel.appendChild(opt);
+  });
+}
+
+window.applyFilters = function() {
+  const teacherFilter = document.getElementById('filter-teacher').value;
+  const filtered = teacherFilter
+    ? allStudents.filter(s => (s.assignedTeachers || []).includes(teacherFilter))
+    : allStudents;
+  renderStats(filtered);
+  renderTable(filtered);
+};
+
+function renderStats(students) {
+  const withRates = students.filter(s => s.parentMonthlyRate || s.teacherMonthlyRate);
+  document.getElementById('stat-students').textContent = withRates.length;
+
+  // Sum parent billing by currency
+  const pCur = {}, tCur = {};
+  withRates.forEach(s => {
+    const pc = s.parentCurrency  || 'MYR';
+    const tc = s.teacherCurrency || 'MYR';
+    pCur[pc] = (pCur[pc] || 0) + (s.parentMonthlyRate  || 0);
+    tCur[tc] = (tCur[tc] || 0) + (s.teacherMonthlyRate || 0);
+  });
+
+  document.getElementById('stat-parent').innerHTML =
+    Object.keys(pCur).length
+      ? Object.entries(pCur).map(([c, v]) => `<div>${escHtml(fmtAmount(v, c))}</div>`).join('')
+      : '—';
+  document.getElementById('stat-teacher').innerHTML =
+    Object.keys(tCur).length
+      ? Object.entries(tCur).map(([c, v]) => `<div>${escHtml(fmtAmount(v, c))}</div>`).join('')
+      : '—';
+}
+
+function renderTable(students) {
+  const tbody = document.getElementById('summary-tbody');
+  const withRates = students.filter(s => s.parentMonthlyRate || s.teacherMonthlyRate || (s.assignedTeachers||[]).length);
+  if (!withRates.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-text-muted text-sm">No students with billing rates configured.</td></tr>`;
+    return;
+  }
+  const sorted = [...withRates].sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
+  tbody.innerHTML = sorted.map(s => {
+    const teacherNames = (s.assignedTeachers || [])
+      .map(uid => escHtml(allTeachers.get(uid) || uid)).join(', ') || '—';
+    const pRate = s.parentMonthlyRate  ? fmtAmount(s.parentMonthlyRate,  s.parentCurrency  || 'MYR') : '—';
+    const tRate = s.teacherMonthlyRate ? fmtAmount(s.teacherMonthlyRate, s.teacherCurrency || 'MYR') : '—';
+    return `<tr>
+      <td>
+        <div class="font-medium">${escHtml(s.fullName || '—')}</div>
+        ${s.grade ? `<div class="text-xs text-text-muted">Grade ${escHtml(s.grade)}</div>` : ''}
+      </td>
+      <td class="text-sm text-text-muted">${teacherNames}</td>
+      <td class="font-semibold text-secondary">${escHtml(pRate)}</td>
+      <td class="font-medium">${escHtml(tRate)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtAmount(amount, currency) {
+  return `${currency} ${Number(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+window.doSignOut = async function() {
+  await signOut(auth); window.location.href = '/';
+};
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
+</body>
+</html>

@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
-<meta content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" name="viewport"/>
-<title>Messages | Cremona Music Portal</title>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Messages | Cremona Parent Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -13,16 +12,16 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#C9A227", "primary-container": "#F5E5B0",
-          "on-primary-fixed": "#3E2C23", "on-primary-container": "#8B6020",
-          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
-          "on-secondary-container": "#3E2C23",
-          "surface": "#FAF6EF", "surface-white": "#FFFDF9",
-          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
-          "surface-container-highest": "#E4D8C2",
-          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle": "#E8DCC8", "outline-variant": "#D4BCA0",
-          "text-muted": "#8B6B52", "error": "#ba1a1a",
+          "primary": "#3B2A1E", "primary-container": "#C8A951",
+          "on-primary-fixed": "#2A1D14", "on-primary-container": "#5A4A22",
+          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC",
+          "on-secondary-container": "#FFFDF8",
+          "surface": "#FAF6EF", "surface-white": "#FFFFFF",
+          "surface-container": "#F1E9DC", "surface-container-low": "#F6F0E6",
+          "surface-container-highest": "#E3D8C6",
+          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle": "#E2D7C6", "outline-variant": "#D8C5A8",
+          "text-muted": "#7A6A57", "error": "#B3261E",
           "background": "#FAF6EF"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
@@ -33,66 +32,40 @@
 <style>
   body { font-family: 'Inter', sans-serif; height: 100dvh; overflow: hidden; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,0.2);border-top-color:#C9A227;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(59,42,30,0.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
-
-  /* ── Two-panel shell ─────────────────────────────────────────────────────── */
-  #msg-root { display:flex; height:calc(100dvh - 56px); overflow:hidden; background:#FAF6EF; }
-  #conv-panel { width:340px; flex-shrink:0; border-right:1px solid #E8DCC8; background:#FFFDF9; display:flex; flex-direction:column; overflow:hidden; }
-  #chat-panel { flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; background:#FAF6EF; }
-  #back-btn { display:none; }
-
-  @media (max-width:767px) {
-    #conv-panel { width:100%; }
-    #chat-panel {
-      position:fixed; top:56px; left:0; right:0; height:calc(100dvh - 56px);
-      transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
-      z-index:40; box-shadow:-4px 0 20px rgba(0,0,0,.12);
-    }
-    #msg-root.chat-open #chat-panel { transform:translateX(0); }
-    #back-btn { display:flex; }
-  }
-
-  #messages-area, #sidebar-scroll { scroll-behavior:smooth; }
-  #messages-area::-webkit-scrollbar, #sidebar-scroll::-webkit-scrollbar { width:5px; }
-  #messages-area::-webkit-scrollbar-thumb, #sidebar-scroll::-webkit-scrollbar-thumb { background:#D4BCA0;border-radius:4px; }
-  #messages-area::-webkit-scrollbar-track, #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
-
-  .conv-item { transition: background .12s; }
-  .conv-item:hover:not(.active) { background:#F5EFE4; }
-  .conv-item.active { background:rgba(201,162,39,0.14); }
-
-  .msg-row { display:flex; align-items:flex-end; gap:8px; padding:1px 16px; }
-  .msg-row.own { justify-content:flex-end; }
-  .bubble { max-width:74%; padding:8px 13px; border-radius:20px; font-size:14px; line-height:1.45; word-break:break-word; white-space:pre-wrap; }
-  .bubble.own  { background:#F5E5B0; color:#3E2C23; border-bottom-right-radius:6px; }
-  .bubble.recv { background:#FFFDF9; color:#3E2C23; border-bottom-left-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-  .time-divider { text-align:center; font-size:11px; color:#8B6B52; padding:14px 0 6px; font-weight:500; }
-  .msg-meta { font-size:10px; color:#8B6B52; }
-
+  #messages-area { scroll-behavior: smooth; }
+  #messages-area::-webkit-scrollbar { width:5px; }
+  #messages-area::-webkit-scrollbar-track { background:transparent; }
+  #messages-area::-webkit-scrollbar-thumb { background:#E2D7C6;border-radius:4px; }
+  #sidebar-scroll::-webkit-scrollbar { width:4px; }
+  #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+  #sidebar-scroll::-webkit-scrollbar-thumb { background:#E2D7C6;border-radius:4px; }
+  .conv-item { transition: background 0.12s; }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.error   { background:#B3261E;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  #toast.info    { background:#7A5A16;color:#fff; }
 </style>
-<style id="cremona-palette">
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
+<script src="/js/translate.js"></script>
 </head>
 
-<body class="bg-background text-on-surface">
+<body class="bg-background text-on-surface flex flex-col" data-portal="parent" data-page="messages">
 
-<!-- Loading overlay -->
+<script>
+window.CREMONA_LANG = localStorage.getItem('cremona-lang') || 'en';
+window.toggleLang = function() {
+  window.CREMONA_LANG = window.CREMONA_LANG === 'en' ? 'ko' : 'en';
+  localStorage.setItem('cremona-lang', window.CREMONA_LANG);
+  localStorage.setItem('cremona-lang-explicit', '1');
+  if (window._i18nApply) window._i18nApply();
+  if (window._rerender)  window._rerender();
+  if (window._syncLang)  window._syncLang(window.CREMONA_LANG);
+};
+</script>
+
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
     <div class="spinner" style="width:28px;height:28px;border-width:3px"></div>
@@ -102,63 +75,119 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
-<!-- ── Two-panel messenger ─────────────────────────────────────────────────── -->
-<div id="msg-root">
+<header class="bg-surface-white border-b border-border-subtle shadow-sm flex-shrink-0 z-50" style="height:56px">
+  <div class="max-w-full px-6 h-full flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-7 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-5">
+        <a data-i18n="nav_dashboard" href="dashboard" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
+        <a data-i18n="nav_schedule"  href="schedule"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a data-i18n="nav_reports"   href="reports"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a data-i18n="nav_messages"  href="messages"  class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Messages</a>
+        <a data-i18n="nav_payments"  href="payments"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Payments</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
+      <button id="lang-toggle" onclick="toggleLang()"
+              class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border-subtle text-text-muted hover:bg-surface-container transition-colors flex-shrink-0">
+        한국어
+      </button>
+      <button onclick="doSignOut()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        <span data-i18n="nav_signout" class="hidden sm:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
 
-  <!-- ── Conversation list panel ───────────────────────────────────────────── -->
-  <aside id="conv-panel">
-    <div class="px-4 pt-4 pb-3 flex-shrink-0">
-      <h1 class="text-lg font-bold text-on-surface mb-3">Messages</h1>
-      <div class="relative">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
-        <input id="sidebar-search" type="text" placeholder="Search"
+<div class="flex flex-1 overflow-hidden" style="height:calc(100dvh - 56px)">
+
+  <!-- Left sidebar -->
+  <div class="w-72 flex-shrink-0 border-r border-border-subtle bg-surface-white flex flex-col overflow-hidden">
+
+    <div class="p-3 border-b border-border-subtle flex-shrink-0 flex items-center gap-2">
+      <div class="relative flex-1">
+        <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
+        <input id="sidebar-search" type="text" data-i18n-ph="msg_search_ph" placeholder="Search conversations…"
                oninput="filterSidebar(this.value)"
-               class="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low rounded-full border border-transparent focus:border-secondary focus:bg-surface-white focus:ring-1 focus:ring-secondary outline-none transition-all"/>
+               class="w-full pl-8 pr-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all"/>
       </div>
+      <button onclick="openNewChatModal()" data-i18n-title="msg_new_chat" title="Message a teacher"
+              class="flex-shrink-0 p-2 rounded-lg text-secondary hover:bg-secondary-fixed/40 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">person_add</span>
+      </button>
     </div>
 
-    <div id="sidebar-scroll" class="flex-1 overflow-y-auto pb-3">
+    <div id="sidebar-scroll" class="flex-1 overflow-y-auto py-2">
+
+      <div class="mb-1" id="sidebar-support-section" style="display:none">
+        <p data-i18n="msg_support" class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Support</p>
+        <div id="sidebar-support"></div>
+      </div>
+
       <div class="mb-1">
-        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
-        <div id="sidebar-announcements"></div>
+        <p data-i18n="msg_announcements" class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
+        <div id="sidebar-announcements">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No announcements</p>
+        </div>
       </div>
+
       <div>
-        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
-        <div id="sidebar-dms"></div>
+        <p data-i18n="msg_direct" class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
+        <div id="sidebar-dms">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No direct messages</p>
+        </div>
       </div>
+
     </div>
-  </aside>
 
-  <!-- ── Chat panel ────────────────────────────────────────────────────────── -->
-  <section id="chat-panel">
+    <!-- Contact support (pinned at sidebar bottom) -->
+    <div class="p-3 border-t border-border-subtle flex-shrink-0">
+      <button onclick="contactSupport()"
+              class="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
+        <span class="material-symbols-outlined text-[16px]">support_agent</span>
+        <span data-i18n="msg_contact_support">Contact Support</span>
+      </button>
+    </div>
+  </div>
 
-    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center px-6 gap-3">
-      <div class="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center">
-        <span class="material-symbols-outlined text-[44px] text-outline-variant">forum</span>
-      </div>
-      <p class="text-base font-semibold text-on-surface-variant">Your messages</p>
-      <p class="text-sm text-text-muted max-w-[240px]">Select a conversation from the list to start reading and replying.</p>
+  <!-- Right chat area -->
+  <div class="flex-1 flex flex-col overflow-hidden bg-surface">
+
+    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-text-muted gap-3">
+      <span class="material-symbols-outlined text-[56px] opacity-25">forum</span>
+      <p data-i18n="msg_select" class="text-base font-medium opacity-50">Select a conversation</p>
     </div>
 
     <div id="conv-view" class="hidden flex-col h-full overflow-hidden" style="display:none">
 
-      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-3 sm:px-5 py-2.5 flex items-center gap-2 sm:gap-3">
-        <button id="back-btn" onclick="closeChat()" aria-label="Back"
-                class="flex-shrink-0 w-9 h-9 items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 overflow-hidden" style="background:#C9A227">—</div>
+      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-5 py-3 flex items-center gap-3">
+        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background:#3B2A1E">—</div>
         <div class="flex-1 min-w-0">
           <p id="chat-header-name" class="font-semibold text-sm text-on-surface truncate">—</p>
-          <p id="chat-header-sub"  class="text-xs text-text-muted truncate"></p>
+          <p id="chat-header-sub"  class="text-xs text-text-muted"></p>
+        </div>
+        <div class="relative flex-shrink-0">
+          <button id="chat-menu-btn" onclick="toggleChatMenu()"
+                  class="hidden p-1.5 rounded-lg text-text-muted hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[20px]">more_vert</span>
+          </button>
+          <div id="chat-menu" class="hidden absolute right-0 top-9 z-50 bg-white border border-border-subtle rounded-xl shadow-lg py-1 w-44">
+            <button onclick="deleteChat()"
+                    class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-error hover:bg-error-container/60 transition-colors text-left">
+              <span class="material-symbols-outlined text-[18px]">delete</span> <span data-i18n="msg_delete_chat">Delete chat</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col"></div>
+      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5"></div>
 
-      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center justify-center gap-2 text-sm text-text-muted">
+      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center gap-2 text-sm text-text-muted">
         <span class="material-symbols-outlined text-[18px]">lock</span>
-        Read only — only admins can post in announcements
+        <span data-i18n="msg_readonly">Read only — only admins can post in announcements</span>
       </div>
 
       <div id="file-preview" class="hidden flex-shrink-0 bg-surface border-t border-border-subtle px-4 py-2 flex items-center gap-2 text-sm">
@@ -169,18 +198,17 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         </button>
       </div>
 
-      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-2.5 flex items-end gap-2">
-        <label for="file-input" class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
-          <span class="material-symbols-outlined text-[22px]">add_photo_alternate</span>
+      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-3 flex items-end gap-2">
+        <label for="file-input" class="flex-shrink-0 p-2 rounded-lg text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-[22px]">attach_file</span>
         </label>
         <input id="file-input" type="file" class="hidden" onchange="handleFileSelect(this)"/>
-        <div class="flex-1 flex items-end bg-surface-container-low rounded-3xl px-1 border border-transparent focus-within:border-secondary transition-colors">
-          <textarea id="msg-input" rows="1"
-                    placeholder="Message…"
-                    onkeydown="handleMsgKeydown(event)"
-                    oninput="autoResize(this)"
-                    class="flex-1 resize-none bg-transparent outline-none text-sm px-3 py-2 max-h-32 overflow-y-auto"></textarea>
-        </div>
+        <textarea id="msg-input" rows="1"
+                  data-i18n-ph="msg_type_ph"
+                  placeholder="Type a message…"
+                  onkeydown="handleMsgKeydown(event)"
+                  oninput="autoResize(this)"
+                  class="flex-1 resize-none rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface max-h-32 overflow-y-auto"></textarea>
         <button id="send-btn" onclick="sendMessage()"
                 class="flex-shrink-0 w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white hover:bg-secondary/90 active:scale-95 transition-all shadow-sm">
           <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">send</span>
@@ -188,33 +216,126 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
 
     </div>
-  </section>
+  </div>
 </div>
 
+<!-- ── New Chat Modal (teachers only) ─────────────────────────────────────── -->
+<div id="newchat-modal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center p-4" onclick="if(event.target===this)closeNewChatModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl flex flex-col" style="max-height:80vh">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-border-subtle flex-shrink-0">
+      <h2 data-i18n="msg_new_chat_title" class="font-bold text-base text-on-surface">Message a Teacher</h2>
+      <button onclick="closeNewChatModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-5 py-3 flex-shrink-0">
+      <input id="newchat-search" type="text" data-i18n-ph="msg_new_chat_ph" placeholder="Search teachers…"
+             oninput="renderNewChatList(this.value)"
+             class="w-full px-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"/>
+    </div>
+    <div id="newchat-list" class="flex-1 overflow-y-auto px-2 pb-3"></div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, collection, query, where,
-  onSnapshot, addDoc, updateDoc, getDocs, writeBatch,
+  onSnapshot, addDoc, updateDoc, deleteDoc, getDocs, writeBatch,
   serverTimestamp, arrayUnion
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+const WORKER_URL     = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
 
 const app  = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
-const auth    = getAuth(app);
-const db      = getFirestore(app);
-const storage = getStorage(app);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// ── State ───────────────────────────────────────────────────────────────────
+// ── i18n ──────────────────────────────────────────────────────────────────────
+const TRANS = {
+  en: {
+    nav_dashboard:'Dashboard', nav_schedule:'Schedule', nav_reports:'Comments',
+    nav_messages:'Messages', nav_payments:'Payments', nav_signout:'Sign Out',
+    msg_search_ph:'Search conversations…',
+    msg_announcements:'Announcements',
+    msg_direct:'Direct Messages',
+    msg_no_ann:'No announcements',
+    msg_no_dm:'No direct messages',
+    msg_select:'Select a conversation',
+    msg_readonly:'Read only — only admins can post in announcements',
+    msg_type_ph:'Type a message…',
+    msg_no_msgs:'No messages yet.',
+    msg_ann_channel:'Announcements channel',
+    msg_online:'Online', msg_offline:'Offline',
+    msg_direct_msg:'Direct Message',
+    msg_new_chat:'Message a teacher',
+    msg_new_chat_title:'Message a Teacher',
+    msg_new_chat_ph:'Search teachers…',
+    msg_delete_chat:'Delete chat',
+    msg_read:'Read', msg_unread:'Unread',
+    msg_translate:'Translate', msg_show_original:'Show original',
+    msg_support:'Support', msg_contact_support:'Contact Support',
+    msg_support_name:'Cremona Support',
+    msg_support_sub:'Ask the Cremona Music team anything — we usually reply within a day',
+  },
+  ko: {
+    nav_dashboard:'대시보드', nav_schedule:'일정', nav_reports:'보고서',
+    nav_messages:'메시지', nav_payments:'결제', nav_signout:'로그아웃',
+    msg_search_ph:'대화 검색…',
+    msg_announcements:'공지사항',
+    msg_direct:'다이렉트 메시지',
+    msg_no_ann:'공지사항이 없습니다',
+    msg_no_dm:'다이렉트 메시지가 없습니다',
+    msg_select:'대화를 선택하세요',
+    msg_readonly:'읽기 전용 — 공지사항은 관리자만 게시할 수 있습니다',
+    msg_type_ph:'메시지를 입력하세요…',
+    msg_no_msgs:'아직 메시지가 없습니다.',
+    msg_ann_channel:'공지사항 채널',
+    msg_online:'온라인', msg_offline:'오프라인',
+    msg_direct_msg:'다이렉트 메시지',
+    msg_new_chat:'선생님에게 메시지',
+    msg_new_chat_title:'선생님에게 메시지',
+    msg_new_chat_ph:'선생님 검색…',
+    msg_delete_chat:'대화 삭제',
+    msg_read:'읽음', msg_unread:'안 읽음',
+    msg_translate:'번역', msg_show_original:'원문 보기',
+    msg_support:'문의', msg_contact_support:'문의하기',
+    msg_support_name:'Cremona Music 고객지원',
+    msg_support_sub:'궁금한 점을 남겨 주세요 — 보통 하루 안에 답변드립니다',
+  }
+};
+
+function t(key) {
+  return TRANS[window.CREMONA_LANG || 'en']?.[key] || TRANS.en[key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = (window.CREMONA_LANG === 'en') ? '한국어' : 'English';
+  document.documentElement.lang = window.CREMONA_LANG || 'en';
+}
+
+window._i18nApply = applyTranslations;
+
+window._rerender = function() {
+  renderSidebar();
+  renderMessages();
+  applyTranslations();
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
 let currentUser     = null;
 let currentUserData = null;
 let conversations   = new Map();
@@ -227,12 +348,12 @@ let msgUnsub            = null;
 let pendingFile         = null;
 let sidebarFilter       = '';
 let dmDisplayNames      = new Map();
-let locallyRead         = new Map();
+let readTimes           = new Map();
+let translatedMsgIds    = new Set();  // message ids currently shown translated
 let presenceIntervalId  = null;
 let pollIntervalId      = null;
 let visibilityHandler   = null;
 
-// ── Teardown ──────────────────────────────────────────────────────────────────
 function teardown() {
   if (convUnsub)          { convUnsub(); convUnsub = null; }
   if (msgUnsub)           { msgUnsub();  msgUnsub  = null; }
@@ -240,18 +361,11 @@ function teardown() {
   if (pollIntervalId)     { clearInterval(pollIntervalId);     pollIntervalId     = null; }
   if (visibilityHandler)  { document.removeEventListener('visibilitychange', visibilityHandler); visibilityHandler = null; }
 
-  conversations.clear();
-  allUsers.clear();
-  presenceMap.clear();
-  dmDisplayNames.clear();
-  locallyRead.clear();
-  activeConvId  = null;
-  msgArr        = [];
-  pendingFile   = null;
-  sidebarFilter = '';
+  conversations.clear(); allUsers.clear(); presenceMap.clear();
+  dmDisplayNames.clear(); readTimes.clear(); translatedMsgIds.clear();
+  activeConvId  = null; msgArr = []; pendingFile = null; sidebarFilter = '';
   clearFile();
 
-  document.getElementById('msg-root')?.classList.remove('chat-open');
   const emptyState = document.getElementById('empty-state');
   const convView   = document.getElementById('conv-view');
   if (emptyState) emptyState.style.display = '';
@@ -262,36 +376,56 @@ function teardown() {
   });
 }
 
-// ── Auth guard (parent only) ──────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
     const data = snap.data();
-    if (data.role !== 'parent') { window.location.href = '/index.html'; return; }
+    if (data.role !== 'parent') { window.location.href = '/'; return; }
 
     teardown();
     currentUser     = user;
     currentUserData = { uid: user.uid, ...data };
+
+    const fsLang = data.preferredLanguage;
+    // Only adopt the stored (app) preference when this browser has no explicit
+    // choice. Otherwise a toggle whose fire-and-forget write hasn't landed yet
+    // would get clobbered back on the next page load.
+    const langExplicit = localStorage.getItem('cremona-lang-explicit') === '1';
+    if ((fsLang === 'en' || fsLang === 'ko') && fsLang !== window.CREMONA_LANG && !langExplicit) {
+      window.CREMONA_LANG = fsLang;
+      localStorage.setItem('cremona-lang', fsLang);
+    } else if (langExplicit && fsLang !== window.CREMONA_LANG) {
+      updateDoc(doc(db, 'users', user.uid), { preferredLanguage: window.CREMONA_LANG }).catch(() => {});
+    }
+    window._syncLang = (lang) => {
+      updateDoc(doc(db, 'users', user.uid), { preferredLanguage: lang }).catch(() => {});
+    };
+
     await init();
+    applyTranslations();
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
-    console.error('[messages] auth/init error', e);
-    window.location.href = '/index.html';
+    console.error('auth error', e);
+    window.location.href = '/';
   }
 });
 
 window.doSignOut = async function() {
   teardown();
   await signOut(auth);
-  window.location.href = '/index.html';
+  window.location.href = '/';
 };
 
-// ── Init ──────────────────────────────────────────────────────────────────────
 async function init() {
+  const displayName = (currentUserData.firstName && currentUserData.lastName)
+    ? `${currentUserData.firstName} ${currentUserData.lastName}`
+    : (currentUserData.name || '');
+  document.getElementById('header-name').textContent = displayName;
+
   await updateOwnPresence(true);
   presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);
   visibilityHandler  = () => updateOwnPresence(!document.hidden);
@@ -303,18 +437,21 @@ async function init() {
   startConversationListener();
 }
 
-// ── Presence ──────────────────────────────────────────────────────────────────
 async function updateOwnPresence(online) {
   if (!currentUser) return;
   try {
-    await setDoc(doc(db, 'userPresence', currentUser.uid), { online, lastSeen: serverTimestamp() }, { merge: true });
+    await setDoc(doc(db, 'userPresence', currentUser.uid),
+      { online, lastSeen: serverTimestamp() }, { merge: true });
   } catch (_) {}
 }
+
 async function pollPresence() {
   if (!conversations.size) return;
   try {
     const uids = new Set();
-    conversations.forEach(c => (c.members || []).forEach(u => { if (u !== currentUser.uid) uids.add(u); }));
+    conversations.forEach(c => (c.members || []).forEach(u => {
+      if (u !== currentUser.uid) uids.add(u);
+    }));
     await Promise.all([...uids].map(async uid => {
       const s = await getDoc(doc(db, 'userPresence', uid));
       if (s.exists()) presenceMap.set(uid, s.data());
@@ -322,14 +459,15 @@ async function pollPresence() {
     renderSidebar();
   } catch (_) {}
 }
+
 function isOnline(uid) {
   const p = presenceMap.get(uid);
-  if (!p || p.online === false) return false;
+  if (!p) return false;
+  if (p.online === false) return false;
   const ls = p.lastSeen?.toDate ? p.lastSeen.toDate() : null;
   return ls ? (Date.now() - ls.getTime()) < 2 * 60 * 1000 : false;
 }
 
-// ── Load all users ────────────────────────────────────────────────────────────
 async function loadAllUsers() {
   try {
     const snap = await getDocs(collection(db, 'users'));
@@ -337,64 +475,82 @@ async function loadAllUsers() {
   } catch (e) { console.error('loadAllUsers', e); }
 }
 
-// ── Conversations listener ────────────────────────────────────────────────────
 function startConversationListener() {
   if (convUnsub) { convUnsub(); convUnsub = null; }
-  const q = query(collection(db, 'conversations'), where('members', 'array-contains', currentUser.uid));
+  const q = query(
+    collection(db, 'conversations'),
+    where('members', 'array-contains', currentUser.uid)
+  );
   convUnsub = onSnapshot(q, async snap => {
     snap.docChanges().forEach(change => {
       if (change.type === 'removed') conversations.delete(change.doc.id);
       else conversations.set(change.doc.id, { id: change.doc.id, ...change.doc.data() });
     });
+
     const missing = new Set();
     conversations.forEach(conv => {
       if (conv.type === 'direct') {
-        (conv.members || []).forEach(uid => { if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid); });
+        (conv.members || []).forEach(uid => {
+          if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid);
+        });
       }
     });
     if (missing.size > 0) {
       await Promise.all([...missing].map(async uid => {
-        try { const s = await getDoc(doc(db, 'users', uid)); if (s.exists()) allUsers.set(uid, { uid, ...s.data() }); } catch (_) {}
+        try {
+          const s = await getDoc(doc(db, 'users', uid));
+          if (s.exists()) allUsers.set(uid, { uid, ...s.data() });
+        } catch (_) {}
       }));
     }
     renderSidebar();
   }, err => console.error('convListener', err));
 }
 
-// ── Sidebar rendering ─────────────────────────────────────────────────────────
 function renderSidebar() {
-  const ann = [], dms = [];
+  const ann = [], dms = [], sup = [];
   const filter = sidebarFilter.toLowerCase();
+
   conversations.forEach(conv => {
-    if (conv.type === 'group') return;   // parents see announcements + DMs only
+    if (conv.type === 'group') return;
     const displayName = getConvDisplayName(conv);
     if (filter && !displayName.toLowerCase().includes(filter)) return;
-    if (conv.type === 'announcement') ann.push(conv);
-    else                              dms.push(conv);
+    if (conv.type === 'announcement')  ann.push(conv);
+    else if (conv.type === 'support')  sup.push(conv);
+    else                               dms.push(conv);
   });
-  const byTime = (a, b) =>
-    (b.lastMessageAt?.toDate?.()?.getTime() || 0) - (a.lastMessageAt?.toDate?.()?.getTime() || 0);
-  const render = (list, elId, empty) => {
-    const el = document.getElementById(elId);
-    if (!el) return;
-    el.innerHTML = list.sort(byTime).map(convItemHtml).join('')
-      || `<p class="px-4 py-2 text-xs text-text-muted italic">${empty}</p>`;
+
+  const byTime = (a, b) => {
+    const ta = a.lastMessageAt?.toDate?.()?.getTime() || 0;
+    const tb = b.lastMessageAt?.toDate?.()?.getTime() || 0;
+    return tb - ta;
   };
-  render(ann, 'sidebar-announcements', 'No announcements');
-  render(dms, 'sidebar-dms',           'No direct messages yet');
+
+  const render = (list, elId, emptyKey) => {
+    const el = document.getElementById(elId);
+    el.innerHTML = list.sort(byTime).map(convItemHtml).join('')
+      || `<p class="px-3 py-2 text-xs text-text-muted italic">${t(emptyKey)}</p>`;
+  };
+
+  render(ann, 'sidebar-announcements', 'msg_no_ann');
+  render(dms, 'sidebar-dms',           'msg_no_dm');
+  document.getElementById('sidebar-support-section').style.display = sup.length ? '' : 'none';
+  if (sup.length) render(sup, 'sidebar-support', 'msg_no_dm');
 }
 
 function getConvDisplayName(conv) {
+  if (conv.type === 'support') return t('msg_support_name');
   if (conv.type === 'direct') {
     const otherUid = (conv.members || []).find(u => u !== currentUser.uid);
-    if (!otherUid) return 'Direct Message';
+    if (!otherUid) return t('msg_direct_msg');
     const cached = dmDisplayNames.get(otherUid);
     if (cached && cached !== '__pending__') return cached;
     if (!cached) fetchAndCacheDMName(otherUid);
-    return 'Direct Message';
+    return t('msg_direct_msg');
   }
   return conv.name || 'Unnamed';
 }
+
 async function fetchAndCacheDMName(uid) {
   if (dmDisplayNames.has(uid)) return;
   dmDisplayNames.set(uid, '__pending__');
@@ -402,21 +558,17 @@ async function fetchAndCacheDMName(uid) {
     const snap = await getDoc(doc(db, 'users', uid));
     if (snap.exists()) {
       const d = snap.data();
-      dmDisplayNames.set(uid, (d.firstName && d.lastName) ? `${d.firstName} ${d.lastName}` : (d.name || d.email || 'Unknown'));
-    } else { dmDisplayNames.set(uid, 'Unknown'); }
-  } catch (err) { dmDisplayNames.delete(uid); return; }
+      dmDisplayNames.set(uid, (d.firstName && d.lastName)
+        ? `${d.firstName} ${d.lastName}`
+        : (d.name || d.email || 'Unknown'));
+    } else {
+      dmDisplayNames.set(uid, 'Unknown');
+    }
+  } catch (err) {
+    dmDisplayNames.delete(uid);
+    return;
+  }
   renderSidebar();
-}
-
-function isUnread(conv) {
-  if (conv.id === activeConvId) return false;
-  if (!conv.lastMessage) return false;
-  const lastSender = String(conv.lastMessageBy || '').trim();
-  if (lastSender === '' || lastSender === String(currentUser.uid).trim()) return false;
-  const lastMsgMs = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
-  const serverReadMs = conv.readAt?.[currentUser.uid]?.toDate?.()?.getTime() || 0;
-  const localReadMs  = locallyRead.get(conv.id) || 0;
-  return lastMsgMs > Math.max(serverReadMs, localReadMs);
 }
 
 function convItemHtml(conv) {
@@ -424,237 +576,283 @@ function convItemHtml(conv) {
   const displayName = getConvDisplayName(conv);
   const avatarColor = getAvatarColor(displayName);
   const initials    = getInitials(displayName);
-  const lastMsg     = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 48) : '';
+  const lastMsg     = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 45) : '';
   const lastTime    = conv.lastMessageAt?.toDate ? formatTime(conv.lastMessageAt.toDate()) : '';
   const isAnn       = conv.type === 'announcement';
-  const hasUnread   = isUnread(conv);
+  const lastMsgTime  = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
+  const storedRead   = conv.lastRead?.[currentUser.uid]?.toDate?.()?.getTime() || 0;
+  const lastReadTime = Math.max(storedRead, readTimes.get(conv.id) || 0);
+  const lastSender   = String(conv.lastMessageBy || '').trim();
+  const myUid        = String(currentUser.uid || '').trim();
+  const hasUnread    = !!conv.lastMessage && lastSender !== '' && lastSender !== myUid && lastMsgTime > lastReadTime;
 
   let avatarHtml, onlineDot = '';
-  if (isAnn) {
-    avatarHtml = `<span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+  if (conv.type === 'support') {
+    avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">support_agent</span>`;
+  } else if (isAnn) {
+    avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
   } else {
     const otherUid  = (conv.members || []).find(u => u !== currentUser.uid);
     const otherUser = otherUid ? allUsers.get(otherUid) : null;
-    avatarHtml = otherUser?.photoUrl
-      ? `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover" alt="${escHtml(displayName)}"/>`
-      : `<span class="text-sm font-bold">${escHtml(initials)}</span>`;
-    if (otherUid && isOnline(otherUid)) {
-      onlineDot = `<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface-white bg-green-500"></span>`;
+    if (otherUser?.photoUrl) {
+      avatarHtml = `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="${escHtml(displayName)}"/>`;
+    } else {
+      avatarHtml = `<span class="text-[13px] font-bold">${escHtml(initials)}</span>`;
+    }
+    if (otherUid) {
+      const online = isOnline(otherUid);
+      onlineDot = `<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${online ? 'bg-green-500' : 'bg-gray-300'}"></span>`;
     }
   }
 
   return `
   <button onclick="openConversation('${conv.id}')"
-    class="conv-item ${isActive ? 'active' : ''} w-full flex items-center gap-3 px-4 py-2.5 text-left">
+    class="conv-item w-full flex items-center gap-2.5 px-2.5 py-2 mx-0.5 rounded-xl text-left ${isActive ? 'bg-secondary-fixed/60' : 'hover:bg-surface-container'} ${isAnn ? 'border-l-[3px] border-primary-container pl-2' : ''}">
     <div class="relative flex-shrink-0">
-      <div class="w-12 h-12 rounded-full flex items-center justify-center text-white overflow-hidden" style="background:${avatarColor}">${avatarHtml}</div>
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white"
+           style="background:${avatarColor}">${avatarHtml}</div>
       ${onlineDot}
     </div>
     <div class="flex-1 min-w-0">
-      <div class="flex items-center justify-between gap-2">
-        <span class="text-sm ${hasUnread ? 'font-bold' : 'font-semibold'} text-on-surface truncate">${escHtml(displayName)}</span>
-        ${lastTime ? `<span class="text-[11px] ${hasUnread ? 'text-secondary font-semibold' : 'text-text-muted'} flex-shrink-0">${lastTime}</span>` : ''}
+      <div class="flex items-center justify-between gap-1">
+        <span class="text-sm font-semibold text-on-surface truncate">${escHtml(displayName)}</span>
+        ${lastTime ? `<span class="text-[10px] text-text-muted flex-shrink-0">${lastTime}</span>` : ''}
       </div>
-      <div class="flex items-center gap-1.5 mt-0.5">
-        <p class="text-xs truncate flex-1 ${hasUnread ? 'text-on-surface font-semibold' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
-        ${hasUnread ? '<span class="w-2.5 h-2.5 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
-      </div>
+      <p class="text-xs truncate mt-0.5 ${hasUnread ? 'text-on-surface font-medium' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
     </div>
+    ${hasUnread ? '<span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
   </button>`;
 }
 
-// ── Open conversation ─────────────────────────────────────────────────────────
 window.openConversation = async function(convId) {
   activeConvId = convId;
-  locallyRead.set(convId, Date.now());
+  readTimes.set(convId, Date.now());
   renderSidebar();
-  markConversationRead(convId);
+  persistLastRead(convId);
 
   const conv = conversations.get(convId);
   if (!conv) return;
 
+  // Chat menu — parents can delete their own DMs; announcements have no menu
+  document.getElementById('chat-menu').classList.add('hidden');
+  document.getElementById('chat-menu-btn').classList.toggle('hidden', conv.type !== 'direct');
+
   document.getElementById('empty-state').style.display = 'none';
   document.getElementById('conv-view').style.display   = 'flex';
-  document.getElementById('msg-root').classList.add('chat-open');
 
   const avatarEl = document.getElementById('chat-avatar');
 
   if (conv.type === 'direct') {
     const otherUid = (conv.members || []).find(u => u !== currentUser.uid);
-    let headerName = 'Direct Message';
+    let headerName = t('msg_direct_msg');
     if (otherUid) {
       try {
         const uSnap = await getDoc(doc(db, 'users', otherUid));
         if (uSnap.exists()) {
           const d = uSnap.data();
-          headerName = (d.firstName && d.lastName) ? `${d.firstName} ${d.lastName}` : (d.name || d.email || 'Unknown');
+          headerName = (d.firstName && d.lastName)
+            ? `${d.firstName} ${d.lastName}`
+            : (d.name || d.email || 'Unknown');
           dmDisplayNames.set(otherUid, headerName);
         }
       } catch (_) {}
     }
-    const otherUser = otherUid ? allUsers.get(otherUid) : null;
     document.getElementById('chat-header-name').textContent = headerName;
     avatarEl.style.background = getAvatarColor(headerName);
-    avatarEl.innerHTML = otherUser?.photoUrl
-      ? `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover" alt=""/>`
-      : escHtml(getInitials(headerName));
+    avatarEl.textContent      = getInitials(headerName);
     const online = otherUid ? isOnline(otherUid) : false;
     document.getElementById('chat-header-sub').innerHTML =
-      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">${online ? 'Active now' : 'Offline'}</span>`;
+      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">● ${online ? t('msg_online') : t('msg_offline')}</span>`;
     renderSidebar();
+  } else if (conv.type === 'support') {
+    document.getElementById('chat-header-name').textContent = t('msg_support_name');
+    avatarEl.style.background = '#7A5A16';
+    avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">support_agent</span>`;
+    document.getElementById('chat-header-sub').textContent = t('msg_support_sub');
   } else {
     const displayName = conv.name || 'Announcements';
     document.getElementById('chat-header-name').textContent = displayName;
     avatarEl.style.background = getAvatarColor(displayName);
-    avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[19px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
-    document.getElementById('chat-header-sub').textContent = 'Announcements channel';
+    avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+    document.getElementById('chat-header-sub').textContent = t('msg_ann_channel');
   }
 
-  const isReadOnly = conv.type === 'announcement';   // always read-only for parents
+  const isReadOnly = conv.type === 'announcement';
   document.getElementById('input-bar').style.display     = isReadOnly ? 'none' : 'flex';
   document.getElementById('readonly-note').style.display = isReadOnly ? 'flex' : 'none';
 
   startMessageListener(convId);
 };
 
-window.closeChat = function() {
-  document.getElementById('msg-root').classList.remove('chat-open');
-  if (msgUnsub) { msgUnsub(); msgUnsub = null; }
-  activeConvId = null;
-  document.getElementById('conv-view').style.display = 'none';
-  document.getElementById('empty-state').style.display = '';
-  renderSidebar();
-};
-
-// ── Messages listener ─────────────────────────────────────────────────────────
 function startMessageListener(convId) {
   if (msgUnsub) { msgUnsub(); msgUnsub = null; }
   const area = document.getElementById('messages-area');
-  area.innerHTML = `<div class="flex-1 flex justify-center items-center py-8"><div class="spinner"></div></div>`;
+  area.innerHTML = `<div class="flex justify-center py-8"><div class="spinner"></div></div>`;
 
   const q = query(collection(db, 'messages'), where('conversationId', '==', convId));
   msgUnsub = onSnapshot(q, async snap => {
     msgArr = [];
     snap.forEach(d => msgArr.push({ id: d.id, ...d.data() }));
-    msgArr.sort((a, b) => (a.timestamp?.toDate?.()?.getTime() || 0) - (b.timestamp?.toDate?.()?.getTime() || 0));
+    msgArr.sort((a, b) =>
+      (a.timestamp?.toDate?.()?.getTime() || 0) -
+      (b.timestamp?.toDate?.()?.getTime() || 0));
     renderMessages();
     await markAllRead(convId);
-    locallyRead.set(convId, Date.now());
-    markConversationRead(convId);
+    readTimes.set(convId, Date.now());
+    persistLastRead(convId);
     renderSidebar();
   }, err => console.error('msgListener', err));
 }
 
-// ── Render messages (grouped, with time dividers) ──────────────────────────────
+// Persist the per-user read marker so unread state survives reloads
+function persistLastRead(convId) {
+  if (!currentUser) return;
+  updateDoc(doc(db, 'conversations', convId), {
+    [`lastRead.${currentUser.uid}`]: serverTimestamp()
+  }).catch(() => {});
+}
+
 function renderMessages() {
   const area = document.getElementById('messages-area');
-  const conv = conversations.get(activeConvId);
   if (!msgArr.length) {
-    area.innerHTML = `
-      <div class="flex-1 flex flex-col items-center justify-center text-center gap-2 py-16 px-6">
-        <span class="material-symbols-outlined text-[40px] text-outline-variant">chat_bubble</span>
-        <p class="text-sm text-text-muted">No messages yet.${conv?.type === 'announcement' ? '' : ' Say hello!'}</p>
-      </div>`;
+    area.innerHTML = `<div class="flex-1 flex items-center justify-center py-16 text-sm text-text-muted italic">${t('msg_no_msgs')}</div>`;
     return;
   }
-
   const wasAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 120;
-  const lastOwnIdx  = (() => { for (let i = msgArr.length - 1; i >= 0; i--) if (msgArr[i].senderUid === currentUser.uid) return i; return -1; })();
-
-  let html = '';
-  let prev = null;
-  msgArr.forEach((msg, i) => {
-    const t = msg.timestamp?.toDate ? msg.timestamp.toDate() : null;
-    const pt = prev?.timestamp?.toDate ? prev.timestamp.toDate() : null;
-    const showDivider = !pt || !t || (t - pt) > 15 * 60 * 1000 || t.toDateString() !== pt.toDateString();
-    if (showDivider && t) html += `<div class="time-divider">${dividerLabel(t)}</div>`;
-    const showMeta = showDivider || !prev || prev.senderUid !== msg.senderUid;
-    html += buildMessageHtml(msg, { conv, showMeta, isLastOwn: i === lastOwnIdx });
-    prev = msg;
-  });
-  area.innerHTML = html;
+  area.innerHTML = msgArr.map(buildMessageHtml).join('');
   if (wasAtBottom || msgArr.length < 20) area.scrollTop = area.scrollHeight;
 }
 
-function buildMessageHtml(msg, { conv, showMeta, isLastOwn }) {
-  const isOwn    = msg.senderUid === currentUser.uid;
-  const convType = conv?.type || 'direct';
-  const timeAttr = msg.timestamp?.toDate ? ` title="${escHtml(formatTimeFull(msg.timestamp.toDate()))}"` : '';
+function buildMessageHtml(msg) {
+  const isOwn  = msg.senderUid === currentUser.uid;
+  const ts     = msg.timestamp?.toDate ? formatTimeFull(msg.timestamp.toDate()) : '';
+  const sender = escHtml(msg.senderName || 'Unknown');
+
+  // Translation toggle — parents read in whichever language they selected.
+  // Server-stored textEn/textKo are instant; otherwise translated on demand.
+  const viewerLang   = window.CREMONA_LANG === 'ko' ? 'ko' : 'en';
+  const origLang     = msg.origLang || (msg.text ? cremonaDetectLang(msg.text) : viewerLang);
+  const canTranslate = !!msg.text && origLang !== viewerLang;
+  const showTr       = canTranslate && translatedMsgIds.has(msg.id);
+  const serverTr     = viewerLang === 'ko' ? msg.textKo : msg.textEn;
+  const displayText  = showTr ? (msg._trText || serverTr || msg.text) : msg.text;
+  const trLink = canTranslate
+    ? `<button onclick="toggleMsgTranslation('${msg.id}')"
+         class="block text-[10px] font-semibold mt-1 hover:underline ${isOwn ? 'text-primary' : 'text-secondary'}">
+         ${showTr ? t('msg_show_original') : t('msg_translate')}</button>`
+    : '';
+
+  const receipts = (msg.readBy || [])
+    .filter(u => u !== currentUser.uid)
+    .slice(-3)
+    .map(u => {
+      const usr  = allUsers.get(u);
+      const nm   = usr?.name || '?';
+      return `<div class="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold text-white" style="background:${getAvatarColor(nm)}" title="${escHtml(nm)}">${escHtml(getInitials(nm))}</div>`;
+    }).join('');
 
   let fileHtml = '';
   if (msg.fileUrl) {
     const isImg = (msg.fileType || '').startsWith('image/');
     fileHtml = isImg
-      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[220px] rounded-xl" alt="attachment"/></a>`
+      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[200px] rounded-lg border border-border-subtle" alt="attachment"/></a>`
       : `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener"
-           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-xl ${isOwn ? 'bg-black/5' : 'bg-surface-container-low'} text-xs hover:opacity-80 transition-opacity">
+           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-lg border ${isOwn ? 'border-amber-200 bg-amber-50' : 'border-border-subtle bg-surface'} text-xs hover:opacity-80 transition-opacity">
            <span class="material-symbols-outlined text-[16px]">description</span>
            <span class="truncate max-w-[150px]">${escHtml(msg.fileName || 'Attachment')}</span>
            <span class="material-symbols-outlined text-[14px] ml-auto opacity-60">download</span>
          </a>`;
   }
-  const body = `${msg.text ? escHtml(msg.text) : ''}${fileHtml}`;
-
-  // Read receipts: DMs show "Seen" under the last own message once read.
-  // Announcements: never shown to parents.
-  let receiptHtml = '';
-  if (isOwn && isLastOwn && convType === 'direct') {
-    const others = (msg.readBy || []).filter(u => u !== currentUser.uid);
-    if (others.length) receiptHtml = `<div class="flex justify-end mt-0.5 pr-1"><span class="msg-meta">Seen</span></div>`;
-  }
 
   if (isOwn) {
+    // Show explicit Read / Unread on own messages in DMs
+    let readLabel = '';
+    const activeConv = conversations.get(activeConvId);
+    if (activeConv?.type === 'direct') {
+      const otherUid = (activeConv.members || []).find(u => u !== currentUser.uid);
+      const isRead   = otherUid && (msg.readBy || []).includes(otherUid);
+      readLabel = isRead
+        ? `<span class="text-[10px] font-semibold text-secondary">${t('msg_read')}</span>`
+        : `<span class="text-[10px] text-text-muted">${t('msg_unread')}</span>`;
+    }
     return `
-    <div class="msg-row own"${timeAttr}>
-      <div class="flex flex-col items-end" style="max-width:74%">
-        <div class="bubble own">${body}</div>
-        ${receiptHtml}
+    <div class="flex flex-col items-end px-4 py-0.5">
+      <div class="max-w-[72%]">
+        <div class="bg-amber-100 text-on-primary-fixed rounded-2xl rounded-tr-sm px-4 py-2 text-sm leading-relaxed break-words">
+          ${msg.text ? escHtml(displayText) : ''}${trLink}${fileHtml}
+        </div>
+        <div class="flex items-center justify-end gap-1 mt-0.5 pr-0.5">
+          ${readLabel}
+          <span class="text-[10px] text-text-muted">${ts}</span>
+          ${!readLabel && receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
+        </div>
       </div>
     </div>`;
   }
 
   const senderUser = msg.senderUid ? allUsers.get(msg.senderUid) : null;
-  const avatarSlot = showMeta
-    ? (senderUser?.photoUrl
-        ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-7 h-7 rounded-full flex-shrink-0 object-cover" alt=""/>`
-        : `<div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`)
-    : `<div class="w-7 flex-shrink-0"></div>`;
-  const nameHtml = (showMeta && convType !== 'direct')
-    ? `<p class="text-[11px] text-text-muted mb-0.5 ml-1">${escHtml(msg.senderName || 'Unknown')}</p>` : '';
+  const senderAvatar = senderUser?.photoUrl
+    ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-6 h-6 rounded-full flex-shrink-0 object-cover" alt="${escHtml(msg.senderName || '')}"/>`
+    : `<div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`;
 
   return `
-  <div class="msg-row"${timeAttr} style="padding-top:${showMeta ? '4px' : '1px'}">
-    ${avatarSlot}
-    <div style="max-width:74%">
-      ${nameHtml}
-      <div class="bubble recv">${body}</div>
+  <div class="flex items-end gap-2 px-4 py-0.5">
+    ${senderAvatar}
+    <div class="max-w-[72%]">
+      <p class="text-[11px] text-text-muted mb-1 ml-1">${sender}</p>
+      <div class="bg-surface-white border border-border-subtle rounded-2xl rounded-tl-sm px-4 py-2 text-sm leading-relaxed text-on-surface break-words">
+        ${msg.text ? escHtml(displayText) : ''}${trLink}${fileHtml}
+      </div>
+      <div class="flex items-center gap-1 mt-0.5 ml-1">
+        <span class="text-[10px] text-text-muted">${ts}</span>
+        ${receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
+      </div>
     </div>
   </div>`;
 }
 
-// ── Mark read ───────────────────────────────────────────────────────────────
+// ── Message translation toggle ────────────────────────────────────────────────
+window.toggleMsgTranslation = async function(mid) {
+  const msg = msgArr.find(m => m.id === mid);
+  if (!msg || !msg.text) return;
+  if (translatedMsgIds.has(mid)) {
+    translatedMsgIds.delete(mid);
+    renderMessages();
+    return;
+  }
+  const viewerLang = window.CREMONA_LANG === 'ko' ? 'ko' : 'en';
+  let tr = viewerLang === 'ko' ? msg.textKo : msg.textEn;
+  if (!tr) {
+    try {
+      tr = await cremonaTranslate(msg.text, viewerLang);
+    } catch (e) {
+      console.error('[translate]', e);
+      showToast('Translation failed. Please try again.', 'error');
+      return;
+    }
+  }
+  msg._trText = tr;
+  translatedMsgIds.add(mid);
+  renderMessages();
+};
+
 async function markAllRead(convId) {
   if (!currentUser || !msgArr.length) return;
   const myUid = String(currentUser.uid).trim();
   try {
     const batch = writeBatch(db);
-    let count = 0;
+    let   count = 0;
     msgArr.forEach(msg => {
       const alreadyRead = (msg.readBy || []).some(u => String(u).trim() === myUid);
-      if (!alreadyRead) { batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) }); count++; }
+      if (!alreadyRead) {
+        batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) });
+        count++;
+      }
     });
     if (count > 0) await batch.commit();
   } catch (e) { console.error('[markAllRead]', e); }
 }
 
-async function markConversationRead(convId) {
-  if (!currentUser) return;
-  try {
-    await updateDoc(doc(db, 'conversations', convId), { [`readAt.${currentUser.uid}`]: serverTimestamp() });
-  } catch (e) { console.error('[markConversationRead]', e); }
-}
-
-// ── Send message ──────────────────────────────────────────────────────────────
 window.sendMessage = async function() {
   if (!activeConvId || !currentUser) return;
   const input = document.getElementById('msg-input');
@@ -672,27 +870,28 @@ window.sendMessage = async function() {
       ({ fileUrl, fileName, fileType } = await uploadFile(pendingFile));
       clearFile();
     }
+
     const senderName = (currentUserData.firstName && currentUserData.lastName)
       ? `${currentUserData.firstName} ${currentUserData.lastName}`
       : (currentUserData.name || currentUser.email || 'Unknown');
 
     const msgData = {
       conversationId: activeConvId,
-      senderUid: currentUser.uid,
+      senderUid:      currentUser.uid,
       senderName,
       text,
-      timestamp: serverTimestamp(),
-      readBy: [currentUser.uid]
+      timestamp:      serverTimestamp(),
+      readBy:         [currentUser.uid]
     };
     if (fileUrl) { msgData.fileUrl = fileUrl; msgData.fileName = fileName; msgData.fileType = fileType; }
 
     await addDoc(collection(db, 'messages'), msgData);
     await updateDoc(doc(db, 'conversations', activeConvId), {
-      lastMessage: text || fileName,
+      lastMessage:   text || fileName,
       lastMessageAt: serverTimestamp(),
-      lastMessageBy: currentUser.uid,
-      [`readAt.${currentUser.uid}`]: serverTimestamp()
+      lastMessageBy: currentUser.uid
     });
+
     input.value = '';
   } catch (e) {
     console.error('sendMessage', e);
@@ -703,7 +902,6 @@ window.sendMessage = async function() {
   }
 };
 
-// ── File handling ─────────────────────────────────────────────────────────────
 window.handleFileSelect = function(input) {
   const file = input.files[0];
   if (!file) return;
@@ -712,68 +910,215 @@ window.handleFileSelect = function(input) {
   document.getElementById('file-preview-name').textContent = file.name;
   document.getElementById('file-preview').style.display = 'flex';
 };
+
 window.clearFile = function() {
   pendingFile = null;
-  const fp = document.getElementById('file-preview');
-  if (fp) fp.style.display = 'none';
+  document.getElementById('file-preview').style.display = 'none';
   const fi = document.getElementById('file-input');
   if (fi) fi.value = '';
 };
+
 async function uploadFile(file) {
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `messages/${activeConvId}/${Date.now()}_${safeName}`;
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, file, { contentType: file.type });
-  const fileUrl = await getDownloadURL(storageRef);
-  return { fileUrl, fileName: file.name, fileType: file.type };
+  const key = `messages/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${WORKER_URL}/${key}`);
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.onload  = () => xhr.status === 200
+      ? resolve({ fileUrl: `${R2_PUBLIC_BASE}/${key}`, fileName: file.name, fileType: file.type })
+      : reject(new Error(`Upload failed: ${xhr.status}`));
+    xhr.onerror = () => reject(new Error('Upload network error'));
+    xhr.send(file);
+  });
 }
 
-// ── Input helpers ─────────────────────────────────────────────────────────────
 window.handleMsgKeydown = function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 };
+
 window.autoResize = function(el) {
   el.style.height = '';
   el.style.height = Math.min(el.scrollHeight, 128) + 'px';
 };
-window.filterSidebar = function(val) { sidebarFilter = val; renderSidebar(); };
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+window.filterSidebar = function(val) {
+  sidebarFilter = val;
+  renderSidebar();
+};
+
+// ── New chat (parents may only message teachers — never other parents) ───────
+function teacherCandidates() {
+  const out = [];
+  allUsers.forEach(u => {
+    if (u.uid === currentUser.uid) return;
+    if (u.status === 'deleted' || u.status === 'inactive') return;
+    if (u.role !== 'teacher') return;
+    out.push(u);
+  });
+  return out.sort((a, b) => userDisplayName(a).localeCompare(userDisplayName(b)));
+}
+
+function userDisplayName(u) {
+  return (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || u.email || 'Unknown');
+}
+
+window.openNewChatModal = function() {
+  document.getElementById('newchat-search').value = '';
+  renderNewChatList('');
+  document.getElementById('newchat-modal').classList.remove('hidden');
+  document.getElementById('newchat-search').focus();
+};
+
+window.closeNewChatModal = function() {
+  document.getElementById('newchat-modal').classList.add('hidden');
+};
+
+window.renderNewChatList = function(filter) {
+  const f    = (filter || '').toLowerCase();
+  const list = teacherCandidates().filter(u =>
+    !f || userDisplayName(u).toLowerCase().includes(f) || (u.email || '').toLowerCase().includes(f));
+  document.getElementById('newchat-list').innerHTML = list.length ? list.map(u => {
+    const name = userDisplayName(u);
+    return `
+    <button onclick="startDirectChat('${u.uid}')"
+            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-container transition-colors text-left">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
+           style="background:${getAvatarColor(name)}">${escHtml(getInitials(name))}</div>
+      <p class="text-sm font-semibold text-on-surface truncate">${escHtml(name)}</p>
+    </button>`;
+  }).join('') : '<p class="px-4 py-6 text-center text-xs text-text-muted italic">No teachers found</p>';
+};
+
+window.startDirectChat = async function(otherUid) {
+  closeNewChatModal();
+  let existing = null;
+  conversations.forEach(c => {
+    if (c.type === 'direct' && (c.members || []).includes(otherUid)) existing = c;
+  });
+  if (existing) { openConversation(existing.id); return; }
+  try {
+    const ref = await addDoc(collection(db, 'conversations'), {
+      type:          'direct',
+      members:       [currentUser.uid, otherUid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: ''
+    });
+    const openWhenReady = setInterval(() => {
+      if (conversations.has(ref.id)) { clearInterval(openWhenReady); openConversation(ref.id); }
+    }, 150);
+    setTimeout(() => clearInterval(openWhenReady), 5000);
+  } catch (e) {
+    console.error('startDirectChat', e);
+    showToast('Failed to start chat.', 'error');
+  }
+};
+
+// ── Contact support ───────────────────────────────────────────────────────────
+window.contactSupport = async function() {
+  let existing = null;
+  conversations.forEach(c => { if (c.type === 'support') existing = c; });
+  if (existing) { openConversation(existing.id); return; }
+  try {
+    const ref = await addDoc(collection(db, 'conversations'), {
+      type:          'support',
+      name:          'Support',
+      members:       [currentUser.uid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: ''
+    });
+    const openWhenReady = setInterval(() => {
+      if (conversations.has(ref.id)) { clearInterval(openWhenReady); openConversation(ref.id); }
+    }, 150);
+    setTimeout(() => clearInterval(openWhenReady), 5000);
+  } catch (e) {
+    console.error('contactSupport', e);
+    showToast('Failed to open support chat.', 'error');
+  }
+};
+
+// ── Chat menu: delete DM ──────────────────────────────────────────────────────
+window.toggleChatMenu = function() {
+  document.getElementById('chat-menu').classList.toggle('hidden');
+};
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#chat-menu') && !e.target.closest('#chat-menu-btn')) {
+    document.getElementById('chat-menu')?.classList.add('hidden');
+  }
+});
+
+window.deleteChat = async function() {
+  document.getElementById('chat-menu').classList.add('hidden');
+  const conv = conversations.get(activeConvId);
+  if (!conv || conv.type !== 'direct') return;
+  if (!confirm('Delete this conversation and all its messages for everyone? This cannot be undone.')) return;
+  try {
+    const snap = await getDocs(query(collection(db, 'messages'), where('conversationId', '==', conv.id)));
+    const docs = snap.docs;
+    for (let i = 0; i < docs.length; i += 400) {
+      const batch = writeBatch(db);
+      docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+    await deleteDoc(doc(db, 'conversations', conv.id));
+    activeConvId = null;
+    if (msgUnsub) { msgUnsub(); msgUnsub = null; }
+    document.getElementById('empty-state').style.display = '';
+    document.getElementById('conv-view').style.display   = 'none';
+    showToast('Chat deleted.', 'success');
+  } catch (e) {
+    console.error('deleteChat', e);
+    showToast('Failed to delete chat.', 'error');
+  }
+};
+
 function getAvatarColor(str) {
-  const palette = ['#C9A227','#7A5230','#1e6e3b','#b91c1c','#7c3aed','#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
+  const palette = ['#3B2A1E','#7A5A16','#1e6e3b','#b91c1c','#7c3aed',
+                   '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
   let h = 0;
   for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
   return palette[h % palette.length];
 }
+
 function getInitials(name) {
   const parts = (name || '').trim().split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   return (name || '?').slice(0, 2).toUpperCase();
 }
+
 function formatTime(date) {
-  const now = new Date(), diff = now - date;
-  if (diff < 60000) return 'now';
+  const now  = new Date();
+  const diff = now - date;
+  if (diff < 60000)   return 'now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-  if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (date.toDateString() === now.toDateString())
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
-function formatTimeFull(date) { return date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
-function dividerLabel(date) {
-  const now = new Date();
-  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (date.toDateString() === now.toDateString()) return `Today ${time}`;
-  const y = new Date(now); y.setDate(now.getDate() - 1);
-  if (date.toDateString() === y.toDateString()) return `Yesterday ${time}`;
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' · ' + time;
+
+function formatTimeFull(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 function showToast(msg, type = 'info') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = `show ${type}`;
-  setTimeout(() => { t.className = ''; }, 3000);
+  const toast = document.getElementById('toast');
+  toast.textContent = msg; toast.className = `show ${type}`;
+  setTimeout(() => { toast.className = ''; }, 3000);
 }
 </script>
-  <script>window.CREMONA_NAV={portal:'parent',active:'messages',title:'Messages'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

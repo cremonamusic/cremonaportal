@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Employment Certificate | Cremona Music</title>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet"/>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Pretendard Variable', Pretendard, 'Times New Roman', serif;
+    background: #eceef0;
+    color: #1A1410;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .toolbar {
+    max-width: 210mm; margin: 0 auto; padding: 16px 8px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .toolbar button {
+    border: none; background: #C8A951; color: #2A1D14; font-weight: 800;
+    font-size: 14px; padding: 10px 22px; border-radius: 10px; cursor: pointer;
+    font-family: inherit; box-shadow: 0 6px 16px -6px rgba(59,42,30,.5);
+  }
+  .toolbar p { font-size: 12px; color: #7A6A57; }
+  .sheet {
+    width: 210mm; min-height: 297mm; margin: 0 auto 40px;
+    background: #fff; padding: 22mm 20mm;
+    box-shadow: 0 10px 40px -12px rgba(0,0,0,.25);
+  }
+  .frame { border: 2px solid #1A1410; min-height: 253mm; padding: 14mm 12mm; position: relative; }
+  h1 { text-align: center; font-size: 26px; letter-spacing: 4px; font-weight: 800; }
+  .h-sub { text-align: center; font-size: 13px; color: #444; margin-top: 4px; letter-spacing: 6px; }
+  .h-rule { width: 62%; margin: 12px auto 0; border-bottom: 2px solid #1A1410; }
+  .docno { margin-top: 26px; font-size: 13px; }
+  .docno b { border-bottom: 1px solid #1A1410; padding: 0 8px 2px; font-weight: 600; }
+  table.data { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13.5px; }
+  table.data th, table.data td { border: 1px solid #1A1410; padding: 9px 12px; text-align: left; }
+  table.data th.side { width: 34px; background: #e9e9e9; text-align: center; font-weight: 700;
+    writing-mode: initial; }
+  table.data th.lbl { width: 170px; background: #f2f2f2; font-weight: 600; }
+  table.data td { font-weight: 500; }
+  .certify { text-align: center; font-size: 14.5px; font-weight: 700; margin-top: 46px; }
+  .certify-ko { text-align: center; font-size: 12px; color: #555; margin-top: 6px; }
+  .dateline { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 60px; font-size: 13px; }
+  .seal { text-align: right; color: #333; line-height: 1.5; }
+  .company { position: absolute; left: 12mm; right: 12mm; bottom: 12mm; font-size: 12.5px; }
+  .company .row { display: flex; gap: 8px; padding: 6px 0; border-top: 1px solid #1A1410; }
+  .company .row:first-child { border-top: 1.5px solid #1A1410; }
+  .company .k { width: 150px; font-weight: 700; flex-shrink: 0; }
+  .err { max-width: 480px; margin: 15vh auto; background: #fff; border-radius: 16px; padding: 40px; text-align: center; font-size: 14px; color: #444; }
+  /* letter-style Certificate of Employment (issued after leaving) */
+  .letter { font-size: 13.5px; line-height: 1.9; margin-top: 26px; text-align: justify; }
+  .letter b { font-weight: 700; }
+  .letter ol { margin: 10px 0 10px 26px; }
+  .letter ol li { margin: 3px 0; }
+  .verify { margin-top: 26px; font-size: 13.5px; line-height: 1.75; }
+  .verify b { display: block; }
+  .lsigs { display: flex; gap: 40px; margin-top: 64px; }
+  .lsig { flex: 1; text-align: center; font-size: 13px; }
+  .lsig .line { border-bottom: 1.5px solid #1A1410; height: 40px; margin-bottom: 6px; }
+  .lsig b { display: block; font-size: 14px; letter-spacing: 1px; }
+  .company.flow { position: static; margin-top: 44px; }
+  @media print {
+    body { background: #fff; }
+    .toolbar { display: none; }
+    .sheet { box-shadow: none; margin: 0; width: auto; }
+  }
+  @page { size: A4; margin: 0; }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <p>Employment Certificate · 재직증명서 — use the Print button and choose "Save as PDF" if you need a file.</p>
+  <button onclick="window.print()">🖨 Print / Save PDF</button>
+</div>
+
+<div id="content"><div class="err">Loading certificate…</div></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com", projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID", appId: "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const COMPANY = {
+  nameEn: 'CREMONA CO. LTD',
+  rep: '정찬미 (JUNG CHANMI)',
+  bizNo: '130-47-60022',
+  tel: '010-9052-5935',
+  email: 'op@cremonamusic.com',
+  addrKo: '서울특별시 서초구 서초대로77길 9 누드죤빌딩 9층 902호',
+  addrEn: '9F #902, Nudejon Bldg., 9 Seocho-daero 77-gil, Seocho-gu, Seoul, Korea',
+};
+
+function esc(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fail(msg) { document.getElementById('content').innerHTML = `<div class="err">${esc(msg)}</div>`; }
+function fmtDate(d) { return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }); }
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { location.href = '/'; return; }
+  const id = new URLSearchParams(location.search).get('id');
+  if (!id) return fail('No certificate specified.');
+  try {
+    const reqSnap = await getDoc(doc(db, 'certificateRequests', id));
+    if (!reqSnap.exists()) return fail('This certificate request was not found.');
+    const req = reqSnap.data();
+    if (req.status !== 'approved') return fail('This certificate has not been approved yet. Please wait for an admin to approve your request.');
+
+    const tSnap = await getDoc(doc(db, 'users', req.teacherUid));
+    const t = tSnap.exists() ? tSnap.data() : {};
+
+    const start = t.employmentStart
+      ? new Date(t.employmentStart + 'T00:00:00')
+      : (t.createdAt?.toDate ? t.createdAt.toDate() : null);
+    const period = (start ? fmtDate(start) : '—') + ' — Present';
+    const dob = t.dob ? fmtDate(new Date(t.dob + 'T00:00:00')) : '—';
+    const issued = req.decidedAt?.toDate ? req.decidedAt.toDate() : new Date();
+
+    if (req.certType === 'leaving') {
+      const endStr = req.endDate ? fmtDate(new Date(req.endDate + 'T00:00:00')) : '—';
+      const startStr = start ? fmtDate(start) : '—';
+      const name = t.name || req.teacherName || '—';
+      document.title = `Certificate of Employment — ${name}`;
+      document.getElementById('content').innerHTML = `
+      <div class="sheet"><div class="frame">
+        <h1>CERTIFICATE OF EMPLOYMENT</h1>
+        <p class="h-sub">경 력 증 명 서</p>
+        <div class="h-rule"></div>
+
+        <p class="docno">Document No. <b>${esc(req.docNo || id.slice(0, 8).toUpperCase())}</b></p>
+
+        <div class="letter">
+          <p>This is to certify that <b>${esc(name)}</b> has been employed by <b>Cremona Music of Strings</b> as an
+          English as a Second Language (ESL) Teacher. He/She has served in this capacity from
+          <b>${esc(startStr)}</b> to <b>${esc(endStr)}</b>.</p>
+          <p style="margin-top:10px;">During his/her tenure, he/she demonstrated professionalism, dedication, and
+          expertise in providing quality English instruction to our students. His/Her responsibilities included:</p>
+          <ol>
+            <li>Conducting online ESL classes for students of various levels</li>
+            <li>Preparing and delivering engaging lessons tailored to individual student needs</li>
+            <li>Monitoring and assessing student progress to ensure effective learning</li>
+          </ol>
+          <p>We greatly appreciate <b>${esc(name)}</b>'s contributions to our team and wish
+          him/her success in his/her future endeavors.</p>
+        </div>
+
+        <div class="verify">
+          For verification, you may contact:
+          <b style="margin-top:8px;">Head Teacher CARRIE CRUZ</b>
+          Cremona Music of Strings<br/>
+          Contact No.: 0919 098 6607
+        </div>
+
+        <p class="letter" style="margin-top:26px;">Issued this <b>${esc(fmtDate(issued))}</b> for whatever legal purpose it may serve.</p>
+
+        <div class="lsigs">
+          <div class="lsig"><div class="line"></div><b>CARRIE CRUZ</b>Head Teacher</div>
+          <div class="lsig"><div class="line"></div><b>JUNG CHANMI</b>Owner, Chief Executive Officer</div>
+        </div>
+
+        <div class="company flow">
+          <div class="row"><span class="k">Company Name</span><span>${esc(COMPANY.nameEn)}</span></div>
+          <div class="row"><span class="k">Business Reg. No.</span><span>${esc(COMPANY.bizNo)}</span></div>
+          <div class="row"><span class="k">Address</span><span>${esc(COMPANY.addrKo)}<br/>${esc(COMPANY.addrEn)}</span></div>
+          <div class="row"><span class="k">Contact</span><span>Tel ${esc(COMPANY.tel)} · Email ${esc(COMPANY.email)}</span></div>
+        </div>
+      </div></div>`;
+      return;
+    }
+
+    document.title = `Employment Certificate — ${t.name || ''}`;
+    document.getElementById('content').innerHTML = `
+    <div class="sheet"><div class="frame">
+      <h1>EMPLOYMENT CERTIFICATE</h1>
+      <p class="h-sub">재 직 증 명 서</p>
+      <div class="h-rule"></div>
+
+      <p class="docno">Document No. <b>${esc(req.docNo || id.slice(0, 8).toUpperCase())}</b></p>
+
+      <table class="data">
+        <tr><th class="side" rowspan="7">Personal<br/>Data</th>
+            <th class="lbl">Full Name</th><td>${esc(t.name || '—')}</td></tr>
+        <tr><th class="lbl">Date of Birth</th><td>${esc(dob)}</td></tr>
+        <tr><th class="lbl">Passport / ID No.</th><td>${esc(t.idNumber || '—')}</td></tr>
+        <tr><th class="lbl">Present Address</th><td>${esc(t.address || '—')}</td></tr>
+        <tr><th class="lbl">Department</th><td>Education</td></tr>
+        <tr><th class="lbl">Position</th><td>Teacher</td></tr>
+        <tr><th class="lbl">Employment Period</th><td>${esc(period)}</td></tr>
+      </table>
+      <table class="data" style="margin-top:-1px;">
+        <tr><th class="lbl" style="width:204px;">Use of Certificate</th><td>${esc(req.purpose || '—')}</td></tr>
+      </table>
+
+      <p class="certify">This is to certify that the above mentioned fact is true and correct.</p>
+      <p class="certify-ko">위와 같이 재직하고 있음을 증명합니다.</p>
+
+      <div class="dateline">
+        <span>Date: ${esc(fmtDate(issued))}</span>
+        <span class="seal">/S/ Official<br/>Seal Affixed</span>
+      </div>
+
+      <div class="company">
+        <div class="row"><span class="k">Company Name</span><span>${esc(COMPANY.nameEn)}</span></div>
+        <div class="row"><span class="k">Rep. Director</span><span>${esc(COMPANY.rep)}</span></div>
+        <div class="row"><span class="k">Business Reg. No.</span><span>${esc(COMPANY.bizNo)}</span></div>
+        <div class="row"><span class="k">Address</span><span>${esc(COMPANY.addrKo)}<br/>${esc(COMPANY.addrEn)}</span></div>
+        <div class="row"><span class="k">Contact</span><span>Tel ${esc(COMPANY.tel)} · Email ${esc(COMPANY.email)}</span></div>
+      </div>
+    </div></div>`;
+  } catch (e) {
+    console.error(e);
+    fail(e.code === 'permission-denied'
+      ? 'You do not have permission to view this certificate.'
+      : 'Failed to load the certificate: ' + e.message);
+  }
+});
+</script>
+</body>
+</html>

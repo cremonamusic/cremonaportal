@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Security &amp; Signup | Cremona Music Admin</title>
+<title>Security &amp; Signup Management | Cremona Music Admin</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -12,13 +11,13 @@
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
   .glass-panel { background: rgba(255,255,255,0.8); backdrop-filter: blur(12px); }
-  .spinner { width: 20px; height: 20px; border: 2px solid rgba(201,162,39,0.2); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(59,42,30,0.2); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
   #toast.show { opacity: 1; }
-  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.error { background: #B3261E; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
-  #toast.info { background: #3B2A1E; color: #F5EFE4; }
+  #toast.info { background: #7A5A16; color: #fff; }
 </style>
 <script id="tailwind-config">
   tailwind.config = {
@@ -26,21 +25,21 @@
     theme: {
       extend: {
         colors: {
-          "on-tertiary-fixed": "#3E2C23", "surface-variant": "#E4D8C2",
-          "error-container": "#ffdad6", "on-secondary-fixed": "#3E2C23", "text-muted": "#8B6B52",
-          "surface-white": "#FFFDF9", "surface-container-low": "#F5EFE4",
-          "primary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
-          "secondary-container": "#F5E5B0", "secondary": "#C9A227", "on-surface-variant": "#7A5A42",
-          "primary-fixed-dim": "#D4A520", "on-surface": "#3E2C23", "surface-tint": "#C9A227",
-          "on-secondary-fixed-variant": "#7A5230", "on-primary-fixed": "#3E2C23",
-          "secondary-fixed": "#F0E8C0", "surface-container-highest": "#E4D8C2",
-          "border-subtle": "#E8DCC8", "background": "#FAF6EF", "primary-fixed": "#F0E8C0",
-          "primary": "#C9A227", "on-primary-container": "#8B6020", "outline": "#7A5230",
-          "outline-variant": "#D4BCA0", "surface-container": "#F0E8D6",
-          "on-error": "#ffffff", "surface": "#FAF6EF", "on-secondary": "#3E2C23",
-          "on-error-container": "#93000a", "error": "#ba1a1a", "surface-dim": "#D4BCA0",
-          "surface-container-high": "#EAE0CE", "on-primary": "#3E2C23",
-          "on-background": "#3E2C23", "surface-container-lowest": "#FFFDF9"
+          "on-tertiary-fixed": "#1b1c1c", "surface-variant": "#E3D8C6",
+          "error-container": "#F9DEDC", "on-secondary-fixed": "#2A1D14", "text-muted": "#7A6A57",
+          "surface-white": "#FFFFFF", "surface-container-low": "#F6F0E6",
+          "primary-container": "#C8A951", "on-secondary-container": "#FFFDF8",
+          "secondary-container": "#9A7524", "secondary": "#7A5A16", "on-surface-variant": "#6B5844",
+          "primary-fixed-dim": "#C8A951", "on-surface": "#2B2019", "surface-tint": "#3B2A1E",
+          "on-secondary-fixed-variant": "#004493", "on-primary-fixed": "#2A1D14",
+          "secondary-fixed": "#F2E6CC", "surface-container-highest": "#E3D8C6",
+          "border-subtle": "#E2D7C6", "background": "#FAF6EF", "primary-fixed": "#F0E2C4",
+          "primary": "#3B2A1E", "on-primary-container": "#5A4A22", "outline": "#8A7A63",
+          "outline-variant": "#D8C5A8", "surface-container": "#F1E9DC",
+          "on-error": "#ffffff", "surface": "#FAF6EF", "on-secondary": "#ffffff",
+          "on-error-container": "#93000a", "error": "#B3261E", "surface-dim": "#d9dadb",
+          "surface-container-high": "#EAE0D0", "on-primary": "#ffffff",
+          "on-background": "#2B2019", "surface-container-lowest": "#ffffff"
         },
         spacing: { "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px", "base": "8px" },
         fontFamily: { "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-md": ["Inter"], "label-sm": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "headline-md": ["Inter"] },
@@ -57,21 +56,10 @@
     }
   }
 </script>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
 </head>
-<body class="bg-background text-on-surface min-h-screen flex flex-col">
+<body class="bg-background text-on-surface min-h-screen flex flex-col" data-portal="admin" data-page="security">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -83,7 +71,35 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
+<!-- TopAppBar -->
+<header class="bg-surface-white sticky top-0 border-b border-border-subtle shadow-sm z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
+        <a class="font-body-md text-secondary border-b-2 border-secondary pb-1 font-bold" href="security">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container font-body-md">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="hidden md:inline font-bold">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
 <main class="flex-grow w-full max-w-container-max mx-auto px-margin-desktop py-gutter flex flex-col gap-gutter">
+  <!-- Header -->
   <section class="flex flex-col md:flex-row md:items-end justify-between gap-4">
     <div>
       <h1 class="font-headline-lg text-headline-lg text-on-surface">Security &amp; Registry Management</h1>
@@ -98,7 +114,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
   <!-- Firebase Console Links -->
   <div class="flex flex-wrap gap-3">
-    <a href="https://console.firebase.google.com/project/cremonamusic-portal/firestore/databases/-default-/data/~2FinvitationCodes~2Fmn2LwtYsK0fdKa94Ql0p"
+    <a href="https://console.firebase.google.com/project/cremona-portal/firestore/databases/-default-/data/~2FinvitationCodes~2Fmn2LwtYsK0fdKa94Ql0p"
        target="_blank" rel="noopener"
        class="inline-flex items-center gap-2 px-4 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-medium text-text-muted hover:text-secondary hover:border-secondary transition-colors shadow-sm">
       <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 10h16M4 14h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -143,6 +159,25 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     </div>
   </div>
 
+  <!-- ── Terms & Privacy version ────────────────────────────────────────────── -->
+  <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm p-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 class="font-headline-sm text-headline-sm text-on-surface">Terms &amp; Privacy Agreement</h2>
+      <p class="font-body-sm text-text-muted text-xs mt-0.5">
+        Everyone must agree at their first login. Publish a new version after editing the
+        <a href="/terms" target="_blank" class="text-secondary underline">Terms</a> or
+        <a href="/privacy" target="_blank" class="text-secondary underline">Privacy Policy</a>
+        — all users will be asked to agree again at their next login.
+      </p>
+      <p class="font-label-sm text-text-muted mt-2">Current version: <span id="legal-version" class="font-bold text-on-surface">…</span></p>
+    </div>
+    <button onclick="publishTermsVersion()" id="publish-terms-btn"
+            class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm flex-shrink-0">
+      <span class="material-symbols-outlined text-[18px]">gavel</span>
+      Publish New Version
+    </button>
+  </div>
+
   <!-- ── Audit Log ──────────────────────────────────────────────────────────── -->
   <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden">
     <div class="px-6 py-4 border-b border-border-subtle flex flex-wrap items-center justify-between gap-3">
@@ -181,6 +216,46 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </button>
     </div>
   </div>
+
+  <!-- ── Login History ──────────────────────────────────────────────────────── -->
+  <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-border-subtle flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="font-headline-sm text-headline-sm text-on-surface">Login History</h2>
+        <p class="font-body-sm text-text-muted text-xs mt-0.5">Recent sign-ins with IP address and location · last 50</p>
+      </div>
+      <div class="relative">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-sm">search</span>
+        <input id="login-search" type="text" placeholder="Name, IP, or location…"
+               class="pl-9 pr-4 py-1.5 border border-border-subtle rounded-lg font-body-sm focus:ring-2 focus:ring-primary-container outline-none w-52"
+               oninput="filterLoginLog(this.value)"/>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr class="bg-surface-container-low">
+            <th class="px-6 py-3 font-label-md text-text-muted">User</th>
+            <th class="px-6 py-3 font-label-md text-text-muted">IP Address</th>
+            <th class="px-6 py-3 font-label-md text-text-muted">Location</th>
+            <th class="px-6 py-3 font-label-md text-text-muted">Device</th>
+            <th class="px-6 py-3 font-label-md text-text-muted">Time</th>
+          </tr>
+        </thead>
+        <tbody id="logins-tbody">
+          <tr><td colspan="5" class="py-10 text-center text-text-muted">
+            <div class="spinner mx-auto mb-2"></div>Loading login history…
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="px-6 py-3 bg-surface-container-low border-t border-border-subtle flex justify-between items-center">
+      <span class="font-label-sm text-text-muted" id="login-count"></span>
+      <button onclick="loadLoginLog()" class="text-xs text-secondary hover:underline flex items-center gap-1">
+        <span class="material-symbols-outlined text-[14px]">refresh</span>Refresh
+      </button>
+    </div>
+  </div>
 </main>
 
 <!-- Create Code Modal -->
@@ -197,7 +272,9 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         <select id="code-purpose" class="w-full px-4 py-2 bg-surface-container-low border border-border-subtle rounded-lg focus:ring-2 focus:ring-primary outline-none transition-all">
           <option value="teacher">Teacher</option>
           <option value="parent">Parent</option>
+          <option value="admin">Admin</option>
         </select>
+        <p class="text-xs text-text-muted">Admin codes require an @cremonamusic.com email. New admins start with no module access — grant it in Accounts → Admin Access.</p>
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div class="flex flex-col gap-1.5">
@@ -242,17 +319,17 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, collection, getDocs, addDoc, deleteDoc,
+  getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, deleteDoc,
   query, orderBy, serverTimestamp, Timestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -263,20 +340,21 @@ let auditSearchTerm = '';
 let auditRefreshId  = null;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
-    if (snap.data().role !== 'admin') { window.location.href = '/home.html'; return; }
-    await Promise.all([loadCodes(), loadAuditLog()]);
+    if (snap.data().role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(snap.data(), 'security')) return;
+    await Promise.all([loadCodes(), loadAuditLog(), loadLoginLog(), loadLegalVersion()]);
     document.getElementById('loading-overlay').style.display = 'none';
     // Auto-refresh audit log every 30 s
-    auditRefreshId = setInterval(loadAuditLog, 30_000);
+    auditRefreshId = setInterval(() => { loadAuditLog(); loadLoginLog(); }, 30_000);
   } catch (e) {
     console.error(e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
 
@@ -370,6 +448,103 @@ window.generateRandomCode = function() {
   document.getElementById('generated-code-preview').textContent = code;
 };
 
+// ── Terms & Privacy version ──────────────────────────────────────────────────
+async function loadLegalVersion() {
+  try {
+    const snap = await getDoc(doc(db, 'settings', 'legal'));
+    const el = document.getElementById('legal-version');
+    if (snap.exists() && snap.data().updatedAt?.toDate) {
+      el.textContent = 'published ' + snap.data().updatedAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false });
+    } else {
+      el.textContent = 'initial (first-login agreement only)';
+    }
+  } catch (e) { console.warn('[legal]', e); }
+}
+
+window.publishTermsVersion = async function() {
+  if (!confirm('Publish a new Terms & Privacy version?\n\nEvery user (teachers, parents, admins) will be asked to agree again the next time they log in.')) return;
+  const btn = document.getElementById('publish-terms-btn');
+  btn.disabled = true;
+  try {
+    await setDoc(doc(db, 'settings', 'legal'), {
+      termsVersion: Date.now(),
+      updatedAt: serverTimestamp(),
+      updatedBy: auth.currentUser.uid,
+    }, { merge: true });
+    await loadLegalVersion();
+    showToast('New version published — everyone will re-agree at next login.', 'success');
+  } catch (e) {
+    showToast('Failed to publish: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+// ── Login history ───────────────────────────────────────────────────────────
+let allLoginLogs = [];
+let loginSearchTerm = '';
+window.filterLoginLog = function(v) { loginSearchTerm = v || ''; renderLoginLog(); };
+
+window.loadLoginLog = async function() {
+  const tbody = document.getElementById('logins-tbody');
+  try {
+    const snap = await getDocs(collection(db, 'loginLogs'));
+    allLoginLogs = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.at?.seconds || 0) - (a.at?.seconds || 0))
+      .slice(0, 50);
+    renderLoginLog();
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-error text-sm">Failed to load login history.</td></tr>`;
+  }
+};
+
+function deviceLabel(ua) {
+  ua = ua || '';
+  if (/Electron/i.test(ua)) return 'Desktop App';
+  if (/iPhone|iPad/i.test(ua)) return 'iPhone/iPad';
+  if (/Android/i.test(ua)) return 'Android';
+  if (/Macintosh/i.test(ua)) return 'Mac';
+  if (/Windows/i.test(ua)) return 'Windows';
+  return ua ? 'Other' : '—';
+}
+
+function renderLoginLog() {
+  const tbody = document.getElementById('logins-tbody');
+  const term = loginSearchTerm.toLowerCase();
+  const filtered = term
+    ? allLoginLogs.filter(l =>
+        (l.name || '').toLowerCase().includes(term) ||
+        (l.email || '').toLowerCase().includes(term) ||
+        (l.ip || '').toLowerCase().includes(term) ||
+        (l.location || '').toLowerCase().includes(term))
+    : allLoginLogs;
+  document.getElementById('login-count').textContent =
+    `${filtered.length} sign-in${filtered.length !== 1 ? 's' : ''}`;
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="py-10 text-center text-text-muted">
+      <span class="material-symbols-outlined text-3xl block mb-2 opacity-30">passkey</span>
+      No sign-ins recorded yet — they appear from now on as people log in.
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(l => {
+    const ts = l.at?.toDate ? l.at.toDate() : null;
+    const when = ts ? ts.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '—';
+    const roleBadge = l.role
+      ? `<span class="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${l.role==='admin'?'bg-amber-100 text-amber-800':l.role==='parent'?'bg-purple-100 text-purple-700':'bg-blue-50 text-secondary'}">${l.role}</span>`
+      : '';
+    return `
+    <tr class="hover:bg-surface-container-lowest transition-colors border-b border-border-subtle last:border-0">
+      <td class="px-6 py-3.5"><span class="font-semibold">${escHtml(l.name || l.email || '—')}</span>${roleBadge}</td>
+      <td class="px-6 py-3.5 font-mono text-xs text-text-muted">${escHtml(l.ip || '—')}</td>
+      <td class="px-6 py-3.5 text-text-muted">${escHtml(l.location || '—')}</td>
+      <td class="px-6 py-3.5 text-text-muted">${escHtml(deviceLabel(l.ua))}</td>
+      <td class="px-6 py-3.5 text-text-muted whitespace-nowrap">${escHtml(when)}</td>
+    </tr>`;
+  }).join('');
+}
+
 // ── Audit log ──────────────────────────────────────────────────────────────────
 window.loadAuditLog = async function() {
   const tbody = document.getElementById('audit-tbody');
@@ -441,7 +616,7 @@ window.filterAuditLog = function(v) {
 
 window.doSignOut = async function() {
   clearInterval(auditRefreshId);
-  await signOut(auth); window.location.href = '/index.html';
+  await signOut(auth); window.location.href = '/';
 };
 
 function escHtml(s) {
@@ -454,7 +629,7 @@ window.showToast = function(msg, type='info') {
   setTimeout(() => t.className = '', 3500);
 };
 </script>
-  <script>window.CREMONA_NAV={portal:'admin',active:'security',title:'Security'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

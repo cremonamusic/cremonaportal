@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Payments | Cremona Music</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#3B2A1E', 'primary-container': '#C8A951',
+        'secondary': '#7A5A16', 'secondary-container': '#9A7524',
+        'on-secondary-container': '#FFFDF8',
+        'surface': '#FAF6EF', 'surface-white': '#FFFFFF',
+        'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+        'border-subtle': '#E2D7C6', 'text-muted': '#7A6A57',
+        'on-surface': '#2B2019', 'error': '#B3261E',
+        'error-container': '#F9DEDC', 'background': '#FAF6EF'
+      },
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin .7s linear infinite; }
+.badge { display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+.badge-pending { background:#fef3c7;color:#92400e; }
+.badge-paid    { background:#d1fae5;color:#065f46; }
+.badge-overdue { background:#fee2e2;color:#991b1b; }
+th { text-align:left;font-weight:600;font-size:12px;color:#7A6A57;text-transform:uppercase;letter-spacing:.05em;padding:10px 16px; }
+td { padding:12px 16px;font-size:14px;border-top:1px solid #E2D7C6;vertical-align:middle; }
+</style>
+<script src="/js/theme.js"></script>
+</head>
+<body class="bg-background text-on-surface min-h-screen" data-portal="parent">
+
+<script>
+window.CREMONA_LANG = localStorage.getItem('cremona-lang') || 'en';
+window.toggleLang = function() {
+  window.CREMONA_LANG = window.CREMONA_LANG === 'en' ? 'ko' : 'en';
+  localStorage.setItem('cremona-lang', window.CREMONA_LANG);
+  if (window._i18nApply) window._i18nApply();
+  if (window._rerender)  window._rerender();
+};
+</script>
+
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading…</p>
+  </div>
+</div>
+
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center px-4 md:px-10 h-16 max-w-5xl mx-auto">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="flex items-center gap-4 md:gap-6">
+        <a data-i18n="nav_dashboard" href="dashboard" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
+        <a data-i18n="nav_schedule"  href="schedule"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a data-i18n="nav_reports"   href="reports"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a data-i18n="nav_messages"  href="messages"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a data-i18n="nav_payments"  href="payments"  class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Payments</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="lang-toggle" onclick="toggleLang()"
+              class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border-subtle text-text-muted hover:bg-surface-container transition-colors flex-shrink-0">
+        한국어
+      </button>
+      <button id="signout-btn"
+              class="flex items-center gap-1 text-sm font-medium text-text-muted hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-[16px]">logout</span>
+        <span data-i18n="nav_signout" class="hidden sm:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-5xl mx-auto px-4 md:px-10 py-8">
+
+  <div class="mb-8">
+    <h1 data-i18n="pay_title" class="text-2xl font-bold">Payments</h1>
+    <p data-i18n="pay_subtitle" class="text-sm text-text-muted mt-1">View your outstanding balance and payment history.</p>
+  </div>
+
+  <div id="balance-section" class="mb-8 hidden">
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm p-6">
+      <div class="flex items-start gap-4">
+        <div class="w-10 h-10 rounded-xl bg-error-container flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-error text-[20px]">account_balance_wallet</span>
+        </div>
+        <div>
+          <h2 data-i18n="pay_outstanding" class="text-base font-semibold text-on-surface">Outstanding Balance</h2>
+          <p data-i18n="pay_includes" class="text-xs text-text-muted mt-0.5">Includes all pending and overdue payments.</p>
+          <div id="balance-amounts" class="mt-3 flex flex-wrap gap-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="all-paid-card" class="mb-8 hidden">
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm p-6">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-xl bg-[#d1fae5] flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-[#065f46] text-[20px]">check_circle</span>
+        </div>
+        <div>
+          <h2 data-i18n="pay_caught_up" class="text-base font-semibold">You're all caught up!</h2>
+          <p data-i18n="pay_no_outstanding" class="text-sm text-text-muted mt-0.5">No outstanding payments at this time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-border-subtle">
+      <h2 data-i18n="pay_history" class="text-lg font-semibold">Payment History</h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-surface-container-low">
+            <th data-i18n="pay_fee_type">Fee Type</th>
+            <th data-i18n="pay_amount">Amount</th>
+            <th data-i18n="pay_due_date">Due Date</th>
+            <th data-i18n="pay_status">Status</th>
+            <th data-i18n="pay_paid_date">Paid Date</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="5" class="text-center py-12 text-text-muted text-sm">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, query, where }
+                           from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── i18n ──────────────────────────────────────────────────────────────────────
+const TRANS = {
+  en: {
+    nav_dashboard:'Dashboard', nav_schedule:'Schedule', nav_reports:'Comments',
+    nav_messages:'Messages', nav_payments:'Payments', nav_signout:'Sign Out',
+    pay_title:'Payments',
+    pay_subtitle:'View your outstanding balance and payment history.',
+    pay_outstanding:'Outstanding Balance',
+    pay_includes:'Includes all pending and overdue payments.',
+    pay_caught_up:"You're all caught up!",
+    pay_no_outstanding:'No outstanding payments at this time.',
+    pay_history:'Payment History',
+    pay_fee_type:'Fee Type', pay_amount:'Amount', pay_due_date:'Due Date',
+    pay_status:'Status', pay_paid_date:'Paid Date',
+    pay_tuition:'Tuition', pay_registration:'Registration',
+    pay_material:'Material', pay_adhoc:'Ad-hoc',
+    pay_recurring:'Recurring', pay_one_time:'One-time',
+    pay_pending:'pending', pay_paid:'paid', pay_overdue:'overdue',
+    pay_overdue_lbl:'overdue', pay_pending_lbl:'pending',
+    pay_no_records:'No payment records yet.',
+  },
+  ko: {
+    nav_dashboard:'대시보드', nav_schedule:'일정', nav_reports:'보고서',
+    nav_messages:'메시지', nav_payments:'결제', nav_signout:'로그아웃',
+    pay_title:'결제',
+    pay_subtitle:'미납 잔액 및 결제 내역을 확인하세요.',
+    pay_outstanding:'미납 잔액',
+    pay_includes:'보류 중 및 연체된 결제가 포함됩니다.',
+    pay_caught_up:'모두 완료되었습니다!',
+    pay_no_outstanding:'현재 미납 결제가 없습니다.',
+    pay_history:'결제 내역',
+    pay_fee_type:'요금 유형', pay_amount:'금액', pay_due_date:'납부 기한',
+    pay_status:'상태', pay_paid_date:'납부일',
+    pay_tuition:'수업료', pay_registration:'등록비',
+    pay_material:'교재비', pay_adhoc:'기타',
+    pay_recurring:'정기', pay_one_time:'일회성',
+    pay_pending:'대기 중', pay_paid:'납부 완료', pay_overdue:'연체',
+    pay_overdue_lbl:'연체', pay_pending_lbl:'대기',
+    pay_no_records:'아직 결제 내역이 없습니다.',
+  }
+};
+
+function t(key) {
+  return TRANS[window.CREMONA_LANG || 'en']?.[key] || TRANS.en[key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = (window.CREMONA_LANG === 'en') ? '한국어' : 'English';
+  document.documentElement.lang = window.CREMONA_LANG || 'en';
+}
+
+window._i18nApply = applyTranslations;
+
+let _allRecords = [];
+
+window._rerender = function() {
+  renderBalance(_allRecords);
+  renderHistory(_allRecords);
+  applyTranslations();
+};
+
+function feeTypeLabel(key) {
+  const map = { tuition:'pay_tuition', registration:'pay_registration', material:'pay_material', adhoc:'pay_adhoc' };
+  return t(map[key] || 'pay_adhoc');
+}
+
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtAmount(amount, currency) {
+  return `${currency} ${Number(amount).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 })}`;
+}
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = d.toDate ? d.toDate() : (d.seconds ? new Date(d.seconds*1000) : new Date(d));
+  return dt.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+function getDisplayStatus(p) {
+  if (p.status === 'paid') return 'paid';
+  if (p.dueDate) {
+    const due = p.dueDate.toDate ? p.dueDate.toDate() : (p.dueDate.seconds ? new Date(p.dueDate.seconds*1000) : new Date(p.dueDate));
+    if (due < new Date()) return 'overdue';
+  }
+  return 'pending';
+}
+function sortPayments(list) {
+  const order = { overdue:0, pending:1, paid:2 };
+  return [...list].sort((a,b) => {
+    const sa = getDisplayStatus(a), sb = getDisplayStatus(b);
+    if (order[sa] !== order[sb]) return order[sa] - order[sb];
+    const toMs = d => d ? (d.toDate ? d.toDate().getTime() : (d.seconds ? d.seconds*1000 : new Date(d).getTime())) : 0;
+    const da = toMs(a.dueDate), db_ = toMs(b.dueDate);
+    return sa === 'paid' ? db_ - da : da - db_;
+  });
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().role !== 'parent') {
+      await signOut(auth); window.location.href = '/'; return;
+    }
+    const q     = query(collection(db,'payments'), where('parentUid','==',user.uid));
+    const pSnap = await getDocs(q);
+    const records = pSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _allRecords = records;
+    renderBalance(records);
+    renderHistory(records);
+    applyTranslations();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) { console.error(e); window.location.href = '/'; }
+});
+
+document.getElementById('signout-btn').onclick = async () => {
+  await signOut(auth); window.location.href = '/';
+};
+
+function renderBalance(records) {
+  const unpaid = records.filter(r => getDisplayStatus(r) !== 'paid');
+  const allPaidCard   = document.getElementById('all-paid-card');
+  const balanceSection = document.getElementById('balance-section');
+  allPaidCard.classList.add('hidden');
+  balanceSection.classList.add('hidden');
+
+  if (!unpaid.length) {
+    allPaidCard.classList.remove('hidden');
+    return;
+  }
+  const byCurrency = {};
+  unpaid.forEach(r => {
+    const k = r.currency || 'MYR';
+    byCurrency[k] = (byCurrency[k] || 0) + Number(r.amount || 0);
+  });
+  document.getElementById('balance-amounts').innerHTML = Object.entries(byCurrency).map(([cur, amt]) =>
+    `<div class="text-xl font-bold text-error">${escHtml(fmtAmount(amt, cur))}</div>`
+  ).join('');
+  const overdueCount = unpaid.filter(r => getDisplayStatus(r) === 'overdue').length;
+  const pendingCount = unpaid.filter(r => getDisplayStatus(r) === 'pending').length;
+  const parts = [];
+  if (overdueCount) parts.push(`<span class="text-xs font-semibold text-error">${overdueCount} ${t('pay_overdue_lbl')}</span>`);
+  if (pendingCount) parts.push(`<span class="text-xs text-text-muted">${pendingCount} ${t('pay_pending_lbl')}</span>`);
+  if (parts.length) {
+    const sub = document.createElement('p');
+    sub.className = 'mt-1';
+    sub.innerHTML = parts.join('<span class="text-text-muted mx-1">·</span>');
+    document.getElementById('balance-amounts').after(sub);
+  }
+  balanceSection.classList.remove('hidden');
+}
+
+function renderHistory(records) {
+  const tbody  = document.getElementById('history-tbody');
+  const sorted = sortPayments(records);
+  if (!sorted.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-12 text-text-muted text-sm">${t('pay_no_records')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = sorted.map(p => {
+    const ds = getDisplayStatus(p);
+    return `<tr>
+      <td>
+        <div class="font-medium">${escHtml(feeTypeLabel(p.feeType) || p.feeType || '—')}</div>
+        ${p.description ? `<div class="text-xs text-text-muted">${escHtml(p.description)}</div>` : ''}
+        <div class="text-xs text-text-muted">${p.isRecurring ? t('pay_recurring') : t('pay_one_time')}</div>
+      </td>
+      <td class="font-semibold">${escHtml(fmtAmount(p.amount, p.currency))}</td>
+      <td class="text-sm">${escHtml(fmtDate(p.dueDate))}</td>
+      <td><span class="badge badge-${escHtml(ds)}">${t('pay_' + ds)}</span></td>
+      <td class="text-sm text-text-muted">${escHtml(fmtDate(p.paidDate))}</td>
+    </tr>`;
+  }).join('');
+}
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
+</body>
+</html>

@@ -1,10 +1,89 @@
 {
   "hosting": {
+    "site": "cremona-portal",
     "public": "public",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/api/requestReports",
+        "function": "requestReports"
+      },
+      {
+        "source": "/api/beacon",
+        "function": "beacon"
+      },
+      {
+        "source": "/api/upload",
+        "function": "uploadFile"
+      },
+      {
+        "source": "/api/logLogin",
+        "function": "logLogin"
+      },
+      {
+        "source": "/api/deleteUser",
+        "function": "deleteUser"
+      },
+      {
+        "source": "/api/requestPasswordReset",
+        "function": "requestPasswordReset"
+      },
+      {
+        "source": "/api/sendSchedule",
+        "function": "sendScheduleNow"
+      },
+      {
+        "source": "/api/resetPassword",
+        "function": "resetPassword"
+      },
+      {
+        "source": "/api/approve2FA",
+        "function": "approve2FA"
+      },
+      {
+        "source": "/api/verifyBackupCode",
+        "function": "verifyBackupCode"
+      },
+      {
+        "source": "/api/send2FAEmailCode",
+        "function": "send2FAEmailCode"
+      },
+      {
+        "source": "/api/verify2FAEmailCode",
+        "function": "verify2FAEmailCode"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|jpeg|webp|ico|svg|woff|woff2)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=604800"
+          }
+        ]
+      }
     ]
+  },
+  "functions": {
+    "source": "functions"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
   }
 }

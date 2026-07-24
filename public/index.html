@@ -1,16 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Login - Cremona Music Portal</title>
+<title>Login - Cremona Music</title>
 
 <!-- Firebase compat (avoids modular import issues in plain HTML) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+
+<!-- EmailJS -->
+<script src="https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit" async defer></script>
 
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -21,17 +23,17 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#C9A227", "primary-container": "#F5E5B0",
-          "on-primary-container": "#8B6020", "on-primary-fixed": "#3E2C23",
-          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
-          "on-secondary-fixed": "#3E2C23", "on-secondary-fixed-variant": "#7A5230",
-          "surface-white": "#FFFDF9", "surface": "#FAF6EF",
-          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
-          "surface-container-highest": "#E4D8C2",
-          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
-          "outline-variant": "#D4BCA0",
-          "error": "#ba1a1a", "error-container": "#ffdad6",
+          "primary": "#3B2A1E", "primary-container": "#C8A951",
+          "on-primary-container": "#5A4A22", "on-primary-fixed": "#2A1D14",
+          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC",
+          "on-secondary-fixed": "#2A1D14", "on-secondary-fixed-variant": "#004493",
+          "surface-white": "#FFFFFF", "surface": "#FAF6EF",
+          "surface-container": "#F1E9DC", "surface-container-low": "#F6F0E6",
+          "surface-container-highest": "#E3D8C6",
+          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle": "#E2D7C6", "text-muted": "#7A6A57",
+          "outline-variant": "#D8C5A8",
+          "error": "#B3261E", "error-container": "#F9DEDC",
         }
       }
     }
@@ -42,13 +44,14 @@
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   .edu-pattern {
     background-color: #FAF6EF;
-    background-image: radial-gradient(#d4c5ab 0.5px, transparent 0.5px),
-                      radial-gradient(#D4BCA0 0.5px, #FAF6EF 0.5px);
+    background-image: radial-gradient(#D8C5A8 0.5px, transparent 0.5px),
+                      radial-gradient(#D8C5A8 0.5px, #FAF6EF 0.5px);
     background-size: 20px 20px; background-position: 0 0, 10px 10px;
   }
   @keyframes slideUp  { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
   @keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
   @keyframes spin     { to { transform:rotate(360deg); } }
+  @keyframes shake    { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-5px)} 40%,80%{transform:translateX(5px)} }
 
   .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
   .animate-fade-in  { animation: fadeIn  0.5s ease-out forwards; }
@@ -59,41 +62,55 @@
     border-radius:50%; animation:spin 0.7s linear infinite; display:inline-block;
   }
 
-  /* Toast */
+  .otp-input {
+    width:48px; height:56px;
+    text-align:center; font-size:22px; font-weight:700;
+    border:2px solid #E2D7C6; border-radius:10px;
+    outline:none; transition:border-color 0.15s, box-shadow 0.15s;
+    background:#fff; color:#2B2019;
+  }
+  .otp-input:focus { border-color:#7A5A16; box-shadow:0 0 0 3px rgba(122,90,22,0.12); }
+  .otp-input.filled { border-color:#3B2A1E; }
+
   #toast {
     position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
     padding:12px 24px; border-radius:8px; font-size:14px; font-weight:500;
     z-index:999; opacity:0; transition:opacity 0.3s; white-space:nowrap;
   }
   #toast.show   { opacity:1; }
-  #toast.error  { background:#ba1a1a; color:#fff; }
+  #toast.error  { background:#B3261E; color:#fff; }
   #toast.success{ background:#1e6e3b; color:#fff; }
-  #toast.info   { background:#3B2A1E; color:#F5EFE4; }
+  #toast.info   { background:#7A5A16; color:#fff; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
 
 <body class="bg-surface text-on-surface min-h-screen flex flex-col font-sans overflow-x-hidden">
 
+<script>
+window.CREMONA_LANG = localStorage.getItem('cremona-lang') || 'en';
+window.toggleLang = function() {
+  window.CREMONA_LANG = window.CREMONA_LANG === 'en' ? 'ko' : 'en';
+  localStorage.setItem('cremona-lang', window.CREMONA_LANG);
+  if (window._i18nApply) window._i18nApply();
+};
+</script>
+
 <!-- Background -->
 <div class="fixed inset-0 edu-pattern z-0 pointer-events-none opacity-40"></div>
+
+<!-- Lang toggle -->
+<div class="fixed top-4 right-4 z-50">
+  <button id="lang-toggle" onclick="toggleLang()"
+          class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border-subtle bg-white text-text-muted hover:bg-surface-container transition-colors shadow-sm">
+    한국어
+  </button>
+</div>
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
-    <div class="w-8 h-8 rounded-full" style="border:3px solid rgba(201,162,39,0.3);border-top-color:#C9A227;animation:spin .7s linear infinite"></div>
+    <div class="w-8 h-8 rounded-full" style="border:3px solid #C8A951;border-top-color:#3B2A1E;animation:spin .7s linear infinite"></div>
     <p class="text-text-muted text-sm">Loading...</p>
   </div>
 </div>
@@ -103,8 +120,9 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
     <!-- Brand -->
     <div class="mb-6 text-center animate-fade-in">
-      <img src="/logo_stack.png" alt="Cremona Music" class="h-24 w-auto mb-3"/>
-      <p class="text-sm text-text-muted mt-1">Member Portal</p>
+      <img src="/logo.png" alt="Cremona Music" class="h-16 w-auto rounded-2xl shadow-md mb-3"/>
+      <h1 class="text-xl font-bold text-primary tracking-tight">Cremona Music</h1>
+      <p data-i18n="idx_member_portal" class="text-sm text-text-muted mt-1">Member Portal</p>
     </div>
 
     <!-- Toast -->
@@ -112,7 +130,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
     <!-- ── LOGIN CARD ──────────────────────────────────────────────────────── -->
     <div id="login-card" class="bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8 animate-slide-up">
-      <h2 class="text-lg font-bold text-on-surface mb-6">Sign In</h2>
+      <h2 data-i18n="idx_sign_in" class="text-lg font-bold text-on-surface mb-6">Sign In</h2>
 
       <button id="google-signin-btn" onclick="signInWithGoogle()"
               class="flex items-center justify-center gap-3 w-full bg-surface-white border border-border-subtle rounded-lg py-3 px-4 hover:bg-surface-container transition-colors active:scale-[0.98] duration-150 mb-4">
@@ -122,25 +140,33 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <path d="M3.75 10.64c-.19-.57-.3-1.18-.3-1.82s.11-1.25.3-1.82L.91 4.67C.33 5.83 0 7.13 0 8.5s.33 2.67.91 3.83l2.84-2.19z" fill="#FBBC05"/>
           <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.45 0 2.39 2.01.91 4.96l2.84 2.19C4.49 4.95 6.56 3.58 9 3.58z" fill="#EA4335"/>
         </svg>
-        <span class="text-sm font-medium text-on-surface">Continue with Google</span>
+        <span data-i18n="idx_google" class="text-sm font-medium text-on-surface">Continue with Google</span>
+      </button>
+
+      <button id="apple-signin-btn" onclick="signInWithApple()"
+              class="flex items-center justify-center gap-3 w-full bg-black text-white rounded-lg py-3 px-4 hover:bg-black/85 transition-colors active:scale-[0.98] duration-150 mb-4">
+        <svg width="16" height="18" viewBox="0 0 16 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M13.3 10.06c.02 2.4 2.1 3.2 2.13 3.21-.02.06-.33 1.14-1.1 2.25-.66.97-1.35 1.93-2.44 1.95-1.07.02-1.41-.63-2.63-.63-1.22 0-1.6.61-2.61.65-1.05.04-1.85-1.04-2.52-2-1.37-1.98-2.42-5.6-1.01-8.04.7-1.21 1.94-1.98 3.3-2 1.03-.02 2 .69 2.63.69.63 0 1.81-.86 3.05-.73.52.02 1.98.21 2.92 1.58-.08.05-1.74 1.02-1.72 3.07M11.29 3.1c.56-.67.93-1.61.83-2.55-.8.03-1.77.53-2.35 1.21-.51.6-.97 1.55-.84 2.47.9.07 1.8-.45 2.36-1.13"/>
+        </svg>
+        <span data-i18n="idx_apple" class="text-sm font-medium">Continue with Apple</span>
       </button>
 
       <div class="relative flex items-center mb-4">
         <div class="flex-grow border-t border-border-subtle"></div>
-        <span class="px-3 text-xs text-text-muted uppercase tracking-wider">or</span>
+        <span data-i18n="idx_or" class="px-3 text-xs text-text-muted uppercase tracking-wider">or</span>
         <div class="flex-grow border-t border-border-subtle"></div>
       </div>
 
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant" for="login-email">Email Address</label>
-          <input id="login-email" type="email" placeholder="your@email.com"
+          <label data-i18n="idx_email_lbl" class="text-xs font-medium text-on-surface-variant" for="login-email">Email Address</label>
+          <input id="login-email" type="email" data-i18n-ph="idx_email_ph" placeholder="your@email.com"
                  class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm bg-surface-white"/>
         </div>
         <div class="flex flex-col gap-1.5">
           <div class="flex justify-between items-center">
-            <label class="text-xs font-medium text-on-surface-variant" for="login-password">Password</label>
-            <button onclick="showForgotPassword()" class="text-xs text-secondary hover:underline">Forgot Password?</button>
+            <label data-i18n="idx_password_lbl" class="text-xs font-medium text-on-surface-variant" for="login-password">Password</label>
+            <button onclick="showForgotPassword()" class="text-xs text-secondary hover:underline" data-i18n="idx_forgot">Forgot Password?</button>
           </div>
           <div class="relative">
             <input id="login-password" type="password" placeholder="••••••••"
@@ -151,52 +177,53 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
             </button>
           </div>
         </div>
+        <div id="login-captcha" class="flex justify-center"></div>
         <button id="login-btn" onclick="signInWithEmail()"
                 class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
-          Sign In
+          <span data-i18n="idx_sign_in_btn">Sign In</span>
         </button>
       </div>
 
       <div class="text-center mt-5">
         <p class="text-sm text-text-muted">
-          New to Cremona Music?
-          <button class="text-secondary font-bold hover:underline ml-1" onclick="showCard('signup')">Create an Account</button>
+          <span data-i18n="idx_new_user">New to Cremona Music?</span>
+          <button class="text-secondary font-bold hover:underline ml-1" onclick="showCard('signup')" data-i18n="idx_create_link">Create an Account</button>
         </p>
       </div>
     </div>
 
     <!-- ── SIGNUP CARD ─────────────────────────────────────────────────────── -->
     <div id="signup-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
-      <h2 class="text-lg font-bold text-on-surface mb-6">Create Account</h2>
+      <h2 data-i18n="idx_create_account" class="text-lg font-bold text-on-surface mb-6">Create Account</h2>
 
       <div class="flex flex-col gap-4">
         <div class="grid grid-cols-2 gap-3">
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-on-surface-variant">First Name</label>
-            <input id="signup-firstname" type="text" placeholder="Jane"
+            <label data-i18n="idx_first_name" class="text-xs font-medium text-on-surface-variant">First Name</label>
+            <input id="signup-firstname" type="text" data-i18n-ph="idx_first_ph" placeholder="Jane"
                    class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
           </div>
           <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-on-surface-variant">Last Name</label>
-            <input id="signup-lastname" type="text" placeholder="Smith"
+            <label data-i18n="idx_last_name" class="text-xs font-medium text-on-surface-variant">Last Name</label>
+            <input id="signup-lastname" type="text" data-i18n-ph="idx_last_ph" placeholder="Smith"
                    class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
           </div>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant">Email</label>
-          <input id="signup-email" type="email" placeholder="your@email.com"
+          <label data-i18n="idx_email_lbl2" class="text-xs font-medium text-on-surface-variant">Email</label>
+          <input id="signup-email" type="email" data-i18n-ph="idx_email_ph" placeholder="your@email.com"
                  class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant">Access Code</label>
+          <label data-i18n="idx_access_code" class="text-xs font-medium text-on-surface-variant">Access Code</label>
           <input id="signup-code" type="text" placeholder="XXXX-XXXX-XXXX" maxlength="14"
                  class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm font-mono tracking-widest uppercase"/>
-          <p class="text-xs text-text-muted">Enter the unique code provided by your administrator.</p>
+          <p data-i18n="idx_access_desc" class="text-xs text-text-muted">Enter the unique code provided by your administrator.</p>
         </div>
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant">Password</label>
+          <label data-i18n="idx_password_lbl2" class="text-xs font-medium text-on-surface-variant">Password</label>
           <div class="relative">
-            <input id="signup-password" type="password" placeholder="Min. 8 characters"
+            <input id="signup-password" type="password" data-i18n-ph="idx_min8" placeholder="Min. 8 characters"
                    class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm pr-10"/>
             <button class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors"
                     onclick="togglePassword('signup-password', this)" type="button">
@@ -206,39 +233,110 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         </div>
         <div class="flex items-start gap-2 mt-1">
           <input id="terms" type="checkbox" class="mt-1 rounded border-border-subtle text-secondary focus:ring-secondary"/>
-          <label class="text-xs text-text-muted" for="terms">
-            I agree to the <a class="text-secondary hover:underline" href="/terms.html" target="_blank">Terms of Service</a> and <a class="text-secondary hover:underline" href="/privacy.html" target="_blank">Privacy Policy</a>.
+          <label data-i18n-html="idx_terms" class="text-xs text-text-muted" for="terms">
+            I agree to the <a class="text-secondary hover:underline" href="/terms" target="_blank">Terms of Service</a> and <a class="text-secondary hover:underline" href="/privacy" target="_blank">Privacy Policy</a>.
           </label>
         </div>
+        <div id="signup-captcha" class="flex justify-center"></div>
         <button id="signup-btn" onclick="signUpWithEmail()"
                 class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
-          Continue
+          <span data-i18n="idx_create_btn">Create Account</span>
         </button>
       </div>
 
       <div class="text-center mt-5">
         <p class="text-sm text-text-muted">
-          Already have an account?
-          <button class="text-secondary font-bold hover:underline ml-1" onclick="showCard('login')">Sign In</button>
+          <span data-i18n="idx_already">Already have an account?</span>
+          <button class="text-secondary font-bold hover:underline ml-1" onclick="showCard('login')" data-i18n="idx_sign_in_link">Sign In</button>
         </p>
+      </div>
+    </div>
+
+    <!-- ── OTP CARD ───────────────────────────────────────────────────────────── -->
+    <div id="otp-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
+      <div class="flex flex-col items-center text-center gap-5">
+
+        <div class="w-14 h-14 rounded-full flex items-center justify-center" style="background:#dbeafe;">
+          <span class="material-symbols-outlined text-[32px]" style="color:#7A5A16;font-variation-settings:'FILL' 1;">mark_email_unread</span>
+        </div>
+
+        <div>
+          <h2 data-i18n="idx_check_email" class="text-lg font-bold text-on-surface mb-1">Check your email</h2>
+          <p class="text-sm text-text-muted leading-relaxed">
+            <span data-i18n="idx_otp_sent">We sent a 6-digit code to</span><br>
+            <span id="otp-email-display" class="font-semibold text-on-surface"></span>
+          </p>
+          <p class="mt-2 text-xs text-text-muted bg-surface-container rounded-lg px-3 py-2 flex items-center gap-1.5 justify-center">
+            <span class="material-symbols-outlined text-[14px]">info</span>
+            <span data-i18n="idx_check_spam">Can't find it? Check your spam or junk folder.</span>
+          </p>
+        </div>
+
+        <div class="flex gap-2 justify-center" id="otp-boxes">
+          <input class="otp-input" id="otp-0" type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code"/>
+          <input class="otp-input" id="otp-1" type="text" inputmode="numeric" maxlength="1"/>
+          <input class="otp-input" id="otp-2" type="text" inputmode="numeric" maxlength="1"/>
+          <input class="otp-input" id="otp-3" type="text" inputmode="numeric" maxlength="1"/>
+          <input class="otp-input" id="otp-4" type="text" inputmode="numeric" maxlength="1"/>
+          <input class="otp-input" id="otp-5" type="text" inputmode="numeric" maxlength="1"/>
+        </div>
+
+        <p id="otp-error" class="hidden text-sm font-medium text-error -mt-2"></p>
+
+        <button id="otp-verify-btn" onclick="verifyOtp()"
+                class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all duration-150 text-sm flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[18px]">verified</span>
+          <span data-i18n="idx_verify_btn">Verify Code</span>
+        </button>
+
+        <div class="w-full border-t border-border-subtle"></div>
+
+        <div class="flex flex-col items-center gap-2">
+          <button id="otp-resend-btn" onclick="resendOtp()"
+                  class="flex items-center gap-1.5 text-sm font-medium text-secondary hover:underline transition-colors">
+            <span class="material-symbols-outlined text-[16px]">refresh</span>
+            <span data-i18n="idx_resend">Resend code</span>
+          </button>
+          <button onclick="showCard('signup')" class="text-xs text-text-muted hover:underline" data-i18n="idx_back_signup">← Back to sign up</button>
+        </div>
+
       </div>
     </div>
 
     <!-- ── FORGOT PASSWORD CARD ────────────────────────────────────────────── -->
     <div id="forgot-card" class="hidden bg-surface-white w-full rounded-2xl shadow-md border border-border-subtle p-8">
-      <h2 class="text-lg font-bold text-on-surface mb-2">Reset Password</h2>
-      <p class="text-sm text-text-muted mb-6">Enter your email address and we'll send a password reset link.</p>
+      <h2 data-i18n="idx_reset_pw" class="text-lg font-bold text-on-surface mb-2">Reset Password</h2>
+      <p id="forgot-desc" data-i18n="idx_reset_desc" class="text-sm text-text-muted mb-2">Enter your email address and we'll send a 6-digit reset code.</p>
+      <p class="text-xs text-text-muted bg-surface-container rounded-lg px-3 py-2 mb-6 flex items-center gap-1.5">
+        <span class="material-symbols-outlined text-[14px]">info</span>
+        <span data-i18n="idx_check_spam">Can't find it? Check your spam or junk folder.</span>
+      </p>
+      <p class="text-xs text-text-muted bg-surface-container rounded-lg px-3 py-2 mb-6 flex items-center gap-1.5 -mt-4">
+        <span class="material-symbols-outlined text-[14px]">passkey</span>
+        <span data-i18n="idx_social_hint">Signed up with Google or Apple? There's no password to reset — just use that button to sign in.</span>
+      </p>
       <div class="flex flex-col gap-4">
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant">Email Address</label>
-          <input id="forgot-email" type="email" placeholder="your@email.com"
+          <label data-i18n="idx_email_lbl" class="text-xs font-medium text-on-surface-variant">Email Address</label>
+          <input id="forgot-email" type="email" data-i18n-ph="idx_email_ph" placeholder="your@email.com"
                  class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
         </div>
+        <div id="forgot-code-row" class="hidden flex flex-col gap-1.5">
+          <label data-i18n="idx_reset_code_lbl" class="text-xs font-medium text-on-surface-variant">6-digit code from the email</label>
+          <input id="forgot-code" type="text" inputmode="numeric" maxlength="6" placeholder="123456"
+                 class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm tracking-widest"/>
+        </div>
+        <div id="forgot-newpw-row" class="hidden flex flex-col gap-1.5">
+          <label data-i18n="idx_reset_newpw_lbl" class="text-xs font-medium text-on-surface-variant">New password (8+ characters)</label>
+          <input id="forgot-newpw" type="password" placeholder="••••••••"
+                 class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
+        </div>
+        <div id="forgot-captcha" class="flex justify-center"></div>
         <button id="forgot-btn" onclick="sendResetLink()"
                 class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg text-sm flex items-center justify-center gap-2">
-          Send Reset Link
+          <span data-i18n="idx_send_reset">Send Reset Link</span>
         </button>
-        <button onclick="showCard('login')" class="text-sm text-secondary hover:underline">Back to Sign In</button>
+        <button onclick="showCard('login')" class="text-sm text-secondary hover:underline" data-i18n="idx_back_signin">Back to Sign In</button>
       </div>
     </div>
 
@@ -246,29 +344,187 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 </main>
 
 <div class="w-full py-2 bg-surface-container-highest border-t border-border-subtle text-center">
-  <p class="text-xs text-text-muted">© 2025 Cremona Music.</p>
+  <p data-i18n="footer" class="text-xs text-text-muted">© 2026 Cremona Music.</p>
 </div>
 
 <script>
+// ── i18n ───────────────────────────────────────────────────────────────────────
+const TRANS = {
+  en: {
+    idx_member_portal: 'Member Portal',
+    idx_sign_in: 'Sign In',
+    idx_google: 'Continue with Google',
+    idx_apple: 'Continue with Apple',
+    idx_or: 'or',
+    idx_email_lbl: 'Email Address',
+    idx_email_lbl2: 'Email',
+    idx_email_ph: 'your@email.com',
+    idx_password_lbl: 'Password',
+    idx_password_lbl2: 'Password',
+    idx_forgot: 'Forgot Password?',
+    idx_reset_code_lbl: '6-digit code from the email',
+    idx_reset_newpw_lbl: 'New password (8+ characters)',
+    idx_social_hint: "Signed up with Google or Apple? There's no password to reset \u2014 just use that button to sign in.",
+    idx_sign_in_btn: 'Sign In',
+    idx_new_user: 'New to Cremona Music?',
+    idx_create_link: 'Create an Account',
+    idx_create_account: 'Create Account',
+    idx_first_name: 'First Name', idx_first_ph: 'Jane',
+    idx_last_name: 'Last Name', idx_last_ph: 'Smith',
+    idx_access_code: 'Access Code',
+    idx_access_desc: 'Enter the unique code provided by your administrator.',
+    idx_min8: 'Min. 8 characters',
+    idx_terms: 'I agree to the <a class="text-secondary hover:underline" href="/terms" target="_blank">Terms of Service</a> and <a class="text-secondary hover:underline" href="/privacy" target="_blank">Privacy Policy</a>.',
+    idx_create_btn: 'Create Account',
+    idx_already: 'Already have an account?',
+    idx_sign_in_link: 'Sign In',
+    idx_check_email: 'Check your email',
+    idx_otp_sent: 'We sent a 6-digit code to',
+    idx_check_spam: "Can't find it? Check your spam or junk folder.",
+    idx_verify_btn: 'Verify Code',
+    idx_resend: 'Resend code',
+    idx_back_signup: '← Back to sign up',
+    idx_reset_pw: 'Reset Password',
+    idx_reset_desc: "Enter your email address and we'll send a 6-digit reset code.",
+    idx_reset_desc2: 'Enter the 6-digit code from your email and choose a new password.',
+    idx_send_reset: 'Send Reset Link',
+    idx_reset_submit: 'Reset Password',
+    idx_back_signin: 'Back to Sign In',
+    idx_2fa_title: 'Approve on your phone',
+    idx_2fa_wait: 'We sent an approval request to your Cremona Music app. Approve it to finish signing in.',
+    idx_2fa_backup: 'Use a backup code instead',
+    idx_2fa_backup_ph: 'Enter a backup code',
+    idx_2fa_backup_submit: 'Verify code',
+    idx_2fa_backup_empty: 'Please enter a backup code.',
+    idx_2fa_backup_bad: 'That backup code was not accepted. Please try again.',
+    idx_2fa_backup_ok: 'Backup code accepted. Signing you in…',
+    idx_2fa_email: 'Email me a code instead',
+    idx_2fa_email_ph: '6-digit code from email',
+    idx_2fa_email_submit: 'Verify code',
+    idx_2fa_email_sent: 'We emailed you a 6-digit code. Check your inbox and spam folder.',
+    idx_2fa_email_empty: 'Please enter the 6-digit code.',
+    idx_2fa_email_bad: 'That code was not accepted. Please try again.',
+    idx_2fa_email_ok: 'Code accepted. Signing you in…',
+    idx_2fa_denied: 'Sign-in denied.',
+    idx_2fa_timeout: 'Approval timed out.',
+    idx_2fa_cancelled: 'Sign-in cancelled.',
+    idx_2fa_cancel: 'Cancel',
+    footer: '© 2026 Cremona Music.',
+  },
+  ko: {
+    idx_member_portal: '회원 포털',
+    idx_sign_in: '로그인',
+    idx_google: 'Google로 계속',
+    idx_apple: 'Apple로 계속',
+    idx_or: '또는',
+    idx_email_lbl: '이메일 주소',
+    idx_email_lbl2: '이메일',
+    idx_email_ph: 'your@email.com',
+    idx_password_lbl: '비밀번호',
+    idx_password_lbl2: '비밀번호',
+    idx_forgot: '비밀번호를 잊으셨나요?',
+    idx_reset_code_lbl: '이메일로 받은 6자리 코드',
+    idx_reset_newpw_lbl: '새 비밀번호 (8자 이상)',
+    idx_social_hint: 'Google 또는 Apple로 가입하셨나요? 비밀번호가 없으므로 해당 버튼으로 바로 로그인하세요.',
+    idx_sign_in_btn: '로그인',
+    idx_new_user: 'Cremona Music이 처음이신가요?',
+    idx_create_link: '계정 만들기',
+    idx_create_account: '계정 만들기',
+    idx_first_name: '이름', idx_first_ph: '홍',
+    idx_last_name: '성', idx_last_ph: '길동',
+    idx_access_code: '초대 코드',
+    idx_access_desc: '관리자가 제공한 고유 코드를 입력하세요.',
+    idx_min8: '최소 8자',
+    idx_terms: '<a class="text-secondary hover:underline" href="/terms" target="_blank">이용약관</a> 및 <a class="text-secondary hover:underline" href="/privacy" target="_blank">개인정보처리방침</a>에 동의합니다.',
+    idx_create_btn: '계정 만들기',
+    idx_already: '이미 계정이 있으신가요?',
+    idx_sign_in_link: '로그인',
+    idx_check_email: '이메일을 확인하세요',
+    idx_otp_sent: '6자리 코드를 보냈습니다',
+    idx_check_spam: '메일이 보이지 않으면 스팸함을 확인해 주세요.',
+    idx_verify_btn: '코드 확인',
+    idx_resend: '코드 재전송',
+    idx_back_signup: '← 회원가입으로 돌아가기',
+    idx_reset_pw: '비밀번호 재설정',
+    idx_reset_desc: '이메일 주소를 입력하면 비밀번호 재설정 링크를 보내드립니다.',
+    idx_reset_desc2: '이메일로 받은 6자리 코드와 새 비밀번호를 입력하세요.',
+    idx_send_reset: '재설정 링크 보내기',
+    idx_reset_submit: '비밀번호 재설정',
+    idx_back_signin: '로그인으로 돌아가기',
+    idx_2fa_title: '휴대폰에서 승인하세요',
+    idx_2fa_wait: 'Cremona Music 앱으로 승인 요청을 보냈습니다. 로그인을 완료하려면 요청을 승인해 주세요.',
+    idx_2fa_email: '이메일로 코드 받기',
+    idx_2fa_email_ph: '이메일로 받은 6자리 코드',
+    idx_2fa_email_submit: '코드 확인',
+    idx_2fa_email_sent: '6자리 코드를 이메일로 보냈습니다. 받은편지함과 스팸함을 확인하세요.',
+    idx_2fa_email_empty: '6자리 코드를 입력해 주세요.',
+    idx_2fa_email_bad: '코드가 확인되지 않았습니다. 다시 시도해 주세요.',
+    idx_2fa_email_ok: '코드가 확인되었습니다. 로그인 중…',
+    idx_2fa_backup: '백업 코드 사용하기',
+    idx_2fa_backup_ph: '백업 코드 입력',
+    idx_2fa_backup_submit: '코드 확인',
+    idx_2fa_backup_empty: '백업 코드를 입력해 주세요.',
+    idx_2fa_backup_bad: '백업 코드가 확인되지 않았습니다. 다시 시도해 주세요.',
+    idx_2fa_backup_ok: '백업 코드가 확인되었습니다. 로그인 중…',
+    idx_2fa_denied: '로그인이 거부되었습니다.',
+    idx_2fa_timeout: '승인 시간이 초과되었습니다.',
+    idx_2fa_cancelled: '로그인이 취소되었습니다.',
+    idx_2fa_cancel: '취소',
+    footer: '© 2026 Cremona Music.',
+  }
+};
+
+function t(key) {
+  return TRANS[window.CREMONA_LANG || 'en']?.[key] || TRANS.en[key] || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = (window.CREMONA_LANG === 'en') ? '한국어' : 'English';
+  document.documentElement.lang = window.CREMONA_LANG || 'en';
+}
+
+window._i18nApply = applyTranslations;
+
 // ── Firebase compat init ───────────────────────────────────────────────────────
 const firebaseConfig = {
-  apiKey:            "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain:        "cremonamusic-portal.firebaseapp.com",
-  projectId:         "cremonamusic-portal",
-  storageBucket:     "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey:            "REPLACE_ME_CREMONA_API_KEY",
+  authDomain:        "portal.cremonamusic.com",
+  projectId:         "cremona-portal",
+  storageBucket:     "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId:             "REPLACE_ME_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
-const auth     = firebase.auth();
-const db       = firebase.firestore();
+const auth = firebase.auth();
+const db   = firebase.firestore();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
+const appleProvider  = new firebase.auth.OAuthProvider('apple.com');
+appleProvider.addScope('email');
+appleProvider.addScope('name');
 
 // ── State ──────────────────────────────────────────────────────────────────────
-let _skipAuthHandler = false; // prevents onAuthStateChanged firing mid-signup
+let _skipAuthHandler = false;
+let pendingSignup = null;
+let otpCode   = null;
+let otpExpiry = null;
 
+// ── Auth state ────────────────────────────────────────────────────────────────
+// Security: sessions expire after 14 days (see theme.js); expired visitors
+// arrive with ?expired=1 and get signed out here.
+if (new URLSearchParams(location.search).has('expired')) {
+  _skipAuthHandler = true;
+  auth.signOut().catch(() => {}).finally(() => {
+    _skipAuthHandler = false;
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('For security, you were signed out after 2 weeks. Please sign in again.', 'info');
+    history.replaceState(null, '', '/');
+  });
+}
 
-// ── Auth state: redirect any signed-in user ────────────────────────────────────
 auth.onAuthStateChanged(async (user) => {
   if (_skipAuthHandler) return;
   if (user) {
@@ -277,6 +533,30 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('loading-overlay').style.display = 'none';
   }
 });
+
+// ── Forced password change (accounts created by the academy) ────────────────
+window.submitForcedPassword = async function() {
+  const pw  = document.getElementById('force-pw-new').value;
+  const pw2 = document.getElementById('force-pw-confirm').value;
+  if (pw.length < 8)  return showToast('Password must be at least 8 characters.', 'error');
+  if (pw !== pw2)     return showToast('Passwords do not match.', 'error');
+  const btn = document.getElementById('force-pw-btn');
+  btn.disabled = true;
+  try {
+    await auth.currentUser.updatePassword(pw);
+    await db.collection('users').doc(auth.currentUser.uid).update({ mustChangePassword: false });
+    document.getElementById('force-pw-modal').classList.add('hidden');
+    showToast('Password updated! Signing you in…', 'success');
+    const role = window._pendingRole;
+    rememberRole(role);
+    if (role === 'admin')       window.location.href = '/admin/dashboard';
+    else if (role === 'parent') window.location.href = '/parent/dashboard';
+    else                        window.location.href = '/home';
+  } catch (e) {
+    showToast(e.message || 'Could not update the password. Please try again.', 'error');
+    btn.disabled = false;
+  }
+};
 
 // ── Role-based redirect ────────────────────────────────────────────────────────
 async function redirectByRole(uid) {
@@ -290,18 +570,248 @@ async function redirectByRole(uid) {
         ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
         return;
       }
-      if (data.role === 'admin')        window.location.href = '/admin/accounts.html';
-      else if (data.role === 'parent')  window.location.href = '/parent/dashboard.html';
-      else                              window.location.href = '/home.html';
+      const currentEmail = (auth.currentUser && auth.currentUser.email) || '';
+      if (data.role !== 'parent' && !currentEmail.endsWith('@cremonamusic.com')) {
+        await auth.signOut();
+        showToast('Access restricted. Please contact your administrator.', 'error');
+        ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
+        return;
+      }
+      // ── Terms & Privacy gate: everyone agrees once; re-agrees whenever a
+      // new version is published from Admin → Security (settings/legal).
+      let requiredTerms = 1;
+      try {
+        const legal = await db.collection('settings').doc('legal').get();
+        if (legal.exists && legal.data().termsVersion) requiredTerms = legal.data().termsVersion;
+      } catch (e) {}
+      if ((data.agreedTermsVersion || 0) < requiredTerms) {
+        document.getElementById('loading-overlay').style.display = 'none';
+        window._pendingTermsVersion = requiredTerms;
+        window._pendingData = data;
+        document.getElementById('terms-agree-check').checked = false;
+        document.getElementById('terms-modal').classList.remove('hidden');
+        return;
+      }
+      await proceedAfterTerms(data);
     } else {
-      window.location.href = '/home.html';
+      window.location.href = '/home';
     }
   } catch (e) {
-    window.location.href = '/home.html';
+    // Do NOT bounce to /home here — a broken session would loop forever.
+    console.error('[redirectByRole]', e);
+    try { await auth.signOut(); } catch (e2) {}
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('Could not load your account — please sign in again.', 'error');
   }
 }
 
-// ── Sign up: validate form + invitation code → create account → redirect ──────
+async function proceedAfterTerms(data) {
+  if (data.mustChangePassword === true) {
+    const tok = await auth.currentUser.getIdTokenResult();
+    if (tok.signInProvider !== 'password') {
+      await auth.signOut();
+      showToast('First sign-in must use your email and the temporary password we sent you. After you set your own password, Google/Apple sign-in will work.', 'error');
+      ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
+      document.getElementById('loading-overlay').style.display = 'none';
+      return;
+    }
+    document.getElementById('loading-overlay').style.display = 'none';
+    window._pendingRole = data.role;
+    document.getElementById('force-pw-modal').classList.remove('hidden');
+    return;
+  }
+  // ── Opt-in two-factor gate (only when the user turned it on) ──────────────
+  if (data.twoFactorEnabled === true) {
+    document.getElementById('loading-overlay').style.display = 'none';
+    return start2FA(data.role);
+  }
+  redirectToHome(data.role);
+}
+
+function redirectToHome(role) {
+  rememberRole(role);
+  if (role === 'admin')        window.location.href = '/admin/dashboard';
+  else if (role === 'parent')  window.location.href = '/parent/dashboard';
+  else                         window.location.href = '/home';
+}
+
+// account.html is shared by all three roles and lives at the path root, so the
+// sidebar can't infer the portal from the URL — it reads this instead.
+function rememberRole(role) {
+  try { localStorage.setItem('cremona-role', role === 'admin' || role === 'parent' ? role : 'teacher'); } catch (e) {}
+}
+
+window.agreeToTerms = async function() {
+  if (!document.getElementById('terms-agree-check').checked)
+    return showToast('Please check the box to agree first. / 동의 체크박스를 선택해 주세요.', 'error');
+  const btn = document.getElementById('terms-agree-btn');
+  btn.disabled = true;
+  try {
+    await db.collection('users').doc(auth.currentUser.uid).update({
+      agreedTermsVersion: window._pendingTermsVersion,
+      agreedTermsAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    document.getElementById('terms-modal').classList.add('hidden');
+    await proceedAfterTerms(window._pendingData);
+  } catch (e) {
+    showToast(e.message || 'Failed to save your agreement. Please try again.', 'error');
+    btn.disabled = false;
+  }
+};
+
+window.declineTerms = async function() {
+  document.getElementById('terms-modal').classList.add('hidden');
+  await auth.signOut();
+  showToast('You must agree to the Terms and Privacy Policy to use the portal.', 'error');
+  ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
+};
+
+// ── Opt-in two-factor (Google-Prompt style: approve on your phone) ──────────────
+let _2faUnsub       = null;
+let _2faTimer       = null;
+let _2faChallengeId = null;
+let _2faRole        = null;
+
+async function start2FA(role) {
+  _2faRole = role;
+  const uid = auth.currentUser.uid;
+  // Reset modal to its default (waiting) state.
+  document.getElementById('twofa-backup-wrap').classList.add('hidden');
+  document.getElementById('twofa-backup-input').value = '';
+  document.getElementById('twofa-email-wrap').classList.add('hidden');
+  document.getElementById('twofa-email-input').value = '';
+  document.getElementById('twofa-email-btn').disabled = false;
+  document.getElementById('twofa-backup-btn').disabled = false;
+  document.getElementById('twofa-modal').classList.remove('hidden');
+  try {
+    const ref = db.collection('loginChallenges').doc();
+    _2faChallengeId = ref.id;
+    const expiresAt = firebase.firestore.Timestamp.fromMillis(Date.now() + 3 * 60 * 1000);
+    await ref.set({
+      uid:           uid,
+      status:        'pending',
+      createdAt:     firebase.firestore.FieldValue.serverTimestamp(),
+      expiresAt:     expiresAt,
+      requestedFrom: navigator.platform || 'Web browser',
+    });
+    _2faUnsub = ref.onSnapshot(snap => {
+      const d = snap.data();
+      if (!d) return;
+      if (d.status === 'approved')    finish2FA();
+      else if (d.status === 'denied') fail2FA(t('idx_2fa_denied'));
+    }, err => { console.error('[2fa onSnapshot]', err); });
+    // Give ~5s of slack over the 3-minute server expiry before we give up.
+    _2faTimer = setTimeout(() => fail2FA(t('idx_2fa_timeout')), 3 * 60 * 1000 + 5000);
+  } catch (e) {
+    console.error('[start2FA]', e);
+    await fail2FA(e.message || t('idx_2fa_timeout'));
+  }
+}
+
+function cleanup2FA() {
+  if (_2faUnsub) { try { _2faUnsub(); } catch (e) {} _2faUnsub = null; }
+  if (_2faTimer) { clearTimeout(_2faTimer); _2faTimer = null; }
+}
+
+function finish2FA() {
+  cleanup2FA();
+  document.getElementById('twofa-modal').classList.add('hidden');
+  redirectToHome(_2faRole);
+}
+
+async function fail2FA(msg) {
+  cleanup2FA();
+  document.getElementById('twofa-modal').classList.add('hidden');
+  try { await auth.signOut(); } catch (e) {}
+  showToast(msg, 'error');
+  ['login-btn', 'google-signin-btn'].forEach(id => setLoading(id, false));
+}
+
+window.cancel2FA = function() {
+  return fail2FA(t('idx_2fa_cancelled'));
+};
+
+window.send2FAEmail = async function() {
+  document.getElementById('twofa-email-wrap').classList.remove('hidden');
+  document.getElementById('twofa-email-input').focus();
+  try {
+    const r = await fetch('https://portal.cremonamusic.com/api/send2FAEmailCode', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: auth.currentUser.uid, challengeId: _2faChallengeId }),
+    });
+    const out = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(out.error || t('idx_2fa_email_bad'));
+    showToast(t('idx_2fa_email_sent'), 'success');
+  } catch (e) {
+    showToast(e.message || t('idx_2fa_email_bad'), 'error');
+  }
+};
+
+window.submit2FAEmail = async function() {
+  const code = document.getElementById('twofa-email-input').value.trim();
+  if (!code) return showToast(t('idx_2fa_email_empty'), 'error');
+  const btn = document.getElementById('twofa-email-btn');
+  btn.disabled = true;
+  try {
+    const r = await fetch('https://portal.cremonamusic.com/api/verify2FAEmailCode', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: auth.currentUser.uid, challengeId: _2faChallengeId, code }),
+    });
+    const out = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(out.error || t('idx_2fa_email_bad'));
+    showToast(t('idx_2fa_email_ok'), 'success');
+    // The onSnapshot listener observes status → 'approved' and proceeds.
+  } catch (e) {
+    btn.disabled = false;
+    showToast(e.message || t('idx_2fa_email_bad'), 'error');
+  }
+};
+
+window.show2FABackup = function() {
+  document.getElementById('twofa-backup-wrap').classList.remove('hidden');
+  document.getElementById('twofa-backup-input').focus();
+};
+
+window.submit2FABackup = async function() {
+  const code = document.getElementById('twofa-backup-input').value.trim();
+  if (!code) return showToast(t('idx_2fa_backup_empty'), 'error');
+  const btn = document.getElementById('twofa-backup-btn');
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://portal.cremonamusic.com/api/verifyBackupCode', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ uid: auth.currentUser.uid, challengeId: _2faChallengeId, code }),
+    });
+    const out = await res.json().catch(() => ({}));
+    if (res.ok && out.success) {
+      // The function marks the challenge 'approved'; our onSnapshot will
+      // observe it and run finish2FA(). Keep the button disabled meanwhile.
+      showToast(t('idx_2fa_backup_ok'), 'success');
+    } else {
+      btn.disabled = false;
+      showToast(out.message || t('idx_2fa_backup_bad'), 'error');
+    }
+  } catch (e) {
+    btn.disabled = false;
+    showToast(e.message || t('idx_2fa_backup_bad'), 'error');
+  }
+};
+
+// ── Generate & send OTP ────────────────────────────────────────────────────────
+async function generateAndSendOtp(email, name) {
+  otpCode   = String(Math.floor(100000 + Math.random() * 900000));
+  otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+
+  const r = await fetch('https://us-central1-cremona-portal.cloudfunctions.net/sendMail', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'otp', to: email, params: { passcode: otpCode } }),
+  });
+  if (!r.ok) { console.error('[otp email error]', r.status, await r.text().catch(() => '')); throw new Error('Could not send the verification email.'); }
+  console.log('[otp email ok]');
+}
+
+// ── Sign up ────────────────────────────────────────────────────────────────────
 window.signUpWithEmail = async function() {
   const firstName = document.getElementById('signup-firstname').value.trim();
   const lastName  = document.getElementById('signup-lastname').value.trim();
@@ -317,15 +827,14 @@ window.signUpWithEmail = async function() {
   if (!terms)
     return showToast('Please agree to the Terms of Service.', 'error');
 
+  if (!captchaToken('signup')) return showToast("Please confirm you're not a robot.", 'error');
   setLoading('signup-btn', true, 'Validating code...');
 
-  // Validate invitation code — read purpose to determine role
   let codeDocId = null;
   let codePurpose = 'teacher';
   try {
-    const normalizedCode = rawCode.toUpperCase();
     const snap = await db.collection('invitationCodes')
-      .where('code', '==', normalizedCode).get();
+      .where('code', '==', rawCode.toUpperCase()).get();
     if (snap.empty) {
       setLoading('signup-btn', false);
       return showToast('Invalid code.', 'error');
@@ -341,72 +850,216 @@ window.signUpWithEmail = async function() {
       return showToast('This code has reached its usage limit.', 'error');
     }
     codeDocId   = codeDoc.id;
-    codePurpose = codeData.purpose === 'parent' ? 'parent' : 'teacher';
+    codePurpose = ['parent', 'admin'].includes(codeData.purpose) ? codeData.purpose : 'teacher';
   } catch (e) {
-    console.error('[signup] error validating invitation code:', e.code, e.message, e);
     setLoading('signup-btn', false);
     return showToast('Error validating code. Try again.', 'error');
   }
 
-  // Create the account — the invitation code is the access gate, so the
-  // account is usable immediately, no separate email-verification step.
-  setLoading('signup-btn', true, 'Creating account...');
+  if (codePurpose !== 'parent' && !email.endsWith('@cremonamusic.com')) {
+    setLoading('signup-btn', false);
+    return showToast('This access code requires an @cremonamusic.com email address.', 'error');
+  }
+
+  setLoading('signup-btn', true, 'Sending code...');
+
+  try {
+    await generateAndSendOtp(email, firstName + ' ' + lastName);
+  } catch (e) {
+    console.error('[otp send error]', e);
+    setLoading('signup-btn', false);
+    return showToast('Failed to send verification code. Please try again.', 'error');
+  }
+
+  pendingSignup = { firstName, lastName, email, rawCode, password, codeDocId, codePurpose };
+
+  setLoading('signup-btn', false);
+  document.getElementById('otp-email-display').textContent = email;
+  clearOtpBoxes();
+  setOtpError('');
+  showCard('otp');
+  document.getElementById('otp-0').focus();
+};
+
+// ── Verify OTP ─────────────────────────────────────────────────────────────────
+window.verifyOtp = async function() {
+  const entered = [0,1,2,3,4,5]
+    .map(i => document.getElementById('otp-' + i).value)
+    .join('');
+
+  if (entered.length < 6) return setOtpError('Please enter all 6 digits.');
+
+  if (new Date() > otpExpiry) {
+    setOtpError('');
+    showToast('Code expired. Please request a new one.', 'error');
+    document.getElementById('otp-resend-btn').focus();
+    return;
+  }
+
+  if (entered !== otpCode) {
+    setOtpError('Incorrect code. Please try again.');
+    document.getElementById('otp-boxes').style.animation = 'none';
+    requestAnimationFrame(() => {
+      document.getElementById('otp-boxes').style.animation = 'shake 0.4s ease';
+    });
+    return;
+  }
+
+  setOtpError('');
+  setLoading('otp-verify-btn', true, 'Creating account...');
+
+  const { firstName, lastName, email, rawCode, password, codeDocId, codePurpose } = pendingSignup;
+
   _skipAuthHandler = true;
   let newUser = null;
   try {
     const cred = await auth.createUserWithEmailAndPassword(email, password);
     newUser = cred.user;
 
-    const userData = {
-      name: firstName + ' ' + lastName, firstName, lastName, email,
-      role: codePurpose, institution: '', ssoProvider: 'email', status: 'active',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      invitationCode: rawCode.toUpperCase(),
+    const newUserDoc = {
+      name:           firstName + ' ' + lastName,
+      firstName:      firstName,
+      lastName:       lastName,
+      email:          email,
+      role:           codePurpose,
+      institution:    '',
+      createdAt:      firebase.firestore.FieldValue.serverTimestamp(),
+      ssoProvider:    'email',
+      status:         'active',
+      invitationCode: rawCode.toUpperCase()
     };
+    // Admins created via code start with NO module access — a super admin
+    // grants their permissions in Admin → Accounts → Admin Access.
+    if (codePurpose === 'admin') newUserDoc.adminPermissions = [];
+    await db.collection('users').doc(newUser.uid).set(newUserDoc);
 
-    // Parent accounts auto-link to any student already tagged with this email —
-    // e.g. a child registered earlier through the public enrollment form.
-    // Best-effort: if the query is blocked or empty, the parent just starts with
-    // no linked children and an admin can link them manually.
-    if (codePurpose === 'parent') {
-      try {
-        const emailLc = email.trim().toLowerCase();
-        const sSnap = await db.collection('students')
-          .where('parentEmails', 'array-contains', emailLc).get();
-        userData.linkedStudentIds = sSnap.docs.map(d => d.id);
-      } catch (err) {
-        console.warn('[signup] auto-link query failed (non-fatal)', err);
-        userData.linkedStudentIds = [];
-      }
-    }
-
-    await db.collection('users').doc(newUser.uid).set(userData);
     await db.collection('invitationCodes').doc(codeDocId).update({
       usageCount: firebase.firestore.FieldValue.increment(1)
     });
+
+    // Welcome email — include both `email` and `to_email` so the template's
+    // "To Email" field resolves whichever variable it was configured with,
+    // and pass the public key explicitly like the OTP send does.
+    fetch('https://us-central1-cremona-portal.cloudfunctions.net/sendMail', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'welcome', to: email, params: { name: firstName + ' ' + lastName } }),
+    }).then(res => console.log('[welcome email]', res.status))
+      .catch(err => console.error('[welcome email]', err));
+
+    _skipAuthHandler = false;
+    await redirectByRole(newUser.uid);
+
   } catch (e) {
-    console.error('[signup] account creation failed', e.code, e.message);
+    console.error('[signup error]', e.code, e.message);
     if (newUser) { try { await newUser.delete(); } catch (_) {} }
     _skipAuthHandler = false;
-    setLoading('signup-btn', false);
+    setLoading('otp-verify-btn', false);
     showToast(friendlyError(e.code) || 'Something went wrong. Please try again.', 'error');
-    return;
   }
-  _skipAuthHandler = false;
-  await redirectByRole(newUser.uid);
 };
 
-// ── Sign in with Email/Password ────────────────────────────────────────────────
+// ── Resend OTP ─────────────────────────────────────────────────────────────────
+window.resendOtp = async function() {
+  if (!pendingSignup) return;
+  const btn = document.getElementById('otp-resend-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#7A5A16;border-color:rgba(122,90,22,.2)"></div>';
+
+  try {
+    const { email, firstName, lastName } = pendingSignup;
+    await generateAndSendOtp(email, firstName + ' ' + lastName);
+    clearOtpBoxes();
+    setOtpError('');
+    showToast('New code sent!', 'success');
+    document.getElementById('otp-0').focus();
+  } catch (e) {
+    console.error('[resend otp]', e);
+    showToast('Failed to resend. Please try again.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<span class="material-symbols-outlined text-[16px]">refresh</span> ${t('idx_resend')}`;
+  }
+};
+
+// ── OTP helpers ────────────────────────────────────────────────────────────────
+function clearOtpBoxes() {
+  for (let i = 0; i < 6; i++) {
+    const el = document.getElementById('otp-' + i);
+    el.value = '';
+    el.classList.remove('filled');
+  }
+}
+
+function setOtpError(msg) {
+  const el = document.getElementById('otp-error');
+  if (msg) { el.textContent = msg; el.classList.remove('hidden'); }
+  else      { el.textContent = ''; el.classList.add('hidden'); }
+}
+
+// ── OTP input behaviour ────────────────────────────────────────────────────────
+function wireOtpBoxes(prefix, verifyFn) {
+  for (let i = 0; i < 6; i++) {
+    const input = document.getElementById(prefix + i);
+    input.addEventListener('input', function() {
+      const val = this.value.replace(/\D/g, '');
+      this.value = val ? val[val.length - 1] : '';
+      this.classList.toggle('filled', !!this.value);
+      if (this.value && i < 5) document.getElementById(prefix + (i + 1)).focus();
+      if (i === 5 && this.value) verifyFn();
+    });
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Backspace' && !this.value && i > 0)
+        document.getElementById(prefix + (i - 1)).focus();
+    });
+    input.addEventListener('paste', function(e) {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData)
+        .getData('text').replace(/\D/g, '').slice(0, 6);
+      for (let j = 0; j < pasted.length; j++) {
+        const box = document.getElementById(prefix + j);
+        if (box) { box.value = pasted[j]; box.classList.add('filled'); }
+      }
+      document.getElementById(prefix + Math.min(pasted.length, 5)).focus();
+      if (pasted.length === 6) verifyFn();
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  wireOtpBoxes('otp-', verifyOtp);
+  applyTranslations();
+});
+
+// ── reCAPTCHA (bot protection on login / signup / password reset) ───────────
+const RECAPTCHA_SITE_KEY = "6LfmqEwtAAAAAM61SN0e1pnGebSEm7chSVi2F_Ro";
+const _captchaIds = {};
+window.onRecaptchaLoad = function() {
+  ['login', 'signup', 'forgot'].forEach(name => {
+    const el = document.getElementById(name + '-captcha');
+    if (el) _captchaIds[name] = grecaptcha.render(el, { sitekey: RECAPTCHA_SITE_KEY });
+  });
+};
+function captchaToken(name) {
+  try { return grecaptcha.getResponse(_captchaIds[name]); } catch { return ''; }
+}
+function resetCaptcha(name) {
+  try { grecaptcha.reset(_captchaIds[name]); } catch {}
+}
+
+// ── Sign in with Email ─────────────────────────────────────────────────────────
 window.signInWithEmail = async function() {
   const email    = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
+  if (!captchaToken('login')) return showToast("Please confirm you're not a robot.", 'error');
   if (!email || !password) return showToast('Please fill in all fields.', 'error');
 
   setLoading('login-btn', true);
   try {
     const cred = await auth.signInWithEmailAndPassword(email, password);
+    localStorage.setItem('cremona-login-at', String(Date.now()));
     await redirectByRole(cred.user.uid);
   } catch (e) {
+    resetCaptcha('login');
     setLoading('login-btn', false);
     showToast(friendlyError(e.code), 'error');
   }
@@ -417,6 +1070,7 @@ window.signInWithGoogle = async function() {
   setLoading('google-signin-btn', true, 'Connecting...');
   try {
     const result = await auth.signInWithPopup(googleProvider);
+    localStorage.setItem('cremona-login-at', String(Date.now()));
     const user   = result.user;
 
     const snap = await db.collection('users').doc(user.uid).get();
@@ -428,7 +1082,6 @@ window.signInWithGoogle = async function() {
         'error'
       );
     }
-
     await redirectByRole(user.uid);
   } catch (e) {
     setLoading('google-signin-btn', false);
@@ -436,20 +1089,109 @@ window.signInWithGoogle = async function() {
   }
 };
 
+// ── Sign in with Apple ─────────────────────────────────────────────────────────
+// Mirrors the mobile app's Apple login: the account must already exist
+// (created via invitation-code signup or linked by an admin).
+window.signInWithApple = async function() {
+  setLoading('apple-signin-btn', true, 'Connecting...');
+  try {
+    const result = await auth.signInWithPopup(appleProvider);
+    localStorage.setItem('cremona-login-at', String(Date.now()));
+    const user   = result.user;
+
+    const snap = await db.collection('users').doc(user.uid).get();
+    if (!snap.exists) {
+      await auth.signOut();
+      setLoading('apple-signin-btn', false);
+      return showToast(
+        'No account is linked to this Apple ID yet. Please sign in with your email and password instead.',
+        'error'
+      );
+    }
+    await redirectByRole(user.uid);
+  } catch (e) {
+    setLoading('apple-signin-btn', false);
+    if (e.code === 'auth/operation-not-allowed') {
+      showToast('Apple sign-in is not enabled yet. Please use email or Google.', 'error');
+    } else {
+      showToast(friendlyError(e.code), 'error');
+    }
+  }
+};
+
 // ── Forgot Password ────────────────────────────────────────────────────────────
+let forgotStep = 1;
+// Relabel the forgot-password button + heading for the current step.
+// step 1 = request the code ("Send Reset Link"); step 2 = set the new
+// password ("Reset Password"). Swaps data-i18n so re-translation stays correct.
+function setForgotStepLabels(step) {
+  const span = document.querySelector('#forgot-btn [data-i18n]');
+  const desc = document.getElementById('forgot-desc');
+  const btnKey = step === 2 ? 'idx_reset_submit' : 'idx_send_reset';
+  const descKey = step === 2 ? 'idx_reset_desc2' : 'idx_reset_desc';
+  if (span) { span.dataset.i18n = btnKey; span.textContent = t(btnKey); }
+  if (desc) { desc.dataset.i18n = descKey; desc.textContent = t(descKey); }
+}
+
 window.sendResetLink = async function() {
   const email = document.getElementById('forgot-email').value.trim();
   if (!email) return showToast('Please enter your email.', 'error');
 
-  setLoading('forgot-btn', true, 'Sending...');
+  if (forgotStep === 1) {
+    const captcha = captchaToken('forgot');
+    if (!captcha) return showToast("Please confirm you're not a robot.", 'error');
+    setLoading('forgot-btn', true, 'Sending...');
+    try {
+      const r = await fetch('/api/requestPasswordReset', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, captcha })
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Failed to send');
+      showToast('We emailed you a 6-digit code. Check your inbox and spam folder.', 'success');
+      document.getElementById('forgot-code-row').classList.remove('hidden');
+      document.getElementById('forgot-newpw-row').classList.remove('hidden');
+      document.getElementById('forgot-email').readOnly = true;
+      forgotStep = 2;
+      // Step 2 sets the new password — relabel the button + heading so it no
+      // longer says "Send Reset Link". data-i18n is swapped too, so switching
+      // language mid-flow keeps the correct step-2 wording.
+      setForgotStepLabels(2);
+    } catch (e) {
+      console.error('[requestPasswordReset]', e);
+      showToast(e.message || 'Could not send the code. Please try again.', 'error');
+    } finally {
+      setLoading('forgot-btn', false);
+    }
+    return;
+  }
+
+  const code = document.getElementById('forgot-code').value.trim();
+  const newPassword = document.getElementById('forgot-newpw').value;
+  if (!/^\d{6}$/.test(code)) return showToast('Please enter the 6-digit code from the email.', 'error');
+  if (newPassword.length < 8) return showToast('Password must be at least 8 characters.', 'error');
+
+  setLoading('forgot-btn', true, 'Resetting...');
   try {
-    await auth.sendPasswordResetEmail(email);
-    showToast('Password reset email sent. Check your inbox.', 'success');
+    const r = await fetch('/api/resetPassword', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code, newPassword })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Reset failed');
+    showToast('Password changed! You can sign in now.', 'success');
+    forgotStep = 1;
+    document.getElementById('forgot-email').readOnly = false;
     document.getElementById('forgot-email').value = '';
-    setTimeout(() => showCard('login'), 3000);
+    document.getElementById('forgot-code').value = '';
+    document.getElementById('forgot-newpw').value = '';
+    document.getElementById('forgot-code-row').classList.add('hidden');
+    document.getElementById('forgot-newpw-row').classList.add('hidden');
+    setForgotStepLabels(1);
+    setTimeout(() => showCard('login'), 1500);
   } catch (e) {
-    console.error('[sendResetLink]', e);
-    showToast(friendlyError(e.code), 'error');
+    console.error('[resetPassword]', e);
+    showToast(e.message || 'Reset failed. Please try again.', 'error');
   } finally {
     setLoading('forgot-btn', false);
   }
@@ -478,19 +1220,21 @@ function setLoading(btnId, loading, text = '') {
     btn.innerHTML = `<div class="spinner"></div>${text ? `<span>${text}</span>` : ''}`;
   } else {
     btn.disabled = false;
+    const googleSvg = `<svg height="18" viewBox="0 0 18 18" width="18"><path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.7l2.79 2.17C16.46 14.12 18 11.89 18 9c0-.61-.06-1.14-.16-1.8z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.79-2.17c-.77.52-1.76.83-3.17.83-2.44 0-4.51-1.64-5.25-3.84L.91 13.04C2.39 15.99 5.45 18 9 18z" fill="#34A853"/><path d="M3.75 10.64c-.19-.57-.3-1.18-.3-1.82s.11-1.25.3-1.82L.91 4.67C.33 5.83 0 7.13 0 8.5s.33 2.67.91 3.83l2.84-2.19z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.45 0 2.39 2.01.91 4.96l2.84 2.19C4.49 4.95 6.56 3.58 9 3.58z" fill="#EA4335"/></svg>`;
     const defaults = {
-      'login-btn':         'Sign In',
-      'signup-btn':        'Continue',
-      'forgot-btn':        'Send Reset Link',
-      'google-signin-btn': `<svg height="18" viewBox="0 0 18 18" width="18"><path d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.79 2.7l2.79 2.17C16.46 14.12 18 11.89 18 9c0-.61-.06-1.14-.16-1.8z" fill="#4285F4"/><path d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.79-2.17c-.77.52-1.76.83-3.17.83-2.44 0-4.51-1.64-5.25-3.84L.91 13.04C2.39 15.99 5.45 18 9 18z" fill="#34A853"/><path d="M3.75 10.64c-.19-.57-.3-1.18-.3-1.82s.11-1.25.3-1.82L.91 4.67C.33 5.83 0 7.13 0 8.5s.33 2.67.91 3.83l2.84-2.19z" fill="#FBBC05"/><path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.47.89 11.43 0 9 0 5.45 0 2.39 2.01.91 4.96l2.84 2.19C4.49 4.95 6.56 3.58 9 3.58z" fill="#EA4335"/></svg><span class="text-sm font-medium text-on-surface">Continue with Google</span>`
+      'login-btn':         `<span data-i18n="idx_sign_in_btn">${t('idx_sign_in_btn')}</span>`,
+      'signup-btn':        `<span data-i18n="idx_create_btn">${t('idx_create_btn')}</span>`,
+      'forgot-btn':        `<span data-i18n="idx_send_reset">${t('idx_send_reset')}</span>`,
+      'otp-verify-btn':    `<span class="material-symbols-outlined text-[18px]">verified</span><span data-i18n="idx_verify_btn">${t('idx_verify_btn')}</span>`,
+      'google-signin-btn': `${googleSvg}<span data-i18n="idx_google" class="text-sm font-medium text-on-surface">${t('idx_google')}</span>`,
+      'apple-signin-btn':  `<svg width="16" height="18" viewBox="0 0 16 19" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M13.3 10.06c.02 2.4 2.1 3.2 2.13 3.21-.02.06-.33 1.14-1.1 2.25-.66.97-1.35 1.93-2.44 1.95-1.07.02-1.41-.63-2.63-.63-1.22 0-1.6.61-2.61.65-1.05.04-1.85-1.04-2.52-2-1.37-1.98-2.42-5.6-1.01-8.04.7-1.21 1.94-1.98 3.3-2 1.03-.02 2 .69 2.63.69.63 0 1.81-.86 3.05-.73.52.02 1.98.21 2.92 1.58-.08.05-1.74 1.02-1.72 3.07M11.29 3.1c.56-.67.93-1.61.83-2.55-.8.03-1.77.53-2.35 1.21-.51.6-.97 1.55-.84 2.47.9.07 1.8-.45 2.36-1.13"/></svg><span data-i18n="idx_apple" class="text-sm font-medium">${t('idx_apple')}</span>`
     };
     btn.innerHTML = defaults[btnId] || btn.textContent;
   }
 }
 
-// ── Card switching ─────────────────────────────────────────────────────────────
 window.showCard = function(card) {
-  ['login-card', 'signup-card', 'forgot-card'].forEach(id => {
+  ['login-card', 'signup-card', 'otp-card', 'forgot-card'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
   });
   const target = document.getElementById(`${card}-card`);
@@ -498,9 +1242,16 @@ window.showCard = function(card) {
   target.classList.add('animate-slide-up');
 };
 
-window.showForgotPassword = function() { showCard('forgot'); };
+window.showForgotPassword = function() {
+  // Always open on step 1 — reset fields/labels in case a prior attempt was mid-flow.
+  forgotStep = 1;
+  document.getElementById('forgot-email').readOnly = false;
+  document.getElementById('forgot-code-row').classList.add('hidden');
+  document.getElementById('forgot-newpw-row').classList.add('hidden');
+  setForgotStepLabels(1);
+  showCard('forgot');
+};
 
-// ── Password visibility toggle ─────────────────────────────────────────────────
 window.togglePassword = function(inputId, btn) {
   const input = document.getElementById(inputId);
   const icon  = btn.querySelector('span');
@@ -511,7 +1262,6 @@ window.togglePassword = function(inputId, btn) {
   }
 };
 
-// ── Toast ──────────────────────────────────────────────────────────────────────
 window.showToast = function(message, type = 'info') {
   const toast = document.getElementById('toast');
   toast.textContent = message;
@@ -519,7 +1269,6 @@ window.showToast = function(message, type = 'info') {
   setTimeout(() => { toast.className = ''; }, 3500);
 };
 
-// ── Access code formatter ──────────────────────────────────────────────────────
 document.getElementById('signup-code').addEventListener('input', function() {
   let val = this.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   if (val.length > 4) val = val.slice(0,4) + '-' + val.slice(4);
@@ -527,10 +1276,80 @@ document.getElementById('signup-code').addEventListener('input', function() {
   this.value = val.slice(0, 14);
 });
 
-// ── Enter key support for login ────────────────────────────────────────────────
 document.getElementById('login-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') window.signInWithEmail();
 });
 </script>
+
+<!-- Forced password change for academy-created accounts -->
+<div id="force-pw-modal" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4">
+  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <h2 class="text-lg font-bold text-on-surface mb-2">Set your own password</h2>
+    <p class="text-sm text-text-muted mb-1">Your account was created with a temporary password. Please choose your own password to continue.</p>
+    <p class="text-xs text-text-muted mb-5">임시 비밀번호로 생성된 계정입니다. 계속하려면 새 비밀번호를 설정해 주세요.</p>
+    <div class="flex flex-col gap-3">
+      <input id="force-pw-new" type="password" placeholder="New password (8+ characters)"
+             class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
+      <input id="force-pw-confirm" type="password" placeholder="Confirm new password"
+             class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
+      <button id="force-pw-btn" onclick="submitForcedPassword()"
+              class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg text-sm">Set Password & Continue</button>
+    </div>
+  </div>
+</div>
+<!-- Terms & Privacy agreement (first login + whenever a new version is published) -->
+<div id="terms-modal" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4">
+  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-md p-8">
+    <h2 class="text-lg font-bold text-on-surface mb-2">Terms &amp; Privacy Policy</h2>
+    <p class="text-sm text-text-muted mb-1">To use the Cremona Music portal, please review and agree to our terms.</p>
+    <p class="text-xs text-text-muted mb-5">포털을 이용하려면 이용약관과 개인정보처리방침에 동의해 주세요.</p>
+    <div class="flex flex-col gap-2 mb-5">
+      <a href="/terms" target="_blank" rel="noopener" class="flex items-center justify-between px-4 py-3 rounded-lg border border-border-subtle hover:border-secondary hover:text-secondary transition-colors text-sm font-semibold">
+        Terms of Service · 이용약관
+        <span class="material-symbols-outlined text-[16px] opacity-50">open_in_new</span>
+      </a>
+      <a href="/privacy" target="_blank" rel="noopener" class="flex items-center justify-between px-4 py-3 rounded-lg border border-border-subtle hover:border-secondary hover:text-secondary transition-colors text-sm font-semibold">
+        Privacy Policy · 개인정보처리방침
+        <span class="material-symbols-outlined text-[16px] opacity-50">open_in_new</span>
+      </a>
+    </div>
+    <label class="flex items-start gap-3 mb-5 cursor-pointer select-none">
+      <input id="terms-agree-check" type="checkbox" class="mt-0.5 w-4 h-4 rounded border-border-subtle accent-secondary"/>
+      <span class="text-sm text-on-surface">I have read and agree to the Terms of Service and Privacy Policy.<br/><span class="text-xs text-text-muted">이용약관 및 개인정보처리방침을 읽었으며 이에 동의합니다.</span></span>
+    </label>
+    <div class="flex flex-col gap-2">
+      <button id="terms-agree-btn" onclick="agreeToTerms()"
+              class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg text-sm">Agree &amp; Continue</button>
+      <button onclick="declineTerms()" class="w-full text-text-muted text-xs py-2 hover:text-on-surface">Decline and sign out</button>
+    </div>
+  </div>
+</div>
+<!-- Two-factor: approve on your phone (only for accounts with 2FA enabled) -->
+<div id="twofa-modal" class="hidden fixed inset-0 bg-black/50 z-[120] flex items-center justify-center p-4">
+  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-md p-8 text-center">
+    <div class="flex justify-center mb-5">
+      <div class="spinner" style="border-top-color:#7A5A16;border-color:rgba(122,90,22,.2);width:2.5rem;height:2.5rem;border-width:4px"></div>
+    </div>
+    <h2 data-i18n="idx_2fa_title" class="text-lg font-bold text-on-surface mb-2">Approve on your phone</h2>
+    <p data-i18n="idx_2fa_wait" class="text-sm text-text-muted mb-6">We sent an approval request to your Cremona Music app. Approve it to finish signing in.</p>
+    <div id="twofa-backup-wrap" class="hidden flex flex-col gap-3 mb-4 text-left">
+      <input id="twofa-backup-input" type="text" data-i18n-ph="idx_2fa_backup_ph" placeholder="Enter a backup code"
+             class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm"/>
+      <button id="twofa-backup-btn" onclick="submit2FABackup()" data-i18n="idx_2fa_backup_submit"
+              class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg text-sm">Verify code</button>
+    </div>
+    <div id="twofa-email-wrap" class="hidden flex flex-col gap-3 mb-4 text-left">
+      <input id="twofa-email-input" type="text" inputmode="numeric" maxlength="6" data-i18n-ph="idx_2fa_email_ph" placeholder="6-digit code from email"
+             class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary outline-none text-sm tracking-widest"/>
+      <button id="twofa-email-btn" onclick="submit2FAEmail()" data-i18n="idx_2fa_email_submit"
+              class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg text-sm">Verify code</button>
+    </div>
+    <div class="flex flex-col gap-2">
+      <button onclick="send2FAEmail()" data-i18n="idx_2fa_email" class="text-sm text-secondary hover:underline">Email me a code instead</button>
+      <button onclick="show2FABackup()" data-i18n="idx_2fa_backup" class="text-sm text-secondary hover:underline">Use a backup code instead</button>
+      <button onclick="cancel2FA()" data-i18n="idx_2fa_cancel" class="w-full text-text-muted text-xs py-2 hover:text-on-surface">Cancel</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Guide | Cremona Music</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    theme: { extend: { colors: {
+      "primary": "#3B2A1E", "primary-container": "#C8A951", "on-primary-fixed": "#2A1D14",
+      "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC",
+      "surface": "#FAF6EF", "surface-white": "#FFFFFF", "surface-container": "#F1E9DC",
+      "surface-container-low": "#F6F0E6", "on-surface": "#2B2019",
+      "border-subtle": "#E2D7C6", "text-muted": "#7A6A57", "error": "#B3261E"
+    }, fontFamily: { sans: ["Inter", "sans-serif"] } } }
+  }
+</script>
+<style>
+  body { font-family: 'Inter', sans-serif; background: #FAF6EF; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+  .role-tab { transition: all .15s; border-bottom: 3px solid transparent; }
+  .role-tab.active { color: #7A5A16; border-bottom-color: #7A5A16; font-weight: 800; }
+  .guide-step { counter-increment: step; }
+  .lang-ko { display: none; }
+  html.show-ko .lang-ko { display: revert; }
+  html.show-ko .lang-en { display: none; }
+</style>
+<script src="/js/theme.js"></script>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<script>
+(function () {
+  var lang = localStorage.getItem('cremona-lang') || 'en';
+  if (lang === 'ko') document.documentElement.classList.add('show-ko');
+})();
+function toggleGuideLang() {
+  var ko = document.documentElement.classList.toggle('show-ko');
+  localStorage.setItem('cremona-lang', ko ? 'ko' : 'en');
+  document.getElementById('guide-lang-btn').textContent = ko ? 'English' : '한국어';
+}
+</script>
+
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <a href="javascript:history.back()" class="p-2 rounded-lg hover:bg-surface-container transition-colors text-text-muted" title="Back">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </a>
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <span class="font-bold text-on-surface"><span class="lang-en">User Guide</span><span class="lang-ko">사용 가이드</span></span>
+    </div>
+    <button id="guide-lang-btn" onclick="toggleGuideLang()"
+            class="text-xs font-semibold px-3 py-1.5 rounded-lg border border-border-subtle text-text-muted hover:bg-surface-container transition-colors">한국어</button>
+  </div>
+  <script>document.getElementById('guide-lang-btn').textContent = document.documentElement.classList.contains('show-ko') ? 'English' : '한국어';</script>
+</header>
+
+<!-- Hero -->
+<div class="bg-secondary text-white py-10 px-6">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-extrabold mb-2">
+      <span class="lang-en">How to use the Cremona Music Portal</span>
+      <span class="lang-ko">Cremona Music 포털 사용 방법</span>
+    </h1>
+    <p class="text-white/80 text-sm">
+      <span class="lang-en">Everything you can do — on the website and in the mobile app. Pick your role below.</span>
+      <span class="lang-ko">웹사이트와 모바일 앱에서 할 수 있는 모든 기능을 안내합니다. 아래에서 역할을 선택하세요.</span>
+    </p>
+  </div>
+</div>
+
+<!-- Role tabs -->
+<div class="bg-surface-white border-b border-border-subtle sticky top-16 z-40">
+  <div class="max-w-4xl mx-auto px-6 flex gap-6 overflow-x-auto">
+    <button class="role-tab active py-4 text-sm text-text-muted whitespace-nowrap" data-role="parent" onclick="setRole('parent')">
+      👨‍👩‍👧 <span class="lang-en">Parents</span><span class="lang-ko">학부모</span>
+    </button>
+    <button class="role-tab py-4 text-sm text-text-muted whitespace-nowrap" data-role="teacher" onclick="setRole('teacher')">
+      🍎 <span class="lang-en">Teachers</span><span class="lang-ko">선생님</span>
+    </button>
+    <button class="role-tab py-4 text-sm text-text-muted whitespace-nowrap" data-role="admin" onclick="setRole('admin')">
+      🛠️ <span class="lang-en">Admins</span><span class="lang-ko">관리자</span>
+    </button>
+  </div>
+</div>
+
+<main class="flex-grow max-w-4xl mx-auto w-full px-6 py-8">
+
+<!-- ═══════════════ PARENTS ═══════════════ -->
+<section id="role-parent" class="role-section flex flex-col gap-5">
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">🔑 <span class="lang-en">Signing in &amp; creating your account</span><span class="lang-ko">로그인 및 계정 만들기</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>1. Go to <b class="text-on-surface">portal.cremonamusic.com</b> (or open the Cremona Music Portal app).</p>
+      <p>2. First time? Tap <b class="text-on-surface">Create an Account</b> and enter the <b class="text-on-surface">access code</b> the academy gave you, your name, email, and a password.</p>
+      <p>3. We email you a 6-digit verification code — <b class="text-on-surface">check your spam folder</b> if it doesn't appear within a minute.</p>
+      <p>4. From then on, just sign in with your email and password (Google or Apple sign-in also works once linked).</p>
+      <p>5. Forgot your password? Tap <b class="text-on-surface">Forgot Password?</b> and we'll email you a reset link.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>1. <b class="text-on-surface">portal.cremonamusic.com</b>에 접속하거나 Cremona Music 포털 앱을 엽니다.</p>
+      <p>2. 처음이신가요? <b class="text-on-surface">계정 만들기</b>를 누르고 학원에서 받은 <b class="text-on-surface">초대 코드</b>, 이름, 이메일, 비밀번호를 입력하세요.</p>
+      <p>3. 6자리 인증 코드가 이메일로 발송됩니다 — 1분 내에 오지 않으면 <b class="text-on-surface">스팸함을 확인</b>하세요.</p>
+      <p>4. 이후에는 이메일과 비밀번호로 로그인하면 됩니다. (연동된 경우 Google/Apple 로그인도 가능)</p>
+      <p>5. 비밀번호를 잊으셨나요? <b class="text-on-surface">비밀번호를 잊으셨나요?</b>를 누르면 재설정 링크를 보내드립니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">🏠 <span class="lang-en">Dashboard &amp; joining class</span><span class="lang-ko">대시보드 및 수업 참여</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Your dashboard shows each of your children with their teacher and next class.</p>
+      <p>• When a class is coming up, a blue <b class="text-on-surface">Join Class</b> button appears on the child's card — one tap opens the video lesson.</p>
+      <p>• Tap the avatar circle in the top bar to <b class="text-on-surface">add your profile photo</b>.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 대시보드에는 자녀별로 담당 선생님과 다음 수업이 표시됩니다.</p>
+      <p>• 수업이 다가오면 자녀 카드에 파란색 <b class="text-on-surface">수업 참여</b> 버튼이 나타나며, 한 번의 탭으로 화상 수업에 입장합니다.</p>
+      <p>• 상단의 아바타 원을 누르면 <b class="text-on-surface">프로필 사진을 등록</b>할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">📅 <span class="lang-en">Schedule</span><span class="lang-ko">일정</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• The Schedule tab shows a weekly calendar per child (switch children with the tabs at the top).</p>
+      <p>• Blue = upcoming, green = completed, gray = cancelled. <b class="text-on-surface">Tap any upcoming session to join the class.</b></p>
+      <p>• 📝 marks a session with a note from the academy (topic, materials, homework) — hover or tap to read it.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 일정 탭에서 자녀별 주간 캘린더를 볼 수 있습니다. (상단 탭으로 자녀 전환)</p>
+      <p>• 파란색 = 예정, 초록색 = 완료, 회색 = 취소. <b class="text-on-surface">예정된 수업을 탭하면 바로 입장합니다.</b></p>
+      <p>• 📝 표시는 학원의 수업 메모(주제, 교재, 숙제)가 있다는 뜻입니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">💬 <span class="lang-en">Messages &amp; translation</span><span class="lang-ko">메시지 및 번역</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Tap the <b class="text-on-surface">person-add icon</b> to message any teacher. (Parents can only message teachers.)</p>
+      <p>• Messages in another language show a <b class="text-on-surface">Translate</b> link — tap to read it in your language, tap again for the original.</p>
+      <p>• Under your own messages, <b class="text-on-surface">Read / Unread</b> shows whether the teacher has seen them.</p>
+      <p>• Need help from the academy? Tap <b class="text-on-surface">Contact Support</b> at the bottom of the sidebar — the Cremona Music team replies right in that chat.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">사람 추가 아이콘</b>을 눌러 선생님에게 메시지를 보낼 수 있습니다. (학부모는 선생님에게만 메시지 가능)</p>
+      <p>• 다른 언어로 온 메시지에는 <b class="text-on-surface">번역</b> 링크가 표시됩니다 — 누르면 내 언어로, 다시 누르면 원문으로 볼 수 있습니다.</p>
+      <p>• 내가 보낸 메시지 아래의 <b class="text-on-surface">읽음 / 안 읽음</b> 표시로 확인 여부를 알 수 있습니다.</p>
+      <p>• 학원에 문의할 일이 있나요? 사이드바 하단의 <b class="text-on-surface">문의하기</b>를 누르면 Cremona Music 팀이 채팅으로 답변합니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">📈 <span class="lang-en">Progress reports</span><span class="lang-ko">학습 보고서</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• The Comments tab lists every approved progress report for each child — tap a report to expand it.</p>
+      <p>• Comments written in another language show a <b class="text-on-surface">Translate report</b> button that translates all feedback in one tap.</p>
+      <p>• You'll also get an email (and app notification) whenever a new report is ready.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 보고서 탭에서 자녀별 승인된 학습 보고서를 볼 수 있습니다 — 탭하면 펼쳐집니다.</p>
+      <p>• 다른 언어로 작성된 보고서에는 <b class="text-on-surface">보고서 번역</b> 버튼이 있어 한 번에 번역됩니다.</p>
+      <p>• 새 보고서가 등록되면 이메일과 앱 알림으로도 알려드립니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">💳 <span class="lang-en">Payments</span><span class="lang-ko">결제</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• The Payments tab shows your tuition invoices with amounts, due dates, and paid/pending/overdue status.</p>
+      <p>• Questions about a charge? Use Contact Support in Messages or email <b class="text-on-surface">support@cremonamusic.com</b>.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 결제 탭에서 수업료 청구서의 금액, 납부 기한, 상태(완료/대기/연체)를 확인할 수 있습니다.</p>
+      <p>• 청구 관련 문의는 메시지의 문의하기 또는 <b class="text-on-surface">support@cremonamusic.com</b>로 연락 주세요.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">⚙️ <span class="lang-en">Settings: language, dark mode, notifications, account</span><span class="lang-ko">설정: 언어, 다크 모드, 알림, 계정</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">한국어 / English</b> button (top right) switches the language — notifications follow your choice too.</p>
+      <p>• The <b class="text-on-surface">🌙 button</b> (bottom left) switches dark/light mode; it follows your device setting by default.</p>
+      <p>• Install the mobile app to get push notifications: class reminders 30 minutes before, schedule changes, new reports, and messages.</p>
+      <p>• To delete your account: dashboard footer → <b class="text-on-surface">Delete My Account</b>. This is permanent.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 우측 상단 <b class="text-on-surface">한국어 / English</b> 버튼으로 언어를 바꿀 수 있으며, 알림도 선택한 언어로 발송됩니다.</p>
+      <p>• 좌측 하단 <b class="text-on-surface">🌙 버튼</b>으로 다크/라이트 모드를 전환합니다. (기본은 기기 설정을 따름)</p>
+      <p>• 모바일 앱을 설치하면 수업 30분 전 알림, 일정 변경, 새 보고서, 메시지 푸시 알림을 받을 수 있습니다.</p>
+      <p>• 계정 삭제는 대시보드 하단 → <b class="text-on-surface">계정 삭제</b>에서 가능합니다. (영구 삭제)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ TEACHERS ═══════════════ -->
+<section id="role-teacher" class="role-section hidden flex-col gap-5">
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">🔑 <span class="lang-en">Signing in</span><span class="lang-ko">로그인</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Teacher accounts require an <b class="text-on-surface">@cremonamusic.com</b> email. Sign up with the access code from the admin, or use the account the admin created for you.</p>
+      <p>• Your Home page has quick access to Books, Schedule, Messages, Students, Comments, and a <b class="text-on-surface">Start Class</b> button that opens your Google Meet room.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 교사 계정은 <b class="text-on-surface">@cremonamusic.com</b> 이메일이 필요합니다. 관리자의 초대 코드로 가입하거나, 관리자가 만들어 준 계정을 사용하세요.</p>
+      <p>• 홈 화면에서 도서, 일정, 메시지, 학생, 보고서로 바로 이동할 수 있으며 <b class="text-on-surface">Start Class</b> 버튼으로 Google Meet을 엽니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">📚 <span class="lang-en">Books &amp; the reader</span><span class="lang-ko">도서 및 리더</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Books shows every PDF the academy shared. Search, filter by subject, and click to open the reader.</p>
+      <p>• In the reader you can <b class="text-on-surface">highlight, draw, type, and erase</b> on any page (H / P / T / E shortcuts), and add sticky notes — everything is saved to your account automatically.</p>
+      <p>• Books with downloads enabled show a Download button.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 도서 메뉴에서 학원이 공유한 모든 PDF를 검색·필터링하고 클릭해 리더로 엽니다.</p>
+      <p>• 리더에서 <b class="text-on-surface">형광펜, 펜, 텍스트, 지우개</b>(단축키 H/P/T/E)와 스티키 노트를 사용할 수 있으며 자동 저장됩니다.</p>
+      <p>• 다운로드가 허용된 도서에는 다운로드 버튼이 표시됩니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">📅 <span class="lang-en">Schedule &amp; attendance</span><span class="lang-ko">일정 및 출석</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Your weekly calendar shows every session assigned to you. Click a session for details, notes from the admin, and the <b class="text-on-surface">Join Google Meet</b> button.</p>
+      <p>• After a class ends, open it and press <b class="text-on-surface">Record Attendance</b> to log the actual hours taught — this feeds your salary records.</p>
+      <p>• You get a push notification 30 minutes before each class, and alerts when a class is added, moved, or cancelled.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 주간 캘린더에 배정된 모든 수업이 표시됩니다. 수업을 클릭하면 상세 정보, 관리자 메모, <b class="text-on-surface">Google Meet 참여</b> 버튼이 나타납니다.</p>
+      <p>• 수업이 끝나면 <b class="text-on-surface">출석 기록</b>을 눌러 실제 수업 시간을 기록하세요 — 급여 기록에 반영됩니다.</p>
+      <p>• 수업 30분 전 푸시 알림과 수업 추가·변경·취소 알림을 받습니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">💬 <span class="lang-en">Messages, groups &amp; support</span><span class="lang-ko">메시지, 그룹, 문의</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">Person-add icon</b> = new chat with any parent or teacher. <b class="text-on-surface">Group-add icon</b> = create a group chat with other teachers.</p>
+      <p>• Korean messages show a <b class="text-on-surface">Translate</b> link; your own messages in DMs show Read/Unread.</p>
+      <p>• The ⋮ menu lets you leave a group or delete a conversation. <b class="text-on-surface">Contact Support</b> reaches the academy directly.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">사람 추가 아이콘</b> = 학부모/교사와 새 대화, <b class="text-on-surface">그룹 추가 아이콘</b> = 교사 그룹 채팅 생성.</p>
+      <p>• 한국어 메시지에는 <b class="text-on-surface">Translate</b> 링크가 표시되고, DM에서 내 메시지의 읽음 여부를 확인할 수 있습니다.</p>
+      <p>• ⋮ 메뉴에서 그룹 나가기·대화 삭제가 가능하며, <b class="text-on-surface">Contact Support</b>로 학원에 바로 문의할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">📝 <span class="lang-en">Students &amp; progress reports</span><span class="lang-ko">학생 및 학습 보고서</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Students lists everyone assigned to you with their session history.</p>
+      <p>• In Comments, pick a student and write their progress report: books studied, category feedback, areas for enhancement, and an overall evaluation.</p>
+      <p>• Submitted reports go to the admin for <b class="text-on-surface">approval</b> — once approved, the parent is notified and can read (and translate) it. Declined reports come back with a reason so you can revise.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 학생 메뉴에서 배정된 학생과 수업 이력을 확인합니다.</p>
+      <p>• 보고서 메뉴에서 학생을 선택해 학습 도서, 항목별 피드백, 개선점, 종합 평가를 작성합니다.</p>
+      <p>• 제출된 보고서는 관리자의 <b class="text-on-surface">승인</b>을 거쳐 학부모에게 전달됩니다. 반려 시 사유와 함께 돌아오며 수정 후 재제출할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">💰 <span class="lang-en">Salary &amp; account</span><span class="lang-ko">급여 및 계정</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Salary lists your monthly records with status and downloadable payslips.</p>
+      <p>• In Account you can change your photo and password. <b class="text-on-surface">Delete My Account</b> is in the Danger Zone at the bottom.</p>
+      <p>• The 🌙 button (bottom left) toggles dark mode on every page.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 급여 메뉴에서 월별 급여 내역과 상태, 급여명세서를 확인·다운로드할 수 있습니다.</p>
+      <p>• 계정 메뉴에서 사진과 비밀번호를 변경할 수 있으며, 하단 Danger Zone에서 <b class="text-on-surface">계정 삭제</b>가 가능합니다.</p>
+      <p>• 좌측 하단 🌙 버튼으로 모든 페이지에서 다크 모드를 전환합니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ADMINS ═══════════════ -->
+<section id="role-admin" class="role-section hidden flex-col gap-5">
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">👥 <span class="lang-en">Accounts &amp; admin access</span><span class="lang-ko">계정 및 관리자 권한</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">Accounts</b> manages teachers and parents: create teacher logins directly, edit Meet links, link students to parents, deactivate or delete accounts, and remove profile photos.</p>
+      <p>• The <b class="text-on-surface">Admin Access</b> card (super admins only) controls which modules each admin can open — tick exactly the features they need, or grant Full access.</p>
+      <p>• Deleted accounts disappear from every page automatically; their historical records are kept.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">Accounts</b>에서 교사·학부모 계정을 관리합니다: 교사 계정 직접 생성, Meet 링크 수정, 자녀 연결, 비활성화/삭제, 프로필 사진 제거.</p>
+      <p>• <b class="text-on-surface">Admin Access</b> 카드(슈퍼 관리자 전용)에서 각 관리자가 사용할 수 있는 기능을 지정하거나 전체 권한을 부여합니다.</p>
+      <p>• 삭제된 계정은 모든 페이지에서 자동으로 숨겨지며, 과거 기록은 보존됩니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">🔐 <span class="lang-en">Invitation codes &amp; security</span><span class="lang-ko">초대 코드 및 보안</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">Security</b> generates access codes for Teachers, Parents, or Admins, with usage limits and expiry dates.</p>
+      <p>• Teacher and Admin codes require an @cremonamusic.com email. New code-created admins start with <b class="text-on-surface">no module access</b> until you grant it in Accounts → Admin Access.</p>
+      <p>• The audit log shows which teacher opened which book, and when.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">Security</b>에서 교사/학부모/관리자용 초대 코드를 사용 횟수와 만료일과 함께 생성합니다.</p>
+      <p>• 교사·관리자 코드는 @cremonamusic.com 이메일이 필요하며, 코드로 생성된 관리자는 권한을 부여하기 전까지 <b class="text-on-surface">기능 접근이 제한</b>됩니다.</p>
+      <p>• 감사 로그에서 어떤 교사가 어떤 도서를 언제 열람했는지 확인할 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">🎓 <span class="lang-en">Students: add, import, delete</span><span class="lang-ko">학생: 등록, 엑셀 가져오기, 삭제</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Add students one by one, or in bulk: <b class="text-on-surface">Excel Template</b> downloads the form, fill a row per student, then <b class="text-on-surface">Import Excel</b> creates them all at once (teacher emails are matched to accounts automatically).</p>
+      <p>• Set each student's parent and teacher monthly rates here — payroll and invoices are generated from them.</p>
+      <p>• Deleting a student also deletes <b class="text-on-surface">all of their progress reports</b>.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 학생을 개별 등록하거나 일괄 등록: <b class="text-on-surface">Excel Template</b>으로 양식을 받고, 한 줄에 한 명씩 작성한 뒤 <b class="text-on-surface">Import Excel</b>로 한 번에 등록합니다. (교사 이메일 자동 매칭)</p>
+      <p>• 학생별 학부모/교사 월 요금을 여기서 설정하며, 급여와 청구서가 이 값으로 생성됩니다.</p>
+      <p>• 학생 삭제 시 해당 학생의 <b class="text-on-surface">모든 학습 보고서도 함께 삭제</b>됩니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">📅 <span class="lang-en">Schedule management</span><span class="lang-ko">일정 관리</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• Create sessions with student, subject, time, Meet link, and <b class="text-on-surface">notes</b> (visible to teacher and parent). Tick <b class="text-on-surface">Repeat weekly</b> to create a whole term at once.</p>
+      <p>• Teachers and parents are <b class="text-on-surface">automatically notified</b> when a class is scheduled, rescheduled, or cancelled.</p>
+      <p>• Use the Week View for a visual calendar (colored by teacher), and <b class="text-on-surface">Export Excel</b> for a schedule statement.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 학생, 과목, 시간, Meet 링크, <b class="text-on-surface">메모</b>(교사·학부모에게 표시)와 함께 수업을 생성합니다. <b class="text-on-surface">매주 반복</b>을 체크하면 한 학기를 한 번에 만들 수 있습니다.</p>
+      <p>• 수업 등록·변경·취소 시 교사와 학부모에게 <b class="text-on-surface">자동 알림</b>이 발송됩니다.</p>
+      <p>• 주간 보기에서 교사별 색상 캘린더를 확인하고 <b class="text-on-surface">Export Excel</b>로 일정표를 내려받을 수 있습니다.</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">💬 <span class="lang-en">Messages, announcements &amp; support</span><span class="lang-ko">메시지, 공지, 문의 응대</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• The Messages page shows every conversation in the system (view-only for user chats).</p>
+      <p>• Use the <b class="text-on-surface">Support</b> filter to find incoming support requests — open one and reply directly; users see the answer as "Cremona Support". Every admin gets a push notification when a support message arrives.</p>
+      <p>• The announcement channel broadcasts read-only notices to everyone.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• 메시지 페이지에서 시스템의 모든 대화를 볼 수 있습니다. (사용자 간 대화는 열람 전용)</p>
+      <p>• <b class="text-on-surface">Support</b> 필터로 문의를 확인하고 바로 답장하세요 — 사용자에게는 "Cremona Support"로 표시됩니다. 문의가 오면 모든 관리자에게 푸시 알림이 갑니다.</p>
+      <p>• 공지 채널로 전체 공지를 보낼 수 있습니다. (읽기 전용)</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-white rounded-2xl border border-border-subtle p-6">
+    <h2 class="font-extrabold text-lg mb-3">✅ <span class="lang-en">Comments, salary &amp; payments</span><span class="lang-ko">보고서, 급여, 결제</span></h2>
+    <div class="lang-en text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">Comments</b>: review teacher submissions — Approve (parents get an email + notification, and the report is auto-translated) or Decline with a reason. Delete is always available.</p>
+      <p>• <b class="text-on-surface">Salary</b>: Generate Payroll creates monthly records from student rates; mark paid, generate PDF payslips, add one-time payments, delete records, and Export Excel.</p>
+      <p>• <b class="text-on-surface">Payments</b>: Generate This Month's Invoices bills every parent from their rates; mark paid, send overdue reminders, add one-time charges, delete records, and Export Excel.</p>
+    </div>
+    <div class="lang-ko text-sm leading-7 text-text-muted">
+      <p>• <b class="text-on-surface">보고서</b>: 교사 제출물을 검토해 승인(학부모에게 이메일+알림 발송, 자동 번역) 또는 사유와 함께 반려합니다. 삭제도 가능합니다.</p>
+      <p>• <b class="text-on-surface">급여</b>: Generate Payroll로 월 급여 기록을 생성하고, 지급 처리, PDF 명세서 생성, 일회성 지급 추가, 기록 삭제, 엑셀 내보내기를 지원합니다.</p>
+      <p>• <b class="text-on-surface">결제</b>: 이번 달 청구서 생성으로 학부모에게 일괄 청구하고, 납부 처리, 연체 알림 발송, 일회성 청구, 기록 삭제, 엑셀 내보내기를 지원합니다.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="bg-surface-container border-t border-border-subtle py-5 mt-6">
+  <div class="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-text-muted">
+    <span>© 2026 CREMONA CO. LTD</span>
+    <span>
+      <span class="lang-en">Still stuck? Message us via Contact Support or email </span>
+      <span class="lang-ko">더 궁금하신가요? 문의하기 또는 이메일로 연락 주세요: </span>
+      <a href="mailto:support@cremonamusic.com" class="text-secondary underline">support@cremonamusic.com</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+function setRole(role) {
+  document.querySelectorAll('.role-section').forEach(function (s) {
+    var show = s.id === 'role-' + role;
+    s.classList.toggle('hidden', !show);
+    s.classList.toggle('flex', show);
+  });
+  document.querySelectorAll('.role-tab').forEach(function (t) {
+    t.classList.toggle('active', t.dataset.role === role);
+  });
+  try { localStorage.setItem('cremona-guide-role', role); } catch (e) {}
+}
+// Restore last-viewed role (or ?role= link)
+(function () {
+  var role = new URLSearchParams(location.search).get('role') || localStorage.getItem('cremona-guide-role') || 'parent';
+  if (['parent', 'teacher', 'admin'].indexOf(role) === -1) role = 'parent';
+  setRole(role);
+})();
+</script>
+</body>
+</html>

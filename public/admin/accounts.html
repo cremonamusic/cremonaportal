@@ -2,7 +2,6 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Teacher Directory | Cremona Music Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -14,20 +13,20 @@
     theme: {
       extend: {
         colors: {
-          "on-tertiary-fixed": "#3E2C23", "surface-variant": "#E4D8C2", "inverse-primary": "#D4A520",
-          "error-container": "#ffdad6", "on-secondary-fixed": "#3E2C23", "text-muted": "#8B6B52",
-          "secondary-fixed-dim": "#adc7ff", "surface-white": "#FFFDF9", "surface-container-low": "#F5EFE4",
-          "primary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
-          "secondary-container": "#F5E5B0", "secondary": "#C9A227", "on-surface-variant": "#7A5A42",
-          "primary-fixed-dim": "#D4A520", "on-surface": "#3E2C23", "surface-tint": "#C9A227",
-          "on-secondary-fixed-variant": "#7A5230", "on-primary-fixed": "#3E2C23",
-          "secondary-fixed": "#F0E8C0", "tertiary-fixed": "#e5e2e1", "tertiary-container": "#F0E8C0",
-          "surface-container-highest": "#E4D8C2", "border-subtle": "#E8DCC8", "background": "#FAF6EF",
-          "primary-fixed": "#F0E8C0", "primary": "#C9A227", "on-primary-container": "#8B6020",
-          "outline": "#7A5230", "outline-variant": "#D4BCA0", "surface-container": "#F0E8D6",
-          "on-error": "#ffffff", "surface": "#FAF6EF", "on-secondary": "#3E2C23",
-          "on-error-container": "#93000a", "error": "#ba1a1a", "surface-dim": "#D4BCA0",
-          "surface-container-high": "#EAE0CE", "on-primary": "#3E2C23", "on-background": "#3E2C23"
+          "on-tertiary-fixed": "#1b1c1c", "surface-variant": "#E3D8C6", "inverse-primary": "#C8A951",
+          "error-container": "#F9DEDC", "on-secondary-fixed": "#2A1D14", "text-muted": "#7A6A57",
+          "secondary-fixed-dim": "#adc7ff", "surface-white": "#FFFFFF", "surface-container-low": "#F6F0E6",
+          "primary-container": "#C8A951", "on-secondary-container": "#FFFDF8",
+          "secondary-container": "#9A7524", "secondary": "#7A5A16", "on-surface-variant": "#6B5844",
+          "primary-fixed-dim": "#C8A951", "on-surface": "#2B2019", "surface-tint": "#3B2A1E",
+          "on-secondary-fixed-variant": "#004493", "on-primary-fixed": "#2A1D14",
+          "secondary-fixed": "#F2E6CC", "tertiary-fixed": "#e5e2e1", "tertiary-container": "#cccac9",
+          "surface-container-highest": "#E3D8C6", "border-subtle": "#E2D7C6", "background": "#FAF6EF",
+          "primary-fixed": "#F0E2C4", "primary": "#3B2A1E", "on-primary-container": "#5A4A22",
+          "outline": "#8A7A63", "outline-variant": "#D8C5A8", "surface-container": "#F1E9DC",
+          "on-error": "#ffffff", "surface": "#FAF6EF", "on-secondary": "#ffffff",
+          "on-error-container": "#93000a", "error": "#B3261E", "surface-dim": "#d9dadb",
+          "surface-container-high": "#EAE0D0", "on-primary": "#ffffff", "on-background": "#2B2019"
         },
         spacing: { "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px", "base": "8px" },
         fontFamily: { "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-md": ["Inter"], "label-sm": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "headline-md": ["Inter"] },
@@ -47,29 +46,18 @@
 <style>
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   body { font-family: 'Inter', sans-serif; }
-  .spinner { width: 20px; height: 20px; border: 2px solid rgba(201,162,39,0.2); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(59,42,30,0.2); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
   #toast.show { opacity: 1; }
-  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.error { background: #B3261E; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
-  #toast.info { background: #3B2A1E; color: #F5EFE4; }
+  #toast.info { background: #7A5A16; color: #fff; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
 </head>
-<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim" data-portal="admin" data-page="accounts">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -81,6 +69,34 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
+<!-- TopAppBar -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a class="font-body-md text-secondary border-b-2 border-secondary pb-1 font-bold" href="accounts">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
 <main class="max-w-container-max mx-auto px-margin-desktop py-gutter grid grid-cols-12 gap-gutter">
   <!-- Dashboard Header -->
   <div class="col-span-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-2">
@@ -88,11 +104,23 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <h1 class="font-headline-lg text-headline-lg text-on-surface mb-1">Teacher Directory</h1>
       <p class="font-body-md text-text-muted">Manage instructional staff, permissions, and access status.</p>
     </div>
-    <button id="add-account-btn" onclick="openAddTeacherModal()"
-            class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm flex-shrink-0">
-      <span class="material-symbols-outlined text-[18px]">person_add</span>
-      Add Teacher
-    </button>
+    <div class="flex flex-wrap items-center gap-3 flex-shrink-0">
+      <button id="cert-requests-btn" onclick="openCertModal()"
+              class="relative flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border-subtle text-sm font-bold text-on-surface hover:border-secondary hover:text-secondary transition-colors">
+        <span class="material-symbols-outlined text-[18px]">verified</span>
+        Certificate Requests
+        <span id="cert-req-count" class="hidden ml-1 min-w-[20px] h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-error text-white text-[11px] font-bold"></span>
+      </button>
+      <button id="add-account-btn" onclick="openAddTeacherModal()"
+              class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-[18px]">person_add</span>
+        Add Teacher
+      </button>
+      <button id="add-admin-btn" onclick="openAddAdminModal()"
+              class="hidden flex items-center gap-2 px-5 py-2.5 rounded-lg border border-border-subtle text-sm font-bold text-on-surface hover:border-secondary hover:text-secondary transition-colors">
+        <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Add Admin
+      </button>
+    </div>
   </div>
 
   <!-- Role Tabs -->
@@ -105,18 +133,22 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
             class="px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent">
       <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">family_restroom</span>Parents</span>
     </button>
+    <button id="tab-admins" onclick="switchTab('admins')"
+            class="hidden px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent">
+      <span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>Admins</span>
+    </button>
   </div>
 
   <!-- Firebase Console Links -->
   <div class="col-span-12 flex flex-wrap gap-3 mb-2">
-    <a href="https://console.firebase.google.com/project/cremonamusic-portal/firestore/databases/-default-/data/~2Fusers~2FJ4Hy9gEDrOUWfwHVF7FVzQoKvY23"
+    <a href="https://console.firebase.google.com/project/cremona-portal/firestore/databases/-default-/data/~2Fusers~2FJ4Hy9gEDrOUWfwHVF7FVzQoKvY23"
        target="_blank" rel="noopener"
        class="inline-flex items-center gap-2 px-4 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-medium text-text-muted hover:text-secondary hover:border-secondary transition-colors shadow-sm">
       <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 10h16M4 14h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       Firestore · users
       <span class="material-symbols-outlined text-[14px] opacity-50">open_in_new</span>
     </a>
-    <a href="https://console.firebase.google.com/project/cremonamusic-portal/authentication/users"
+    <a href="https://console.firebase.google.com/project/cremona-portal/authentication/users"
        target="_blank" rel="noopener"
        class="inline-flex items-center gap-2 px-4 py-2 bg-surface-white border border-border-subtle rounded-lg text-sm font-medium text-text-muted hover:text-secondary hover:border-secondary transition-colors shadow-sm">
       <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
@@ -189,18 +221,42 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <span class="material-symbols-outlined text-secondary">toggle_on</span>
           Toggle Active Status
         </button>
-        <div id="meet-link-action">
-          <button onclick="openMeetLinkModal()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
-            <span class="material-symbols-outlined text-secondary">video_call</span>
-            Edit Meet Link
-          </button>
-        </div>
         <div id="edit-students-action" class="hidden">
           <button onclick="openEditLinkedStudentsModal()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
             <span class="material-symbols-outlined text-secondary">group</span>
             Edit Linked Students
           </button>
         </div>
+        <div id="edit-profile-action" class="hidden">
+          <button onclick="openEditProfileModal()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+            <span class="material-symbols-outlined text-secondary">badge</span>
+            Edit Profile
+          </button>
+        </div>
+        <button onclick="openActivityModal()" class="flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+          <span class="material-symbols-outlined text-secondary">history</span>
+          View Activity
+        </button>
+        <div id="manage-access-action" class="hidden">
+          <button onclick="manageSelectedAccess()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+            <span class="material-symbols-outlined text-secondary">key</span>
+            Manage Access
+          </button>
+        </div>
+        <div id="remove-photo-action" class="hidden">
+          <button onclick="removeSelectedPhoto()" class="w-full flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+            <span class="material-symbols-outlined text-secondary">no_photography</span>
+            Remove Profile Photo
+          </button>
+        </div>
+        <button id="send-reset-btn" onclick="sendResetCode()" class="flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+          <span class="material-symbols-outlined text-secondary">lock_reset</span>
+          Send Password Reset Code
+        </button>
+        <button id="reset-2fa-btn" onclick="resetTwoFactor()" class="hidden flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-on-surface hover:bg-surface-container-low transition-colors border border-transparent hover:border-border-subtle">
+          <span class="material-symbols-outlined text-secondary">phonelink_erase</span>
+          Reset Two-Factor (locked out)
+        </button>
         <hr class="my-1 border-border-subtle"/>
         <button onclick="confirmDelete()" class="flex items-center gap-3 px-4 py-2 text-left rounded-lg font-body-md text-error hover:bg-error-container/30 transition-colors border border-transparent hover:border-error-container">
           <span class="material-symbols-outlined">delete</span>
@@ -210,6 +266,34 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     </div>
   </aside>
 </main>
+
+<!-- Admin Permissions Modal -->
+<div id="admin-perms-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="closeAdminPermsModal()"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <div>
+      <h3 class="font-headline-sm text-on-surface">Admin Access</h3>
+      <p id="ap-admin-name" class="font-body-sm text-text-muted mt-0.5"></p>
+    </div>
+    <label class="flex items-center gap-3 p-3 rounded-xl border border-primary-container/60 bg-primary-container/10 cursor-pointer select-none">
+      <input id="ap-full" type="checkbox" onchange="onApFullToggle()"
+             class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary"/>
+      <div>
+        <p class="text-sm font-bold text-on-surface">Full access (super admin)</p>
+        <p class="text-xs text-text-muted">All features, and can manage other admins' access</p>
+      </div>
+    </label>
+    <div id="ap-modules" class="grid grid-cols-2 gap-1.5">
+      <!-- module checkboxes injected -->
+    </div>
+    <div class="flex justify-end gap-3 mt-1">
+      <button onclick="closeAdminPermsModal()" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="ap-save-btn" onclick="saveAdminPerms()" class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold font-label-md shadow hover:brightness-105 active:scale-95">
+        Save
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Add Teacher Modal -->
 <div id="add-teacher-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -231,13 +315,21 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     </div>
     <div>
       <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Email</label>
-      <input id="at-email" type="email" placeholder="jane.smith@example.com"
+      <input id="at-email" type="email" placeholder="jane.smith@cremonamusic.com"
              class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Phone Number</label>
+      <div class="flex gap-2">
+        <select id="at-phone-cc" class="border border-border-subtle rounded-lg px-2 py-2.5 text-sm outline-none w-32 flex-shrink-0"></select>
+        <input id="at-phone" type="tel" placeholder="912 345 6789"
+               class="flex-1 border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
     </div>
     <div>
       <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Temporary Password</label>
       <div class="relative">
-        <input id="at-password" type="password" placeholder="Min. 8 characters"
+        <input id="at-password" placeholder="Leave blank to auto-generate" type="password" placeholder="Min. 8 characters"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none pr-10"/>
         <button type="button" onclick="toggleAtPassword()"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors">
@@ -272,6 +364,175 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
+<!-- Edit Teacher Profile Modal -->
+<div id="edit-profile-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('edit-profile-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+    <h3 class="font-headline-sm text-on-surface">Edit Profile</h3>
+    <div class="p-3 rounded-lg bg-surface-container-low flex flex-col gap-1.5 text-xs">
+      <div class="flex justify-between gap-2"><span class="text-text-muted">Sign-in</span><span id="ep-signin" class="font-semibold text-on-surface text-right"></span></div>
+      <div class="flex justify-between gap-2"><span class="text-text-muted">Joined</span><span id="ep-joined" class="font-semibold text-on-surface text-right"></span></div>
+      <div class="flex justify-between gap-2"><span class="text-text-muted">Last login</span><span id="ep-lastlogin" class="font-semibold text-on-surface text-right"></span></div>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">First Name</label>
+        <input id="ep-firstname" type="text" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Last Name</label>
+        <input id="ep-lastname" type="text" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Phone Number</label>
+      <div class="flex gap-2">
+        <select id="ep-phone-cc" class="border border-border-subtle rounded-lg px-2 py-2.5 text-sm outline-none w-32 flex-shrink-0"></select>
+        <input id="ep-phone" type="tel" placeholder="912 345 6789" class="flex-1 border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Institution</label>
+      <input id="ep-institution" type="text" placeholder="e.g. Cremona Music" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Date of Birth</label>
+        <input id="ep-dob" type="date" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Employment Start</label>
+        <input id="ep-empstart" type="date" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"/>
+      </div>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Passport / ID Number</label>
+      <input id="ep-idnum" type="text" placeholder="P1234567A" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Present Address</label>
+      <input id="ep-address" type="text" placeholder="House/Unit, Street, City, Country" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Google Meet Link</label>
+      <input id="ep-meet" type="url" placeholder="https://meet.google.com/xxx-xxxx-xxx" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">ID Photo</label>
+      <div class="flex items-center gap-3">
+        <div id="ep-idphoto-preview" class="w-14 h-[70px] rounded-lg border border-dashed border-border-subtle flex items-center justify-center text-text-muted overflow-hidden flex-shrink-0 bg-surface-container-low">
+          <span class="material-symbols-outlined text-[20px]">person</span>
+        </div>
+        <input id="ep-idphoto-file" type="file" accept="image/*" class="hidden" onchange="epPhotoChosen(this)"/>
+        <button type="button" onclick="document.getElementById('ep-idphoto-file').click()" class="px-3 py-2 border border-border-subtle rounded-lg text-xs font-bold hover:border-secondary hover:text-secondary transition-colors">Choose Photo</button>
+        <button type="button" id="ep-idphoto-remove" onclick="epPhotoRemove()" class="hidden text-xs text-error hover:underline">Remove</button>
+      </div>
+    </div>
+    <div class="pt-2 border-t border-border-subtle">
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Contracts &amp; Documents</label>
+      <div id="adm-contracts-box" class="flex flex-col gap-1.5">
+        <p class="text-xs text-text-muted">Loading…</p>
+      </div>
+      <div class="flex gap-1.5 mt-1.5">
+        <button type="button" onclick="uploadContract()" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border border-dashed border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
+          <span class="material-symbols-outlined text-[14px]">upload_file</span> Upload File
+        </button>
+        <button type="button" onclick="openNewContractModal()" class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg border border-dashed border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
+          <span class="material-symbols-outlined text-[14px]">contract_edit</span> New Contract
+        </button>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3">
+      <button onclick="document.getElementById('edit-profile-modal').classList.add('hidden')" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="save-profile-btn" onclick="saveProfileEdits()" class="px-6 py-2 bg-secondary text-white rounded-lg font-bold font-label-md shadow hover:brightness-110 active:scale-95">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Institution Modal -->
+<div id="institution-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('institution-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <h3 class="font-headline-sm text-on-surface">Edit Institution</h3>
+    <p class="font-body-sm text-text-muted">Set the institution shown for <strong id="institution-teacher-name"></strong>.</p>
+    <input id="institution-input" type="text" placeholder="e.g. Cremona Music"
+           onkeydown="if(event.key==='Enter')saveInstitution()"
+           class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+    <div class="flex justify-end gap-3">
+      <button onclick="document.getElementById('institution-modal').classList.add('hidden')" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="save-institution-btn" onclick="saveInstitution()" class="px-6 py-2 bg-secondary text-white rounded-lg font-bold font-label-md shadow hover:brightness-110 active:scale-95">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Activity Modal -->
+<div id="activity-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('activity-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-lg bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-3 max-h-[85vh]">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="font-headline-sm text-on-surface">Activity</h3>
+        <p class="font-body-sm text-text-muted" id="activity-user-name"></p>
+      </div>
+      <button onclick="document.getElementById('activity-modal').classList.add('hidden')" class="text-text-muted hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="activity-body" class="overflow-y-auto flex-1 min-h-[200px]"></div>
+  </div>
+</div>
+
+<!-- Certificate Requests Modal (its own view, opened from the top bar) -->
+<div id="cert-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="closeCertModal()"></div>
+  <div class="relative w-full max-w-lg bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-3 max-h-[85vh]">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <h3 class="font-headline-sm text-on-surface">Certificate Requests</h3>
+        <p class="font-body-sm text-text-muted">Teachers' employment certificate requests — approve before they can print.</p>
+      </div>
+      <button onclick="closeCertModal()" class="text-text-muted hover:text-on-surface flex-shrink-0"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div id="cert-req-list" class="overflow-y-auto flex-1 min-h-[200px] flex flex-col gap-2">
+      <div class="spinner mx-auto my-4"></div>
+    </div>
+  </div>
+</div>
+
+<!-- New Contract Modal (auto-filled from DB) -->
+<div id="new-contract-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('new-contract-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4">
+    <div>
+      <h3 class="font-headline-sm text-on-surface">New Contract</h3>
+      <p class="font-body-sm text-text-muted mt-0.5">For <strong id="nc-teacher-name"></strong> — name, birth date, ID number, address, and contacts auto-fill from their profile.</p>
+      <p id="nc-warning" class="text-xs text-amber-700 mt-1"></p>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Contract Title</label>
+      <input id="nc-title" type="text" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"/>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Start Date</label>
+        <input id="nc-start" type="date" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Pay Terms Note <span class="font-normal text-text-muted">(optional)</span></label>
+        <input id="nc-paynote" type="text" placeholder="e.g. ₱200/hour after probation"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"/>
+        <p class="text-[11px] text-text-muted mt-1">Pay is per assigned student — ₱140/hr probation, ₱200/hr after, unless you note otherwise.</p>
+      </div>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Additional Terms (optional)</label>
+      <textarea id="nc-notes" rows="3" placeholder="Any extra terms to include…" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"></textarea>
+    </div>
+    <div class="flex justify-end gap-3">
+      <button onclick="document.getElementById('new-contract-modal').classList.add('hidden')" class="px-4 py-2 text-text-muted hover:text-on-surface font-label-md">Cancel</button>
+      <button id="nc-submit" onclick="submitNewContract()" class="px-6 py-2 bg-secondary text-white rounded-lg font-bold font-label-md shadow hover:brightness-110 active:scale-95">Create &amp; Preview</button>
+    </div>
+  </div>
+</div>
+
 <!-- Delete Confirmation Modal -->
 <div id="delete-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('delete-modal').classList.add('hidden')"></div>
@@ -297,22 +558,16 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('add-parent-modal').classList.add('hidden')"></div>
   <div class="relative w-full max-w-md bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
     <h3 class="font-headline-sm text-on-surface">Add Parent Account</h3>
-    <p class="font-body-sm text-text-muted -mt-2">Pick the child — the parent's name, email &amp; phone fill in from their enrollment form. Then just set a temporary password.</p>
-    <div>
-      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Select Child(ren) <span class="text-text-muted font-normal text-xs">— at least one; parent details auto-fill</span></label>
-      <div id="ap-student-list" class="max-h-44 overflow-y-auto border border-border-subtle rounded-lg divide-y divide-border-subtle">
-        <p class="text-sm text-text-muted text-center py-4">Loading students...</p>
-      </div>
-    </div>
+    <p class="font-body-sm text-text-muted -mt-2">Creates a parent login and links them to their child(ren).</p>
     <div class="grid grid-cols-2 gap-3">
       <div>
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Surname</label>
-        <input id="ap-lastname" type="text" placeholder="Tan"
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">First Name</label>
+        <input id="ap-firstname" type="text" placeholder="John"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
       </div>
       <div>
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Name</label>
-        <input id="ap-firstname" type="text" placeholder="Wei Ming"
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Last Name</label>
+        <input id="ap-lastname" type="text" placeholder="Park"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
       </div>
     </div>
@@ -329,7 +584,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     <div>
       <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Temporary Password</label>
       <div class="relative">
-        <input id="ap-password" type="password" placeholder="Min. 8 characters"
+        <input id="ap-password" placeholder="Leave blank to auto-generate" type="password" placeholder="Min. 8 characters"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none pr-10"/>
         <button type="button" onclick="toggleApPassword()"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-on-surface transition-colors">
@@ -337,6 +592,12 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         </button>
       </div>
       <p class="text-xs text-text-muted mt-1">You will see this after creation to share with the parent.</p>
+    </div>
+    <div>
+      <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Link Students <span class="text-text-muted font-normal text-xs">— select at least one</span></label>
+      <div id="ap-student-list" class="max-h-44 overflow-y-auto border border-border-subtle rounded-lg divide-y divide-border-subtle">
+        <p class="text-sm text-text-muted text-center py-4">Loading students...</p>
+      </div>
     </div>
     <div class="flex justify-end gap-3 pt-1">
       <button onclick="document.getElementById('add-parent-modal').classList.add('hidden')"
@@ -378,7 +639,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
         <p class="font-body-sm text-text-muted" id="created-parent-name"></p>
       </div>
     </div>
-    <p class="font-body-sm text-text-muted">Share these temporary credentials with the parent. They should change the password after first login.</p>
+    <p id="created-desc" class="font-body-sm text-text-muted">Share these temporary credentials with the parent. They should change the password after first login.</p>
     <div class="space-y-3">
       <div>
         <label class="block text-label-sm font-label-md text-text-muted mb-1">Email</label>
@@ -403,21 +664,20 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
-<script src="/js/email.js"></script>
 <script type="module">
 import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc, setDoc, serverTimestamp, arrayUnion, arrayRemove
+  getFirestore, doc, getDoc, collection, query, where, getDocs, updateDoc, setDoc, addDoc, deleteDoc, serverTimestamp, arrayUnion, arrayRemove, deleteField, limit
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 };
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -426,24 +686,41 @@ const db = getFirestore(app);
 let allTeachers = [], allParents = [], allStudents = [];
 let filteredList = [];
 let selectedAccount = null, currentUser = null;
+let isSuperAdminUser = false;
 let currentTab = 'teachers';
 const PAGE_SIZE = 15;
 let currentPage = 0;
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   currentUser = user;
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
-    if (snap.data().role !== 'admin') { window.location.href = '/home.html'; return; }
-    await Promise.all([loadTeachers(), loadParents(), loadStudents()]);
+    if (snap.data().role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(snap.data(), 'accounts')) return;
+    await Promise.all([loadTeachers(), loadParents(), loadStudents(), loadCertReqs()]);
+    // Admin access management — super admins only (admins without an
+    // adminPermissions field have full access and may manage the others)
+    if (window.isSuperAdmin(snap.data())) {
+      isSuperAdminUser = true;
+      document.getElementById('tab-admins').classList.remove('hidden');
+      loadAdmins();
+    }
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
-    console.error(e);
-    window.location.href = '/index.html';
+    // Never redirect on a boot error — that ping-pongs with the login page
+    // forever. Show the failure and report it for diagnosis.
+    console.error('[accounts boot]', e);
+    try {
+      navigator.sendBeacon('/api/beacon', JSON.stringify({
+        page: 'admin/accounts', bootError: String(e && (e.stack || e.message || e)).slice(0, 700),
+      }));
+    } catch (e2) {}
+    document.getElementById('loading-overlay').style.display = 'none';
+    showToast('This page hit an error while loading: ' + (e.message || e), 'error');
   }
 });
 
@@ -483,31 +760,153 @@ async function loadStudents() {
   }
 }
 
+// ── Admin access management (super admins only) ──────────────────────────────
+const ADMIN_MODULE_LABELS = {
+  accounts: 'Accounts', security: 'Security', resources: 'Resources', students: 'Students',
+  leveltests: 'Level Tests',
+  schedule: 'Schedule', messages: 'Messages', reports: 'Comments', salary: 'Salary',
+  payments: 'Payments', billing: 'Billing',
+};
+let allAdmins = [];
+let editingAdminUid = null;
+
+async function loadAdmins() {
+  try {
+    const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'admin')));
+    allAdmins = snap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      .filter(a => a.status !== 'deleted')
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    renderAdminsList();
+    if (currentTab === 'admins') applyFilters();
+  } catch (e) {
+    console.error('[loadAdmins]', e);
+  }
+}
+
+function renderAdminsList() {
+  // The always-visible Admin Access card was removed; admin permissions are now
+  // managed via the Admins tab → select admin → Manage Access. This list only
+  // renders if that legacy container is present.
+  const list = document.getElementById('admin-perms-list');
+  if (!list) return;
+  if (!allAdmins.length) {
+    list.innerHTML = '<p class="text-xs text-text-muted">No admin accounts found.</p>';
+    return;
+  }
+  list.innerHTML = allAdmins.map(a => {
+    const isSelf  = a.uid === currentUser.uid;
+    const full    = !Array.isArray(a.adminPermissions);
+    const summary = full
+      ? 'Full access'
+      : (a.adminPermissions.length
+          ? a.adminPermissions.map(k => ADMIN_MODULE_LABELS[k] || k).join(', ')
+          : 'No access');
+    return `
+    <div class="flex items-center gap-2 p-2.5 rounded-lg border border-border-subtle">
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-on-surface truncate">${escHtml(a.name || a.email || a.uid)}${isSelf ? ' <span class="text-[10px] text-text-muted font-normal">(you)</span>' : ''}</p>
+        <p class="text-[11px] ${full ? 'text-secondary font-semibold' : 'text-text-muted'} truncate" title="${escHtml(summary)}">${escHtml(summary)}</p>
+      </div>
+      ${isSelf ? '' : `
+      <button onclick="openAdminPermsModal('${a.uid}')"
+              class="flex-shrink-0 px-2.5 py-1.5 text-xs font-bold rounded-lg border border-border-subtle text-text-muted hover:text-secondary hover:border-secondary transition-colors">
+        Manage
+      </button>`}
+    </div>`;
+  }).join('');
+}
+
+window.openAdminPermsModal = function(uid) {
+  const a = allAdmins.find(x => x.uid === uid);
+  if (!a) return;
+  editingAdminUid = uid;
+  document.getElementById('ap-admin-name').textContent = a.name || a.email || uid;
+  const full  = !Array.isArray(a.adminPermissions);
+  const perms = full ? [] : a.adminPermissions;
+  document.getElementById('ap-full').checked = full;
+  document.getElementById('ap-modules').innerHTML = Object.entries(ADMIN_MODULE_LABELS).map(([key, label]) => `
+    <label class="flex items-center gap-2 px-2.5 py-2 rounded-lg border border-border-subtle cursor-pointer select-none text-sm ${full ? 'opacity-40' : ''}">
+      <input type="checkbox" data-ap-module value="${key}" ${full || perms.includes(key) ? 'checked' : ''} ${full ? 'disabled' : ''}
+             class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary"/>
+      ${label}
+    </label>`).join('');
+  document.getElementById('admin-perms-modal').classList.remove('hidden');
+};
+
+window.onApFullToggle = function() {
+  const full = document.getElementById('ap-full').checked;
+  document.querySelectorAll('#ap-modules [data-ap-module]').forEach(chk => {
+    chk.disabled = full;
+    if (full) chk.checked = true;
+    chk.closest('label').classList.toggle('opacity-40', full);
+  });
+};
+
+window.closeAdminPermsModal = function() {
+  document.getElementById('admin-perms-modal').classList.add('hidden');
+  editingAdminUid = null;
+};
+
+window.saveAdminPerms = async function() {
+  if (!editingAdminUid) return;
+  const full = document.getElementById('ap-full').checked;
+  const perms = [...document.querySelectorAll('#ap-modules [data-ap-module]:checked')].map(c => c.value);
+  const btn = document.getElementById('ap-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await updateDoc(doc(db, 'users', editingAdminUid), {
+      adminPermissions: full ? deleteField() : perms
+    });
+    const idx = allAdmins.findIndex(a => a.uid === editingAdminUid);
+    if (idx !== -1) {
+      if (full) delete allAdmins[idx].adminPermissions;
+      else allAdmins[idx].adminPermissions = perms;
+    }
+    renderAdminsList();
+    closeAdminPermsModal();
+    showToast('Admin access updated.', 'success');
+  } catch (e) {
+    console.error('[saveAdminPerms]', e);
+    showToast('Failed to update: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save';
+  }
+};
+
 window.switchTab = function(tab) {
   currentTab = tab;
   selectedAccount = null;
   document.getElementById('actions-panel').classList.add('hidden');
-  document.getElementById('detail-content').innerHTML = `<div class="text-center text-text-muted py-8"><span class="material-symbols-outlined text-4xl mb-2 block">person_search</span><p class="text-sm">Select ${tab === 'teachers' ? 'a teacher' : 'a parent'} to view details</p></div>`;
+  const nounSingle = tab === 'teachers' ? 'a teacher' : tab === 'parents' ? 'a parent' : 'an admin';
+  document.getElementById('detail-content').innerHTML = `<div class="text-center text-text-muted py-8"><span class="material-symbols-outlined text-4xl mb-2 block">person_search</span><p class="text-sm">Select ${nounSingle} to view details</p></div>`;
 
-  document.getElementById('tab-teachers').className = tab === 'teachers'
-    ? 'px-5 py-2.5 text-sm font-bold text-secondary border-b-2 border-secondary transition-colors'
-    : 'px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent';
-  document.getElementById('tab-parents').className = tab === 'parents'
-    ? 'px-5 py-2.5 text-sm font-bold text-secondary border-b-2 border-secondary transition-colors'
-    : 'px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent';
+  ['teachers', 'parents', 'admins'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (!el) return;
+    const wasHidden = el.classList.contains('hidden');
+    el.className = tab === t
+      ? 'px-5 py-2.5 text-sm font-bold text-secondary border-b-2 border-secondary transition-colors'
+      : 'px-5 py-2.5 text-sm font-medium text-text-muted hover:text-on-surface transition-colors border-b-2 border-transparent';
+    if (wasHidden) el.classList.add('hidden');
+  });
 
   const addBtn = document.getElementById('add-account-btn');
+  const adminBtn = document.getElementById('add-admin-btn');
+  if (adminBtn) adminBtn.classList.toggle('hidden', !isSuperAdminUser || tab === 'admins');
   if (tab === 'teachers') {
     addBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">person_add</span> Add Teacher';
     addBtn.onclick = openAddTeacherModal;
-  } else {
+  } else if (tab === 'parents') {
     addBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">person_add</span> Add Parent';
     addBtn.onclick = openAddParentModal;
+  } else {
+    addBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">admin_panel_settings</span> Add Admin';
+    addBtn.onclick = openAddAdminModal;
   }
 
   document.getElementById('search-input').placeholder = tab === 'teachers'
     ? 'Search teachers by name or email...'
-    : 'Search parents by name or email...';
+    : tab === 'parents' ? 'Search parents by name or email...' : 'Search admins by name or email...';
 
   document.getElementById('accounts-thead').innerHTML = tab === 'teachers'
     ? `<tr class="border-b border-border-subtle">
@@ -517,26 +916,38 @@ window.switchTab = function(tab) {
         <th class="pb-4 font-label-md text-text-muted px-2">SSO</th>
         <th class="pb-4 font-label-md text-text-muted px-2 text-right">Actions</th>
       </tr>`
-    : `<tr class="border-b border-border-subtle">
+    : tab === 'parents'
+    ? `<tr class="border-b border-border-subtle">
         <th class="pb-4 font-label-md text-text-muted px-2">Parent Name</th>
         <th class="pb-4 font-label-md text-text-muted px-2">Email</th>
         <th class="pb-4 font-label-md text-text-muted px-2">Status</th>
         <th class="pb-4 font-label-md text-text-muted px-2">Linked Students</th>
+        <th class="pb-4 font-label-md text-text-muted px-2 text-right">Actions</th>
+      </tr>`
+    : `<tr class="border-b border-border-subtle">
+        <th class="pb-4 font-label-md text-text-muted px-2">Admin Name</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Email</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Status</th>
+        <th class="pb-4 font-label-md text-text-muted px-2">Access</th>
         <th class="pb-4 font-label-md text-text-muted px-2 text-right">Actions</th>
       </tr>`;
 
   applyFilters();
 };
 
+function tabSource() {
+  return currentTab === 'teachers' ? allTeachers : currentTab === 'parents' ? allParents : allAdmins;
+}
+
 function applyFilters() {
   const search = document.getElementById('search-input').value.toLowerCase();
   const status = document.getElementById('status-filter').value;
   const sso = document.getElementById('sso-filter').value;
-  const source = currentTab === 'teachers' ? allTeachers : allParents;
+  const source = tabSource();
   filteredList = source.filter(t => {
     const matchSearch = !search || (t.name||'').toLowerCase().includes(search) || (t.email||'').toLowerCase().includes(search);
-    const matchStatus = status === 'all' || t.status === status;
-    const matchSso = sso === 'all' || t.ssoProvider === sso;
+    const matchStatus = status === 'all' || (t.status || 'active') === status;
+    const matchSso = sso === 'all' || (t.ssoProvider || 'email') === sso;
     return matchSearch && matchStatus && matchSso;
   });
   currentPage = 0;
@@ -547,7 +958,7 @@ function renderTable() {
   const tbody = document.getElementById('accounts-tbody');
   const start = currentPage * PAGE_SIZE;
   const page = filteredList.slice(start, start + PAGE_SIZE);
-  const noun = currentTab === 'teachers' ? 'teachers' : 'parents';
+  const noun = currentTab === 'teachers' ? 'teachers' : currentTab === 'parents' ? 'parents' : 'admins';
   if (!page.length) {
     tbody.innerHTML = `<tr><td colspan="5" class="py-12 text-center text-text-muted"><span class="material-symbols-outlined text-4xl block mb-2">person_off</span>No ${noun} found.</td></tr>`;
     document.getElementById('pagination-info').textContent = `0 ${noun}`;
@@ -620,6 +1031,41 @@ function renderTable() {
     }).join('');
   }
 
+  if (currentTab === 'admins') {
+    tbody.innerHTML = page.map((a, i) => {
+      const initials = (a.name||a.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const colorClass = avatarColors[i % avatarColors.length];
+      const isActive = a.status !== 'inactive';
+      const isSelf = a.uid === currentUser.uid;
+      const statusBadge = isActive
+        ? `<span class="px-2 py-1 rounded-full bg-green-100 text-green-700 text-[11px] font-bold uppercase tracking-wider">Active</span>`
+        : `<span class="px-2 py-1 rounded-full bg-surface-container-highest text-text-muted text-[11px] font-bold uppercase tracking-wider">Inactive</span>`;
+      const full = !Array.isArray(a.adminPermissions);
+      const accessHtml = full
+        ? `<span class="px-2 py-0.5 bg-primary-container/30 text-on-primary-container rounded-full text-[11px] font-bold">Full access</span>`
+        : (a.adminPermissions.length
+            ? a.adminPermissions.map(k => `<span class="px-2 py-0.5 bg-secondary-fixed/50 text-secondary rounded-full text-[11px] font-medium">${escHtml(ADMIN_MODULE_LABELS[k] || k)}</span>`).join(' ')
+            : `<span class="text-text-muted text-sm italic">No access</span>`);
+      return `
+      <tr class="hover:bg-surface-container-low transition-colors cursor-pointer" onclick="selectAccount('${a.uid}')">
+        <td class="py-4 px-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full ${colorClass} flex items-center justify-center font-bold text-label-sm flex-shrink-0">${escHtml(initials)}</div>
+            <span class="font-body-md font-semibold">${escHtml(a.name||'—')}${isSelf ? ' <span class="text-[11px] text-text-muted font-normal">(you)</span>' : ''}</span>
+          </div>
+        </td>
+        <td class="py-4 px-2 font-body-sm text-text-muted">${escHtml(a.email||'')}</td>
+        <td class="py-4 px-2">${statusBadge}</td>
+        <td class="py-4 px-2"><div class="flex flex-wrap gap-1">${accessHtml}</div></td>
+        <td class="py-4 px-2 text-right">
+          <button class="text-text-muted hover:text-primary transition-colors" onclick="event.stopPropagation();selectAccount('${a.uid}')">
+            <span class="material-symbols-outlined">more_vert</span>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
   const total = filteredList.length;
   const pages = Math.ceil(total / PAGE_SIZE);
   document.getElementById('pagination-info').textContent = `Showing ${start+1}–${Math.min(start+PAGE_SIZE, total)} of ${total} ${noun}`;
@@ -641,60 +1087,111 @@ window.goPage = function(n) {
   renderTable();
 };
 
+function lastLoginText(t) {
+  if (!t.lastLoginAt?.toDate) return 'No record yet';
+  const when = t.lastLoginAt.toDate().toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false });
+  const extra = [t.lastLoginLocation, t.lastLoginIp].filter(Boolean).join(' · ');
+  return escHtml(when) + (extra ? ` <span class="text-xs text-text-muted">· ${escHtml(extra)}</span>` : '');
+}
+
 window.selectAccount = function(uid) {
-  const source = currentTab === 'teachers' ? allTeachers : allParents;
+  const source = tabSource();
   selectedAccount = source.find(t => t.uid === uid);
   if (!selectedAccount) return;
   const t = selectedAccount;
   const initials = (t.name||t.email||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const isActive = t.status !== 'inactive';
 
+  const avatarHtml = t.photoUrl
+    ? `<img src="${escHtml(t.photoUrl)}" class="w-16 h-16 rounded-full object-cover mb-3" alt="profile"/>`
+    : null;
+
   if (currentTab === 'teachers') {
     document.getElementById('detail-content').innerHTML = `
-      <div class="flex flex-col items-center text-center pb-4 border-b border-border-subtle mb-4">
-        <div class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>
+      <div class="flex flex-col items-center text-center">
+        ${avatarHtml || `<div class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>`}
         <h3 class="font-headline-sm text-headline-sm">${escHtml(t.name||'—')}</h3>
-        <p class="font-body-sm text-text-muted">${escHtml(t.email||'')}</p>
-      </div>
-      <div class="space-y-3 text-left">
-        <div><span class="block font-label-sm text-text-muted">Status</span><span class="font-body-md font-semibold ${isActive?'text-green-700':'text-text-muted'}">${isActive?'Active':'Inactive'}</span></div>
-        <div><span class="block font-label-sm text-text-muted">Sign-in</span><span class="font-body-md">${escHtml(t.ssoProvider==='google'?'Google SSO':'Email & Password')}</span></div>
-        <div><span class="block font-label-sm text-text-muted">Institution</span><span class="font-body-md">${escHtml(t.institution||'Not set')}</span></div>
-        <div><span class="block font-label-sm text-text-muted">Google Meet Link</span>${t.googleMeetLink
-          ? `<a href="${escHtml(absUrl(t.googleMeetLink))}" target="_blank" rel="noopener" class="font-body-md text-secondary underline break-all">${escHtml(t.googleMeetLink)}</a>`
-          : `<span class="font-body-md text-text-muted italic">Not set</span>`}</div>
-        <div><span class="block font-label-sm text-text-muted">Joined</span><span class="font-body-md">${t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : '—'}</span></div>
+        <p class="font-body-sm text-text-muted break-all">${escHtml(t.email||'')}</p>
+        <span class="mt-2 px-2 py-0.5 bg-blue-100 text-secondary text-[11px] font-bold rounded-full uppercase tracking-wider">Teacher</span>
+        <span class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold ${isActive?'text-green-700':'text-text-muted'}">
+          <span class="w-2 h-2 rounded-full ${isActive?'bg-green-500':'bg-text-muted/50'}"></span>${isActive?'Active':'Inactive'}
+        </span>
+        <p class="mt-2 text-xs text-text-muted">Full profile, ID photo &amp; contracts are in <span class="font-semibold">Edit Profile</span>.</p>
       </div>`;
-    document.getElementById('meet-link-action').classList.remove('hidden');
     document.getElementById('edit-students-action').classList.add('hidden');
-  } else {
-    const linkedIds = t.linkedStudentIds || [];
-    const studentList = linkedIds.length
-      ? linkedIds.map(sid => {
-          const s = allStudents.find(x => x.id === sid);
-          return s ? `<span class="inline-flex items-center px-2 py-1 bg-secondary-fixed/50 text-secondary rounded-full text-xs font-medium">${escHtml(s.fullName||sid)}${s.grade?' · '+escHtml(s.grade):''}</span>` : '';
-        }).filter(Boolean).join(' ')
-      : '<span class="font-body-md text-text-muted italic">No students linked</span>';
+    document.getElementById('edit-profile-action').classList.remove('hidden');
+  } else if (currentTab === 'admins') {
+    const isSelf = t.uid === currentUser.uid;
     document.getElementById('detail-content').innerHTML = `
-      <div class="flex flex-col items-center text-center pb-4 border-b border-border-subtle mb-4">
-        <div class="w-16 h-16 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>
-        <h3 class="font-headline-sm text-headline-sm">${escHtml(t.name||'—')}</h3>
-        <p class="font-body-sm text-text-muted">${escHtml(t.email||'')}</p>
-        <span class="mt-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[11px] font-bold rounded-full uppercase tracking-wider">Parent</span>
-      </div>
-      <div class="space-y-3 text-left">
-        <div><span class="block font-label-sm text-text-muted">Status</span><span class="font-body-md font-semibold ${isActive?'text-green-700':'text-text-muted'}">${isActive?'Active':'Inactive'}</span></div>
-        <div><span class="block font-label-sm text-text-muted">Joined</span><span class="font-body-md">${t.createdAt?.toDate ? t.createdAt.toDate().toLocaleDateString() : '—'}</span></div>
-        <div><span class="block font-label-sm text-text-muted mb-1.5">Linked Students</span><div class="flex flex-wrap gap-1.5">${studentList}</div></div>
+      <div class="flex flex-col items-center text-center">
+        ${avatarHtml || `<div class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>`}
+        <h3 class="font-headline-sm text-headline-sm">${escHtml(t.name||'—')}${isSelf ? ' <span class="text-xs text-text-muted font-normal">(you)</span>' : ''}</h3>
+        <p class="font-body-sm text-text-muted break-all">${escHtml(t.email||'')}</p>
+        <span class="mt-2 px-2 py-0.5 bg-amber-100 text-amber-800 text-[11px] font-bold rounded-full uppercase tracking-wider">Admin</span>
+        <span class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold ${isActive?'text-green-700':'text-text-muted'}">
+          <span class="w-2 h-2 rounded-full ${isActive?'bg-green-500':'bg-text-muted/50'}"></span>${isActive?'Active':'Inactive'}
+        </span>
+        ${isSelf ? '' : '<p class="mt-2 text-xs text-text-muted">Module access is managed via <span class="font-semibold">Manage Access</span>.</p>'}
       </div>`;
-    document.getElementById('meet-link-action').classList.add('hidden');
+    document.getElementById('edit-students-action').classList.add('hidden');
+    document.getElementById('edit-profile-action').classList.add('hidden');
+  } else {
+    document.getElementById('detail-content').innerHTML = `
+      <div class="flex flex-col items-center text-center">
+        ${avatarHtml || `<div class="w-16 h-16 rounded-full bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center font-bold text-xl mb-3">${escHtml(initials)}</div>`}
+        <h3 class="font-headline-sm text-headline-sm">${escHtml(t.name||'—')}</h3>
+        <p class="font-body-sm text-text-muted break-all">${escHtml(t.email||'')}</p>
+        <span class="mt-2 px-2 py-0.5 bg-purple-100 text-purple-700 text-[11px] font-bold rounded-full uppercase tracking-wider">Parent</span>
+        <span class="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold ${isActive?'text-green-700':'text-text-muted'}">
+          <span class="w-2 h-2 rounded-full ${isActive?'bg-green-500':'bg-text-muted/50'}"></span>${isActive?'Active':'Inactive'}
+        </span>
+        <p class="mt-2 text-xs text-text-muted">Linked students are managed via <span class="font-semibold">Edit Linked Students</span>.</p>
+      </div>`;
     document.getElementById('edit-students-action').classList.remove('hidden');
+    document.getElementById('edit-profile-action').classList.add('hidden');
   }
 
   document.getElementById('toggle-status-btn').innerHTML = `
     <span class="material-symbols-outlined text-secondary">${isActive?'person_off':'person'}</span>
     ${isActive ? 'Deactivate Account' : 'Activate Account'}`;
+  document.getElementById('remove-photo-action').classList.toggle('hidden', !t.photoUrl);
+  document.getElementById('reset-2fa-btn').classList.toggle('hidden', t.twoFactorEnabled !== true);
+  const isSelfAdmin = currentTab === 'admins' && t.uid === currentUser.uid;
+  document.getElementById('manage-access-action').classList.toggle('hidden', !(currentTab === 'admins' && !isSelfAdmin));
+  // an admin can't deactivate or delete their own account (lockout protection)
+  document.getElementById('toggle-status-btn').classList.toggle('hidden', isSelfAdmin);
+  document.querySelector('#actions-panel [onclick="confirmDelete()"]').classList.toggle('hidden', isSelfAdmin);
   document.getElementById('actions-panel').classList.remove('hidden');
+};
+
+// Moderation: admins can remove a user's profile photo
+window.removeSelectedPhoto = async function() {
+  if (!selectedAccount || !selectedAccount.photoUrl) return;
+  if (!confirm(`Remove ${selectedAccount.name || 'this user'}'s profile photo?`)) return;
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { photoUrl: deleteField() });
+    delete selectedAccount.photoUrl;
+    const source = tabSource();
+    const idx = source.findIndex(x => x.uid === selectedAccount.uid);
+    if (idx !== -1) delete source[idx].photoUrl;
+    selectAccount(selectedAccount.uid);
+    showToast('Profile photo removed.', 'success');
+  } catch (e) {
+    showToast('Failed to remove photo: ' + e.message, 'error');
+  }
+};
+
+window.resetTwoFactor = async function() {
+  if (!selectedAccount) return;
+  if (!confirm(`Reset two-factor authentication for ${selectedAccount.name || selectedAccount.email}?\n\nThey'll be able to sign in without device approval, and can re-enable it from the app later. Use this only when they've lost their enrolled device.`)) return;
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { twoFactorEnabled: false });
+    selectedAccount.twoFactorEnabled = false;
+    document.getElementById('reset-2fa-btn').classList.add('hidden');
+    showToast('Two-factor authentication has been reset.', 'success');
+  } catch (e) {
+    showToast(e.message || 'Failed to reset. Please try again.', 'error');
+  }
 };
 
 window.toggleSelectedStatus = async function() {
@@ -703,7 +1200,7 @@ window.toggleSelectedStatus = async function() {
   try {
     await updateDoc(doc(db, 'users', selectedAccount.uid), { status: newStatus });
     selectedAccount.status = newStatus;
-    const source = currentTab === 'teachers' ? allTeachers : allParents;
+    const source = tabSource();
     const idx = source.findIndex(t => t.uid === selectedAccount.uid);
     if (idx !== -1) source[idx].status = newStatus;
     applyFilters();
@@ -717,6 +1214,8 @@ window.toggleSelectedStatus = async function() {
 // ── Add Teacher ──────────────────────────────────────────────────────────────
 
 window.openAddTeacherModal = function() {
+  fillPhoneCc('at-phone-cc', '+63');
+  document.getElementById('at-phone').value = '';
   document.getElementById('at-firstname').value = '';
   document.getElementById('at-lastname').value  = '';
   document.getElementById('at-email').value     = '';
@@ -733,45 +1232,106 @@ window.toggleAtPassword = function() {
   eye.textContent = show ? 'visibility_off' : 'visibility';
 };
 
+// Emails a new account its login ID + temporary password (same template the
+// server uses). Never blocks account creation.
+function genTempPassword() {
+  const letters = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz';
+  const digits = '23456789';
+  let out = '';
+  for (let i = 0; i < 7; i++) out += letters[Math.floor(Math.random() * letters.length)];
+  for (let i = 0; i < 3; i++) out += digits[Math.floor(Math.random() * digits.length)];
+  return out;
+}
+
+async function sendCredentialsEmail(email, name, role, password) {
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const r = await fetch('https://us-central1-cremona-portal.cloudfunctions.net/sendMail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        type: 'credentials',
+        to: email,
+        params: {
+          name,
+          user_email: email,
+          role_ko: role === 'teacher' ? '선생님' : role === 'admin' ? '관리자' : '학부모',
+          password,
+        },
+      }),
+    });
+    return r.ok;
+  } catch (e) {
+    console.error('[credentials email]', e);
+    return false;
+  }
+}
+
+window.openAddAdminModal = function() {
+  ['aa-firstname', 'aa-lastname', 'aa-email', 'aa-password'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('add-admin-modal').classList.remove('hidden');
+  document.getElementById('aa-firstname').focus();
+};
+
+window.submitAddAdmin = async function() {
+  const firstName = document.getElementById('aa-firstname').value.trim();
+  const lastName  = document.getElementById('aa-lastname').value.trim();
+  const email     = document.getElementById('aa-email').value.trim().toLowerCase();
+  const password  = document.getElementById('aa-password').value;
+  if (!firstName || !lastName || !email) return showToast('Please fill in name and email.', 'error');
+  if (!email.endsWith('@cremonamusic.com')) return showToast('Admin emails must be @cremonamusic.com addresses.', 'error');
+  const btn = document.getElementById('add-admin-submit');
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/deleteUser', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'createAdmin', adminUid: currentUser.uid, firstName, lastName, email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Failed to create the account.');
+    document.getElementById('add-admin-modal').classList.add('hidden');
+    // reloadOnClose: page reloads when they tap Done, so the new admin appears
+    // and their permissions can be granted in Admin Access.
+    showCreatedModal(`${firstName} ${lastName}`, email, d.tempPassword || password, 'admin', true);
+    showToast('After closing, grant their permissions in Admin Access below.', 'success');
+  } catch (e) {
+    showToast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
 window.submitAddTeacher = async function() {
   const firstName = document.getElementById('at-firstname').value.trim();
   const lastName  = document.getElementById('at-lastname').value.trim();
   const email     = document.getElementById('at-email').value.trim().toLowerCase();
-  const password  = document.getElementById('at-password').value;
+  const password  = document.getElementById('at-password').value || genTempPassword();
 
-  if (!firstName || !lastName || !email || !password)
-    return showToast('Please fill in all fields.', 'error');
+  if (!firstName || !lastName || !email)
+    return showToast('Please fill in name and email.', 'error');
+  if (!email.endsWith('@cremonamusic.com'))
+    return showToast('Email must be an @cremonamusic.com address.', 'error');
   if (password.length < 8)
     return showToast('Password must be at least 8 characters.', 'error');
 
   const btn = document.getElementById('add-teacher-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,.2)"></div> Creating...';
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#2A1D14;border-color:rgba(42,29,20,.2)"></div> Creating...';
 
   try {
-    let secondaryApp;
-    try { secondaryApp = getApp('teacher-create'); }
-    catch { secondaryApp = initializeApp(firebaseConfig, 'teacher-create'); }
-    const secondaryAuth = getAuth(secondaryApp);
-
-    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-    const uid  = cred.user.uid;
-    await updateProfile(cred.user, { displayName: `${firstName} ${lastName}` });
-    await signOut(secondaryAuth);
-
-    await setDoc(doc(db, 'users', uid), {
-      firstName, lastName,
-      name: `${firstName} ${lastName}`,
-      email, role: 'teacher', status: 'active',
-      ssoProvider: 'email', institution: '',
-      createdAt: serverTimestamp(),
+    const r = await fetch('/api/deleteUser', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'createTeacher', adminUid: currentUser.uid, firstName, lastName, email, password, phone: joinPhone('at-phone-cc', 'at-phone') })
     });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Failed to create the account.');
 
-    allTeachers.push({ uid, name: `${firstName} ${lastName}`, firstName, lastName, email, role: 'teacher', status: 'active', ssoProvider: 'email' });
+    allTeachers.push({ uid: d.uid, name: `${firstName} ${lastName}`, firstName, lastName, email, role: 'teacher', status: 'active', ssoProvider: 'email' });
     allTeachers.sort((a, b) => (a.name||'').localeCompare(b.name||''));
     applyFilters();
     document.getElementById('add-teacher-modal').classList.add('hidden');
-    showToast(`Account created for ${firstName} ${lastName}.`, 'success');
+    showCreatedModal(`${firstName} ${lastName}`, email, d.tempPassword || password, 'teacher');
+    if (!d.emailSent) showToast('Credentials email failed — please share them manually.', 'error');
   } catch (e) {
     showToast(e.message, 'error');
   } finally {
@@ -788,8 +1348,9 @@ window.openAddParentModal = function() {
   document.getElementById('ap-email').value     = '';
   document.getElementById('ap-phone').value     = '';
   document.getElementById('ap-password').value  = '';
-  renderStudentPicker('ap-student-list', [], true);
+  renderStudentPicker('ap-student-list', []);
   document.getElementById('add-parent-modal').classList.remove('hidden');
+  document.getElementById('ap-firstname').focus();
 };
 
 window.toggleApPassword = function() {
@@ -800,47 +1361,23 @@ window.toggleApPassword = function() {
   eye.textContent = show ? 'visibility_off' : 'visibility';
 };
 
-function renderStudentPicker(containerId, selectedIds, autofill = false) {
+function renderStudentPicker(containerId, selectedIds) {
   const el = document.getElementById(containerId);
   if (!allStudents.length) {
     el.innerHTML = '<p class="text-sm text-text-muted text-center py-4">No students found.</p>';
     return;
   }
-  el.innerHTML = allStudents.map(s => {
-    const pe  = Array.isArray(s.parentEmails) && s.parentEmails.length ? s.parentEmails[0] : (s.parentEmail || '');
-    const sub = pe ? escHtml(pe) : (s.grade ? escHtml(s.grade) : '');
-    const onch = autofill ? `onchange="if(this.checked)apAutofillFromStudent('${escHtml(s.id)}')"` : '';
-    return `
+  el.innerHTML = allStudents.map(s => `
     <label class="flex items-center gap-3 px-3 py-2 hover:bg-surface-container-low cursor-pointer">
       <input type="checkbox" value="${escHtml(s.id)}" ${selectedIds.includes(s.id)?'checked':''}
-             ${onch} class="accent-secondary w-4 h-4 flex-shrink-0"/>
-      <div class="min-w-0">
-        <p class="text-sm font-medium text-on-surface truncate">${escHtml(s.fullName||'Unnamed')}</p>
-        ${sub ? `<p class="text-xs text-text-muted truncate">${sub}</p>` : ''}
+             class="accent-secondary w-4 h-4 flex-shrink-0"
+             />
+      <div>
+        <p class="text-sm font-medium text-on-surface">${escHtml(s.fullName||'Unnamed')}</p>
+        ${s.grade ? `<p class="text-xs text-text-muted">${escHtml(s.grade)}</p>` : ''}
       </div>
-    </label>`;
-  }).join('');
+    </label>`).join('');
 }
-
-// When a child is ticked in the Add-Parent modal, pre-fill the parent's details
-// from that student's enrollment record. Fields stay editable. Null-safe so it's
-// a no-op if called from a context without the ap-* inputs (e.g. edit-students).
-window.apAutofillFromStudent = function(sid) {
-  const emailEl = document.getElementById('ap-email');
-  if (!emailEl) return;
-  const s = allStudents.find(x => x.id === sid);
-  if (!s) return;
-  const email = Array.isArray(s.parentEmails) && s.parentEmails.length ? s.parentEmails[0] : (s.parentEmail || '');
-  const phone = s.parentPhone || '';
-  const name  = s.parentName  || '';
-  if (email) emailEl.value = email;
-  if (phone) document.getElementById('ap-phone').value = phone;
-  if (name) {
-    const parts = name.trim().split(/\s+/);
-    document.getElementById('ap-firstname').value = parts[0] || '';
-    document.getElementById('ap-lastname').value  = parts.slice(1).join(' ') || '';
-  }
-};
 
 function getCheckedStudents(containerId) {
   return Array.from(document.querySelectorAll(`#${containerId} input[type=checkbox]:checked`)).map(cb => cb.value);
@@ -850,11 +1387,11 @@ window.submitAddParent = async function() {
   const firstName = document.getElementById('ap-firstname').value.trim();
   const lastName  = document.getElementById('ap-lastname').value.trim();
   const email     = document.getElementById('ap-email').value.trim().toLowerCase();
-  const password  = document.getElementById('ap-password').value;
+  const password  = document.getElementById('ap-password').value || genTempPassword();
   const linkedStudentIds = getCheckedStudents('ap-student-list');
 
-  if (!firstName || !lastName || !email || !password)
-    return showToast('Please fill in all fields.', 'error');
+  if (!firstName || !lastName || !email)
+    return showToast('Please fill in name and email.', 'error');
   if (password.length < 8)
     return showToast('Password must be at least 8 characters.', 'error');
   if (!linkedStudentIds.length)
@@ -862,45 +1399,28 @@ window.submitAddParent = async function() {
 
   const btn = document.getElementById('add-parent-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,.2)"></div> Creating...';
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#2A1D14;border-color:rgba(42,29,20,.2)"></div> Creating...';
 
   try {
-    let secondaryApp;
-    try { secondaryApp = getApp('parent-create'); }
-    catch { secondaryApp = initializeApp(firebaseConfig, 'parent-create'); }
-    const secondaryAuth = getAuth(secondaryApp);
-
-    const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-    const uid  = cred.user.uid;
-    await updateProfile(cred.user, { displayName: `${firstName} ${lastName}` });
-    await signOut(secondaryAuth);
-
-    await setDoc(doc(db, 'users', uid), {
-      firstName, lastName,
-      name: `${firstName} ${lastName}`,
-      email, role: 'parent', status: 'active',
-      ssoProvider: 'email', linkedStudentIds,
-      parentPhone: document.getElementById('ap-phone').value.trim(),
-      createdAt: serverTimestamp(),
+    const r = await fetch('/api/deleteUser', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'createParent', adminUid: currentUser.uid,
+        firstName, lastName, email, password,
+        phone: document.getElementById('ap-phone').value.trim(),
+        linkedStudentIds,
+      })
     });
-
-    // Stamp new parent's email onto each linked student's parentEmails array
-    for (const sid of linkedStudentIds) {
-      try {
-        await updateDoc(doc(db, 'students', sid), { parentEmails: arrayUnion(email) });
-      } catch (_) {}
-    }
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Failed to create the account.');
+    const uid = d.uid;
 
     allParents.push({ uid, name: `${firstName} ${lastName}`, firstName, lastName, email, role: 'parent', status: 'active', ssoProvider: 'email', linkedStudentIds });
     allParents.sort((a, b) => (a.name||'').localeCompare(b.name||''));
     document.getElementById('add-parent-modal').classList.add('hidden');
 
-    document.getElementById('created-parent-name').textContent = `${firstName} ${lastName}`;
-    document.getElementById('created-parent-email').textContent = email;
-    document.getElementById('created-parent-password').textContent = password;
-    document.getElementById('parent-created-modal').classList.remove('hidden');
-
-    notifyNewParentAccount(firstName, email, password);
+    showCreatedModal(`${firstName} ${lastName}`, email, d.tempPassword || password, 'parent');
+    if (d.emailSent) showToast('Sign-in details emailed to the parent.', 'success');
 
     if (currentTab === 'parents') applyFilters();
   } catch (e) {
@@ -911,9 +1431,22 @@ window.submitAddParent = async function() {
   }
 };
 
+// Shared "Account Created" modal for parent, teacher, and admin creation, so
+// all three show the same copyable credentials instead of a fleeting toast.
+let _createdReloadOnClose = false;
+window.showCreatedModal = function(name, email, password, roleLabel, reloadOnClose) {
+  document.getElementById('created-parent-name').textContent = name;
+  document.getElementById('created-parent-email').textContent = email;
+  document.getElementById('created-parent-password').textContent = password;
+  const desc = document.getElementById('created-desc');
+  if (desc) desc.textContent = `Share these temporary credentials with the ${roleLabel}. They should change the password after first login.`;
+  _createdReloadOnClose = !!reloadOnClose;
+  document.getElementById('parent-created-modal').classList.remove('hidden');
+};
+
 window.closeParentCreated = function() {
   document.getElementById('parent-created-modal').classList.add('hidden');
-  showToast('Parent account created successfully.', 'success');
+  if (_createdReloadOnClose) { _createdReloadOnClose = false; location.reload(); }
 };
 
 window.copyToClipboard = async function(elId) {
@@ -1015,6 +1548,27 @@ window.confirmDelete = function() {
   document.getElementById('delete-modal').classList.remove('hidden');
 };
 
+// Emails a 6-digit reset code to the selected account; they finish the reset
+// in "Forgot password?" on the sign-in screen.
+window.sendResetCode = async function() {
+  if (!selectedAccount?.email) return;
+  const btn = document.getElementById('send-reset-btn');
+  btn.disabled = true;
+  try {
+    const r = await fetch('/api/requestPasswordReset', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: selectedAccount.email })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Failed to send');
+    showToast(`Reset code emailed to ${selectedAccount.email}. They enter it in "Forgot password?" with a new password.`, 'success');
+  } catch (e) {
+    showToast(e.message || 'Failed to send reset code.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
 window.executeDelete = async function() {
   if (!selectedAccount) return;
   const btn = document.getElementById('confirm-delete-btn');
@@ -1023,13 +1577,16 @@ window.executeDelete = async function() {
     await updateDoc(doc(db, 'users', selectedAccount.uid), { status: 'deleted', deletedAt: serverTimestamp() });
     if (currentTab === 'teachers') {
       allTeachers = allTeachers.filter(t => t.uid !== selectedAccount.uid);
-    } else {
+    } else if (currentTab === 'parents') {
       allParents = allParents.filter(p => p.uid !== selectedAccount.uid);
+    } else {
+      allAdmins = allAdmins.filter(a => a.uid !== selectedAccount.uid);
+      renderAdminsList();
     }
     selectedAccount = null;
     document.getElementById('delete-modal').classList.add('hidden');
     document.getElementById('actions-panel').classList.add('hidden');
-    document.getElementById('detail-content').innerHTML = `<div class="text-center text-text-muted py-8"><span class="material-symbols-outlined text-4xl mb-2 block">person_search</span><p class="text-sm">Select ${currentTab === 'teachers' ? 'a teacher' : 'a parent'} to view details</p></div>`;
+    document.getElementById('detail-content').innerHTML = `<div class="text-center text-text-muted py-8"><span class="material-symbols-outlined text-4xl mb-2 block">person_search</span><p class="text-sm">Select ${currentTab === 'teachers' ? 'a teacher' : currentTab === 'parents' ? 'a parent' : 'an admin'} to view details</p></div>`;
     applyFilters();
     showToast('Account deleted successfully.', 'success');
   } catch (e) {
@@ -1040,28 +1597,504 @@ window.executeDelete = async function() {
   }
 };
 
+// ── International phone codes (Philippines first — most teachers are PH-based) ──
+const PHONE_CODES = [
+  ['PH','+63'],['KR','+82'],['US/CA','+1'],['GB','+44'],['AU','+61'],['NZ','+64'],
+  ['JP','+81'],['CN','+86'],['HK','+852'],['TW','+886'],['SG','+65'],['MY','+60'],
+  ['TH','+66'],['VN','+84'],['ID','+62'],['IN','+91'],['PK','+92'],['BD','+880'],
+  ['AE','+971'],['SA','+966'],['QA','+974'],['TR','+90'],['IL','+972'],
+  ['DE','+49'],['FR','+33'],['ES','+34'],['IT','+39'],['NL','+31'],['SE','+46'],
+  ['NO','+47'],['DK','+45'],['FI','+358'],['PL','+48'],['PT','+351'],['GR','+30'],
+  ['RU','+7'],['UA','+380'],['BR','+55'],['MX','+52'],['AR','+54'],['CL','+56'],
+  ['CO','+57'],['PE','+51'],['ZA','+27'],['EG','+20'],['NG','+234'],['KE','+254'],
+];
+function fillPhoneCc(selectId, selected) {
+  const el = document.getElementById(selectId);
+  el.innerHTML = PHONE_CODES.map(([c, code]) =>
+    `<option value="${code}" ${code === (selected || '+63') ? 'selected' : ''}>${c} ${code}</option>`).join('');
+}
+function splitPhone(full) {
+  full = (full || '').trim();
+  const hit = [...PHONE_CODES].sort((a, b) => b[1].length - a[1].length).find(([, code]) => full.startsWith(code));
+  return hit ? { cc: hit[1], num: full.slice(hit[1].length).trim() } : { cc: '+63', num: full };
+}
+function joinPhone(ccId, numId) {
+  const num = document.getElementById(numId).value.trim();
+  return num ? document.getElementById(ccId).value + ' ' + num : '';
+}
+
+// ── Edit teacher profile (name, phone, institution — editable any time) ──
+window.openEditProfileModal = function() {
+  if (!selectedAccount) return;
+  document.getElementById('ep-signin').textContent = selectedAccount.ssoProvider === 'google' ? 'Google SSO' : 'Email & Password';
+  document.getElementById('ep-joined').textContent = selectedAccount.createdAt?.toDate ? selectedAccount.createdAt.toDate().toLocaleDateString() : '—';
+  document.getElementById('ep-lastlogin').innerHTML = lastLoginText(selectedAccount);
+  document.getElementById('ep-firstname').value = selectedAccount.firstName || (selectedAccount.name || '').split(' ')[0] || '';
+  document.getElementById('ep-lastname').value = selectedAccount.lastName || (selectedAccount.name || '').split(' ').slice(1).join(' ') || '';
+  const ph = splitPhone(selectedAccount.phone);
+  fillPhoneCc('ep-phone-cc', ph.cc);
+  document.getElementById('ep-phone').value = ph.num;
+  document.getElementById('ep-institution').value = selectedAccount.institution || '';
+  document.getElementById('ep-dob').value = selectedAccount.dob || '';
+  document.getElementById('ep-empstart').value = selectedAccount.employmentStart || '';
+  document.getElementById('ep-idnum').value = selectedAccount.idNumber || '';
+  document.getElementById('ep-address').value = selectedAccount.address || '';
+  document.getElementById('ep-meet').value = selectedAccount.googleMeetLink || '';
+  epIdPhotoFile = null;
+  epRemovePhoto = false;
+  epRenderPhotoPreview(selectedAccount.idPhotoUrl || '');
+  loadTeacherContracts(selectedAccount.uid);
+  document.getElementById('edit-profile-modal').classList.remove('hidden');
+};
+
+let epIdPhotoFile = null;
+let epRemovePhoto = false;
+function epRenderPhotoPreview(src) {
+  document.getElementById('ep-idphoto-preview').innerHTML = src
+    ? `<img src="${escHtml(src)}" class="w-full h-full object-cover" alt="ID photo"/>`
+    : '<span class="material-symbols-outlined text-[20px]">person</span>';
+  document.getElementById('ep-idphoto-remove').classList.toggle('hidden', !src);
+}
+window.epPhotoChosen = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 7 * 1024 * 1024) return showToast('Image too large (max 7 MB).', 'error');
+  epIdPhotoFile = file;
+  epRemovePhoto = false;
+  epRenderPhotoPreview(URL.createObjectURL(file));
+};
+window.epPhotoRemove = function() {
+  epIdPhotoFile = null;
+  epRemovePhoto = true;
+  document.getElementById('ep-idphoto-file').value = '';
+  epRenderPhotoPreview('');
+};
+
+window.saveProfileEdits = async function() {
+  if (!selectedAccount) return;
+  const firstName = document.getElementById('ep-firstname').value.trim();
+  const lastName = document.getElementById('ep-lastname').value.trim();
+  if (!firstName || !lastName) return showToast('Name fields cannot be empty.', 'error');
+  const updates = {
+    firstName, lastName,
+    name: `${firstName} ${lastName}`,
+    phone: joinPhone('ep-phone-cc', 'ep-phone'),
+    institution: document.getElementById('ep-institution').value.trim(),
+    dob: document.getElementById('ep-dob').value,
+    employmentStart: document.getElementById('ep-empstart').value,
+    idNumber: document.getElementById('ep-idnum').value.trim(),
+    address: document.getElementById('ep-address').value.trim(),
+    googleMeetLink: document.getElementById('ep-meet').value.trim(),
+  };
+  const btn = document.getElementById('save-profile-btn');
+  btn.disabled = true;
+  try {
+    if (epIdPhotoFile) {
+      const ext = (epIdPhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
+      updates.idPhotoUrl = await apiUpload(`idphotos/${selectedAccount.uid}/${Date.now()}.${ext}`, epIdPhotoFile, epIdPhotoFile.type || 'image/jpeg');
+    } else if (epRemovePhoto) {
+      updates.idPhotoUrl = deleteField();
+    }
+    await updateDoc(doc(db, 'users', selectedAccount.uid), updates);
+    if (epRemovePhoto) {
+      delete updates.idPhotoUrl;
+      delete selectedAccount.idPhotoUrl;
+      const i2 = allTeachers.findIndex(t => t.uid === selectedAccount.uid);
+      if (i2 !== -1) delete allTeachers[i2].idPhotoUrl;
+    }
+    Object.assign(selectedAccount, updates);
+    const idx = allTeachers.findIndex(t => t.uid === selectedAccount.uid);
+    if (idx !== -1) Object.assign(allTeachers[idx], updates);
+    document.getElementById('edit-profile-modal').classList.add('hidden');
+    applyFilters();
+    selectAccount(selectedAccount.uid);
+    showToast('Profile updated.', 'success');
+  } catch (e) {
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+// ── Contract files (stored on R2 alongside books/avatars) ──
+const WORKER_URL = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
+// Contracts live in the 'contracts' collection: uploaded files or
+// auto-filled generated contracts, both e-signable at /contract?id=…
+async function loadTeacherContracts(uid) {
+  const box = document.getElementById('adm-contracts-box');
+  if (!box) return;
+  try {
+    const snap = await getDocs(query(collection(db, 'contracts'), where('teacherUid', '==', uid)));
+    const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const legacy = (selectedAccount && selectedAccount.uid === uid && selectedAccount.contracts) || [];
+    const rows = docs.map(c => {
+      const when = c.createdAt?.seconds ? new Date(c.createdAt.seconds * 1000).toLocaleDateString() : '';
+      const badge = c.status === 'signed'
+        ? '<span class="px-1.5 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-bold uppercase">Signed</span>'
+        : c.status === 'pending_signature'
+        ? '<span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[9px] font-bold uppercase">Needs signature</span>'
+        : '';
+      return `<div class="flex items-center gap-2 px-2.5 py-2 rounded-lg border border-border-subtle">
+        <span class="material-symbols-outlined text-[16px] text-secondary flex-shrink-0">${c.type === 'file' ? 'description' : 'contract'}</span>
+        <a href="/contract?id=${c.id}" target="_blank" class="text-xs font-semibold text-on-surface hover:text-secondary truncate flex-1" title="${escHtml(c.title || '')}">${escHtml(c.title || 'Contract')}</a>
+        ${badge}
+        <span class="text-[10px] text-text-muted flex-shrink-0">${escHtml(when)}</span>
+        <button onclick="deleteContractDoc('${c.id}')" class="text-text-muted hover:text-error flex-shrink-0" title="Delete"><span class="material-symbols-outlined text-[14px]">close</span></button>
+      </div>`;
+    });
+    const legacyRows = legacy.map(c => `
+      <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg border border-border-subtle">
+        <span class="material-symbols-outlined text-[16px] text-secondary flex-shrink-0">description</span>
+        <a href="${escHtml(c.url)}" target="_blank" rel="noopener" class="text-xs font-semibold text-on-surface hover:text-secondary truncate flex-1" title="${escHtml(c.name)}">${escHtml(c.name)}</a>
+        <span class="text-[10px] text-text-muted flex-shrink-0">${new Date(c.uploadedAt).toLocaleDateString()}</span>
+        <button onclick="removeContract(${c.uploadedAt})" class="text-text-muted hover:text-error flex-shrink-0" title="Remove"><span class="material-symbols-outlined text-[14px]">close</span></button>
+      </div>`);
+    box.innerHTML = [...rows, ...legacyRows].join('') || '<span class="text-xs text-text-muted italic">No contracts yet</span>';
+  } catch (e) {
+    console.error('[contracts]', e);
+    box.innerHTML = '<p class="text-xs text-error">Failed to load contracts.</p>';
+  }
+}
+
+window.deleteContractDoc = async function(id) {
+  if (!confirm('Delete this contract?')) return;
+  try {
+    await deleteDoc(doc(db, 'contracts', id));
+    if (selectedAccount) loadTeacherContracts(selectedAccount.uid);
+    showToast('Contract deleted.', 'success');
+  } catch (e) {
+    showToast('Failed: ' + e.message, 'error');
+  }
+};
+
+window.uploadContract = function() {
+  if (!selectedAccount) return;
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.pdf,.doc,.docx,.jpg,.jpeg,.png';
+  input.onchange = async () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > 25 * 1024 * 1024) return showToast('File too large (max 25 MB).', 'error');
+    const needsSig = confirm(`Does "${file.name}" need ${selectedAccount.name}'s signature?\n\nOK = teacher must sign it on their Documents page\nCancel = store as a reference file only`);
+    const safe = file.name.replace(/[^\w.\-가-힣 ]/g, '_');
+    const key = `contracts/${selectedAccount.uid}/${Date.now()}_${safe}`;
+    showToast('Uploading contract…');
+    try {
+      // large files go straight to the R2 worker (CORS now allows the portal);
+      // smaller ones use the authenticated same-origin proxy
+      if (file.size > 7 * 1024 * 1024) {
+        const put = await fetch(`${WORKER_URL}/${key}`, { method: 'PUT', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file });
+        if (!put.ok) throw new Error('HTTP ' + put.status);
+      } else {
+        await apiUpload(key, file, file.type || 'application/octet-stream');
+      }
+      await addDoc(collection(db, 'contracts'), {
+        teacherUid: selectedAccount.uid,
+        teacherName: selectedAccount.name || selectedAccount.email || '',
+        type: 'file',
+        title: file.name,
+        fileUrl: `${R2_PUBLIC_BASE}/${key}`,
+        status: needsSig ? 'pending_signature' : 'none',
+        createdAt: serverTimestamp(),
+        createdBy: currentUser.uid,
+      });
+      loadTeacherContracts(selectedAccount.uid);
+      showToast(needsSig ? 'Uploaded — the teacher will be asked to sign it.' : 'Contract file uploaded.', 'success');
+    } catch (e) {
+      showToast('Upload failed: ' + e.message, 'error');
+    }
+  };
+  input.click();
+};
+
+// Auto-filled contract: name/DOB/ID/address/phone come from the DB;
+// admin only supplies start date, salary, and any extra terms.
+window.openNewContractModal = function() {
+  if (!selectedAccount) return;
+  document.getElementById('nc-teacher-name').textContent = selectedAccount.name || selectedAccount.email;
+  document.getElementById('nc-title').value = 'Teacher Service Agreement';
+  document.getElementById('nc-start').value = selectedAccount.employmentStart || '';
+  document.getElementById('nc-paynote').value = '';
+  document.getElementById('nc-notes').value = '';
+  const missing = ['dob', 'idNumber', 'address'].filter(k => !selectedAccount[k]);
+  document.getElementById('nc-warning').textContent = missing.length
+    ? `⚠ Profile missing: ${missing.join(', ')} — those lines will show "—" until filled in.`
+    : '';
+  document.getElementById('new-contract-modal').classList.remove('hidden');
+};
+
+window.submitNewContract = async function() {
+  if (!selectedAccount) return;
+  const startDate = document.getElementById('nc-start').value;
+  if (!startDate) return showToast('Please set the employment start date.', 'error');
+  const btn = document.getElementById('nc-submit');
+  btn.disabled = true;
+  try {
+    const ref = await addDoc(collection(db, 'contracts'), {
+      teacherUid: selectedAccount.uid,
+      teacherName: selectedAccount.name || selectedAccount.email || '',
+      type: 'generated',
+      title: document.getElementById('nc-title').value.trim() || 'Teacher Service Agreement',
+      status: 'pending_signature',
+      fields: {
+        startDate,
+        payNote: document.getElementById('nc-paynote').value.trim(),
+        notes: document.getElementById('nc-notes').value.trim(),
+      },
+      createdAt: serverTimestamp(),
+      createdBy: currentUser.uid,
+    });
+    document.getElementById('new-contract-modal').classList.add('hidden');
+    loadTeacherContracts(selectedAccount.uid);
+    showToast('Contract created — opening preview. The teacher signs it on their Documents page.', 'success');
+    window.open('/contract?id=' + ref.id, '_blank');
+  } catch (e) {
+    showToast('Failed to create: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+
+// Uploads go through /api/upload (same-origin) — the R2 worker's CORS only
+// allows the old .web.app origin, so direct browser PUTs fail on this domain.
+async function apiUpload(key, blob, contentType) {
+  const dataBase64 = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(',')[1]);
+    fr.onerror = () => rej(new Error('Could not read file'));
+    fr.readAsDataURL(blob);
+  });
+  const idToken = await auth.currentUser.getIdToken();
+  const r = await fetch('/api/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken, key, contentType, dataBase64 }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Upload failed');
+  return d.url;
+}
+
+// ── Legacy contract files stored on the user doc (pre-collection) ──
+window.removeContract = async function(at) {
+  if (!selectedAccount) return;
+  const entry = (selectedAccount.contracts || []).find(c => c.uploadedAt === at);
+  if (!entry || !confirm(`Remove contract "${entry.name}"?`)) return;
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), { contracts: arrayRemove(entry) });
+    selectedAccount.contracts = (selectedAccount.contracts || []).filter(c => c.uploadedAt !== at);
+    const idx = allTeachers.findIndex(t => t.uid === selectedAccount.uid);
+    if (idx !== -1) allTeachers[idx].contracts = selectedAccount.contracts;
+    loadTeacherContracts(selectedAccount.uid);
+    showToast('Contract removed.', 'success');
+  } catch (e) {
+    showToast('Failed to remove: ' + e.message, 'error');
+  }
+};
+
+// ── Employment certificate approvals ──
+let allCertReqs = [];
+async function loadCertReqs() {
+  const box = document.getElementById('cert-req-list');
+  try {
+    const snap = await getDocs(collection(db, 'certificateRequests'));
+    allCertReqs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.requestedAt?.seconds || 0) - (a.requestedAt?.seconds || 0));
+    renderCertReqs();
+  } catch (e) {
+    console.error('[certReqs]', e);
+    box.innerHTML = '<p class="text-xs text-error">Failed to load requests.</p>';
+  }
+}
+
+function renderCertReqs() {
+  const box = document.getElementById('cert-req-list');
+  const pending = allCertReqs.filter(r => r.status === 'pending');
+  const recent = allCertReqs.filter(r => r.status !== 'pending').slice(0, 3);
+  const badgeEl = document.getElementById('cert-req-count');
+  if (badgeEl) {
+    badgeEl.textContent = pending.length;
+    badgeEl.classList.toggle('hidden', pending.length === 0);
+  }
+  if (!pending.length && !recent.length) {
+    box.innerHTML = '<p class="text-xs text-text-muted italic">No requests yet.</p>';
+    return;
+  }
+  const row = (r) => {
+    const when = r.requestedAt?.seconds ? new Date(r.requestedAt.seconds * 1000).toLocaleDateString() : '';
+    const badge = r.status === 'approved'
+      ? '<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase">Approved</span>'
+      : r.status === 'rejected'
+      ? '<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[10px] font-bold uppercase">Rejected</span>'
+      : '';
+    return `
+    <div class="p-2.5 rounded-lg border border-border-subtle">
+      <div class="flex items-center justify-between gap-2">
+        <p class="text-sm font-semibold text-on-surface truncate">${escHtml(r.teacherName || '—')}</p>
+        ${badge}
+      </div>
+      <p class="text-[11px] font-bold ${r.certType === 'leaving' ? 'text-purple-700' : 'text-secondary'}">${r.certType === 'leaving' ? 'Certificate of Employment (leaving)' : 'Employment Certificate (재직)'}</p>
+      <p class="text-[11px] text-text-muted truncate" title="${escHtml(r.purpose || '')}">${escHtml(r.purpose || '')}${r.endDate ? ' · until ' + escHtml(r.endDate) : ''} · ${escHtml(when)}</p>
+      ${r.status === 'pending' ? `
+      <div class="flex gap-1.5 mt-2">
+        <button onclick="decideCertReq('${r.id}', true)" class="flex-1 px-2 py-1.5 bg-primary-container text-on-primary-fixed rounded-lg text-xs font-bold hover:brightness-105">Approve</button>
+        <button onclick="decideCertReq('${r.id}', false)" class="flex-1 px-2 py-1.5 border border-border-subtle rounded-lg text-xs font-bold text-text-muted hover:text-error hover:border-error">Reject</button>
+      </div>` : r.status === 'approved' ? `
+      <a href="/certificate?id=${r.id}" target="_blank" class="block text-center mt-2 px-2 py-1.5 border border-border-subtle rounded-lg text-xs font-bold text-secondary hover:border-secondary">Open Certificate</a>` : ''}
+    </div>`;
+  };
+  box.innerHTML = pending.map(row).join('') +
+    (recent.length ? '<p class="text-[10px] text-text-muted uppercase tracking-widest mt-2 mb-0.5">Recent</p>' + recent.map(row).join('') : '');
+}
+
+window.decideCertReq = async function(id, approve) {
+  const r = allCertReqs.find(x => x.id === id);
+  if (!r) return;
+  let rejectReason = '';
+  if (approve) {
+    const teacher = allTeachers.find(t => t.uid === r.teacherUid);
+    const missing = ['dob', 'idNumber', 'address'].filter(k => !(teacher && teacher[k]));
+    const msg = `Approve the ${r.certType === 'leaving' ? 'Certificate of Employment (leaving)' : 'employment certificate'} for ${r.teacherName}?\nPurpose: ${r.purpose}${r.endDate ? '\nEmployment until: ' + r.endDate : ''}` +
+      (missing.length ? `\n\n⚠ Their profile is missing: ${missing.join(', ')} — the certificate will show "—" there.` : '');
+    if (!confirm(msg)) return;
+  } else {
+    rejectReason = prompt(`Reject ${r.teacherName}'s request? Optional reason (shown to the teacher):`);
+    if (rejectReason === null) return;
+  }
+  try {
+    const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    await updateDoc(doc(db, 'certificateRequests', id), approve ? {
+      status: 'approved',
+      docNo: `CREMONA-${today}-${id.slice(0, 4).toUpperCase()}`,
+      decidedAt: serverTimestamp(),
+      decidedBy: currentUser.uid,
+    } : {
+      status: 'rejected',
+      rejectReason: rejectReason || '',
+      decidedAt: serverTimestamp(),
+      decidedBy: currentUser.uid,
+    });
+    showToast(approve ? 'Approved — the teacher can now print it.' : 'Request rejected.', 'success');
+    loadCertReqs();
+  } catch (e) {
+    showToast('Failed: ' + e.message, 'error');
+  }
+};
+
+window.manageSelectedAccess = function() {
+  if (selectedAccount) window.openAdminPermsModal(selectedAccount.uid);
+};
+
+// ── Certificate Requests view (opened from the top bar) ──
+window.openCertModal = function() {
+  document.getElementById('cert-modal').classList.remove('hidden');
+  loadCertReqs();
+};
+window.closeCertModal = function() {
+  document.getElementById('cert-modal').classList.add('hidden');
+};
+
+// ── Institution ──
+window.openInstitutionModal = function() {
+  if (!selectedAccount) return;
+  document.getElementById('institution-teacher-name').textContent = selectedAccount.name || selectedAccount.email;
+  document.getElementById('institution-input').value = selectedAccount.institution || '';
+  document.getElementById('institution-modal').classList.remove('hidden');
+  document.getElementById('institution-input').focus();
+};
+
+window.saveInstitution = async function() {
+  if (!selectedAccount) return;
+  const val = document.getElementById('institution-input').value.trim();
+  const btn = document.getElementById('save-institution-btn');
+  btn.disabled = true;
+  try {
+    await updateDoc(doc(db, 'users', selectedAccount.uid), val ? { institution: val } : { institution: deleteField() });
+    selectedAccount.institution = val;
+    const idx = allTeachers.findIndex(t => t.uid === selectedAccount.uid);
+    if (idx !== -1) allTeachers[idx].institution = val;
+    document.getElementById('institution-modal').classList.add('hidden');
+    selectAccount(selectedAccount.uid);
+    showToast('Institution updated.', 'success');
+  } catch (e) {
+    showToast('Failed to save: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+// ── Per-account activity timeline ──
+const PAGE_NAMES = {
+  '/home':'Home','/books':'Books','/reader':'Book Reader','/schedule':'Schedule',
+  '/messages':'Messages','/students-teacher':'Students','/level-tests':'Level Tests',
+  '/comments':'Comments','/salary':'Salary','/account':'My Account','/guide':'Guide',
+  '/parent/dashboard':'Parent Dashboard','/parent/schedule':'Parent Schedule',
+  '/parent/messages':'Parent Messages','/parent/payments':'Parent Payments','/parent/comments':'Parent Comments',
+  '/admin/accounts':'Admin · Accounts','/admin/security':'Admin · Security','/admin/resources':'Admin · Resources',
+  '/admin/students':'Admin · Students','/admin/level-tests':'Admin · Level Tests','/admin/schedule-admin':'Admin · Schedule',
+  '/admin/messages-admin':'Admin · Messages','/admin/comments-admin':'Admin · Comments','/admin/salary-admin':'Admin · Salary',
+  '/admin/payments-admin':'Admin · Payments','/admin/billing-admin':'Admin · Billing',
+};
+function pageName(p) {
+  p = (p || '').replace(/\.html$/, '').replace(/\/$/, '') || '/';
+  return PAGE_NAMES[p] || p;
+}
+
+window.openActivityModal = async function() {
+  if (!selectedAccount) return;
+  const uid = selectedAccount.uid;
+  document.getElementById('activity-user-name').textContent = selectedAccount.name || selectedAccount.email;
+  const body = document.getElementById('activity-body');
+  body.innerHTML = '<div class="spinner mx-auto my-10"></div>';
+  document.getElementById('activity-modal').classList.remove('hidden');
+  try {
+    const [logins, pages, books] = await Promise.all([
+      getDocs(query(collection(db, 'loginLogs'), where('uid', '==', uid), limit(80))),
+      getDocs(query(collection(db, 'activityLogs'), where('uid', '==', uid), limit(200))),
+      getDocs(query(collection(db, 'auditLogs'), where('teacherUid', '==', uid), limit(80))),
+    ]);
+    const events = [];
+    logins.forEach(d => { const x = d.data(); events.push({
+      at: x.at?.seconds || 0, icon: 'login', cls: 'bg-green-50 text-green-700',
+      title: 'Signed in', sub: [x.ip, x.location].filter(Boolean).join(' · ') || '' }); });
+    pages.forEach(d => { const x = d.data(); events.push({
+      at: x.at?.seconds || 0, icon: 'web', cls: 'bg-blue-50 text-secondary',
+      title: 'Visited ' + pageName(x.path), sub: '' }); });
+    books.forEach(d => { const x = d.data(); events.push({
+      at: x.timestamp?.seconds || 0, icon: 'menu_book', cls: 'bg-amber-50 text-amber-700',
+      title: 'Opened book', sub: x.bookTitle || x.fileAccessed || '' }); });
+    events.sort((a, b) => b.at - a.at);
+    const rows = events.slice(0, 200).map(e => {
+      const when = e.at ? new Date(e.at * 1000).toLocaleString('en-US', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', hour12:false }) : '—';
+      return `
+      <div class="flex items-center gap-3 px-1 py-2.5 border-b border-border-subtle last:border-0">
+        <div class="w-8 h-8 rounded-full ${e.cls} flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-[16px]">${e.icon}</span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-on-surface truncate">${escHtml(e.title)}</p>
+          ${e.sub ? `<p class="text-xs text-text-muted truncate">${escHtml(e.sub)}</p>` : ''}
+        </div>
+        <span class="text-xs text-text-muted whitespace-nowrap flex-shrink-0">${escHtml(when)}</span>
+      </div>`;
+    }).join('');
+    body.innerHTML = rows || `<p class="text-sm text-text-muted text-center py-10">No activity recorded yet — visits and sign-ins are tracked from now on.</p>`;
+  } catch (e) {
+    console.error('[activity]', e);
+    body.innerHTML = `<p class="text-sm text-error text-center py-8">Failed to load activity: ${escHtml(e.message)}</p>`;
+  }
+};
+
 window.doSignOut = async function() {
-  await signOut(auth); window.location.href = '/index.html';
+  await signOut(auth); window.location.href = '/';
 };
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Welcome email with login details for a newly-created parent account —
-// best-effort, doesn't block the "account created" flow if it fails to send.
-function notifyNewParentAccount(firstName, email, password) {
-  if (typeof window.sendEmail !== 'function') return;
-  const subject = 'Your Cremona Music Portal account is ready';
-  const bodyHtml = window.cremonaEmailWrapper(`
-    <p style="margin:0 0 12px;">Hi ${escHtml(firstName)},</p>
-    <p style="margin:0 0 12px;">Welcome to the Cremona Music Portal! Your parent account has been created — here are your login details:</p>
-    <p style="margin:0 0 4px;"><strong>Email:</strong> ${escHtml(email)}</p>
-    <p style="margin:0 0 12px;"><strong>Temporary password:</strong> ${escHtml(password)}</p>
-    <p style="margin:0 0 12px;">For your security, please change this password after you log in for the first time (Account &rarr; Change Password).</p>
-    ${window.cremonaEmailButton('https://cremonamusic-portal.web.app', 'Go to Portal Login')}
-  `);
-  window.sendEmail(email, subject, bodyHtml);
 }
 
 function absUrl(url) {
@@ -1080,7 +2113,29 @@ window.showToast = function(msg, type='info') {
   setTimeout(() => t.className = '', 3500);
 };
 </script>
-  <script>window.CREMONA_NAV={portal:'admin',active:'accounts',title:'Accounts'};</script>
-  <script src="/js/portal-nav.js"></script>
+
+<!-- Add Admin Modal -->
+<div id="add-admin-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-md p-6">
+    <h3 class="font-headline-sm text-on-surface">Add Admin Account</h3>
+    <p class="text-sm text-text-muted mt-1 mb-5">Creates a new admin login. They start with <b>no module access</b> — grant permissions in the Admin Access panel after creating.</p>
+    <div class="flex flex-col gap-3">
+      <div class="grid grid-cols-2 gap-3">
+        <input id="aa-firstname" type="text" placeholder="First name" class="border border-border-subtle rounded-lg px-3 py-2.5 text-sm"/>
+        <input id="aa-lastname" type="text" placeholder="Last name" class="border border-border-subtle rounded-lg px-3 py-2.5 text-sm"/>
+      </div>
+      <input id="aa-email" type="email" placeholder="name@cremonamusic.com" class="border border-border-subtle rounded-lg px-3 py-2.5 text-sm"/>
+      <input id="aa-password" type="password" placeholder="Leave blank to auto-generate" class="border border-border-subtle rounded-lg px-3 py-2.5 text-sm"/>
+    </div>
+    <div class="flex justify-end gap-3 mt-6">
+      <button onclick="document.getElementById('add-admin-modal').classList.add('hidden')"
+              class="px-4 py-2 text-sm font-semibold text-text-muted hover:text-on-surface">Cancel</button>
+      <button id="add-admin-submit" onclick="submitAddAdmin()"
+              class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold text-sm shadow">Create Account</button>
+    </div>
+  </div>
+</div>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

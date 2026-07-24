@@ -1,0 +1,433 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function role(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
+    }
+    function isAdmin() {
+      return isSignedIn() && role(request.auth.uid) == 'admin';
+    }
+    // App Store / Play review demo accounts: full read access, but writes
+    // that could touch REAL data are blocked.
+    function isDemoUser() {
+      return isSignedIn() && request.auth.uid in ['G5bddn72MeV7jlSiu07UoKy2DMy2', 'RHcukcB1E2ZMtHkIlIhiLoRd1ew2', '4grVtvd6qLZnec3dqRs5YhKz6l42'];
+    }
+    function isRealAdmin() {
+      return isAdmin() && !isDemoUser();
+    }
+    // Students this parent account is linked to. Empty list for non-parents, so
+    // membership tests against it simply fail closed.
+    function linkedStudentIds() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid))
+             .data.get('linkedStudentIds', []);
+    }
+    function convData(convId) {
+      return get(/databases/$(database)/documents/conversations/$(convId)).data;
+    }
+    function isConvMember(convId) {
+      return request.auth.uid in convData(convId).members;
+    }
+
+    // ── Users ─────────────────────────────────────────────────────────────────
+    // Any signed-in user may read profiles (needed for name/avatar resolution
+    // in messaging and dashboards). Users manage their own doc; admins manage all.
+    // Only a super admin (an admin whose doc has NO adminPermissions field, i.e.
+    // full access) may grant or change per-admin permissions.
+    function isSuperAdmin() {
+      return isAdmin() &&
+        !('adminPermissions' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data);
+    }
+    // Per-module admin permission (mirrors the web admin-guard / app HubScreen).
+    // A super admin (no adminPermissions field) passes everything; a restricted
+    // admin must carry the module key in their adminPermissions array. This is
+    // the SERVER-side enforcement for the sensitive modules below, so a limited
+    // admin cannot read the data even if a client UI fails to hide it.
+    function adminHas(key) {
+      return isSuperAdmin() ||
+        (isAdmin() && key in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.adminPermissions);
+    }
+    function realAdminHas(key) {
+      return adminHas(key) && !isDemoUser();
+    }
+    match /users/{uid} {
+      allow read:   if isSignedIn();
+
+      // Self-signup may create your OWN doc but cannot self-grant privileges:
+      //  • role must be one of the three known roles;
+      //  • an admin doc must start with an EMPTY adminPermissions — an ABSENT
+      //    adminPermissions means super admin (see isSuperAdmin), so it's barred;
+      //  • non-admins may not carry an adminPermissions field at all;
+      //  • you cannot self-link to any students (admins link parents↔students).
+      // Admin-created accounts go through a Cloud Function (Admin SDK), which
+      // bypasses these rules, so this only constrains client self-signup.
+      allow create: if isSignedIn() && request.auth.uid == uid
+        && request.resource.data.role in ['parent', 'teacher', 'admin']
+        && (request.resource.data.role != 'admin' || request.resource.data.adminPermissions == [])
+        && (request.resource.data.role == 'admin' || !('adminPermissions' in request.resource.data))
+        && (!('linkedStudentIds' in request.resource.data)
+            || request.resource.data.linkedStudentIds.size() == 0);
+
+      // Real admins may manage other users. A user editing their OWN doc may
+      // NOT escalate role, grant admin permissions, self-link students, or flip
+      // status; teachers additionally can't rename themselves. Only a super
+      // admin may ever change adminPermissions.
+      allow update: if isSignedIn()
+        && (isSuperAdmin()
+            || !request.resource.data.diff(resource.data).affectedKeys().hasAny(['adminPermissions']))
+        && (
+          isRealAdmin()
+          || (request.auth.uid == uid
+              && request.resource.data.role == resource.data.role
+              && !request.resource.data.diff(resource.data).affectedKeys()
+                   .hasAny(['adminPermissions', 'linkedStudentIds', 'status'])
+              && (resource.data.role == 'parent'
+                  || !request.resource.data.diff(resource.data).affectedKeys()
+                       .hasAny(['name', 'firstName', 'lastName'])))
+        );
+
+      allow delete: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+    }
+
+    // ── App-wide settings (digest time, etc.) — admins manage ──────────────
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow write: if isRealAdmin();
+    }
+
+    // ── In-portal notification bell ──────────────────────────────────────────
+    // Written only by Cloud Functions (admin SDK). People read their own and
+    // may mark them read or delete them.
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+    }
+
+    // ── Level test codes ─────────────────────────────────────────────────────
+    // Teachers generate codes and hand them to students; the standalone test
+    // site validates a code anonymously (get) and marks it used once the
+    // test is submitted. Teachers list only their own codes.
+    match /levelTestCodes/{codeId} {
+      allow get: if true;
+      allow list: if isSignedIn();
+      allow create: if isSignedIn()
+        && request.resource.data.teacherUid == request.auth.uid;
+      allow update: if resource.data.used == false
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['used', 'usedAt', 'studentName', 'testId', 'result']);
+      allow delete: if isSignedIn()
+        && (resource.data.teacherUid == request.auth.uid || isAdmin());
+    }
+
+    // ── Level test results ───────────────────────────────────────────────────
+    // Submitted anonymously from the test site; readable by the teacher whose
+    // code was used, and by admins.
+    match /levelTests/{testId} {
+      allow create: if request.resource.data.keys().hasOnly(
+            ['name', 'code', 'teacherUid', 'teacherName', 'reading', 'listening', 'total', 'level', 'levelLabel', 'answers', 'createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 60
+        && request.resource.data.total is int && request.resource.data.total <= 25;
+      allow read: if isSignedIn()
+        && (resource.data.teacherUid == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // ── Invitation codes ─────────────────────────────────────────────────────
+    // Validated during signup BEFORE the user is authenticated, so reads are
+    // public. usageCount is incremented right after account creation.
+    // ── Certificates ─────────────────────────────────────────────────────────
+    // Admins issue them; teachers see them for students they are assigned to;
+    // parents see them for their own children.
+    match /certificates/{certificateId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.studentId in linkedStudentIds())
+        || (isSignedIn() && request.auth.uid in
+            get(/databases/$(database)/documents/students/$(resource.data.studentId))
+              .data.assignedTeachers);
+      allow write: if isRealAdmin();
+    }
+
+    // ── Announcements ────────────────────────────────────────────────────────
+    // Readable by every signed-in user (the banner filters by audience client
+    // side); only admins compose, activate or reorder them.
+    match /announcements/{announcementId} {
+      allow read:  if isSignedIn();
+      allow write: if isRealAdmin();
+    }
+
+    match /invitationCodes/{codeId} {
+      allow read:   if true;
+      allow update: if isSignedIn();
+      allow create, delete: if isAdmin();
+    }
+
+    // ── Conversations ────────────────────────────────────────────────────────
+    // Chat policy: parents ↔ teachers and teachers ↔ teachers are allowed;
+    // parents may never chat with parents. Groups are created by teachers
+    // (or admins). Announcements are admin-only.
+    match /conversations/{convId} {
+      allow read: if isSignedIn() &&
+        (request.auth.uid in resource.data.members || isAdmin());
+
+      allow create: if isSignedIn()
+        && request.auth.uid in request.resource.data.members
+        && (!isDemoUser() || request.resource.data.members.hasOnly(['G5bddn72MeV7jlSiu07UoKy2DMy2', 'RHcukcB1E2ZMtHkIlIhiLoRd1ew2', '4grVtvd6qLZnec3dqRs5YhKz6l42']))
+        && (
+          (request.resource.data.type == 'direct'
+            && request.resource.data.members.size() == 2
+            && !(role(request.resource.data.members[0]) == 'parent'
+                 && role(request.resource.data.members[1]) == 'parent'))
+          || (request.resource.data.type == 'group'
+            && role(request.auth.uid) in ['teacher', 'admin'])
+          || (request.resource.data.type == 'announcement'
+            && role(request.auth.uid) == 'admin')
+          // Support threads: any user opens a private thread with the admins
+          || (request.resource.data.type == 'support'
+            && request.resource.data.members.size() == 1)
+        );
+
+      // Members may update (lastMessage/lastRead bookkeeping, leaving a group).
+      allow update: if isSignedIn() &&
+        (request.auth.uid in resource.data.members || isAdmin());
+
+      // DMs can be deleted by either member; groups by their creator; admins by anyone.
+      allow delete: if isSignedIn() && (
+        isAdmin()
+        || (resource.data.type == 'direct' && request.auth.uid in resource.data.members)
+        || (resource.data.type == 'group'  && resource.data.createdBy == request.auth.uid)
+      );
+    }
+
+    // ── Messages ─────────────────────────────────────────────────────────────
+    match /messages/{msgId} {
+      allow read: if isSignedIn() &&
+        (isConvMember(resource.data.conversationId) || isAdmin());
+
+      // Members post in their conversations; admins may post anywhere (needed
+      // to answer support threads and moderate).
+      allow create: if isSignedIn()
+        && request.resource.data.senderUid == request.auth.uid
+        && (isConvMember(request.resource.data.conversationId)
+            || role(request.auth.uid) == 'admin')
+        && (convData(request.resource.data.conversationId).type != 'announcement'
+            || role(request.auth.uid) == 'admin');
+
+      // readBy receipts
+      allow update: if isSignedIn() &&
+        (isConvMember(resource.data.conversationId) || isAdmin());
+
+      // Needed for the delete-chat feature (members purge the thread) and admin moderation.
+      allow delete: if isSignedIn() &&
+        (isConvMember(resource.data.conversationId) || isAdmin());
+    }
+
+    // ── Presence ─────────────────────────────────────────────────────────────
+    match /userPresence/{uid} {
+      allow read:  if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ── Students ─────────────────────────────────────────────────────────────
+    match /students/{studentId} {
+      allow read:  if isSignedIn();
+
+      // The public enrolment form (enroll.html) runs unauthenticated, so it may
+      // create — and only create — a student that is explicitly marked as an
+      // unreviewed enrolment. Everything else about students stays admin-only.
+      allow create: if isRealAdmin()
+        || (request.resource.data.registeredViaEnrollmentForm == true
+            && request.resource.data.status == 'pending'
+            && request.resource.data.assignedTeachers.size() == 0)
+        // A signed-in parent adding a child from the dashboard.
+        || (isSignedIn() && request.auth.token.email in request.resource.data.parentEmails);
+
+      allow update, delete: if isRealAdmin();
+    }
+
+    // ── Sessions (schedule) ──────────────────────────────────────────────────
+    match /sessions/{sessionId} {
+      allow read:   if isSignedIn();
+      allow create, delete: if isRealAdmin();
+      // Teachers record attendance / reschedule their own sessions, but only
+      // admins may change the status (e.g. cancel a class).
+      allow update: if isSignedIn() &&
+        (isRealAdmin() ||
+         (resource.data.teacherUid == request.auth.uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])));
+    }
+
+    // ── Books ────────────────────────────────────────────────────────────────
+    match /books/{bookId} {
+      allow read:  if isSignedIn();
+      allow write: if isRealAdmin();
+    }
+
+    // ── Comments ──────────────────────────────────────────────────────────────
+    // ── Lesson comments ──────────────────────────────────────────────────────
+    // A teacher owns their drafts outright. Once a comment is sent it is locked:
+    // the author may no longer edit it, and it becomes readable by the linked
+    // parents. Admins read everything but never author a comment.
+    match /comments/{commentId} {
+      allow read: if isAdmin()
+        || (isSignedIn() && resource.data.teacherUid == request.auth.uid)
+        || (isSignedIn() && resource.data.status == 'sent' &&
+            resource.data.studentId in linkedStudentIds());
+
+      allow create: if isSignedIn()
+        && request.resource.data.teacherUid == request.auth.uid
+        && request.resource.data.status in ['draft', 'sent'];
+
+      // Drafts stay editable by their author; sent comments are immutable.
+      allow update: if isSignedIn()
+        && resource.data.teacherUid == request.auth.uid
+        && resource.data.status == 'draft';
+
+      allow delete: if isRealAdmin()
+        || (isSignedIn() && resource.data.teacherUid == request.auth.uid
+            && resource.data.status == 'draft');
+    }
+
+    // ── Salaries ─────────────────────────────────────────────────────────────
+    // Owner (the teacher) always sees their own; admins need the 'salary' module.
+    match /salaries/{salaryId} {
+      allow read:  if isSignedIn() &&
+        (resource.data.teacherUid == request.auth.uid || adminHas('salary'));
+      allow write: if realAdminHas('salary');
+    }
+
+    // ── Payments & plans ─────────────────────────────────────────────────────
+    // Owner (the parent) always sees their own; admins need the 'payments' module.
+    match /payments/{paymentId} {
+      allow read:  if isSignedIn() &&
+        (resource.data.parentUid == request.auth.uid || adminHas('payments'));
+      allow write: if realAdminHas('payments');
+    }
+    match /paymentPlans/{parentUid} {
+      allow read:  if isSignedIn() && (request.auth.uid == parentUid || adminHas('payments'));
+      allow write: if realAdminHas('payments');
+    }
+
+    // ── Audit logs ───────────────────────────────────────────────────────────
+    // Teachers read their own logs (home page "Recently Viewed"); admins read all.
+    // ── Homework: teacher assigns, parents of the student submit photos ──────
+    function isParentOfStudent(studentId) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid))
+               .data.get('linkedStudentIds', []).hasAny([studentId]);
+    }
+    match /homework/{id} {
+      allow create: if isSignedIn()
+        && (isAdmin() || request.resource.data.teacherUid == request.auth.uid);
+      allow read: if isSignedIn()
+        && (isAdmin() || resource.data.teacherUid == request.auth.uid
+            || isParentOfStudent(resource.data.studentId));
+      allow update: if isSignedIn()
+        && (isAdmin() || resource.data.teacherUid == request.auth.uid
+            || (isParentOfStudent(resource.data.studentId)
+                && request.resource.data.status == 'submitted'
+                && request.resource.data.diff(resource.data).affectedKeys()
+                     .hasOnly(['status', 'submittedAt', 'submissionPhotos', 'submissionNote'])));
+      allow delete: if isSignedIn()
+        && (isAdmin() || resource.data.teacherUid == request.auth.uid);
+    }
+
+    // ── Monthly report requests (admin creates via server; teacher reads own) ─
+    match /reportRequests/{id} {
+      allow read: if isSignedIn()
+        && (resource.data.teacherUid == request.auth.uid || isAdmin());
+      allow create, update, delete: if isRealAdmin();
+    }
+
+    // ── Employment contracts (files + auto-filled, with e-signature) ─────────
+    // Admins create; the teacher may only update the signature fields of
+    // their own contract.
+    match /contracts/{id} {
+      allow read: if isSignedIn()
+        && (resource.data.teacherUid == request.auth.uid || isAdmin());
+      allow create, delete: if isRealAdmin();
+      allow update: if isRealAdmin()
+        || (isSignedIn() && resource.data.teacherUid == request.auth.uid
+            && resource.data.status == 'pending_signature'
+            && request.resource.data.status == 'signed'
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['status', 'signedAt', 'signatureUrl', 'signedName']));
+    }
+
+    // ── Employment certificate requests ──────────────────────────────────────
+    // Teachers request; admins approve/reject; the approved doc renders at
+    // /certificate?id=… for the owner or an admin.
+    match /certificateRequests/{id} {
+      allow create: if isSignedIn()
+        && request.resource.data.teacherUid == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow read: if isSignedIn()
+        && (resource.data.teacherUid == request.auth.uid || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if isAdmin()
+        || (isSignedIn() && resource.data.teacherUid == request.auth.uid
+            && resource.data.status == 'pending');
+    }
+
+    // ── Login & page-activity logs (admin security page) ─────────────────────
+    // loginLogs are written only by the logLogin Cloud Function (admin SDK).
+    match /loginLogs/{id} {
+      allow read: if adminHas('security');
+    }
+    match /activityLogs/{id} {
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow read: if adminHas('security');
+    }
+
+    match /auditLogs/{logId} {
+      allow create: if isSignedIn();
+      allow read:   if isSignedIn() &&
+        (isAdmin() || resource.data.teacherUid == request.auth.uid);
+    }
+
+    // ── Reader annotations (per-teacher private) ─────────────────────────────
+    match /annotations/{noteId} {
+      allow read, delete: if isSignedIn() &&
+        (resource.data.teacherUid == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && request.resource.data.teacherUid == request.auth.uid;
+    }
+    match /drawingAnnotations/{annotId} {
+      allow read, delete: if isSignedIn() &&
+        (resource.data.teacherUid == request.auth.uid || isAdmin());
+      allow create, update: if isSignedIn() && request.resource.data.teacherUid == request.auth.uid;
+    }
+    // Mobile app's book-level notes (ReaderScreen.js) — owner keyed by userUid
+    match /bookNotes/{noteId} {
+      allow read, delete: if isSignedIn() &&
+        (resource.data.userUid == request.auth.uid || isAdmin());
+      allow create, update: if isSignedIn() && request.resource.data.userUid == request.auth.uid;
+    }
+
+    // ── Two-factor login challenges ──────────────────────────────────────
+    // The client logging in creates a challenge for its own uid; the enrolled
+    // device approves it — but approval is NOT done by a direct client write
+    // (a password-only attacker authenticates as the same uid and could self-
+    // approve). Instead the status is only ever flipped to approved/denied by
+    // a Cloud Function (approveLoginChallenge / verifyBackupCode) using the
+    // Admin SDK, which requires the device secret the attacker doesn't have.
+    // So clients may create/read/delete their own challenge but NOT update it.
+    match /loginChallenges/{challengeId} {
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.status == 'pending';
+      allow read, delete: if isSignedIn() && resource.data.uid == request.auth.uid;
+      allow update: if false; // functions only
+    }
+
+    // ── Two-factor secrets (device-secret hash + backup-code hashes) ──────
+    // Owner writes them at enrollment; NOBODY reads from the client —
+    // verification is server-side only (Admin SDK bypasses this).
+    match /twoFactorSecrets/{uid} {
+      allow write: if isSignedIn() && request.auth.uid == uid;
+      allow read:  if false;
+    }
+  }
+}

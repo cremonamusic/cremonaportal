@@ -2,7 +2,6 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Comments | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -13,16 +12,16 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#C9A227", "primary-container": "#F5E5B0", "on-primary-container": "#8B6020",
-          "on-primary-fixed": "#3E2C23", "primary-fixed": "#F0E8C0", "primary-fixed-dim": "#D4A520",
-          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0", "on-secondary-fixed": "#3E2C23",
-          "secondary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
-          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "surface-container": "#F0E8D6",
-          "surface-container-low": "#F5EFE4", "surface-container-high": "#EAE0CE",
-          "surface-container-highest": "#E4D8C2", "surface-container-lowest": "#FFFDF9",
-          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle": "#E8DCC8", "outline-variant": "#D4BCA0", "outline": "#7A5230",
-          "text-muted": "#8B6B52", "error": "#ba1a1a", "error-container": "#ffdad6",
+          "primary": "#3B2A1E", "primary-container": "#C8A951", "on-primary-container": "#5A4A22",
+          "on-primary-fixed": "#2A1D14", "primary-fixed": "#F0E2C4", "primary-fixed-dim": "#C8A951",
+          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC", "on-secondary-fixed": "#2A1D14",
+          "secondary-container": "#9A7524", "on-secondary-container": "#FFFDF8",
+          "surface": "#FAF6EF", "surface-white": "#FFFFFF", "surface-container": "#F1E9DC",
+          "surface-container-low": "#F6F0E6", "surface-container-high": "#EAE0D0",
+          "surface-container-highest": "#E3D8C6", "surface-container-lowest": "#ffffff",
+          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle": "#E2D7C6", "outline-variant": "#D8C5A8", "outline": "#8A7A63",
+          "text-muted": "#7A6A57", "error": "#B3261E", "error-container": "#F9DEDC",
           "background": "#FAF6EF"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
@@ -33,31 +32,21 @@
 <style>
   body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,0.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.error   { background:#B3261E;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  #toast.info    { background:#7A5A16;color:#fff; }
   .student-item { cursor: pointer; border-left: 2px solid transparent; transition: background .12s ease, border-color .12s ease; }
-  .student-item.active { background: rgba(0,88,187,0.06); border-left-color: #A07818; }
-  .student-item:hover:not(.active) { background: #f3f4f5; }
+  .student-item.active { background: rgba(122,90,22,0.06); border-left-color: #7A5A16; }
+  .student-item:hover:not(.active) { background: #F6F0E6; }
+  .cat-feedback-input { min-height: 56px; }
 </style>
-<style id="cremona-palette">
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
-<body class="text-on-surface min-h-screen flex flex-col">
+<body class="text-on-surface min-h-screen flex flex-col" data-portal="teacher" data-page="comments">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -68,11 +57,35 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
+<!-- Header -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/home"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/level-tests"      class="whitespace-nowrap text-sm font-medium text-text-muted hover:text-primary transition-colors">Level Tests</a>
+        <a href="/comments"          class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Comments</a>
+        <a href="/salary"           class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
+      </nav>
+    </div>
+    <a href="/account"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </a>
+  </div>
+</header>
+
 <main class="flex-grow max-w-5xl mx-auto w-full px-6 py-8">
 
   <div class="mb-6">
-    <h1 class="text-2xl font-extrabold text-on-surface">Student Comments</h1>
-    <p class="text-sm text-text-muted mt-1">Select a student to write or view comments.</p>
+    <h1 class="text-2xl font-extrabold text-on-surface">Student Progress Comments</h1>
+    <p class="text-sm text-text-muted mt-1">Select a student to write or view reports.</p>
   </div>
 
   <!-- Mobile student selector -->
@@ -106,33 +119,98 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
       <!-- Empty state -->
       <div id="empty-state" class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm p-12 text-center">
-        <span class="material-symbols-outlined text-5xl text-outline block mb-3" style="font-variation-settings:'FILL' 1;opacity:.3;">chat</span>
+        <span class="material-symbols-outlined text-5xl text-outline block mb-3" style="font-variation-settings:'FILL' 1;opacity:.3;">assignment</span>
         <p class="font-semibold text-on-surface-variant">Select a student to begin</p>
-        <p class="text-sm text-text-muted mt-1">Choose a student from the list to write or view their comments.</p>
+        <p class="text-sm text-text-muted mt-1">Choose a student from the list to write or view their reports.</p>
       </div>
 
       <!-- Comment form -->
-      <div id="comment-form-section" class="hidden">
+      <div id="report-form-section" class="hidden">
         <div class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm">
           <div class="px-6 py-4 border-b border-border-subtle flex items-center justify-between gap-3">
             <h2 id="form-title" class="font-bold text-base text-on-surface">Write Comment</h2>
-            <span id="editing-badge" class="hidden px-2.5 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full">Editing Draft</span>
+            <span id="editing-badge" class="hidden px-2.5 py-0.5 bg-secondary/10 text-secondary text-xs font-bold rounded-full">Editing Declined Comment</span>
           </div>
 
-          <div class="px-6 py-5 flex flex-col gap-5">
+          <div class="px-6 py-5 flex flex-col gap-6">
 
-            <!-- Lesson date -->
-            <div>
-              <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Lesson Date <span class="text-error">*</span></label>
-              <input id="f-lesson-date" type="date"
-                     class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+            <!-- Date range + class info -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Start Date <span class="text-error">*</span></label>
+                <input id="f-date-start" type="date"
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">End Date <span class="text-error">*</span></label>
+                <input id="f-date-end" type="date"
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Class Time</label>
+                <input id="f-class-time" type="text" placeholder="e.g. Mon/Wed 4:00 PM"
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Google Meet Link</label>
+                <input id="f-meet-link" type="url" placeholder="https://meet.google.com/..."
+                       class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-surface-container-low"
+                       readonly title="Assigned by admin. Contact admin to update your Meet link."/>
+              </div>
             </div>
 
-            <!-- Comment text -->
+            <!-- Books studied -->
             <div>
-              <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Comment <span class="text-error">*</span></label>
-              <textarea id="f-comment-text" rows="8"
-                        placeholder="Write your comment about this student's progress, achievements, areas to work on, or anything else you'd like the parent to know..."
+              <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Books Studied</label>
+              <div class="relative" id="books-wrapper">
+                <button type="button" id="books-toggle-btn" onclick="toggleBooksDropdown()"
+                        class="w-full flex items-center justify-between border border-border-subtle rounded-lg px-3 py-2.5 text-sm bg-white hover:bg-surface-container-low transition-colors">
+                  <span id="books-btn-label" class="text-text-muted">Select books...</span>
+                  <span class="material-symbols-outlined text-[18px] text-text-muted">expand_more</span>
+                </button>
+                <div id="books-dropdown" class="hidden absolute z-20 w-full mt-1 bg-white border border-border-subtle rounded-xl shadow-lg overflow-hidden">
+                  <div class="p-2 border-b border-border-subtle">
+                    <input id="books-search" type="text" placeholder="Search books..." oninput="renderBooksDropdown()"
+                           class="w-full px-3 py-2 text-sm border border-border-subtle rounded-lg outline-none focus:border-secondary"/>
+                  </div>
+                  <div id="books-dropdown-list" class="max-h-52 overflow-y-auto p-1">
+                    <p class="text-center text-text-muted text-sm py-3">Loading books...</p>
+                  </div>
+                </div>
+              </div>
+              <div id="selected-books-chips" class="flex flex-wrap gap-2 mt-2"></div>
+            </div>
+
+            <!-- Feedback categories -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-semibold text-on-surface-variant">Feedback Categories</label>
+                <button type="button" onclick="addCategory()"
+                        class="flex items-center gap-1 text-xs font-semibold text-secondary hover:opacity-80 transition-opacity">
+                  <span class="material-symbols-outlined text-[14px]">add</span>Add Category
+                </button>
+              </div>
+              <div id="categories-list" class="flex flex-col gap-3"></div>
+            </div>
+
+            <!-- Areas for Enhancement -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="text-xs font-semibold text-on-surface-variant">Areas for Enhancement</label>
+                <button type="button" onclick="addEnhancement()"
+                        class="flex items-center gap-1 text-xs font-semibold text-secondary hover:opacity-80 transition-opacity">
+                  <span class="material-symbols-outlined text-[14px]">add</span>Add Item
+                </button>
+              </div>
+              <div id="enhancements-list" class="flex flex-col gap-2"></div>
+              <p id="enhancements-empty" class="text-sm text-text-muted italic">No items added yet.</p>
+            </div>
+
+            <!-- Overall evaluation -->
+            <div>
+              <label class="block text-xs font-semibold text-on-surface-variant mb-1.5">Overall Evaluation</label>
+              <textarea id="f-evaluation" rows="4"
+                        placeholder="Write a summary of the student's overall progress and performance..."
                         class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-y"></textarea>
             </div>
 
@@ -153,28 +231,28 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
               <button onclick="saveDraft()" id="draft-btn"
                       class="px-4 py-2.5 text-sm font-semibold border border-border-subtle text-on-surface-variant bg-white rounded-lg hover:bg-surface-container transition-all active:scale-95 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[16px]">save</span>
-                Save Draft
+                Save as Draft
               </button>
-              <button onclick="sendComment()" id="send-btn"
+              <button onclick="submitReport()" id="submit-btn"
                       class="px-6 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">send</span>
-                Send
+                Submit Comment
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Comments list -->
-      <div id="comments-list-section" class="hidden">
+      <!-- Submitted reports list -->
+      <div id="reports-list-section" class="hidden">
         <div class="bg-surface-white border border-border-subtle rounded-2xl shadow-sm">
           <div class="px-6 py-4 border-b border-border-subtle">
             <h2 class="font-bold text-base text-on-surface">Comments</h2>
           </div>
-          <div id="comments-list-body">
+          <div id="reports-list-body">
             <div class="flex items-center gap-2 px-6 py-6 text-text-muted text-sm">
               <div class="spinner" style="width:16px;height:16px;border-width:2px"></div>
-              Loading comments...
+              Loading reports...
             </div>
           </div>
         </div>
@@ -187,12 +265,11 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
   <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-    <p class="text-xs text-text-muted">© 2025 Cremona Music.</p>
-    <a href="/account.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+    <p class="text-xs text-text-muted">© 2026 Cremona Music Portal.</p>
+    <a href="/account" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
   </div>
 </footer>
 
-<script src="/js/email.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -202,57 +279,71 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
 // ── State ──────────────────────────────────────────────────────────────────────
-let currentUser      = null;
-let allStudents      = [];
-let selectedStudent  = null;
-let myComments       = [];
-let editingCommentId = null;
-let autoSaveInterval = null;
+let currentUser     = null;
+let allStudents     = [];
+let allBooks        = [];
+let selectedStudent = null;
+let myReports       = [];
+let editingReportId = null;
+let selectedBooks   = [];
+let categories      = [];
+let enhancements    = [];
+let booksOpen           = false;
+let autoSaveInterval    = null;
+
+const DEFAULT_CATS = ['Pronunciation', 'Fluency', 'Vocabulary', 'Speaking', 'Listening', 'Reading'];
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists()) { await signOut(auth); window.location.href = '/index.html'; return; }
+    if (!snap.exists()) { await signOut(auth); window.location.href = '/'; return; }
     const data = snap.data();
     if (data.status === 'inactive' || data.status === 'deleted') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
-    if (data.role === 'admin')   { window.location.href = '/admin/accounts.html'; return; }
-    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+    if (data.role === 'admin')    { window.location.href = '/admin/accounts'; return; }
+    if (data.role !== 'teacher')  { window.location.href = '/'; return; }
 
     const displayName = (data.firstName && data.lastName)
       ? `${data.firstName} ${data.lastName}`
       : (data.name || data.email || 'Teacher');
-    currentUser = { uid: user.uid, name: displayName };
+    currentUser = { uid: user.uid, name: displayName, googleMeetLink: data.googleMeetLink || '' };
 
-    await loadStudents();
+    await Promise.all([loadStudents(), loadBooks()]);
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
     console.error(e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
 
-// ── Load students ──────────────────────────────────────────────────────────────
+// ── Load data ──────────────────────────────────────────────────────────────────
 async function loadStudents() {
   const q    = query(collection(db, 'students'), where('assignedTeachers', 'array-contains', currentUser.uid));
   const snap = await getDocs(q);
   allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
   renderStudentList();
+}
+
+async function loadBooks() {
+  const snap = await getDocs(collection(db, 'books'));
+  allBooks = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .filter(b => b.visibility !== false)
+    .sort((a, b) => (a.title || '').localeCompare(b.title || ''));
 }
 
 // ── Render student list ────────────────────────────────────────────────────────
@@ -281,6 +372,7 @@ function renderStudentList() {
     </div>
   `).join('');
 
+  // Event delegation for sidebar
   list.addEventListener('click', e => {
     const item = e.target.closest('[data-sid]');
     if (item) selectStudentById(item.dataset.sid);
@@ -302,204 +394,340 @@ window.selectStudentById = function(sid) {
 };
 
 async function selectStudent(student) {
-  selectedStudent  = student;
-  editingCommentId = null;
+  selectedStudent = student;
+  editingReportId = null;
 
   document.querySelectorAll('.student-item').forEach(el => el.classList.remove('active'));
   const activeEl = document.getElementById(`si-${student.id}`);
   if (activeEl) activeEl.classList.add('active');
 
   document.getElementById('empty-state').classList.add('hidden');
-  document.getElementById('comment-form-section').classList.remove('hidden');
-  document.getElementById('comments-list-section').classList.remove('hidden');
-  document.getElementById('form-title').textContent = `Write Comment — ${escHtml(student.fullName || 'Student')}`;
+  document.getElementById('report-form-section').classList.remove('hidden');
+  document.getElementById('reports-list-section').classList.remove('hidden');
+  document.getElementById('form-title').textContent =
+    `Write Comment — ${escHtml(student.fullName || 'Student')}`;
 
   resetForm();
   startAutoSave();
-  await loadMyComments(student.id);
+  await loadMyReports(student.id);
 }
 
 function resetForm() {
-  editingCommentId = null;
+  editingReportId  = null;
+  selectedBooks    = [];
+  categories       = DEFAULT_CATS.map(name => ({ name, feedback: '' }));
+  enhancements     = [];
 
-  document.getElementById('f-lesson-date').value  = '';
-  document.getElementById('f-comment-text').value = '';
+  document.getElementById('f-date-start').value  = '';
+  document.getElementById('f-date-end').value    = '';
+  document.getElementById('f-class-time').value  = '';
+  document.getElementById('f-meet-link').value   = currentUser?.googleMeetLink || '';
+  document.getElementById('f-evaluation').value  = '';
   document.getElementById('editing-badge').classList.add('hidden');
   document.getElementById('cancel-edit-btn').classList.add('hidden');
-
-  const sendBtn = document.getElementById('send-btn');
-  sendBtn.disabled = false;
-  sendBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Send';
-
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = false;
+  submitBtn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Submit Comment';
   const draftBtn = document.getElementById('draft-btn');
   draftBtn.disabled = false;
-  draftBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">save</span> Save Draft';
-
+  draftBtn.innerHTML = '<span class="material-symbols-outlined text-[16px]">save</span> Save as Draft';
   document.getElementById('autosave-indicator').classList.add('hidden');
   stopAutoSave();
+
+  renderSelectedBooks();
+  renderCategories();
+  renderEnhancements();
 }
 
-// ── Send comment ───────────────────────────────────────────────────────────────
-window.sendComment = async function() {
+// ── Books dropdown ─────────────────────────────────────────────────────────────
+window.toggleBooksDropdown = function() {
+  booksOpen = !booksOpen;
+  const dd = document.getElementById('books-dropdown');
+  if (booksOpen) {
+    dd.classList.remove('hidden');
+    renderBooksDropdown();
+    document.getElementById('books-search').focus();
+  } else {
+    dd.classList.add('hidden');
+  }
+};
+
+window.renderBooksDropdown = function() {
+  const q       = document.getElementById('books-search').value.trim().toLowerCase();
+  const visible = allBooks.filter(b => !q || (b.title || '').toLowerCase().includes(q));
+  const list    = document.getElementById('books-dropdown-list');
+  if (!visible.length) {
+    list.innerHTML = `<p class="text-center text-text-muted text-sm py-3">No books found.</p>`;
+    return;
+  }
+  list.innerHTML = visible.map(b => {
+    const sel = selectedBooks.some(s => s.bookId === b.id);
+    return `<div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-surface-container-low cursor-pointer${sel ? ' bg-secondary/5' : ''}"
+                 data-bkid="${escAttr(b.id)}" data-bktitle="${escAttr(b.title || '')}">
+      <span class="material-symbols-outlined text-[18px] ${sel ? 'text-secondary' : 'text-text-muted'}" style="font-variation-settings:'FILL' ${sel ? '1' : '0'};">${sel ? 'check_box' : 'check_box_outline_blank'}</span>
+      <span class="text-sm ${sel ? 'font-semibold text-on-surface' : 'text-on-surface-variant'}">${escHtml(b.title || 'Untitled')}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('books-dropdown-list').addEventListener('click', e => {
+    const item = e.target.closest('[data-bkid]');
+    if (!item) return;
+    toggleBook(item.dataset.bkid, item.dataset.bktitle);
+  }, { once: true });
+};
+
+window.toggleBook = function(bookId, title) {
+  const idx = selectedBooks.findIndex(s => s.bookId === bookId);
+  if (idx === -1) selectedBooks.push({ bookId, title });
+  else selectedBooks.splice(idx, 1);
+  renderBooksDropdown();
+  renderSelectedBooks();
+};
+
+function renderSelectedBooks() {
+  const chips = document.getElementById('selected-books-chips');
+  const label = document.getElementById('books-btn-label');
+  if (!selectedBooks.length) {
+    chips.innerHTML = '';
+    label.textContent = 'Select books...';
+    label.className = 'text-text-muted';
+    return;
+  }
+  label.textContent = `${selectedBooks.length} book${selectedBooks.length !== 1 ? 's' : ''} selected`;
+  label.className = 'text-on-surface font-semibold text-sm';
+  chips.innerHTML = selectedBooks.map((b, i) => `
+    <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-secondary/10 text-secondary text-xs font-semibold rounded-full">
+      ${escHtml(b.title)}
+      <button type="button" data-bi="${i}" class="rm-book-btn hover:text-error transition-colors ml-0.5">
+        <span class="material-symbols-outlined text-[13px]">close</span>
+      </button>
+    </span>
+  `).join('');
+  chips.querySelectorAll('.rm-book-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedBooks.splice(Number(btn.dataset.bi), 1);
+      renderSelectedBooks();
+      if (booksOpen) renderBooksDropdown();
+    });
+  });
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#books-wrapper')) {
+    document.getElementById('books-dropdown').classList.add('hidden');
+    booksOpen = false;
+  }
+});
+
+// ── Categories ─────────────────────────────────────────────────────────────────
+function syncCatsFromDOM() {
+  document.querySelectorAll('.cat-row').forEach((row, i) => {
+    if (categories[i] === undefined) return;
+    const ni = row.querySelector('.cat-name-input');
+    const fi = row.querySelector('.cat-feedback-input');
+    if (ni) categories[i].name     = ni.value;
+    if (fi) categories[i].feedback = fi.value;
+  });
+}
+
+window.addCategory = function() {
+  syncCatsFromDOM();
+  categories.push({ name: '', feedback: '' });
+  renderCategories();
+  const inputs = document.querySelectorAll('.cat-name-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+};
+
+window.removeCategory = function(i) {
+  syncCatsFromDOM();
+  categories.splice(i, 1);
+  renderCategories();
+};
+
+function renderCategories() {
+  const list = document.getElementById('categories-list');
+  if (!categories.length) {
+    list.innerHTML = `<p class="text-sm text-text-muted italic">No categories. Click "Add Category" to begin.</p>`;
+    return;
+  }
+  list.innerHTML = categories.map((cat, i) => `
+    <div class="cat-row border border-border-subtle rounded-xl overflow-hidden">
+      <div class="flex items-center gap-2 px-3 py-2 bg-surface-container-low border-b border-border-subtle">
+        <input type="text" value="${escHtml(cat.name)}" placeholder="Category (e.g. Pronunciation)"
+               class="cat-name-input flex-1 text-sm font-semibold bg-transparent border-none outline-none focus:ring-0 placeholder-text-muted"/>
+        <button type="button" data-ri="${i}" class="rm-cat-btn text-text-muted hover:text-error transition-colors p-0.5">
+          <span class="material-symbols-outlined text-[16px]">close</span>
+        </button>
+      </div>
+      <textarea rows="2" placeholder="Write feedback for this category..."
+                class="cat-feedback-input w-full px-3 py-2 text-sm border-none outline-none focus:ring-0 resize-y bg-white">${escHtml(cat.feedback)}</textarea>
+    </div>
+  `).join('');
+  list.querySelectorAll('.rm-cat-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeCategory(Number(btn.dataset.ri)));
+  });
+}
+
+// ── Enhancements ───────────────────────────────────────────────────────────────
+function syncEnhFromDOM() {
+  document.querySelectorAll('.enh-input').forEach((input, i) => {
+    if (i < enhancements.length) enhancements[i] = input.value;
+  });
+}
+
+window.addEnhancement = function() {
+  syncEnhFromDOM();
+  enhancements.push('');
+  renderEnhancements();
+  const inputs = document.querySelectorAll('.enh-input');
+  if (inputs.length) inputs[inputs.length - 1].focus();
+};
+
+window.removeEnhancement = function(i) {
+  syncEnhFromDOM();
+  enhancements.splice(i, 1);
+  renderEnhancements();
+};
+
+function renderEnhancements() {
+  const list  = document.getElementById('enhancements-list');
+  const empty = document.getElementById('enhancements-empty');
+  if (!enhancements.length) {
+    list.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  list.innerHTML = enhancements.map((item, i) => `
+    <div class="flex items-center gap-2">
+      <span class="text-text-muted">•</span>
+      <input type="text" value="${escHtml(item)}" placeholder="e.g. Work on consonant clusters"
+             class="enh-input flex-1 border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      <button type="button" data-ei="${i}" class="rm-enh-btn text-text-muted hover:text-error transition-colors">
+        <span class="material-symbols-outlined text-[16px]">close</span>
+      </button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.rm-enh-btn').forEach(btn => {
+    btn.addEventListener('click', () => removeEnhancement(Number(btn.dataset.ei)));
+  });
+}
+
+// ── Submit ─────────────────────────────────────────────────────────────────────
+window.submitReport = async function() {
   if (!selectedStudent) return;
+  syncCatsFromDOM();
+  syncEnhFromDOM();
 
-  const lessonDate  = document.getElementById('f-lesson-date').value;
-  const commentText = document.getElementById('f-comment-text').value.trim();
+  const dateStart  = document.getElementById('f-date-start').value;
+  const dateEnd    = document.getElementById('f-date-end').value;
+  const classTime   = document.getElementById('f-class-time').value.trim();
+  const meetLink    = document.getElementById('f-meet-link').value.trim();
+  const evaluation  = document.getElementById('f-evaluation').value.trim();
 
-  if (!lessonDate) { showToast('Please select a lesson date.', 'error'); return; }
-  if (!commentText)           { showToast('Comment text is required before sending.', 'error'); return; }
+  if (!dateStart || !dateEnd) { showToast('Please select a date range.', 'error'); return; }
 
-  const btn = document.getElementById('send-btn');
+  const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#261a00;border-color:rgba(38,26,0,.2)"></div><span>Sending...</span>';
+  btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-top-color:#2A1D14;border-color:rgba(42,29,20,.2)"></div><span>Submitting...</span>';
 
   try {
     const payload = {
-      studentId:      selectedStudent.id,
-      studentName:    selectedStudent.fullName || '',
-      teacherUid:     currentUser.uid,
-      teacherName:    currentUser.name,
-      lessonDate,
-      commentText,
-      status:         'sent',
-      sentAt:         serverTimestamp(),
-      updatedAt:      serverTimestamp(),
+      studentId:        selectedStudent.id,
+      studentName:      selectedStudent.fullName || '',
+      teacherUid:       currentUser.uid,
+      teacherName:      currentUser.name,
+      dateRangeStart:   dateStart,
+      dateRangeEnd:     dateEnd,
+      classTime,
+      googleMeetLink:   meetLink,
+      books:            selectedBooks,
+      categories:       categories.filter(c => c.name.trim()),
+      enhancementAreas: enhancements.filter(e => e.trim()),
+      evaluation,
+      status:           'pending',
+      declineReason:    '',
+      updatedAt:        serverTimestamp(),
     };
 
-    if (editingCommentId) {
-      await updateDoc(doc(db, 'reports', editingCommentId), payload);
+    if (editingReportId) {
+      const prevReport = myReports.find(r => r.id === editingReportId);
+      await updateDoc(doc(db, 'reports', editingReportId), payload);
+      showToast(
+        prevReport?.status === 'draft' ? 'Draft submitted for approval.' : 'Comment resubmitted for review.',
+        'success'
+      );
     } else {
       payload.createdAt = serverTimestamp();
-      await addDoc(collection(db, 'reports'), payload);
+      await addDoc(collection(db, 'comments'), payload);
+      showToast('Comment submitted successfully.', 'success');
     }
-
-    showToast('Comment sent successfully.', 'success');
-    notifyParentsOfNewComment(selectedStudent, currentUser.name);
     resetForm();
     startAutoSave();
-    await loadMyComments(selectedStudent.id);
+    await loadMyReports(selectedStudent.id);
   } catch (e) {
-    console.error('[sendComment]', e);
-    showToast('Failed to send: ' + e.message, 'error');
+    console.error('[submitReport]', e);
+    showToast('Failed to submit: ' + e.message, 'error');
     btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Send';
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Submit Comment';
   }
 };
 
 window.cancelEdit = function() { resetForm(); };
 
-// ── Save as Draft ──────────────────────────────────────────────────────────────
-window.saveDraft = async function(silent = false) {
-  if (!selectedStudent) return;
-
-  const lessonDate  = document.getElementById('f-lesson-date').value;
-  const commentText = document.getElementById('f-comment-text').value.trim();
-
-  const btn = document.getElementById('draft-btn');
-  if (!silent) {
-    btn.disabled = true;
-    btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Saving...';
-  }
-
-  try {
-    const payload = {
-      studentId:      selectedStudent.id,
-      studentName:    selectedStudent.fullName || '',
-      teacherUid:     currentUser.uid,
-      teacherName:    currentUser.name,
-      lessonDate,
-      commentText,
-      status:         'draft',
-      updatedAt:      serverTimestamp(),
-    };
-
-    if (editingCommentId) {
-      await updateDoc(doc(db, 'reports', editingCommentId), payload);
-    } else {
-      payload.createdAt = serverTimestamp();
-      const ref = await addDoc(collection(db, 'reports'), payload);
-      editingCommentId = ref.id;
-      const badge = document.getElementById('editing-badge');
-      badge.textContent = 'Editing Draft';
-      badge.classList.remove('hidden');
-      document.getElementById('cancel-edit-btn').classList.remove('hidden');
-      document.getElementById('send-btn').innerHTML =
-        '<span class="material-symbols-outlined text-[18px]">send</span> Send';
-    }
-
-    if (!silent) showToast('Draft saved.', 'success');
-    else         showAutoSaveIndicator();
-    await loadMyComments(selectedStudent.id);
-  } catch (e) {
-    console.error('[saveDraft]', e);
-    if (!silent) showToast('Failed to save draft: ' + e.message, 'error');
-  } finally {
-    if (!silent) {
-      btn.disabled = false;
-      btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">save</span> Save Draft';
-    }
-  }
-};
-
-window.deleteDraft = async function(commentId) {
-  if (!confirm('Delete this draft? This cannot be undone.')) return;
-  try {
-    await deleteDoc(doc(db, 'reports', commentId));
-    if (editingCommentId === commentId) resetForm();
-    myComments = myComments.filter(c => c.id !== commentId);
-    renderCommentsList();
-    showToast('Draft deleted.', 'success');
-  } catch (e) {
-    console.error('[deleteDraft]', e);
-    showToast('Failed to delete draft: ' + e.message, 'error');
-  }
-};
-
-// ── Load & render comments list ────────────────────────────────────────────────
-async function loadMyComments(studentId) {
-  const body = document.getElementById('comments-list-body');
+// ── Load & render reports list ─────────────────────────────────────────────────
+async function loadMyReports(studentId) {
+  const body = document.getElementById('reports-list-body');
   body.innerHTML = `<div class="flex items-center gap-2 px-6 py-6 text-text-muted text-sm">
-    <div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Loading comments...</div>`;
+    <div class="spinner" style="width:16px;height:16px;border-width:2px"></div> Loading reports...</div>`;
   try {
-    const q = query(collection(db, 'reports'), where('teacherUid', '==', currentUser.uid));
+    const q    = query(collection(db, 'comments'), where('teacherUid', '==', currentUser.uid));
     const snap = await getDocs(q);
-    myComments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .filter(c => c.studentId === studentId)
+    myReports  = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .filter(r => r.studentId === studentId)
       .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-    renderCommentsList();
+    renderReportsList();
   } catch (e) {
-    console.error('[loadMyComments]', e);
+    console.error('[loadMyReports]', e);
     body.innerHTML = `<p class="px-6 py-4 text-error text-sm">Failed to load: ${e.message}</p>`;
   }
 }
 
-function renderCommentsList() {
-  const body = document.getElementById('comments-list-body');
-  if (!myComments.length) {
+function renderReportsList() {
+  const body = document.getElementById('reports-list-body');
+  if (!myReports.length) {
     body.innerHTML = `<div class="px-6 py-8 text-center text-text-muted text-sm">
-      <span class="material-symbols-outlined text-3xl block mb-2" style="opacity:.3;">chat</span>
-      No comments yet for this student.
+      <span class="material-symbols-outlined text-3xl block mb-2" style="opacity:.3;">assignment</span>
+      No reports yet for this student.
     </div>`;
     return;
   }
 
-  const drafts = myComments.filter(c => c.status === 'draft');
-  const sent   = myComments.filter(c => c.status === 'sent');
+  const drafts    = myReports.filter(r => r.status === 'draft');
+  const submitted = myReports.filter(r => r.status !== 'draft');
 
-  const renderRow = c => {
-    const badge = c.status === 'sent'
-      ? `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Sent</span>`
-      : `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Draft</span>`;
-    const dateRange  = c.lessonDate || '';
-    const updatedStr = c.updatedAt?.toDate ? c.updatedAt.toDate().toLocaleDateString() : '';
-    const sentStr    = c.sentAt?.toDate    ? c.sentAt.toDate().toLocaleDateString()    : '';
-    const createdStr = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '';
-    const actionBtn  = c.status === 'draft'
+  const renderRow = r => {
+    const badge = r.status === 'approved'
+      ? `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Approved</span>`
+      : r.status === 'declined'
+      ? `<span class="px-2 py-0.5 bg-red-100 text-error text-xs font-bold rounded-full">Declined</span>`
+      : r.status === 'draft'
+      ? `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Draft</span>`
+      : `<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full">Pending</span>`;
+    const dateRange  = (r.dateRangeStart && r.dateRangeEnd)
+      ? `${r.dateRangeStart} – ${r.dateRangeEnd}` : (r.dateRangeStart || '');
+    const updatedStr = r.updatedAt?.toDate ? r.updatedAt.toDate().toLocaleDateString() : '';
+    const createdStr = r.createdAt?.toDate  ? r.createdAt.toDate().toLocaleDateString()  : '';
+    const actionBtn  = r.status === 'declined'
+      ? `<button data-rid="${escAttr(r.id)}" class="edit-btn flex-shrink-0 flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-secondary text-white rounded-lg hover:brightness-110 active:scale-95 transition-all">
+           <span class="material-symbols-outlined text-[15px]">edit</span> Edit &amp; Resubmit
+         </button>`
+      : r.status === 'draft'
       ? `<div class="flex items-center gap-2 flex-shrink-0">
-           <button data-cid="${escAttr(c.id)}" class="edit-btn flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-gray-300 text-gray-600 bg-white rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
+           <button data-rid="${escAttr(r.id)}" class="edit-btn flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-gray-300 text-gray-600 bg-white rounded-lg hover:bg-gray-50 active:scale-95 transition-all">
              <span class="material-symbols-outlined text-[15px]">edit_note</span> Continue Editing
            </button>
-           <button data-cid="${escAttr(c.id)}" class="del-draft-btn flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-error bg-white hover:bg-red-50 active:scale-95 transition-all" title="Delete draft">
+           <button data-rid="${escAttr(r.id)}" class="del-draft-btn flex items-center justify-center w-8 h-8 rounded-lg border border-red-200 text-error bg-white hover:bg-red-50 active:scale-95 transition-all" title="Delete draft">
              <span class="material-symbols-outlined text-[16px]">delete</span>
            </button>
          </div>`
@@ -510,13 +738,14 @@ function renderCommentsList() {
         <div class="flex items-center gap-2 flex-wrap mb-1">
           ${badge}
           ${dateRange ? `<span class="text-xs text-text-muted">${escHtml(dateRange)}</span>` : ''}
-          ${c.status === 'draft' && updatedStr
+          ${r.status === 'draft' && updatedStr
             ? `<span class="text-xs text-text-muted">· Saved ${updatedStr}</span>`
-            : sentStr ? `<span class="text-xs text-text-muted">· Sent ${sentStr}</span>`
-            : createdStr ? `<span class="text-xs text-text-muted">· Created ${createdStr}</span>` : ''}
+            : createdStr ? `<span class="text-xs text-text-muted">· Submitted ${createdStr}</span>` : ''}
         </div>
-        ${c.commentText
-          ? `<p class="text-sm text-text-muted mt-1 line-clamp-2">${escHtml(c.commentText)}</p>` : ''}
+        ${r.status === 'declined' && r.declineReason
+          ? `<p class="text-xs text-error mt-1"><span class="font-semibold">Reason:</span> ${escHtml(r.declineReason)}</p>` : ''}
+        ${r.evaluation
+          ? `<p class="text-sm text-text-muted mt-1 line-clamp-2">${escHtml(r.evaluation)}</p>` : ''}
       </div>
       ${actionBtn}
     </div>`;
@@ -528,51 +757,148 @@ function renderCommentsList() {
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Drafts</p>
     </div>`;
     html += drafts.map(renderRow).join('');
-    if (sent.length) {
+    if (submitted.length) {
       html += `<div class="px-6 pt-4 pb-1 border-t border-border-subtle">
-        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Sent</p>
+        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Submitted</p>
       </div>`;
     }
   }
-  html += sent.map(renderRow).join('');
+  html += submitted.map(renderRow).join('');
   body.innerHTML = html;
 
   body.querySelectorAll('.edit-btn').forEach(btn => {
-    btn.addEventListener('click', () => startEditComment(btn.dataset.cid));
+    btn.addEventListener('click', () => startEditReport(btn.dataset.rid));
   });
   body.querySelectorAll('.del-draft-btn').forEach(btn => {
-    btn.addEventListener('click', () => deleteDraft(btn.dataset.cid));
+    btn.addEventListener('click', () => deleteDraft(btn.dataset.rid));
   });
 }
 
-// ── Edit draft ─────────────────────────────────────────────────────────────────
-window.startEditComment = function(commentId) {
-  const comment = myComments.find(c => c.id === commentId);
-  if (!comment || comment.status !== 'draft') return;
+// ── Edit declined report ───────────────────────────────────────────────────────
+window.startEditReport = function(reportId) {
+  const report = myReports.find(r => r.id === reportId);
+  if (!report) return;
 
-  editingCommentId = commentId;
-  document.getElementById('f-lesson-date').value  = comment.lessonDate     || '';
-  document.getElementById('f-comment-text').value = comment.commentText    || '';
+  editingReportId = reportId;
+  selectedBooks   = Array.isArray(report.books) ? [...report.books] : [];
+  categories      = Array.isArray(report.categories)
+    ? report.categories.map(c => ({ name: c.name || '', feedback: c.feedback || '' }))
+    : DEFAULT_CATS.map(n => ({ name: n, feedback: '' }));
+  enhancements    = Array.isArray(report.enhancementAreas) ? [...report.enhancementAreas] : [];
 
-  const badge = document.getElementById('editing-badge');
-  badge.textContent = 'Editing Draft';
+  document.getElementById('f-date-start').value  = report.dateRangeStart  || '';
+  document.getElementById('f-date-end').value    = report.dateRangeEnd    || '';
+  document.getElementById('f-class-time').value  = report.classTime       || '';
+  document.getElementById('f-meet-link').value   = report.googleMeetLink  || currentUser?.googleMeetLink || '';
+  document.getElementById('f-evaluation').value  = report.evaluation      || '';
+
+  const isDraft = report.status === 'draft';
+  const badge   = document.getElementById('editing-badge');
+  badge.textContent = isDraft ? 'Editing Draft' : 'Editing Declined Comment';
   badge.classList.remove('hidden');
   document.getElementById('cancel-edit-btn').classList.remove('hidden');
-  document.getElementById('send-btn').innerHTML =
-    '<span class="material-symbols-outlined text-[18px]">send</span> Send';
+  document.getElementById('submit-btn').innerHTML = isDraft
+    ? '<span class="material-symbols-outlined text-[18px]">send</span> Submit for Approval'
+    : '<span class="material-symbols-outlined text-[18px]">send</span> Resubmit';
 
-  document.getElementById('comment-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  showToast('Continue editing your draft.', 'info');
+  renderSelectedBooks();
+  renderCategories();
+  renderEnhancements();
+  document.getElementById('report-form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  showToast(isDraft ? 'Continue editing your draft.' : 'Edit the report and click Resubmit.', 'info');
 };
 
-// ── Auto-save ──────────────────────────────────────────────────────────────────
+// ── Save as Draft ──────────────────────────────────────────────────────────────
+window.saveDraft = async function(silent = false) {
+  if (!selectedStudent) return;
+  syncCatsFromDOM();
+  syncEnhFromDOM();
+
+  const dateStart  = document.getElementById('f-date-start').value;
+  const dateEnd    = document.getElementById('f-date-end').value;
+  const classTime   = document.getElementById('f-class-time').value.trim();
+  const meetLink    = document.getElementById('f-meet-link').value.trim();
+  const evaluation  = document.getElementById('f-evaluation').value.trim();
+
+  const btn = document.getElementById('draft-btn');
+  if (!silent) {
+    btn.disabled = true;
+    btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Saving...';
+  }
+
+  try {
+    const payload = {
+      studentId:        selectedStudent.id,
+      studentName:      selectedStudent.fullName || '',
+      teacherUid:       currentUser.uid,
+      teacherName:      currentUser.name,
+      dateRangeStart:   dateStart,
+      dateRangeEnd:     dateEnd,
+      classTime,
+      googleMeetLink:   meetLink,
+      books:            selectedBooks,
+      categories:       categories.filter(c => c.name.trim()),
+      enhancementAreas: enhancements.filter(e => e.trim()),
+      evaluation,
+      status:           'draft',
+      declineReason:    '',
+      updatedAt:        serverTimestamp(),
+    };
+
+    if (editingReportId) {
+      await updateDoc(doc(db, 'reports', editingReportId), payload);
+    } else {
+      payload.createdAt = serverTimestamp();
+      const ref = await addDoc(collection(db, 'comments'), payload);
+      editingReportId = ref.id;
+      // Show editing-badge now that we have a draft ID
+      const badge = document.getElementById('editing-badge');
+      badge.textContent = 'Editing Draft';
+      badge.classList.remove('hidden');
+      document.getElementById('cancel-edit-btn').classList.remove('hidden');
+      document.getElementById('submit-btn').innerHTML =
+        '<span class="material-symbols-outlined text-[18px]">send</span> Submit for Approval';
+    }
+
+    if (!silent) {
+      showToast('Draft saved.', 'success');
+    } else {
+      showAutoSaveIndicator();
+    }
+    await loadMyReports(selectedStudent.id);
+  } catch (e) {
+    console.error('[saveDraft]', e);
+    if (!silent) showToast('Failed to save draft: ' + e.message, 'error');
+  } finally {
+    if (!silent) {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">save</span> Save as Draft';
+    }
+  }
+};
+
+window.deleteDraft = async function(reportId) {
+  if (!confirm('Delete this draft? This cannot be undone.')) return;
+  try {
+    await deleteDoc(doc(db, 'reports', reportId));
+    if (editingReportId === reportId) resetForm();
+    myReports = myReports.filter(r => r.id !== reportId);
+    renderReportsList();
+    showToast('Draft deleted.', 'success');
+  } catch (e) {
+    console.error('[deleteDraft]', e);
+    showToast('Failed to delete draft: ' + e.message, 'error');
+  }
+};
+
 function startAutoSave() {
   stopAutoSave();
   autoSaveInterval = setInterval(() => {
     if (!selectedStudent) return;
     const hasContent =
-      document.getElementById('f-lesson-date').value ||
-      document.getElementById('f-comment-text').value.trim();
+      document.getElementById('f-date-start').value ||
+      document.getElementById('f-date-end').value   ||
+      document.getElementById('f-evaluation').value.trim();
     if (!hasContent) return;
     saveDraft(true);
   }, 30000);
@@ -590,27 +916,6 @@ function showAutoSaveIndicator() {
   window._autosaveHideTimer = setTimeout(() => el.classList.add('hidden'), 3000);
 }
 
-// ── Notify parent(s) by email when a comment is sent — best-effort, never
-// blocks the UI or the "Comment sent" toast if the email fails to send.
-function notifyParentsOfNewComment(student, teacherName) {
-  if (typeof window.sendEmail !== 'function') return;
-  const parentEmails = Array.isArray(student.parentEmails) && student.parentEmails.length
-    ? student.parentEmails
-    : (student.parentEmail ? [student.parentEmail] : []);
-  if (!parentEmails.length) return;
-
-  const studentName = student.fullName || 'your child';
-  const subject = `New weekly comment from ${teacherName} for ${studentName}`;
-  const bodyHtml = window.cremonaEmailWrapper(`
-    <p style="margin:0 0 12px;">Hi there,</p>
-    <p style="margin:0 0 12px;">${escHtml(teacherName)} just posted a new comment about <strong>${escHtml(studentName)}</strong>'s lesson progress.</p>
-    <p style="margin:0 0 12px;">Log in to the parent portal to read the full comment.</p>
-    ${window.cremonaEmailButton('https://cremonamusic-portal.web.app/parent/comments.html', 'View Comment')}
-  `);
-
-  parentEmails.forEach(pe => { window.sendEmail(pe, subject, bodyHtml); });
-}
-
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -624,7 +929,7 @@ function showToast(msg, type = 'info') {
   setTimeout(() => { t.className = ''; }, 3500);
 }
 </script>
-  <script>window.CREMONA_NAV={portal:'teacher',active:'comments',title:'Comments'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

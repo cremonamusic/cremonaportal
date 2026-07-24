@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Salary Management | Cremona Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      spacing: { 'margin-desktop': '40px' },
+      maxWidth: { 'container-max': '1200px' },
+      colors: {
+        'primary': '#3B2A1E', 'primary-container': '#C8A951',
+        'on-primary-fixed': '#2A1D14', 'on-primary-container': '#5A4A22',
+        'secondary': '#7A5A16', 'secondary-fixed': '#F2E6CC',
+        'on-secondary-fixed': '#2A1D14', 'secondary-container': '#9A7524',
+        'on-secondary-container': '#FFFDF8',
+        'surface': '#FAF6EF', 'surface-white': '#FFFFFF',
+        'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+        'surface-container-high': '#EAE0D0',
+        'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+        'border-subtle': '#E2D7C6', 'outline-variant': '#D8C5A8',
+        'text-muted': '#7A6A57',
+        'error': '#B3261E', 'error-container': '#F9DEDC',
+        'background': '#FAF6EF'
+      },
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      fontSize: {
+        'body-sm':    ['14px', { lineHeight: '20px' }],
+        'body-md':    ['16px', { lineHeight: '24px' }],
+        'label-md':   ['14px', { lineHeight: '20px', fontWeight: '500' }],
+        'headline-sm':['20px', { lineHeight: '28px', fontWeight: '600' }]
+      }
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin .7s linear infinite; }
+#toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+#toast.show { opacity:1; }
+#toast.error   { background:#B3261E;color:#fff; }
+#toast.success { background:#1e6e3b;color:#fff; }
+#toast.info    { background:#7A5A16;color:#fff; }
+.nav-active { color:#3B2A1E;font-weight:700;border-bottom:2px solid #3B2A1E;padding-bottom:2px; }
+.badge { display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+.badge-pending { background:#fef3c7;color:#92400e; }
+.badge-paid    { background:#d1fae5;color:#065f46; }
+th { text-align:left;font-weight:600;font-size:12px;color:#7A6A57;text-transform:uppercase;letter-spacing:.05em;padding:10px 16px; }
+td { padding:12px 16px;font-size:14px;border-top:1px solid #E2D7C6;vertical-align:middle; }
+tbody tr:hover td { background:#F6F0E6; }
+</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
+</head>
+<body class="bg-background text-on-surface min-h-screen" data-portal="admin">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── One-Time Payment Modal ──────────────────────────────────────────────── -->
+<div id="onetime-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+      <h3 class="font-headline-sm">Add One-Time Payment</h3>
+      <button onclick="closeOnetimeModal()" class="p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-5 flex flex-col gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Teacher</label>
+        <select id="ot-teacher" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="">— Select teacher —</option>
+        </select>
+      </div>
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1">Amount</label>
+          <input id="ot-amount" type="number" min="0" step="0.01" placeholder="0.00"
+                 class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Currency</label>
+          <select id="ot-currency" class="border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <option>MYR</option><option>PHP</option><option>KRW</option><option>USD</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1">Month</label>
+          <select id="ot-month" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+            <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1">Year</label>
+          <input id="ot-year" type="number" min="2020" max="2099" placeholder="2025"
+                 class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"/>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Notes (optional)</label>
+        <textarea id="ot-notes" rows="2" placeholder="Bonus, commission, etc."
+                  class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-border-subtle">
+      <button onclick="closeOnetimeModal()"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">Cancel</button>
+      <button onclick="saveOneTimePayment()"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-secondary text-white hover:bg-secondary/90 transition-colors">Add Payment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Record Detail Modal ─────────────────────────────────────────────────── -->
+<div id="record-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+      <h3 class="font-headline-sm">Salary Record</h3>
+      <button onclick="closeRecordModal()" class="p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div id="record-modal-body" class="px-6 py-5 flex flex-col gap-1 text-sm"></div>
+    <div id="record-modal-footer" class="flex flex-wrap gap-3 px-6 py-4 border-t border-border-subtle"></div>
+  </div>
+</div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-10 h-16 max-w-[1200px] mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
+        <a class="font-body-md nav-active" href="salary-admin">Salary</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────────── -->
+<main class="max-w-[1200px] mx-auto px-10 py-8">
+
+  <!-- Page title + actions -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-on-surface">Salary Management</h1>
+      <p class="text-sm text-text-muted mt-1">Auto-generate payroll from recorded session hours. Manage payslips and one-time payments.</p>
+    </div>
+    <div class="flex flex-wrap gap-2 items-center">
+      <select id="payroll-month"
+              class="border border-border-subtle rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+      </select>
+      <select id="payroll-year"
+              class="border border-border-subtle rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+      </select>
+      <button onclick="generatePayroll()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">bolt</span>Generate Payroll
+      </button>
+      <button onclick="openOnetimeModal()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">add</span>Add One-Time Payment
+      </button>
+    </div>
+  </div>
+
+  <!-- Teacher Rates Overview -->
+  <section class="mb-8">
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-border-subtle">
+        <h2 class="font-headline-sm">Teacher Rates</h2>
+        <p class="text-sm text-text-muted mt-0.5">Click a teacher to expand their students and edit rates right here — changes save instantly. Payroll is auto-calculated from these rates.</p>
+      </div>
+      <div class="px-6 py-3 border-b border-border-subtle flex flex-wrap items-center gap-4">
+        <div class="relative flex-1 min-w-[220px]">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[16px]">search</span>
+          <input id="rates-search" type="search" placeholder="Search teacher or student…" oninput="renderRatesTable()"
+                 class="w-full pl-9 pr-3 py-2 text-sm border border-border-subtle rounded-lg bg-surface"/>
+        </div>
+        <label class="flex items-center gap-2 text-xs font-medium text-text-muted cursor-pointer select-none">
+          <input type="checkbox" id="rates-show-empty" onchange="renderRatesTable()" class="w-4 h-4 accent-secondary"/>
+          Show teachers with no students
+        </label>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-surface-container-low">
+              <th>Teacher</th><th>Students</th><th>Monthly Total</th><th class="w-10"></th>
+            </tr>
+          </thead>
+          <tbody id="rates-tbody">
+            <tr><td colspan="3" class="text-center py-12 text-text-muted text-sm">Loading teachers…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Salary Records -->
+  <section>
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-border-subtle flex items-center justify-between">
+        <div>
+          <h2 class="font-headline-sm">Salary Records</h2>
+          <p class="text-sm text-text-muted mt-0.5">All salary payments. Click a row to view details.</p>
+        </div>
+        <button onclick="exportExcel()"
+                class="flex items-center gap-2 px-3 py-2 rounded-lg border border-border-subtle text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[18px]">download</span>Export Excel
+        </button>
+      </div>
+      <!-- Filters -->
+      <div class="px-6 py-3 border-b border-border-subtle flex flex-wrap gap-3 bg-surface-container-low">
+        <select id="filter-teacher" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="">All Teachers</option>
+        </select>
+        <select id="filter-status" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="all">All Status</option>
+          <option value="pending">Pending</option>
+          <option value="paid">Paid</option>
+        </select>
+        <select id="filter-month" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="0">All Months</option>
+          <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+          <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+          <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+          <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+        </select>
+        <select id="filter-year" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="0">All Years</option>
+        </select>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-surface-container-low">
+              <th>Teacher</th><th>Amount</th><th>Period</th><th>Type</th><th>Status</th><th>Payment Date</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="salaries-tbody">
+            <tr><td colspan="7" class="text-center py-12 text-text-muted text-sm">Loading records…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, addDoc, updateDoc, deleteDoc, serverTimestamp }
+                              from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const app  = initializeApp({
+  apiKey:            "REPLACE_ME_CREMONA_API_KEY",
+  authDomain:        "portal.cremonamusic.com",
+  projectId:         "cremona-portal",
+  storageBucket:     "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId:             "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const WORKER_URL     = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
+function uploadToR2(blob, key) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${WORKER_URL}/${key}`);
+    xhr.setRequestHeader('Content-Type', blob.type || 'application/pdf');
+    xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`));
+    xhr.onerror = () => reject(new Error('Upload network error'));
+    xhr.send(blob);
+  });
+}
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+// ── State ────────────────────────────────────────────────────────────────────
+let currentUser        = null;
+let allTeachers        = [];
+let allStudents        = [];
+let teacherStudentsMap = new Map();  // teacherUid → [student, ...]
+let allSalaries        = [];
+let selectedRecord     = null;
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function fmtAmount(amount, currency) {
+  return `${currency} ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function fmtPeriod(month, year) {
+  return `${MONTHS[(month - 1) % 12]} ${year}`;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = d.toDate ? d.toDate() : (d.seconds ? new Date(d.seconds * 1000) : new Date(d));
+  return dt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+// ── Auth guard ───────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/'; return;
+    }
+    if (snap.data().role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(snap.data(), 'salary')) return;
+    currentUser = user;
+    await init();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) { console.error(e); window.location.href = '/'; }
+});
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadTeachers(), loadStudents(), loadSalaries()]);
+  initPayrollPeriodSelectors();
+  populateFilters();
+  renderRatesTable();
+  applyFilters();
+}
+
+function initPayrollPeriodSelectors() {
+  const now = new Date();
+  document.getElementById('payroll-month').value = String(now.getMonth() + 1);
+  const yearSel = document.getElementById('payroll-year');
+  for (let y = now.getFullYear(); y >= now.getFullYear() - 3; y--) {
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = y;
+    yearSel.appendChild(opt);
+  }
+}
+
+async function loadTeachers() {
+  const snap = await getDocs(collection(db, 'users'));
+  allTeachers = [];
+  snap.forEach(d => {
+    const data = d.data();
+    // Skip soft-deleted accounts — they're removed in Accounts but the doc remains
+    if (data.role === 'teacher' && data.status !== 'deleted') allTeachers.push({ uid: d.id, ...data });
+  });
+  allTeachers.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+}
+
+async function loadStudents() {
+  const snap = await getDocs(collection(db, 'students'));
+  allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  teacherStudentsMap.clear();
+  allStudents.forEach(s => {
+    (s.assignedTeachers || []).forEach(uid => {
+      if (!teacherStudentsMap.has(uid)) teacherStudentsMap.set(uid, []);
+      teacherStudentsMap.get(uid).push(s);
+    });
+  });
+}
+
+async function loadSalaries() {
+  const snap = await getDocs(collection(db, 'salaries'));
+  allSalaries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  allSalaries.sort((a, b) => {
+    if (b.periodYear !== a.periodYear) return b.periodYear - a.periodYear;
+    return b.periodMonth - a.periodMonth;
+  });
+}
+
+function populateFilters() {
+  // Teacher filter + one-time modal select
+  const ft  = document.getElementById('filter-teacher');
+  const otT = document.getElementById('ot-teacher');
+  const opts = allTeachers.map(t => `<option value="${escHtml(t.uid)}">${escHtml(t.name || t.email || t.uid)}</option>`).join('');
+  ft.innerHTML  = '<option value="">All Teachers</option>' + opts;
+  otT.innerHTML = '<option value="">— Select teacher —</option>' + opts;
+
+  // Year filter
+  const years = [...new Set([new Date().getFullYear(), new Date().getFullYear() - 1, ...allSalaries.map(s => s.periodYear)])].sort((a,b)=>b-a);
+  document.getElementById('filter-year').innerHTML =
+    '<option value="0">All Years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+}
+
+// ── Rates table ───────────────────────────────────────────────────────────────
+const RATE_CURRENCIES = ['MYR', 'KRW', 'PHP', 'USD'];
+const expandedTeachers = new Set();
+
+window.toggleRateTeacher = function(uid) {
+  if (expandedTeachers.has(uid)) expandedTeachers.delete(uid); else expandedTeachers.add(uid);
+  renderRatesTable();
+};
+
+function renderRatesTable() {
+  const tbody = document.getElementById('rates-tbody');
+  const q = (document.getElementById('rates-search')?.value || '').toLowerCase().trim();
+  const showEmpty = document.getElementById('rates-show-empty')?.checked;
+
+  let rows = allTeachers.map(t => ({ t, students: teacherStudentsMap.get(t.uid) || [] }));
+  if (!showEmpty) rows = rows.filter(r => r.students.length);
+  if (q) rows = rows.filter(r =>
+    (r.t.name || r.t.email || '').toLowerCase().includes(q) ||
+    r.students.some(st => (st.fullName || '').toLowerCase().includes(q)));
+  rows.sort((a, b) => (a.t.name || '').localeCompare(b.t.name || ''));
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-text-muted text-sm">${
+      q ? 'No teachers or students match your search.' : 'No teachers with assigned students yet.'}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = rows.map(({ t, students }) => {
+    const open = expandedTeachers.has(t.uid) || (q && students.some(st => (st.fullName || '').toLowerCase().includes(q)));
+    // total per currency
+    const totals = {};
+    students.forEach(st => {
+      const cur = st.teacherCurrency || 'MYR';
+      totals[cur] = (totals[cur] || 0) + (st.teacherMonthlyRate || 0);
+    });
+    const totalStr = students.length
+      ? Object.entries(totals).map(([c, v]) => `${c} ${v.toLocaleString()}`).join(' · ')
+      : '—';
+    const missing = students.filter(st => !st.teacherMonthlyRate).length;
+
+    let html = `<tr class="cursor-pointer hover:bg-surface-container-low transition-colors" onclick="toggleRateTeacher('${t.uid}')">
+      <td class="font-medium">${escHtml(t.name || t.email || t.uid)}</td>
+      <td class="text-sm text-text-muted">${students.length} student${students.length !== 1 ? 's' : ''}${
+        missing ? ` <span class="text-amber-600 font-semibold">· ${missing} without a rate</span>` : ''}</td>
+      <td class="font-semibold">${escHtml(totalStr)}<span class="text-xs text-text-muted font-normal">${students.length ? '/mo' : ''}</span></td>
+      <td class="text-right pr-4"><span class="material-symbols-outlined text-text-muted text-[20px]">${open ? 'expand_less' : 'expand_more'}</span></td>
+    </tr>`;
+
+    if (open) {
+      html += students.map(st => `
+      <tr class="bg-surface-container-low/40">
+        <td class="pl-10 text-sm">${escHtml(st.fullName || '—')}${st.grade ? ` <span class="text-xs text-text-muted">· ${escHtml(st.grade)}</span>` : ''}</td>
+        <td colspan="3">
+          <div class="flex items-center gap-2 py-1" onclick="event.stopPropagation()">
+            <input type="number" min="0" step="0.01" value="${st.teacherMonthlyRate || ''}" placeholder="0"
+                   id="rate-${st.id}" class="w-28 border border-border-subtle rounded-lg px-2.5 py-1.5 text-sm"
+                   onchange="saveStudentRate('${st.id}')"/>
+            <select id="cur-${st.id}" class="border border-border-subtle rounded-lg px-1.5 py-1.5 text-sm"
+                    onchange="saveStudentRate('${st.id}')">
+              ${RATE_CURRENCIES.map(c => `<option value="${c}" ${((st.teacherCurrency || 'MYR') === c) ? 'selected' : ''}>${c}</option>`).join('')}
+            </select>
+            <span class="text-xs text-text-muted">/month</span>
+            <span id="saved-${st.id}" class="text-xs text-green-600 font-semibold opacity-0 transition-opacity">Saved ✓</span>
+          </div>
+        </td>
+      </tr>`).join('');
+    }
+    return html;
+  }).join('');
+}
+
+window.saveStudentRate = async function(sid) {
+  const rate = parseFloat(document.getElementById('rate-' + sid).value) || 0;
+  const cur = document.getElementById('cur-' + sid).value;
+  try {
+    await updateDoc(doc(db, 'students', sid), {
+      teacherMonthlyRate: rate,
+      teacherCurrency: cur,
+    });
+    const st = allStudents.find(x => x.id === sid);
+    if (st) { st.teacherMonthlyRate = rate; st.teacherCurrency = cur; }
+    const flag = document.getElementById('saved-' + sid);
+    if (flag) { flag.style.opacity = '1'; setTimeout(() => { flag.style.opacity = '0'; }, 1600); }
+    // refresh the teacher summary totals without collapsing anything
+    renderRatesTable();
+  } catch (e) {
+    showToast('Failed to save rate: ' + e.message, 'error');
+  }
+};
+
+// ── Generate payroll ──────────────────────────────────────────────────────────
+window.generatePayroll = async function() {
+  const month = parseInt(document.getElementById('payroll-month').value);
+  const year  = parseInt(document.getElementById('payroll-year').value);
+  if (!month || !year) { showToast('Select a month and year.', 'error'); return; }
+
+  // Group students by teacher + teacherCurrency, sum monthly rates
+  const byKey = new Map(); // key: `${teacherUid}::${currency}`
+  allStudents.forEach(s => {
+    if (!s.teacherMonthlyRate || !s.assignedTeachers?.length) return;
+    const cur = s.teacherCurrency || 'MYR';
+    s.assignedTeachers.forEach(tUid => {
+      const key = `${tUid}::${cur}`;
+      if (!byKey.has(key)) {
+        const teacher = allTeachers.find(t => t.uid === tUid);
+        byKey.set(key, {
+          teacherUid:   tUid,
+          teacherName:  teacher?.name || teacher?.email || tUid,
+          currency:     cur,
+          amount:       0,
+          studentCount: 0
+        });
+      }
+      const g = byKey.get(key);
+      g.amount       += s.teacherMonthlyRate;
+      g.studentCount += 1;
+    });
+  });
+
+  if (!byKey.size) {
+    showToast('No students with teacher monthly rates configured.', 'info');
+    return;
+  }
+
+  let created = 0, skipped = 0;
+  for (const [, data] of byKey) {
+    const existing = allSalaries.find(s =>
+      s.teacherUid === data.teacherUid && s.periodMonth === month &&
+      s.periodYear === year && s.isRecurring && s.currency === data.currency
+    );
+    if (existing) { skipped++; continue; }
+    const ref = await addDoc(collection(db, 'salaries'), {
+      teacherUid:   data.teacherUid,
+      teacherName:  data.teacherName,
+      amount:       data.amount,
+      currency:     data.currency,
+      studentCount: data.studentCount,
+      periodMonth:  month,
+      periodYear:   year,
+      status:       'pending',
+      isRecurring:  true,
+      payslipUrl:   '',
+      notes:        '',
+      createdAt:    serverTimestamp(),
+      createdBy:    currentUser.uid
+    });
+    allSalaries.unshift({ id: ref.id,
+      teacherUid: data.teacherUid, teacherName: data.teacherName,
+      amount: data.amount, currency: data.currency,
+      studentCount: data.studentCount,
+      periodMonth: month, periodYear: year,
+      status: 'pending', isRecurring: true, payslipUrl: '', notes: '' });
+    created++;
+  }
+  populateFilters();
+  applyFilters();
+  showToast(`Created ${created} payroll records${skipped ? `, skipped ${skipped} existing` : ''}.`, created > 0 ? 'success' : 'info');
+};
+
+// ── One-time payment ──────────────────────────────────────────────────────────
+window.openOnetimeModal = function() {
+  const now = new Date();
+  document.getElementById('ot-teacher').value  = '';
+  document.getElementById('ot-amount').value   = '';
+  document.getElementById('ot-currency').value = 'MYR';
+  document.getElementById('ot-month').value    = String(now.getMonth() + 1);
+  document.getElementById('ot-year').value     = String(now.getFullYear());
+  document.getElementById('ot-notes').value    = '';
+  document.getElementById('onetime-modal').classList.remove('hidden');
+};
+
+window.closeOnetimeModal = function() {
+  document.getElementById('onetime-modal').classList.add('hidden');
+};
+
+window.saveOneTimePayment = async function() {
+  const teacherUid = document.getElementById('ot-teacher').value;
+  const amount     = parseFloat(document.getElementById('ot-amount').value);
+  const month      = parseInt(document.getElementById('ot-month').value);
+  const year       = parseInt(document.getElementById('ot-year').value);
+  if (!teacherUid)              { showToast('Please select a teacher.', 'error'); return; }
+  if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount.', 'error'); return; }
+  if (!year || year < 2020)     { showToast('Please enter a valid year.', 'error'); return; }
+  const t = allTeachers.find(x => x.uid === teacherUid);
+  const payload = {
+    teacherUid, teacherName: t?.name || t?.email || teacherUid,
+    amount, currency: document.getElementById('ot-currency').value,
+    periodMonth: month, periodYear: year,
+    status: 'pending', isRecurring: false, payslipUrl: '',
+    notes: document.getElementById('ot-notes').value.trim(),
+    createdAt: serverTimestamp(), createdBy: currentUser.uid
+  };
+  try {
+    const newRef = await addDoc(collection(db, 'salaries'), payload);
+    allSalaries.unshift({ id: newRef.id, ...payload });
+    populateFilters();
+    applyFilters();
+    closeOnetimeModal();
+    showToast('Payment record added.', 'success');
+  } catch (e) { console.error(e); showToast('Failed to add payment.', 'error'); }
+};
+
+// ── Filters + salary table ────────────────────────────────────────────────────
+window.applyFilters = function() {
+  const teacherUid = document.getElementById('filter-teacher').value;
+  const status     = document.getElementById('filter-status').value;
+  const month      = parseInt(document.getElementById('filter-month').value) || 0;
+  const year       = parseInt(document.getElementById('filter-year').value)  || 0;
+  const filtered = allSalaries.filter(s => {
+    if (teacherUid && s.teacherUid !== teacherUid) return false;
+    if (status !== 'all' && s.status !== status)   return false;
+    if (month && s.periodMonth !== month)           return false;
+    if (year  && s.periodYear  !== year)            return false;
+    return true;
+  });
+  renderSalaryTable(filtered);
+};
+
+function renderSalaryTable(data) {
+  const tbody = document.getElementById('salaries-tbody');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-text-muted text-sm">No records found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(s => `
+    <tr class="cursor-pointer" onclick='openRecordModal(${JSON.stringify(s).replace(/'/g,"&#39;")})'>
+      <td class="font-medium">${escHtml(s.teacherName || '—')}</td>
+      <td>
+        ${escHtml(fmtAmount(s.amount, s.currency))}
+        ${s.studentCount ? `<div class="text-xs text-text-muted">${s.studentCount} student${s.studentCount !== 1 ? 's' : ''}</div>` : ''}
+      </td>
+      <td class="text-sm">${escHtml(fmtPeriod(s.periodMonth, s.periodYear))}</td>
+      <td><span class="text-xs text-text-muted">${s.isRecurring ? 'Recurring' : 'One-Time'}</span></td>
+      <td><span class="badge badge-${escHtml(s.status)}">${escHtml(s.status)}</span></td>
+      <td class="text-sm text-text-muted">${s.paymentDate ? escHtml(fmtDate(s.paymentDate)) : '—'}</td>
+      <td><span class="material-symbols-outlined text-text-muted text-[18px]">chevron_right</span></td>
+    </tr>`).join('');
+}
+
+// ── Record detail modal ───────────────────────────────────────────────────────
+window.openRecordModal = function(record) {
+  if (typeof record === 'string') { try { record = JSON.parse(record); } catch { return; } }
+  // Refresh from local state to pick up latest status/payslipUrl
+  const fresh = allSalaries.find(s => s.id === record.id);
+  selectedRecord = fresh || record;
+
+  const row = (label, value) => `
+    <div class="flex justify-between items-center gap-4 py-2.5 border-b border-border-subtle last:border-0">
+      <span class="text-text-muted text-sm">${escHtml(label)}</span>
+      <span class="font-medium text-sm text-right">${value}</span>
+    </div>`;
+
+  const studentsLabel = selectedRecord.studentCount
+    ? `${selectedRecord.studentCount} student${selectedRecord.studentCount !== 1 ? 's' : ''}`
+    : null;
+  document.getElementById('record-modal-body').innerHTML = `
+    ${row('Teacher',      escHtml(selectedRecord.teacherName || '—'))}
+    ${row('Period',       escHtml(fmtPeriod(selectedRecord.periodMonth, selectedRecord.periodYear)))}
+    ${studentsLabel ? row('Students', escHtml(studentsLabel)) : ''}
+    ${row('Amount',       `<span class="text-base font-bold">${escHtml(fmtAmount(selectedRecord.amount, selectedRecord.currency))}</span>`)}
+    ${row('Type',         selectedRecord.isRecurring ? 'Recurring' : 'One-Time')}
+    ${row('Status',       `<span class="badge badge-${escHtml(selectedRecord.status)}">${escHtml(selectedRecord.status)}</span>`)}
+    ${selectedRecord.paymentDate ? row('Payment Date', escHtml(fmtDate(selectedRecord.paymentDate))) : ''}
+    ${selectedRecord.notes ? row('Notes', escHtml(selectedRecord.notes)) : ''}
+  `;
+
+  const btns = [];
+  if (selectedRecord.status === 'pending') {
+    btns.push(`<button onclick="markAsPaid()"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e6e3b] text-white text-sm font-semibold hover:opacity-90 transition-colors">
+      <span class="material-symbols-outlined text-[16px]">check_circle</span>Mark as Paid</button>`);
+  }
+  if (selectedRecord.payslipUrl) {
+    btns.push(`<a href="${escHtml(selectedRecord.payslipUrl)}" target="_blank" rel="noopener"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle text-sm font-medium text-text-muted hover:bg-surface-container transition-colors no-underline">
+      <span class="material-symbols-outlined text-[16px]">download</span>Download Payslip</a>`);
+    btns.push(`<button onclick="generateAndUploadPayslip()"
+      class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-subtle text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">
+      <span class="material-symbols-outlined text-[15px]">refresh</span>Regenerate</button>`);
+  } else {
+    btns.push(`<button onclick="generateAndUploadPayslip()"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors">
+      <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>Generate Payslip</button>`);
+  }
+
+  btns.push(`<button onclick="deleteSalaryRecord()"
+    class="flex items-center gap-2 px-4 py-2 rounded-lg border border-error/40 text-error text-sm font-semibold hover:bg-error-container transition-colors">
+    <span class="material-symbols-outlined text-[16px]">delete</span>Delete</button>`);
+
+  document.getElementById('record-modal-footer').innerHTML =
+    `<button onclick="closeRecordModal()" class="mr-auto px-4 py-2 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">Close</button>` + btns.join('');
+
+  document.getElementById('record-modal').classList.remove('hidden');
+};
+
+window.deleteSalaryRecord = async function() {
+  if (!selectedRecord) return;
+  if (!confirm(`Permanently delete this salary record for "${selectedRecord.teacherName || '—'}" (${fmtPeriod(selectedRecord.periodMonth, selectedRecord.periodYear)})? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db, 'salaries', selectedRecord.id));
+    allSalaries = allSalaries.filter(s => s.id !== selectedRecord.id);
+    closeRecordModal();
+    applyFilters();
+    showToast('Salary record deleted.', 'success');
+  } catch (e) {
+    console.error(e);
+    showToast('Failed to delete: ' + e.message, 'error');
+  }
+};
+
+window.closeRecordModal = function() {
+  document.getElementById('record-modal').classList.add('hidden');
+  selectedRecord = null;
+};
+
+window.markAsPaid = async function() {
+  if (!selectedRecord) return;
+  try {
+    await updateDoc(doc(db, 'salaries', selectedRecord.id), { status: 'paid', paymentDate: serverTimestamp() });
+    const fakeDate = { seconds: Math.floor(Date.now() / 1000) };
+    selectedRecord.status = 'paid';
+    selectedRecord.paymentDate = fakeDate;
+    const idx = allSalaries.findIndex(s => s.id === selectedRecord.id);
+    if (idx !== -1) { allSalaries[idx].status = 'paid'; allSalaries[idx].paymentDate = fakeDate; }
+    openRecordModal(selectedRecord);
+    applyFilters();
+    showToast('Marked as paid.', 'success');
+  } catch (e) { console.error(e); showToast('Failed to update record.', 'error'); }
+};
+
+window.generateAndUploadPayslip = async function() {
+  if (!selectedRecord) return;
+  if (typeof window.jspdf === 'undefined') { showToast('PDF library not loaded yet. Try again shortly.', 'error'); return; }
+
+  showToast('Generating payslip…', 'info');
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    // Header band
+    pdf.setFillColor(120, 89, 0);
+    pdf.rect(0, 0, 210, 40, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(28); pdf.setFont('helvetica', 'bold');
+    pdf.text('Cremona Music', 105, 20, { align: 'center' });
+    pdf.setFontSize(11); pdf.setFont('helvetica', 'normal');
+    pdf.text('PAYSLIP', 105, 32, { align: 'center' });
+
+    pdf.setTextColor(25, 28, 29);
+    let y = 58;
+
+    const field = (label, value) => {
+      pdf.setFontSize(8); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(95, 99, 104);
+      pdf.text(label.toUpperCase(), 25, y);
+      pdf.setFontSize(13); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(25, 28, 29);
+      pdf.text(String(value), 25, y + 7);
+      y += 22;
+    };
+
+    field('Employee',    selectedRecord.teacherName || '—');
+    field('Pay Period',  fmtPeriod(selectedRecord.periodMonth, selectedRecord.periodYear));
+    field('Amount',      fmtAmount(selectedRecord.amount, selectedRecord.currency));
+    field('Status',      selectedRecord.status === 'paid' ? 'PAID' : 'PENDING');
+    if (selectedRecord.paymentDate) field('Payment Date', fmtDate(selectedRecord.paymentDate));
+    if (selectedRecord.notes)       field('Notes', selectedRecord.notes);
+
+    // Footer
+    pdf.setDrawColor(224, 224, 224); pdf.line(25, 268, 185, 268);
+    pdf.setFontSize(8); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(95, 99, 104);
+    pdf.text(`Generated: ${new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })}`, 25, 275);
+    pdf.text('Cremona Music Education', 185, 275, { align: 'right' });
+
+    const pdfBlob = pdf.output('blob');
+    const key   = `payslips/${selectedRecord.id}.pdf`;
+    await uploadToR2(pdfBlob, key);
+    const dlUrl = `${R2_PUBLIC_BASE}/${key}`;
+
+    await updateDoc(doc(db, 'salaries', selectedRecord.id), { payslipUrl: dlUrl });
+    selectedRecord.payslipUrl = dlUrl;
+    const idx = allSalaries.findIndex(s => s.id === selectedRecord.id);
+    if (idx !== -1) allSalaries[idx].payslipUrl = dlUrl;
+
+    openRecordModal(selectedRecord);
+    applyFilters();
+    showToast('Payslip generated and saved.', 'success');
+  } catch (e) { console.error(e); showToast(`Error: ${e.message}`, 'error'); }
+};
+
+// ── Excel export ──────────────────────────────────────────────────────────────
+window.exportExcel = function() {
+  if (typeof window.XLSX === 'undefined') { showToast('Excel library not loaded.', 'error'); return; }
+  const teacherUid = document.getElementById('filter-teacher').value;
+  const status     = document.getElementById('filter-status').value;
+  const month      = parseInt(document.getElementById('filter-month').value) || 0;
+  const year       = parseInt(document.getElementById('filter-year').value)  || 0;
+  const data = allSalaries.filter(s => {
+    if (teacherUid && s.teacherUid !== teacherUid) return false;
+    if (status !== 'all' && s.status !== status)   return false;
+    if (month && s.periodMonth !== month)           return false;
+    if (year  && s.periodYear  !== year)            return false;
+    return true;
+  });
+  if (!data.length) { showToast('No records to export.', 'info'); return; }
+  const rows = data.map(s => ({
+    'Teacher':      s.teacherName || '',
+    'Amount':       s.amount,
+    'Currency':     s.currency,
+    'Period':       fmtPeriod(s.periodMonth, s.periodYear),
+    'Type':         s.isRecurring ? 'Recurring' : 'One-Time',
+    'Status':       s.status,
+    'Payment Date': s.paymentDate ? fmtDate(s.paymentDate) : '',
+    'Payslip URL':  s.payslipUrl || ''
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Salary Records');
+  const fname = `salary_records${year ? '_'+year : ''}${month ? '_'+String(month).padStart(2,'0') : ''}.xlsx`;
+  XLSX.writeFile(wb, fname);
+};
+
+window.doSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/';
+};
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
+</body>
+</html>

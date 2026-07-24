@@ -2,31 +2,29 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Students | Cremona Music Portal</title>
+<title>My Students | Cremona Music Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script id="tailwind-config">
   tailwind.config = {
     darkMode:"class",
     theme: { extend: {
       colors: {
-        "on-tertiary-fixed":"#3E2C23","surface-variant":"#E4D8C2","inverse-primary":"#D4A520",
-        "error-container":"#ffdad6","on-secondary-fixed":"#3E2C23","text-muted":"#8B6B52",
-        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFDF9","surface-container-low":"#F5EFE4",
-        "primary-container":"#F5E5B0","on-secondary-container":"#3E2C23",
-        "secondary-container":"#F5E5B0","secondary":"#C9A227","on-surface-variant":"#7A5A42",
-        "primary-fixed-dim":"#D4A520","on-surface":"#3E2C23","surface-tint":"#C9A227",
-        "secondary-fixed":"#F0E8C0","surface-container-highest":"#E4D8C2",
-        "border-subtle":"#E8DCC8","background":"#FAF6EF",
-        "primary-fixed":"#F0E8C0","primary":"#C9A227","on-primary-container":"#8B6020",
-        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
-        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#3E2C23",
-        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
-        "surface-container-high":"#EAE0CE","on-primary":"#3E2C23","on-background":"#3E2C23"
+        "on-tertiary-fixed":"#1b1c1c","surface-variant":"#E3D8C6","inverse-primary":"#C8A951",
+        "error-container":"#F9DEDC","on-secondary-fixed":"#2A1D14","text-muted":"#7A6A57",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFFFF","surface-container-low":"#F6F0E6",
+        "primary-container":"#C8A951","on-secondary-container":"#FFFDF8",
+        "secondary-container":"#9A7524","secondary":"#7A5A16","on-surface-variant":"#6B5844",
+        "primary-fixed-dim":"#C8A951","on-surface":"#2B2019","surface-tint":"#3B2A1E",
+        "secondary-fixed":"#F2E6CC","surface-container-highest":"#E3D8C6",
+        "border-subtle":"#E2D7C6","background":"#FAF6EF",
+        "primary-fixed":"#F0E2C4","primary":"#3B2A1E","on-primary-container":"#5A4A22",
+        "outline":"#8A7A63","outline-variant":"#D8C5A8","surface-container":"#F1E9DC",
+        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#ffffff",
+        "on-error-container":"#93000a","error":"#B3261E","surface-dim":"#d9dadb",
+        "surface-container-high":"#EAE0D0","on-primary":"#ffffff","on-background":"#2B2019"
       },
       spacing:{"gutter":"24px","container-max":"1200px","margin-mobile":"16px","margin-desktop":"40px"},
       fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
@@ -45,31 +43,19 @@
 <style>
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
   body { font-family:'Inter',sans-serif; }
-  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,.2);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(59,42,30,.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#ba1a1a;color:#fff; }
+  #toast.error   { background:#B3261E;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  #toast.info    { background:#7A5A16;color:#fff; }
   tr.student-row:hover td { background:#FAF6EF; }
   tr.student-row { cursor:pointer; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
-<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim" data-portal="teacher" data-page="students">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -92,10 +78,6 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <div id="profile-info" class="grid grid-cols-2 gap-x-8 gap-y-3 mb-6 text-sm"></div>
       <h3 class="font-headline-sm text-sm mb-3 text-on-surface-variant uppercase tracking-wide text-xs font-bold">Session History</h3>
       <div id="profile-sessions" class="text-sm text-text-muted">Loading…</div>
-
-      <!-- Certificates (read-only for teachers) -->
-      <h3 class="text-xs font-bold uppercase tracking-wide text-on-surface-variant mt-6 mb-3 pt-5 border-t border-border-subtle">Certificates</h3>
-      <div id="profile-certs" class="text-sm text-text-muted">Loading…</div>
     </div>
     <div class="flex justify-end px-6 pb-5">
       <button onclick="closeProfileModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
@@ -103,25 +85,29 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
   </div>
 </div>
 
-<!-- ── In-portal File Viewer (PDF.js / image lightbox) ────────────────────────── -->
-<div id="file-viewer-modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex flex-col" onclick="if(event.target===this)closeFileViewer()">
-  <div class="flex items-center justify-between px-4 sm:px-6 py-3 flex-shrink-0">
-    <p id="fv-filename" class="text-white text-sm font-semibold truncate flex-1 min-w-0 pr-4">—</p>
-    <div class="flex items-center gap-1 flex-shrink-0">
-      <button id="fv-prev-btn" onclick="fvNav(-1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
-        <span class="material-symbols-outlined">chevron_left</span>
-      </button>
-      <span id="fv-counter" class="hidden text-white/70 text-xs font-medium px-1"></span>
-      <button id="fv-next-btn" onclick="fvNav(1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
-        <span class="material-symbols-outlined">chevron_right</span>
-      </button>
-      <button onclick="closeFileViewer()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors ml-1">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+<!-- ── Header ───────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-6 h-16 max-w-5xl mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-6">
+        <a href="/home"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher" class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Students</a>
+        <a href="/level-tests"      class="whitespace-nowrap text-sm font-medium text-text-muted hover:text-primary transition-colors">Level Tests</a>
+        <a href="/comments"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a href="/salary"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
+      </nav>
     </div>
+    <a href="/account"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline">Account</span>
+    </a>
   </div>
-  <div id="fv-body" class="flex-1 overflow-auto flex items-center justify-center px-4 pb-6"></div>
-</div>
+</header>
 
 <main class="max-w-5xl mx-auto px-6 py-6 min-h-[calc(100vh-80px)]">
   <!-- Page header -->
@@ -180,8 +166,8 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
   <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-    <p class="text-xs text-text-muted">© 2025 Cremona Music.</p>
-    <a href="/account.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
+    <p class="text-xs text-text-muted">© 2026 Cremona Music Portal.</p>
+    <a href="/account" class="text-xs text-text-muted hover:text-primary transition-colors underline">Account</a>
   </div>
 </footer>
 
@@ -190,52 +176,81 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, collection, query, where,
-  getDocs, serverTimestamp
+  getDocs, addDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey:"AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain:"cremonamusic-portal.firebaseapp.com", projectId:"cremonamusic-portal",
-  storageBucket:"cremonamusic-portal.firebasestorage.app",
-  messagingSenderId:"227259733472", appId:"1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey:"REPLACE_ME_CREMONA_API_KEY",
+  authDomain:"portal.cremonamusic.com", projectId:"cremona-portal",
+  storageBucket:"cremona-portal.firebasestorage.app",
+  messagingSenderId:"REPLACE_ME_SENDER_ID", appId:"REPLACE_ME_APP_ID"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
-
-// PDF.js — used only for the stripped-down in-portal certificate viewer (no annotation/editing)
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-// Certificate type metadata (shared look across all portals)
-const CERT_TYPES = { exam:'Exam Result', recital:'Recital', competition:'Competition', other:'Other' };
-const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', competition:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
-let profileCertsCache = [];
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let allStudents    = [];
 let currentUser    = null;
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
+// Hot key: one click from a student profile straight into the parent chat.
+window.messageParent = async function(studentId) {
+  const btn = document.getElementById('msg-parent-btn');
+  if (btn) btn.disabled = true;
+  try {
+    const pSnap = await getDocs(query(collection(db, 'users'), where('linkedStudentIds', 'array-contains', studentId)));
+    const parent = pSnap.docs.map(d => ({ uid: d.id, ...d.data() }))
+      .find(p => p.role === 'parent' && p.status !== 'deleted' && p.status !== 'inactive');
+    if (!parent) {
+      alert('This student has no linked parent account yet. Ask an admin to add the parent email on the student record.');
+      return;
+    }
+    const cSnap = await getDocs(query(collection(db, 'conversations'), where('members', 'array-contains', currentUser.uid)));
+    const existing = cSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .find(c => (c.type || 'direct') === 'direct' && (c.members || []).includes(parent.uid));
+    let convId = existing ? existing.id : null;
+    if (!convId) {
+      const ref = await addDoc(collection(db, 'conversations'), {
+        type: 'direct',
+        members: [currentUser.uid, parent.uid],
+        createdBy: currentUser.uid,
+        createdAt: serverTimestamp(),
+        lastMessage: '',
+        lastMessageAt: serverTimestamp(),
+        lastMessageBy: '',
+      });
+      convId = ref.id;
+    }
+    window.location.href = '/messages?open=' + convId;
+  } catch (e) {
+    console.error('[messageParent]', e);
+    alert('Could not open the chat: ' + e.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+};
+
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists()) { await signOut(auth); window.location.href = '/index.html'; return; }
+    if (!snap.exists()) { await signOut(auth); window.location.href = '/'; return; }
     const data = snap.data();
     if (data.status === 'inactive' || data.status === 'deleted') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
-    if (data.role === 'admin')   { window.location.href = '/admin/accounts.html'; return; }
-    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
+    if (data.role === 'admin')   { window.location.href = '/admin/accounts'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/'; return; }
     currentUser = { uid: user.uid };
     await loadStudents();
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
     console.error(e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
 
-window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/'; };
 
 // ── Load data ──────────────────────────────────────────────────────────────────
 async function loadStudents() {
@@ -326,11 +341,15 @@ async function openProfile(sid) {
     field('Parent Email', s.parentEmail),
     field('Parent Phone', s.parentPhone),
     s.notes ? `<div class="col-span-2">${field('Notes', s.notes)}</div>` : '',
+    `<div class="col-span-2">
+       <button onclick="messageParent('${escHtml(s.id)}')" id="msg-parent-btn"
+               class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-secondary text-white text-sm font-bold hover:brightness-110 active:scale-[0.98] transition-all">
+         <span class="material-symbols-outlined text-[18px]">chat</span> Message Parent
+       </button>
+     </div>`,
   ].join('');
 
   document.getElementById('profile-modal').classList.remove('hidden');
-
-  loadCertificates(sid);
 
   const sessDiv = document.getElementById('profile-sessions');
   sessDiv.innerHTML = '<div class="text-text-muted text-sm">Loading…</div>';
@@ -376,138 +395,6 @@ window.closeProfileModal = function() {
   document.getElementById('profile-modal').classList.add('hidden');
 };
 
-// ── Certificates (read-only) ───────────────────────────────────────────────────
-// Returns a certificate's files as an array, regardless of schema version —
-// new docs store `files: [{fileUrl,fileName}]`; legacy docs store a single
-// top-level `fileUrl`/`fileName` pair (treated as a one-item array).
-function getCertFiles(c) {
-  if (Array.isArray(c.files) && c.files.length) return c.files;
-  if (c.fileUrl) return [{ fileUrl: c.fileUrl, fileName: c.fileName || 'Certificate' }];
-  return [];
-}
-
-async function loadCertificates(sid) {
-  const el = document.getElementById('profile-certs');
-  el.innerHTML = '<span class="text-text-muted text-sm">Loading…</span>';
-  try {
-    const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', sid)));
-    profileCertsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
-    if (!profileCertsCache.length) { el.innerHTML = '<p class="text-text-muted text-sm">No certificates yet.</p>'; return; }
-    el.innerHTML = profileCertsCache.map(certRowHtml).join('');
-    el.querySelectorAll('[data-view-cert]').forEach(b =>
-      b.addEventListener('click', () => {
-        const c = profileCertsCache.find(x => x.id === b.dataset.viewCert);
-        if (c) openFileViewer(getCertFiles(c), 0);
-      }));
-  } catch (e) {
-    el.innerHTML = `<p class="text-error text-sm">Failed to load certificates: ${escHtml(e.message)}</p>`;
-  }
-}
-
-function certRowHtml(c) {
-  const label = CERT_TYPES[c.type] || 'Other';
-  const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
-  const files = getCertFiles(c);
-  const viewLabel = files.length > 1 ? `View (${files.length})` : 'View';
-  return `
-  <div class="flex items-center gap-3 py-2.5 border-t border-border-subtle first:border-t-0">
-    <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
-    <div class="flex-1 min-w-0">
-      <p class="font-semibold text-on-surface truncate">${escHtml(c.title || 'Certificate')}</p>
-      <div class="flex items-center gap-2 mt-0.5 flex-wrap">
-        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${label}</span>
-        <span class="text-xs text-text-muted">${escHtml(fmtDate(c.issuedDate))}</span>
-      </div>
-      ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
-    </div>
-    <button data-view-cert="${escHtml(c.id)}" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0">
-      <span class="material-symbols-outlined text-[16px]">visibility</span> ${viewLabel}
-    </button>
-  </div>`;
-}
-
-function fmtDate(str) {
-  if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
-}
-
-// ── In-portal file viewer (PDF.js render / image lightbox) ────────────────────
-let fvFiles = [];
-let fvIndex = 0;
-
-window.openFileViewer = function(files, startIndex) {
-  fvFiles = files || [];
-  fvIndex = startIndex || 0;
-  if (!fvFiles.length) { showToast('No files to display.', 'error'); return; }
-  document.getElementById('file-viewer-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  renderViewerFile();
-};
-
-window.closeFileViewer = function() {
-  document.getElementById('file-viewer-modal').classList.add('hidden');
-  document.getElementById('fv-body').innerHTML = '';
-  document.body.style.overflow = '';
-};
-
-window.fvNav = function(dir) {
-  fvIndex = (fvIndex + dir + fvFiles.length) % fvFiles.length;
-  renderViewerFile();
-};
-
-function renderViewerFile() {
-  const f = fvFiles[fvIndex];
-  document.getElementById('fv-filename').textContent = f.fileName || 'File';
-  const multi = fvFiles.length > 1;
-  document.getElementById('fv-prev-btn').classList.toggle('hidden', !multi);
-  document.getElementById('fv-next-btn').classList.toggle('hidden', !multi);
-  const counter = document.getElementById('fv-counter');
-  counter.classList.toggle('hidden', !multi);
-  if (multi) counter.textContent = `${fvIndex + 1} / ${fvFiles.length}`;
-
-  const body = document.getElementById('fv-body');
-  const isPdf = /\.pdf($|\?)/i.test(f.fileName || f.fileUrl || '');
-  if (isPdf) {
-    body.innerHTML = `<div id="fv-pdf-pages" class="flex flex-col items-center gap-4 py-4 w-full max-w-3xl mx-auto"></div>`;
-    renderPdfInViewer(f.fileUrl);
-  } else {
-    body.innerHTML = `<img src="${escHtml(f.fileUrl)}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="${escHtml(f.fileName || '')}"/>`;
-  }
-}
-
-async function renderPdfInViewer(url) {
-  const container = document.getElementById('fv-pdf-pages');
-  container.innerHTML = `<div class="flex items-center gap-3 text-white/70 text-sm py-10">
-    <span class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:#fff;"></span> Loading PDF…</div>`;
-  try {
-    const task   = pdfjsLib.getDocument({ url, withCredentials: false });
-    const pdfDoc = await task.promise;
-    container.innerHTML = '';
-    for (let i = 1; i <= pdfDoc.numPages; i++) {
-      const page     = await pdfDoc.getPage(i);
-      const unscaled = page.getViewport({ scale: 1 });
-      const targetW  = Math.min(container.clientWidth || 760, 760);
-      const viewport = page.getViewport({ scale: targetW / unscaled.width });
-      const dpr      = window.devicePixelRatio || 1;
-      const canvas   = document.createElement('canvas');
-      canvas.className = 'rounded-lg shadow-2xl bg-white';
-      canvas.width  = Math.floor(viewport.width * dpr);
-      canvas.height = Math.floor(viewport.height * dpr);
-      canvas.style.width  = Math.floor(viewport.width) + 'px';
-      canvas.style.height = Math.floor(viewport.height) + 'px';
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      container.appendChild(canvas);
-    }
-  } catch (e) {
-    console.error('[renderPdfInViewer]', e);
-    container.innerHTML = `<p class="text-white/70 text-sm py-10">Failed to load PDF preview.</p>`;
-  }
-}
-
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function toDate(v) {
   if (!v) return new Date(0);
@@ -525,7 +412,7 @@ function showToast(msg, type = 'info') {
   setTimeout(() => t.className = '', 3500);
 }
 </script>
-  <script>window.CREMONA_NAV={portal:'teacher',active:'students',title:'Students'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

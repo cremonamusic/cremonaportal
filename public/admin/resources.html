@@ -2,7 +2,6 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Resource Management | Cremona Music Admin</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -13,15 +12,15 @@
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   .custom-scrollbar::-webkit-scrollbar { width: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #D4BCA0; border-radius: 10px; }
-  .spinner { width: 20px; height: 20px; border: 2px solid rgba(201,162,39,0.2); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #E3D8C6; border-radius: 10px; }
+  .spinner { width: 20px; height: 20px; border: 2px solid rgba(59,42,30,0.2); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
   #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 500; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
   #toast.show { opacity: 1; }
-  #toast.error { background: #ba1a1a; color: #fff; }
+  #toast.error { background: #B3261E; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
-  #toast.info { background: #3B2A1E; color: #F5EFE4; }
-  .drop-zone.drag-over { background: #fff9e6; border-color: #C9A227; }
+  #toast.info { background: #7A5A16; color: #fff; }
+  .drop-zone.drag-over { background: #fff9e6; border-color: #3B2A1E; }
   .upload-progress { transition: width 0.3s ease; }
 </style>
 <script id="tailwind-config">
@@ -30,22 +29,22 @@
     theme: {
       extend: {
         colors: {
-          "on-tertiary-fixed": "#3E2C23", "surface-variant": "#E4D8C2",
-          "error-container": "#ffdad6", "on-secondary-fixed": "#3E2C23", "text-muted": "#8B6B52",
-          "surface-white": "#FFFDF9", "surface-container-low": "#F5EFE4",
-          "primary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
-          "secondary-container": "#F5E5B0", "secondary": "#C9A227", "on-surface-variant": "#7A5A42",
-          "primary-fixed-dim": "#D4A520", "on-surface": "#3E2C23",
-          "on-secondary-fixed-variant": "#7A5230", "on-primary-fixed": "#3E2C23",
-          "secondary-fixed": "#F0E8C0", "surface-container-highest": "#E4D8C2",
-          "border-subtle": "#E8DCC8", "background": "#FAF6EF", "primary-fixed": "#F0E8C0",
-          "primary": "#C9A227", "on-primary-container": "#8B6020", "outline": "#7A5230",
-          "outline-variant": "#D4BCA0", "surface-container": "#F0E8D6",
-          "on-error": "#ffffff", "surface": "#FAF6EF", "on-secondary": "#3E2C23",
-          "on-error-container": "#93000a", "error": "#ba1a1a", "surface-dim": "#D4BCA0",
-          "surface-container-high": "#EAE0CE", "on-primary": "#3E2C23",
-          "on-background": "#3E2C23", "surface-container-lowest": "#FFFDF9",
-          "tertiary-container": "#F0E8C0"
+          "on-tertiary-fixed": "#1b1c1c", "surface-variant": "#E3D8C6",
+          "error-container": "#F9DEDC", "on-secondary-fixed": "#2A1D14", "text-muted": "#7A6A57",
+          "surface-white": "#FFFFFF", "surface-container-low": "#F6F0E6",
+          "primary-container": "#C8A951", "on-secondary-container": "#FFFDF8",
+          "secondary-container": "#9A7524", "secondary": "#7A5A16", "on-surface-variant": "#6B5844",
+          "primary-fixed-dim": "#C8A951", "on-surface": "#2B2019",
+          "on-secondary-fixed-variant": "#004493", "on-primary-fixed": "#2A1D14",
+          "secondary-fixed": "#F2E6CC", "surface-container-highest": "#E3D8C6",
+          "border-subtle": "#E2D7C6", "background": "#FAF6EF", "primary-fixed": "#F0E2C4",
+          "primary": "#3B2A1E", "on-primary-container": "#5A4A22", "outline": "#8A7A63",
+          "outline-variant": "#D8C5A8", "surface-container": "#F1E9DC",
+          "on-error": "#ffffff", "surface": "#FAF6EF", "on-secondary": "#ffffff",
+          "on-error-container": "#93000a", "error": "#B3261E", "surface-dim": "#d9dadb",
+          "surface-container-high": "#EAE0D0", "on-primary": "#ffffff",
+          "on-background": "#2B2019", "surface-container-lowest": "#ffffff",
+          "tertiary-container": "#cccac9"
         },
         spacing: { "gutter": "24px", "container-max": "1200px", "margin-mobile": "16px", "margin-desktop": "40px", "base": "8px" },
         fontFamily: { "body-sm": ["Inter"], "headline-lg": ["Inter"], "body-md": ["Inter"], "label-sm": ["Inter"], "headline-sm": ["Inter"], "label-md": ["Inter"], "headline-md": ["Inter"] },
@@ -62,21 +61,10 @@
     }
   }
 </script>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
 </head>
-<body class="bg-surface-container-low text-on-surface font-body-md">
+<body class="bg-surface-container-low text-on-surface font-body-md" data-portal="admin" data-page="resources">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -89,12 +77,39 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 <div id="toast"></div>
 
 <!-- Top Navigation -->
+<header class="bg-surface-white sticky top-0 border-b border-border-subtle shadow-sm z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
+    <div class="flex items-center gap-gutter">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
+        <a class="font-body-md text-secondary border-b-2 border-secondary pb-1 font-bold" href="resources">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <button onclick="doSignOut()" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-error-container hover:text-error transition-all active:scale-95 duration-150">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-label-md font-medium hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
 <main class="max-w-container-max mx-auto px-margin-desktop py-gutter">
   <div class="flex flex-col gap-gutter">
+    <!-- Header -->
     <div class="flex justify-between items-end">
       <div>
         <h1 class="font-headline-lg text-headline-lg text-on-surface">Resource Management</h1>
-        <p class="font-body-md text-text-muted">Upload PDFs to Firebase Storage and manage the books library.</p>
+        <p class="font-body-md text-text-muted">Upload PDFs to Cloudflare R2 and manage the books library.</p>
       </div>
     </div>
 
@@ -107,13 +122,13 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
           <!-- Drop Zone -->
           <div id="drop-zone" class="drop-zone border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center gap-3 bg-surface-container-lowest hover:bg-primary-fixed/10 transition-colors cursor-pointer group" onclick="document.getElementById('file-input').click()">
-            <input id="file-input" type="file" accept=".pdf" class="hidden"/>
+            <input id="file-input" type="file" multiple class="hidden"/>
             <div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-3xl">upload_file</span>
             </div>
             <div class="text-center">
-              <p class="font-label-md font-bold" id="drop-label">Drop PDF here or click to browse</p>
-              <p class="font-body-sm text-text-muted">PDF only · Max 250 MB</p>
+              <p class="font-label-md font-bold" id="drop-label">Drop files here or click to browse</p>
+              <p class="font-body-sm text-text-muted">Any file type · several at once · max 95 MB each</p>
             </div>
           </div>
 
@@ -131,27 +146,8 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <!-- Metadata Fields -->
           <div class="flex flex-col gap-4">
             <div>
-              <label class="font-label-sm text-on-surface-variant block mb-1">Book Title *</label>
+              <label class="font-label-sm text-on-surface-variant block mb-1">Book Title <span class="font-normal text-text-muted">(optional for multiple files)</span></label>
               <input id="resource-title" class="w-full bg-white border border-border-subtle rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary-container focus:border-primary focus:outline-none font-body-sm" placeholder="e.g. Active Skills for Reading 1" type="text"/>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="font-label-sm text-on-surface-variant block mb-1">Subject</label>
-                <select id="resource-subject" class="w-full bg-white border border-border-subtle rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary-container font-body-sm">
-                  <option value="">Select...</option>
-                  <option>English</option>
-                  <option>Science</option>
-                  <option>Math</option>
-                  <option>Social Studies</option>
-                  <option>History</option>
-                  <option>Literature</option>
-                  <option>Other</option>
-                </select>
-              </div>
-              <div>
-                <label class="font-label-sm text-on-surface-variant block mb-1">Grade</label>
-                <input id="resource-grade" class="w-full bg-white border border-border-subtle rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary-container font-body-sm" placeholder="e.g. 3" type="text"/>
-              </div>
             </div>
             <div class="flex items-center justify-between py-2 border-t border-border-subtle">
               <div>
@@ -266,24 +262,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       <p class="text-xs text-text-muted bg-primary-container/15 border border-primary/10 rounded-lg px-3 py-2">
         Leave a field blank to keep its current value unchanged.
       </p>
-      <div>
-        <label class="font-label-sm text-on-surface-variant block mb-1">Subject</label>
-        <select id="be-subject" class="w-full bg-white border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container focus:outline-none">
-          <option value="">— Keep unchanged —</option>
-          <option>English</option>
-          <option>Science</option>
-          <option>Math</option>
-          <option>Social Studies</option>
-          <option>History</option>
-          <option>Literature</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div>
-        <label class="font-label-sm text-on-surface-variant block mb-1">Grade</label>
-        <input id="be-grade" type="text" placeholder="— Keep unchanged —"
-               class="w-full bg-white border border-border-subtle rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-container focus:outline-none"/>
-      </div>
+
       <div class="flex items-center justify-between py-2 border-t border-border-subtle">
         <div>
           <p class="font-label-md font-bold">Allow Download</p>
@@ -312,54 +291,78 @@ import {
   getFirestore, doc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc,
   query, orderBy, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-// ─── Firebase Storage helpers ──────────────────────────────────────────────────
-function makeKey(file) {
-  const ext  = file.name.split('.').pop().toLowerCase();
-  const base = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9\-_.]/g, '_').slice(0, 60);
-  return `${Date.now()}_${base}.${ext}`;
+// ─── Cloudflare Worker + R2 Configuration ─────────────────────────────────────
+const WORKER_URL     = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
+// XHR upload for real progress events — fetch doesn't expose upload progress
+function uploadToR2(file, key, onProgress) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${WORKER_URL}/${key}`);
+    xhr.setRequestHeader('Content-Type', file.type || 'application/pdf');
+    xhr.upload.onprogress = e => { if (e.lengthComputable) onProgress(e.loaded / e.total); };
+    xhr.onload = () => (xhr.status >= 200 && xhr.status < 300)
+      ? resolve()
+      : reject(new Error(xhr.status === 413
+          ? 'too large for storage (max ~95 MB) — compress the file first'
+          : `HTTP ${xhr.status}: ${xhr.responseText}`));
+    xhr.onerror = () => reject(new Error('Network error — check Worker is deployed'));
+    xhr.send(file);
+  });
 }
 
-async function deleteFromStorage(fileName) {
-  if (!fileName) return;
-  try {
-    await deleteObject(ref(storage, `books/${fileName}`));
-  } catch (e) {
-    if (e.code !== 'storage/object-not-found') throw e;
+async function deleteFromR2(key) {
+  if (!key) return;
+  const res = await fetch(`${WORKER_URL}/${key}`, { method: 'DELETE' });
+  if (!res.ok && res.status !== 404) throw new Error(`Delete failed: ${res.status}`);
+}
+
+function makeKey(file) {
+  // Keys must be URL-safe: any space or special char (even in the "extension")
+  // gets percent-encoded on upload but decoded by R2 on read → 404. So sanitise
+  // the whole thing, and only treat a short alphanumeric tail as a real ext.
+  const clean = (s) => s.replace(/[^a-zA-Z0-9\-_]/g, '_');
+  const dot = file.name.lastIndexOf('.');
+  let base = file.name, ext = 'pdf';
+  if (dot > 0) {
+    const rawExt = file.name.slice(dot + 1);
+    if (/^[a-zA-Z0-9]{1,8}$/.test(rawExt)) { base = file.name.slice(0, dot); ext = rawExt.toLowerCase(); }
   }
+  return `${Date.now()}_${clean(base).slice(0, 60)}.${ext}`;
 }
 
 // ─── Firebase ─────────────────────────────────────────────────────────────────
 const app = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
-const auth    = getAuth(app);
-const db      = getFirestore(app);
-const storage = getStorage(app);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
 let allResources   = [];
-let selectedFile   = null;
+let selectedFiles  = [];
 let searchTerm     = '';
 let selectedBookIds = new Set();
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
-    if (snap.data().role !== 'admin') { window.location.href = '/home.html'; return; }
+    if (snap.data().role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(snap.data(), 'resources')) return;
     await loadResources();
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
     console.error(e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
 
@@ -401,7 +404,7 @@ function renderResources() {
     const uploaded   = r.uploadedAt?.toDate ? formatDate(r.uploadedAt.toDate()) : '—';
     const dlChecked  = r.downloadEnabled ? 'checked' : '';
     const visChecked = r.visibility !== false ? 'checked' : '';
-    const readerUrl  = `/reader.html?bookId=${r.id}`;
+    const readerUrl  = `/reader?bookId=${r.id}`;
     return `
     <tr class="hover:bg-surface-container-lowest transition-colors group" id="book-row-${r.id}">
       <td class="px-4 py-4">
@@ -420,8 +423,7 @@ function renderResources() {
         </div>
       </td>
       <td class="px-4 py-4">
-        <span class="font-label-md text-on-surface truncate block">${escHtml(r.subject||'—')}</span>
-        <span class="font-label-sm text-text-muted">Gr. ${escHtml(String(r.grade||'—'))}</span>
+        <span class="px-2 py-0.5 rounded-full bg-surface-container text-text-muted text-[10px] font-bold uppercase">${escHtml(((r.fileName||'').split('.').pop() || 'file').slice(0, 5))}</span>
       </td>
       <td class="px-4 py-4 text-center">
         <label class="relative inline-flex items-center cursor-pointer">
@@ -438,13 +440,17 @@ function renderResources() {
       <td class="px-4 py-4 text-right">
         <div class="flex items-center justify-end gap-1">
           ${r.fileName ? `
-          <a href="${escHtml(r.r2Url || '')}" target="_blank" rel="noopener"
-             class="p-1.5 rounded text-orange-600 hover:bg-orange-50 transition-colors" title="View in Storage">
+          <a href="${R2_PUBLIC_BASE}/${escHtml(r.fileName)}" target="_blank" rel="noopener"
+             class="p-1.5 rounded text-orange-600 hover:bg-orange-50 transition-colors" title="View in R2">
             <span class="material-symbols-outlined text-[16px]">cloud</span>
           </a>` : ''}
           <a href="${readerUrl}" target="_blank" class="p-1.5 text-text-muted hover:text-secondary transition-colors" title="Preview">
             <span class="material-symbols-outlined text-[16px]">open_in_new</span>
           </a>
+          <button onclick="renameResource('${r.id}')"
+                  class="p-1.5 text-text-muted hover:text-primary transition-colors" title="Rename">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+          </button>
           <button onclick="deleteResource('${r.id}','${escHtml(r.fileName||'')}','${escHtml(r.title||'')}')"
                   class="p-1.5 text-text-muted hover:text-error transition-colors" title="Delete">
             <span class="material-symbols-outlined text-[16px]">delete</span>
@@ -507,8 +513,6 @@ window.openBulkEditModal = function() {
   if (!selectedBookIds.size) return;
   document.getElementById('bulk-edit-subtitle').textContent =
     `Editing ${selectedBookIds.size} selected book${selectedBookIds.size !== 1 ? 's' : ''}`;
-  document.getElementById('be-subject').value  = '';
-  document.getElementById('be-grade').value    = '';
   document.getElementById('be-download').value = '';
   document.getElementById('bulk-edit-modal').classList.remove('hidden');
 };
@@ -519,13 +523,9 @@ window.closeBulkEditModal = function() {
 
 window.saveBulkEdit = async function() {
   const btn      = document.getElementById('bulk-edit-save-btn');
-  const subject  = document.getElementById('be-subject').value;
-  const grade    = document.getElementById('be-grade').value.trim();
   const dlVal    = document.getElementById('be-download').value;
 
   const updates = {};
-  if (subject) updates.subject = subject;
-  if (grade)   updates.grade   = grade;
   if (dlVal)   updates.downloadEnabled = dlVal === 'true';
 
   if (!Object.keys(updates).length) {
@@ -533,7 +533,7 @@ window.saveBulkEdit = async function() {
   }
 
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,0.2)"></div> Saving…';
+  btn.innerHTML = '<div class="spinner" style="border-top-color:#2A1D14;border-color:rgba(42,29,20,0.2)"></div> Saving…';
 
   const ids = [...selectedBookIds];
   try {
@@ -557,13 +557,13 @@ window.saveBulkEdit = async function() {
 window.bulkDeleteBooks = async function() {
   if (!selectedBookIds.size) return;
   const n = selectedBookIds.size;
-  if (!confirm(`Permanently delete ${n} book${n !== 1 ? 's' : ''}? Files will be removed from Storage and the library.`)) return;
+  if (!confirm(`Permanently delete ${n} book${n !== 1 ? 's' : ''}? Files will be removed from R2 and the library.`)) return;
 
   const ids   = [...selectedBookIds];
   const books = ids.map(id => allResources.find(r => r.id === id)).filter(Boolean);
 
   try {
-    await Promise.all(books.map(r => deleteFromStorage(r.fileName)));
+    await Promise.all(books.map(r => deleteFromR2(r.fileName)));
     await Promise.all(ids.map(id => deleteDoc(doc(db, 'books', id))));
     allResources = allResources.filter(r => !ids.includes(r.id));
     deselectAllBooks();
@@ -578,73 +578,75 @@ window.bulkDeleteBooks = async function() {
 function updateStats() {
   const totalBytes = allResources.reduce((s, r) => s + (r.fileSize || 0), 0);
   document.getElementById('storage-used').textContent = formatBytes(totalBytes);
-  document.getElementById('storage-count').textContent = `${allResources.length} PDF${allResources.length !== 1 ? 's' : ''} in library`;
+  document.getElementById('storage-count').textContent = `${allResources.length} file${allResources.length !== 1 ? 's' : ''} in library`;
 }
 
 window.uploadResource = async function() {
-  const title          = document.getElementById('resource-title').value.trim();
-  const subject        = document.getElementById('resource-subject').value;
-  const grade          = document.getElementById('resource-grade').value.trim();
+  const titleField      = document.getElementById('resource-title').value.trim();
   const downloadEnabled = document.getElementById('download-toggle').checked;
-
-  if (!selectedFile) return showToast('Please select a PDF file.', 'error');
-  if (!title)        return showToast('Please enter a book title.', 'error');
+  if (!selectedFiles.length) return showToast('Please select at least one file.', 'error');
 
   const btn = document.getElementById('upload-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner" style="border-top-color:#261a00;border-color:rgba(38,26,0,0.2)"></div> Uploading...';
   document.getElementById('upload-progress-wrap').classList.remove('hidden');
-  document.getElementById('upload-bar').style.width = '0%';
-  document.getElementById('upload-pct').textContent = '0%';
 
-  const key = makeKey(selectedFile);
+  let done = 0, failed = [];
+  for (let i = 0; i < selectedFiles.length; i++) {
+    const file = selectedFiles[i];
+    const title = (selectedFiles.length === 1 && titleField)
+      ? titleField
+      : file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
+    btn.innerHTML = `<div class="spinner" style="border-top-color:#2A1D14;border-color:rgba(42,29,20,0.2)"></div> Uploading ${i + 1}/${selectedFiles.length}…`;
+    const key = makeKey(file);
+    try {
+      await uploadToR2(file, key, pct => {
+        const p = Math.round(pct * 100);
+        document.getElementById('upload-bar').style.width = p + '%';
+        document.getElementById('upload-pct').textContent = selectedFiles.length > 1 ? `${i + 1}/${selectedFiles.length} · ${p}%` : p + '%';
+      });
+      await addDoc(collection(db, 'books'), {
+        title,
+        fileName: key,
+        r2Url: `${R2_PUBLIC_BASE}/${key}`,
+        downloadEnabled, visibility: true,
+        fileSize: file.size,
+        fileType: file.type || '',
+        uploadedAt: serverTimestamp()
+      });
+      done++;
+    } catch (e) {
+      console.error('[upload]', file.name, e);
+      failed.push(file.name);
+    }
+  }
 
+  showToast(failed.length
+    ? `${done} uploaded · failed: ${failed.join(', ')}`
+    : (done === 1 ? 'Uploaded successfully!' : `${done} files uploaded!`),
+    failed.length ? 'error' : 'success');
+
+  document.getElementById('resource-title').value = '';
+  document.getElementById('download-toggle').checked = false;
+  document.getElementById('drop-label').textContent = 'Drop files here or click to browse';
+  document.getElementById('upload-progress-wrap').classList.add('hidden');
+  selectedFiles = [];
+  await loadResources();
+  btn.disabled = false;
+  btn.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Upload to R2';
+};
+
+window.renameResource = async function(id) {
+  const r = allResources.find(x => x.id === id);
+  if (!r) return;
+  const name = prompt('New name for this book:', r.title || '');
+  if (name === null || !name.trim() || name.trim() === r.title) return;
   try {
-    // 1. Upload to Firebase Storage
-    const storageRef = ref(storage, `books/${key}`);
-    const uploadTask = uploadBytesResumable(storageRef, selectedFile, { contentType: selectedFile.type || 'application/pdf' });
-    await new Promise((resolve, reject) => {
-      uploadTask.on('state_changed',
-        snap => {
-          const p = Math.round(snap.bytesTransferred / snap.totalBytes * 100);
-          document.getElementById('upload-bar').style.width = p + '%';
-          document.getElementById('upload-pct').textContent = p + '%';
-        },
-        reject,
-        resolve
-      );
-    });
-    const r2Url = await getDownloadURL(storageRef);
-
-    // 2. Save metadata to Firestore
-    await addDoc(collection(db, 'books'), {
-      title, subject, grade,
-      fileName: key,
-      r2Url,
-      downloadEnabled, visibility: true,
-      fileSize: selectedFile.size,
-      fileType: selectedFile.type || 'application/pdf',
-      uploadedAt: serverTimestamp()
-    });
-
-    showToast(`"${title}" uploaded successfully!`, 'success');
-
-    // Reset form
-    document.getElementById('resource-title').value = '';
-    document.getElementById('resource-subject').value = '';
-    document.getElementById('resource-grade').value = '';
-    document.getElementById('download-toggle').checked = false;
-    document.getElementById('drop-label').textContent = 'Drop PDF here or click to browse';
-    document.getElementById('upload-progress-wrap').classList.add('hidden');
-    selectedFile = null;
-
-    await loadResources();
+    await updateDoc(doc(db, 'books', id), { title: name.trim() });
+    r.title = name.trim();
+    renderResources();
+    showToast('Renamed.', 'success');
   } catch (e) {
-    console.error(e);
-    showToast('Upload failed: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Upload to Storage';
+    showToast('Rename failed: ' + e.message, 'error');
   }
 };
 
@@ -658,9 +660,9 @@ window.toggleField = async function(id, field, value) {
 };
 
 window.deleteResource = async function(id, fileName, title) {
-  if (!confirm(`Delete "${title}"?\n\nThis removes it from Storage and the library. This cannot be undone.`)) return;
+  if (!confirm(`Delete "${title}"?\n\nThis removes it from R2 and the library. This cannot be undone.`)) return;
   try {
-    await deleteFromStorage(fileName);
+    await deleteFromR2(fileName);
     await deleteDoc(doc(db, 'books', id));
     allResources = allResources.filter(r => r.id !== id);
     renderResources();
@@ -678,22 +680,25 @@ dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classL
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
   e.preventDefault(); dropZone.classList.remove('drag-over');
-  if (e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]);
+  if (e.dataTransfer.files.length) setFiles(e.dataTransfer.files);
 });
 document.getElementById('file-input').addEventListener('change', e => {
-  if (e.target.files[0]) setFile(e.target.files[0]);
+  if (e.target.files.length) setFiles(e.target.files);
 });
 
-function setFile(file) {
-  if (!file.type.includes('pdf') && !file.name.endsWith('.pdf'))
-    return showToast('Only PDF files are accepted.', 'error');
-  if (file.size > 250 * 1024 * 1024)
-    return showToast('File must be under 250 MB.', 'error');
-  selectedFile = file;
-  document.getElementById('drop-label').textContent = `✓ ${file.name}`;
-  document.getElementById('upload-filename').textContent = file.name;
-  if (!document.getElementById('resource-title').value)
-    document.getElementById('resource-title').value = file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
+function setFiles(files) {
+  const list = [...files];
+  for (const file of list) {
+    if (file.size > 95 * 1024 * 1024)
+      return showToast(`"${file.name}" is over 95 MB — the storage service rejects bigger uploads. Compress the PDF first (smallpdf.com or similar).`, 'error');
+  }
+  selectedFiles = list;
+  document.getElementById('drop-label').textContent =
+    list.length === 1 ? `✓ ${list[0].name}` : `✓ ${list.length} files selected`;
+  document.getElementById('upload-filename').textContent =
+    list.length === 1 ? list[0].name : `${list.length} files`;
+  if (list.length === 1 && !document.getElementById('resource-title').value)
+    document.getElementById('resource-title').value = list[0].name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
 }
 
 document.getElementById('res-search').addEventListener('input', function() {
@@ -719,7 +724,7 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-window.doSignOut = async function() { await signOut(auth); window.location.href = '/index.html'; };
+window.doSignOut = async function() { await signOut(auth); window.location.href = '/'; };
 
 window.showToast = function(msg, type='info') {
   const t = document.getElementById('toast');
@@ -727,7 +732,7 @@ window.showToast = function(msg, type='info') {
   setTimeout(() => t.className = '', 3500);
 };
 </script>
-  <script>window.CREMONA_NAV={portal:'admin',active:'resources',title:'Resources'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

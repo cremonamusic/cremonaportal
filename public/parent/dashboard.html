@@ -2,26 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Dashboard | Cremona Music Portal</title>
+<title>Dashboard | Cremona Parent Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script id="tailwind-config">
   tailwind.config = {
     theme: {
       extend: {
         colors: {
-          "primary": "#C9A227", "primary-container": "#F5E5B0",
-          "on-primary-fixed": "#3E2C23", "on-primary-container": "#8B6020",
-          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
-          "surface": "#FAF6EF", "surface-white": "#FFFDF9",
-          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
-          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
-          "error": "#ba1a1a"
+          "primary": "#3B2A1E", "primary-container": "#C8A951",
+          "on-primary-fixed": "#2A1D14", "on-primary-container": "#5A4A22",
+          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC",
+          "surface": "#FAF6EF", "surface-white": "#FFFFFF",
+          "surface-container": "#F1E9DC", "surface-container-low": "#F6F0E6",
+          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle": "#E2D7C6", "text-muted": "#7A6A57",
+          "error": "#B3261E"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
       }
@@ -32,34 +30,33 @@
   body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,0.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   .fade-up { animation: fadeUp 0.35s ease-out both; }
   .child-card { transition: box-shadow 0.15s ease, transform 0.15s ease; }
   .child-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.10); transform: translateY(-2px); }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#ba1a1a; color:#fff; }
+  #toast.error   { background:#B3261E; color:#fff; }
   #toast.success { background:#1e6e3b; color:#fff; }
-  #toast.info    { background:#3B2A1E; color:#F5EFE4; }
+  #toast.info    { background:#7A5A16; color:#fff; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
 </head>
-<body class="text-on-surface min-h-screen flex flex-col">
+<body class="text-on-surface min-h-screen flex flex-col" data-portal="parent" data-page="dashboard">
 
-<!-- Loading overlay -->
+<script>
+window.CREMONA_LANG = localStorage.getItem('cremona-lang') || 'en';
+window.toggleLang = function() {
+  window.CREMONA_LANG = window.CREMONA_LANG === 'en' ? 'ko' : 'en';
+  localStorage.setItem('cremona-lang', window.CREMONA_LANG);
+  localStorage.setItem('cremona-lang-explicit', '1');
+  if (window._i18nApply) window._i18nApply();
+  if (window._rerender)  window._rerender();
+  if (window._syncLang)  window._syncLang(window.CREMONA_LANG);
+};
+</script>
+
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
     <div class="spinner"></div>
@@ -69,696 +66,542 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
-<!-- Main -->
-<main class="flex-1 max-w-4xl mx-auto w-full px-6 py-8">
-
-  <!-- Announcements — populated by JS, hidden entirely when empty -->
-  <div id="announcements-banner" class="hidden flex flex-col gap-4 mb-6"></div>
-
-  <!-- Greeting -->
-  <div class="mb-8 fade-up">
-    <h1 class="text-2xl font-bold text-on-surface">Welcome back<span id="greeting-name"></span></h1>
-    <p class="text-text-muted mt-1 text-sm">Here's an overview of your child's progress.</p>
-  </div>
-
-  <!-- Children section -->
-  <section>
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm font-semibold text-text-muted uppercase tracking-wide">Your Children</h2>
-      <button onclick="openAddChildModal()"
-              class="flex items-center gap-1.5 text-sm font-medium text-secondary hover:underline transition-colors">
-        <span class="material-symbols-outlined text-[18px]">add_circle</span>
-        Add Child
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-5">
+        <a data-i18n="nav_dashboard" href="dashboard" class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Dashboard</a>
+        <a data-i18n="nav_schedule"  href="schedule"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a data-i18n="nav_reports"   href="reports"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a data-i18n="nav_messages"  href="messages"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a data-i18n="nav_payments"  href="payments"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Payments</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="document.getElementById('photo-input').click()" title="Change profile photo"
+              class="relative group flex-shrink-0">
+        <div id="header-avatar" class="w-9 h-9 rounded-full bg-secondary-fixed text-on-primary-fixed flex items-center justify-center text-xs font-bold overflow-hidden">?</div>
+        <div class="absolute inset-0 rounded-full bg-black/40 hidden group-hover:flex items-center justify-center">
+          <span class="material-symbols-outlined text-white text-[14px]">photo_camera</span>
+        </div>
+      </button>
+      <input id="photo-input" type="file" accept="image/*" class="hidden" onchange="uploadProfilePhoto(this)"/>
+      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
+      <button id="lang-toggle" onclick="toggleLang()"
+              class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border-subtle text-text-muted hover:bg-surface-container transition-colors flex-shrink-0">
+        한국어
+      </button>
+      <button onclick="doSignOut()"
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
+        <span class="material-symbols-outlined text-[18px]">logout</span>
+        <span data-i18n="nav_signout" class="hidden sm:inline">Sign Out</span>
       </button>
     </div>
-    <div id="children-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- populated by JS -->
-    </div>
+  </div>
+</header>
+
+<main class="flex-1 max-w-4xl mx-auto w-full px-6 py-8">
+  <div class="mb-8 fade-up">
+    <h1 class="text-2xl font-bold text-on-surface"><span data-i18n="dash_greeting">Welcome back</span><span id="greeting-name"></span></h1>
+    <p data-i18n="dash_subtitle" class="text-text-muted mt-1 text-sm">Here's an overview of your child's progress.</p>
+  </div>
+  <section>
+    <h2 data-i18n="dash_children" class="text-sm font-semibold text-text-muted uppercase tracking-wide mb-4">Your Children</h2>
+    <div id="children-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
   </section>
 
+  <section class="mt-8">
+    <h2 class="text-sm font-semibold text-text-muted uppercase tracking-wide mb-4">Homework · 숙제</h2>
+    <div id="homework-list" class="flex flex-col gap-3">
+      <p class="text-sm text-text-muted">Loading…</p>
+    </div>
+  </section>
 </main>
 
-<!-- ── Add Child Modal ─────────────────────────────────────────────────────── -->
-<div id="add-child-modal" class="hidden fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4"
-     onclick="if(event.target===this)closeAddChildModal()">
-  <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
-      <h2 class="font-semibold text-base text-on-surface">Add a Child</h2>
-      <button onclick="closeAddChildModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-    <div class="px-6 py-5 flex flex-col gap-4">
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-on-surface-variant">Full Name *</label>
-        <input id="dash-child-name" type="text" placeholder="Child's full name"
-               class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm"/>
-      </div>
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-on-surface-variant">Date of Birth *</label>
-        <input id="dash-child-dob" type="date"
-               class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm"/>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant">IC Front *</label>
-          <input id="dash-front-input" type="file"
-                 accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic" class="hidden"
-                 onchange="dashHandleFile('front', this.files[0])"/>
-          <button type="button" id="dash-front-zone" onclick="document.getElementById('dash-front-input').click()"
-                  class="flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 border-dashed border-border-subtle hover:border-secondary/40 p-3 min-h-[80px] text-center transition-colors w-full">
-            <span class="material-symbols-outlined text-text-muted text-[24px]">upload</span>
-            <span class="text-[11px] text-text-muted">Click to upload</span>
-          </button>
-        </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-on-surface-variant">IC Back *</label>
-          <input id="dash-back-input" type="file"
-                 accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic" class="hidden"
-                 onchange="dashHandleFile('back', this.files[0])"/>
-          <button type="button" id="dash-back-zone" onclick="document.getElementById('dash-back-input').click()"
-                  class="flex flex-col items-center justify-center gap-0.5 rounded-lg border-2 border-dashed border-border-subtle hover:border-secondary/40 p-3 min-h-[80px] text-center transition-colors w-full">
-            <span class="material-symbols-outlined text-text-muted text-[24px]">upload</span>
-            <span class="text-[11px] text-text-muted">Click to upload</span>
-          </button>
-        </div>
-      </div>
-      <p class="text-xs text-text-muted -mt-1">JPG, PNG, or HEIC only · Max 5 MB per photo</p>
-    </div>
-    <div class="flex justify-end gap-3 px-6 pb-5">
-      <button onclick="closeAddChildModal()"
-              class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">
-        Cancel
-      </button>
-      <button id="dash-add-child-btn" onclick="submitAddChild()"
-              class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm flex items-center gap-2">
-        <span class="material-symbols-outlined text-[16px]">person_add</span>
-        Add Child
-      </button>
-    </div>
+<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle flex flex-col items-center gap-2">
+  <span data-i18n="footer">© 2026 Cremona Music.</span>
+  <div class="flex gap-4 items-center">
+    <a href="/guide?role=parent" class="text-[11px] text-secondary hover:underline">
+      <span data-i18n="dash_guide">📖 User Guide</span>
+    </a>
+    <button onclick="openDeleteAccountModal()" class="text-[11px] text-text-muted hover:text-error underline transition-colors">
+      <span data-i18n="dash_delete_account">Delete My Account</span>
+    </button>
   </div>
-</div>
-
-<!-- ── Certificates Modal ─────────────────────────────────────────────────────── -->
-<div id="certs-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-12 overflow-y-auto" onclick="if(event.target===this)closeCertsModal()">
-  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl mb-8">
-    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
-      <h2 id="certs-modal-title" class="font-semibold text-base text-on-surface">Certificates</h2>
-      <button onclick="closeCertsModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-    <div id="certs-modal-body" class="px-6 py-4"></div>
-    <div class="flex justify-end px-6 pb-5">
-      <button onclick="closeCertsModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── In-portal File Viewer (PDF.js / image lightbox) ────────────────────────── -->
-<div id="file-viewer-modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex flex-col" onclick="if(event.target===this)closeFileViewer()">
-  <div class="flex items-center justify-between px-4 sm:px-6 py-3 flex-shrink-0">
-    <p id="fv-filename" class="text-white text-sm font-semibold truncate flex-1 min-w-0 pr-4">—</p>
-    <div class="flex items-center gap-1 flex-shrink-0">
-      <button id="fv-prev-btn" onclick="fvNav(-1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
-        <span class="material-symbols-outlined">chevron_left</span>
-      </button>
-      <span id="fv-counter" class="hidden text-white/70 text-xs font-medium px-1"></span>
-      <button id="fv-next-btn" onclick="fvNav(1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
-        <span class="material-symbols-outlined">chevron_right</span>
-      </button>
-      <button onclick="closeFileViewer()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors ml-1">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-  </div>
-  <div id="fv-body" class="flex-1 overflow-auto flex items-center justify-center px-4 pb-6"></div>
-</div>
-
-<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
-  © 2025 Cremona Music.
 </footer>
 
+<!-- ── Delete Account Modal ───────────────────────────────────────────────── -->
+<div id="delacct-modal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center p-4" onclick="if(event.target===this)closeDeleteAccountModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl p-6">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
+        <span class="material-symbols-outlined text-error">warning</span>
+      </div>
+      <h2 data-i18n="dash_delete_account" class="font-bold text-base text-on-surface">Delete My Account</h2>
+    </div>
+    <p data-i18n="dash_delete_desc" class="text-sm text-text-muted mb-4">This permanently deletes your account and sign-in access. Your child's school records are kept by the academy. This cannot be undone.</p>
+    <label data-i18n="dash_delete_pw" class="block text-xs font-semibold text-text-muted uppercase tracking-wide mb-1.5">Confirm your password</label>
+    <input id="delacct-pw" type="password" placeholder="••••••••" autocomplete="current-password"
+           class="w-full px-4 py-3 rounded-lg border border-border-subtle focus:border-error focus:ring-1 focus:ring-error outline-none text-sm mb-4"/>
+    <div class="flex gap-3">
+      <button onclick="closeDeleteAccountModal()"
+              class="flex-1 border border-border-subtle rounded-xl py-2.5 text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">
+        <span data-i18n="dash_cancel">Cancel</span>
+      </button>
+      <button id="delacct-btn" onclick="confirmDeleteAccount()"
+              class="flex-1 bg-error text-white rounded-xl py-2.5 text-sm font-bold hover:brightness-110 transition-all">
+        <span data-i18n="dash_delete_btn">Delete Account</span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
-import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut }       from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, getDocs, setDoc, updateDoc, arrayUnion,
-         collection, query, where, serverTimestamp, onSnapshot }  from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref as sRef, uploadBytes, getDownloadURL, deleteObject }
-                                                      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut, deleteUser,
+         reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, deleteDoc, updateDoc,
+         collection, query, where, getDocs }    from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const app  = initializeApp({
-  apiKey:            "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain:        "cremonamusic-portal.firebaseapp.com",
-  projectId:         "cremonamusic-portal",
-  storageBucket:     "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
+const app = initializeApp({
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
-const auth    = getAuth(app);
-const db      = getFirestore(app);
-const storage = getStorage(app);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// PDF.js — used only for the stripped-down in-portal certificate viewer (no annotation/editing)
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+// ── i18n ──────────────────────────────────────────────────────────────────────
+const TRANS = {
+  en: {
+    nav_dashboard:'Dashboard', nav_schedule:'Schedule', nav_reports:'Comments',
+    nav_messages:'Messages', nav_payments:'Payments', nav_signout:'Sign Out',
+    dash_greeting:'Welcome back',
+    dash_subtitle:"Here's an overview of your child's progress.",
+    dash_children:'Your Children',
+    dash_schedule:'Schedule', dash_reports:'Comments',
+    dash_empty_h:'No children linked yet',
+    dash_empty_p:'Ask your administrator to link your account to a student.',
+    dash_no_records:'No student records found',
+    dash_join_class:'Join Class',
+    dash_next_class:'Next class',
+    dash_no_upcoming:'No upcoming class',
+    dash_guide:'📖 User Guide',
+    dash_delete_account:'Delete My Account',
+    dash_delete_desc:"This permanently deletes your account and sign-in access. Your child's school records are kept by the academy. This cannot be undone.",
+    dash_delete_pw:'Confirm your password',
+    dash_cancel:'Cancel',
+    dash_delete_btn:'Delete Account',
+    footer:'© 2026 Cremona Music.',
+  },
+  ko: {
+    nav_dashboard:'대시보드', nav_schedule:'일정', nav_reports:'보고서',
+    nav_messages:'메시지', nav_payments:'결제', nav_signout:'로그아웃',
+    dash_greeting:'다시 오셨군요',
+    dash_subtitle:'자녀의 학습 현황입니다.',
+    dash_children:'내 자녀',
+    dash_schedule:'일정', dash_reports:'보고서',
+    dash_empty_h:'연결된 자녀가 없습니다',
+    dash_empty_p:'관리자에게 계정 연동을 요청하세요.',
+    dash_no_records:'학생 정보를 찾을 수 없습니다',
+    dash_join_class:'수업 참여',
+    dash_next_class:'다음 수업',
+    dash_no_upcoming:'예정된 수업 없음',
+    dash_guide:'📖 사용 가이드',
+    dash_delete_account:'계정 삭제',
+    dash_delete_desc:'계정과 로그인 권한이 영구적으로 삭제됩니다. 자녀의 학원 기록은 학원에서 보관합니다. 이 작업은 되돌릴 수 없습니다.',
+    dash_delete_pw:'비밀번호 확인',
+    dash_cancel:'취소',
+    dash_delete_btn:'계정 삭제',
+    footer:'© 2026 Cremona Music.',
+  }
+};
 
-// ── Module-level state ─────────────────────────────────────────────────────────
-let currentUserId  = null;
-let linkedIds      = [];
-let dashFrontFile  = null;
-let dashBackFile   = null;
-let certsByStudent = {};   // studentId → { name, certs[] }
+function t(key) {
+  return TRANS[window.CREMONA_LANG || 'en']?.[key] || TRANS.en[key] || key;
+}
 
-// Certificate type metadata (shared look across all portals)
-const CERT_TYPES = { exam:'Exam Result', recital:'Recital', competition:'Competition', other:'Other' };
-const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', competition:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  const btn = document.getElementById('lang-toggle');
+  if (btn) btn.textContent = (window.CREMONA_LANG === 'en') ? '한국어' : 'English';
+  document.documentElement.lang = window.CREMONA_LANG || 'en';
+}
 
-// ── helpers ────────────────────────────────────────────────────────────────────
+window._i18nApply = applyTranslations;
+
+let _students = null, _teacherMap = {};
+
+window._rerender = function() {
+  if (_students !== null) renderGrid(_students, _teacherMap);
+  applyTranslations();
+};
+
+// ── helpers ───────────────────────────────────────────────────────────────────
 function escHtml(s) {
   return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-function showToast(msg, type = 'info') {
+function showToast(msg, type='info') {
   const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = `show ${type}`;
+  el.textContent = msg; el.className = `show ${type}`;
   setTimeout(() => { el.className = ''; }, 3500);
 }
-
 function avatarBg(name) {
-  const colors = ['#C9A227','#7A5230','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
+  const colors = ['#3B2A1E','#7A5A16','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
   return colors[Math.abs(h) % colors.length];
 }
 
-// ── auth guard → load data ─────────────────────────────────────────────────────
+// ── auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
-
+  if (!user) { window.location.href = '/'; return; }
   let parentData;
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().role !== 'parent') {
-      await signOut(auth);
-      window.location.href = '/index.html';
-      return;
+      await signOut(auth); window.location.href = '/'; return;
     }
     parentData = snap.data();
-  } catch (e) {
-    window.location.href = '/index.html';
-    return;
-  }
+  } catch (e) { window.location.href = '/'; return; }
 
-  // Greeting
+  // Language sync with the mobile app: adopt the stored preference on login,
+  // and persist future toggles so notifications arrive in the right language.
+  const fsLang = parentData.preferredLanguage;
+  // Only adopt the stored (app) preference when this browser has no explicit
+  // choice. Otherwise a toggle whose fire-and-forget write hasn't landed yet
+  // would get clobbered back on the next page load.
+  const langExplicit = localStorage.getItem('cremona-lang-explicit') === '1';
+  if ((fsLang === 'en' || fsLang === 'ko') && fsLang !== window.CREMONA_LANG && !langExplicit) {
+    window.CREMONA_LANG = fsLang;
+    localStorage.setItem('cremona-lang', fsLang);
+  } else if (langExplicit && fsLang !== window.CREMONA_LANG) {
+    updateDoc(doc(db, 'users', user.uid), { preferredLanguage: window.CREMONA_LANG }).catch(() => {});
+  }
+  window._syncLang = (lang) => {
+    updateDoc(doc(db, 'users', user.uid), { preferredLanguage: lang }).catch(() => {});
+  };
+
   const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
   if (firstName) {
     document.getElementById('greeting-name').textContent = `, ${firstName}`;
-    const headerNameEl = document.getElementById('header-name');
-    if (headerNameEl) headerNameEl.textContent = firstName;
+    document.getElementById('header-name').textContent   = firstName;
   }
+  renderHeaderAvatar(parentData.photoUrl, parentData.name || firstName || '?');
 
-  // Load linked students
-  currentUserId = user.uid;
-  linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
+  const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
+  loadHomework(linkedIds);
   await loadChildren(linkedIds);
-
-  // Live announcements banner
-  startAnnouncementsListener('parent');
-
+  applyTranslations();
   document.getElementById('loading-overlay').style.display = 'none';
 });
 
-// ── Announcements banner ──────────────────────────────────────────────────────
-// Single array-contains filter (no composite index needed); active + ordering
-// + the 2-item cap are all done client-side in the snapshot callback.
-function startAnnouncementsListener(role) {
-  const container = document.getElementById('announcements-banner');
-  onSnapshot(
-    query(collection(db, 'announcements'), where('audience', 'array-contains', role)),
-    snap => {
-      const anns = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .filter(a => a.active)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-        .slice(0, 2);
-
-      if (!anns.length) {
-        container.innerHTML = '';
-        container.classList.add('hidden');
-        return;
-      }
-
-      container.classList.remove('hidden');
-      container.innerHTML = anns.map(buildAnnouncementCardHtml).join('');
-    },
-    err => console.error('[announcements listener]', err)
-  );
-}
-
-// Renders one announcement card. Kept byte-identical across home.html,
-// parent/dashboard.html, and the admin live preview so the admin's preview
-// always matches what users actually see.
-function buildAnnouncementCardHtml(a) {
-  const bg       = a.bgColor   || '#F5E5B0';
-  const text     = a.textColor || '#3E2C23';
-  const hasPhoto = !!a.photoUrl;
-  const position = a.photoPosition || 'left';    // left | right | top | center | background
-  const fit      = a.photoFit      || 'cover';   // cover | contain | original
-  const size     = (a.photoSize    != null) ? a.photoSize    : 100;  // 10-100 (%)
-  const radius   = (a.photoRadius  != null) ? a.photoRadius  : 8;    // 0-50 (% border-radius)
-  const opacity  = (a.photoOpacity != null) ? a.photoOpacity : 100;  // 0-100 (%)
-
-  const objectFit  = fit === 'original' ? '' : `object-fit:${fit};`;
-  const radiusPct  = `border-radius:${radius}%;`;
-  const opacityDec = Math.max(0, Math.min(100, opacity)) / 100;
-
-  const textHtml = `
-    ${a.title ? `<p class="font-bold text-base mb-1">${escHtml(a.title)}</p>` : ''}
-    <p class="text-sm leading-relaxed whitespace-pre-wrap">${escHtml(a.body || '')}</p>
-    ${a.linkUrl ? `<a href="${escHtml(a.linkUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-3 text-sm font-semibold underline">${escHtml(a.linkLabel || 'Learn more')} →</a>` : ''}`;
-
-  if (hasPhoto && position === 'background') {
-    return `
-    <div class="relative overflow-hidden" style="background:${bg};color:${text};min-height:140px;${radiusPct}">
-      <img src="${escHtml(a.photoUrl)}" class="absolute inset-0 w-full h-full" style="${objectFit}opacity:${opacityDec};"/>
-      <div class="relative z-10 p-5">${textHtml}</div>
-    </div>`;
-  }
-
-  const leftRightPx = Math.round(60 + (size / 100) * 180);   // 60–240px
-  const topCenterPx = Math.round(80 + (size / 100) * 220);   // 80–300px
-
-  let photoHtml = '';
-  if (hasPhoto) {
-    if (position === 'left' || position === 'right') {
-      const h = fit === 'original' ? 'height:auto;' : `height:${leftRightPx}px;`;
-      photoHtml = `<img src="${escHtml(a.photoUrl)}" class="flex-shrink-0" style="width:${leftRightPx}px;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
-    } else if (position === 'top') {
-      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
-      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:100%;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
-    } else { // center
-      const h = fit === 'original' ? 'height:auto;' : `height:${topCenterPx}px;`;
-      photoHtml = `<img src="${escHtml(a.photoUrl)}" style="width:${size}%;margin:0 auto;${h}${objectFit}opacity:${opacityDec};${radiusPct}"/>`;
-    }
-  }
-
-  const dirClass =
-    position === 'right'  ? 'flex flex-col sm:flex-row-reverse gap-4 items-start' :
-    position === 'top'    ? 'flex flex-col gap-4' :
-    position === 'center' ? 'flex flex-col items-center text-center gap-4' :
-                             'flex flex-col sm:flex-row gap-4 items-start'; // left / no photo
-
-  return `
-  <div class="rounded-2xl p-5 ${dirClass}" style="background:${bg};color:${text}">
-    ${photoHtml}
-    <div class="flex-1 min-w-0${position === 'center' ? ' w-full' : ''}">${textHtml}</div>
-  </div>`;
-}
-
 async function loadChildren(ids) {
   const grid = document.getElementById('children-grid');
-
   if (!ids.length) {
+    _students = [];
     grid.innerHTML = `
       <div class="col-span-full flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
         <span class="material-symbols-outlined text-5xl opacity-30">child_care</span>
-        <p class="font-semibold text-sm">No children linked yet</p>
-        <p class="text-xs mb-2">Register a child to get started, or ask your administrator to link your account.</p>
-        <button onclick="openAddChildModal()"
-                class="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-container text-on-primary-fixed text-sm font-bold hover:brightness-105 active:scale-95 transition-all shadow-sm">
-          <span class="material-symbols-outlined text-[16px]">add_circle</span>
-          Add a Child
-        </button>
+        <p class="font-semibold text-sm">${t('dash_empty_h')}</p>
+        <p class="text-xs">${t('dash_empty_p')}</p>
       </div>`;
     return;
   }
-
   let students = [];
   try {
     const snaps = await Promise.all(ids.map(id => getDoc(doc(db, 'students', id))));
     students = snaps.filter(s => s.exists()).map(s => ({ id: s.id, ...s.data() }));
-  } catch (e) {
-    showToast('Failed to load student data.', 'error');
-    return;
-  }
+  } catch (e) { showToast('Failed to load student data.', 'error'); return; }
 
   if (!students.length) {
+    _students = [];
     grid.innerHTML = `
       <div class="col-span-full flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
         <span class="material-symbols-outlined text-5xl opacity-30">person_off</span>
-        <p class="font-semibold text-sm">No student records found</p>
+        <p class="font-semibold text-sm">${t('dash_no_records')}</p>
       </div>`;
     return;
   }
 
-  // Fetch teacher names for all assigned teachers across all students
   const teacherMap = {};
   const allTeacherUids = [...new Set(students.flatMap(s => s.assignedTeachers || []))];
   if (allTeacherUids.length) {
     try {
       const tSnaps = await Promise.all(allTeacherUids.map(uid => getDoc(doc(db, 'users', uid))));
       tSnaps.forEach(snap => { if (snap.exists()) teacherMap[snap.id] = snap.data(); });
-    } catch (_) { /* non-fatal — teacher names just won't show */ }
+    } catch (_) {}
   }
+  await loadNextSessions(students);
+  _students = students; _teacherMap = teacherMap;
+  renderGrid(students, teacherMap);
+}
 
+// Find each child's next joinable session (not cancelled, still running or upcoming)
+let _nextSessions = {};
+async function loadNextSessions(students) {
+  _nextSessions = {};
+  const toDate = v => (v?.toDate ? v.toDate() : new Date(v || 0));
+  await Promise.all(students.map(async s => {
+    try {
+      const snap = await getDocs(query(collection(db, 'sessions'), where('studentId', '==', s.id)));
+      const now  = Date.now();
+      const next = snap.docs.map(d => d.data())
+        .filter(x => x.status !== 'cancelled')
+        .filter(x => toDate(x.dateTime).getTime() + ((x.duration || 30) * 60000) > now)
+        .sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime))[0];
+      if (next) _nextSessions[s.id] = next;
+    } catch (_) {}
+  }));
+}
+
+function renderGrid(students, teacherMap) {
+  const grid = document.getElementById('children-grid');
   grid.innerHTML = students.map((s, idx) => {
     const name     = s.fullName || '—';
     const grade    = s.grade   || '';
     const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
     const bg       = avatarBg(name);
     const teachers = (s.assignedTeachers || [])
-      .map(uid => teacherMap[uid]?.name || teacherMap[uid]?.email)
-      .filter(Boolean);
+      .map(uid => teacherMap[uid]?.name || teacherMap[uid]?.email).filter(Boolean);
     const sid = encodeURIComponent(s.id);
+
+    // Join Class button — shown when the child has an upcoming session with a meet link
+    const next = _nextSessions[s.id];
+    const toDate = v => (v?.toDate ? v.toDate() : new Date(v || 0));
+    let joinHtml = '';
+    // Session link first, then the teacher's default meet link from Accounts
+    const teacherLink = (s.assignedTeachers || []).map(uid => teacherMap[uid]?.meetLink).find(Boolean);
+    const effLink = (next && next.meetLink) || (next && teacherLink) || null;
+    if (next && effLink) {
+      const dt   = toDate(next.dateTime);
+      const link = /^https?:\/\//i.test(effLink) ? effLink : 'https://' + effLink;
+      const when = dt.toLocaleDateString([], { month:'short', day:'numeric' }) + ' ' +
+                   dt.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+      joinHtml = `
+        <a href="${escHtml(link)}" target="_blank" rel="noopener"
+           class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-secondary text-white text-sm font-bold hover:brightness-110 active:scale-[0.98] transition-all no-underline">
+          <span class="material-symbols-outlined text-[18px]" style="font-variation-settings:'FILL' 1;">video_call</span>
+          ${t('dash_join_class')}
+        </a>
+        <p class="text-[11px] text-text-muted -mt-2">${t('dash_next_class')}: ${escHtml(when)}${next.subject ? ' · ' + escHtml(next.subject) : ''}</p>`;
+    } else {
+      joinHtml = `<p class="text-[11px] text-text-muted -mt-1">${t('dash_no_upcoming')}</p>`;
+    }
     return `
       <div class="child-card fade-up bg-surface-white rounded-2xl border border-border-subtle p-6 flex flex-col items-center gap-4"
            style="animation-delay:${idx * 60}ms">
         <div class="w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
-             style="background:${bg}">
-          ${escHtml(initials)}
-        </div>
+             style="background:${bg}">${escHtml(initials)}</div>
         <div class="text-center flex-1">
           <p class="font-semibold text-on-surface text-base">${escHtml(name)}</p>
           ${grade ? `<p class="text-sm text-text-muted mt-0.5">${escHtml(grade)}</p>` : ''}
-          ${teachers.length ? `<p class="text-xs text-text-muted mt-1 flex items-center justify-center gap-1">
-            <span class="material-symbols-outlined text-[13px]">person</span>${escHtml(teachers.join(', '))}</p>` : ''}
+          ${teachers.length ? `<p class="text-xs text-text-muted mt-1 flex items-center justify-center gap-1"><span class="material-symbols-outlined text-[13px]">person</span>${escHtml(teachers.join(', '))}</p>` : ''}
         </div>
-        <div class="flex flex-col gap-2 w-full">
-          <div class="flex gap-2 w-full">
-            <a href="schedule.html?studentId=${sid}"
-               class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors no-underline">
-              <span class="material-symbols-outlined text-[14px]">calendar_month</span>Schedule
-            </a>
-            <a href="comments.html?studentId=${sid}"
-               class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-secondary/10 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors no-underline">
-              <span class="material-symbols-outlined text-[14px]">chat</span>Comments
-            </a>
-          </div>
-          <button onclick="openCertsModal('${escHtml(s.id)}')"
-             class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
-            <span class="material-symbols-outlined text-[14px]" style="font-variation-settings:'FILL' 1;">workspace_premium</span>Certificates
-            <span id="cert-count-${escHtml(s.id)}" class="ml-0.5 px-1.5 py-0.5 rounded-full bg-secondary/15 text-secondary text-[10px] font-bold hidden">0</span>
-          </button>
+        ${joinHtml}
+        <div class="flex gap-2 w-full">
+          <a href="schedule?studentId=${sid}"
+             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors no-underline">
+            <span class="material-symbols-outlined text-[14px]">calendar_month</span>${t('dash_schedule')}
+          </a>
+          <a href="reports?studentId=${sid}"
+             class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-secondary/10 text-xs font-semibold text-secondary hover:bg-secondary/20 transition-colors no-underline">
+            <span class="material-symbols-outlined text-[14px]">description</span>${t('dash_reports')}
+          </a>
         </div>
       </div>`;
   }).join('');
-
-  // Fetch certificate counts per child, update badges, and cache for the modal
-  certsByStudent = {};
-  await Promise.all(students.map(async st => {
-    try {
-      const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', st.id)));
-      const certs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
-      certsByStudent[st.id] = { name: st.fullName || 'Child', certs };
-      const badge = document.getElementById('cert-count-' + st.id);
-      if (badge && certs.length) { badge.textContent = certs.length; badge.classList.remove('hidden'); }
-    } catch (_) { /* non-fatal */ }
-  }));
 }
-
-// ── Certificates modal ─────────────────────────────────────────────────────────
-// Returns a certificate's files as an array, regardless of schema version —
-// new docs store `files: [{fileUrl,fileName}]`; legacy docs store a single
-// top-level `fileUrl`/`fileName` pair (treated as a one-item array).
-function getCertFiles(c) {
-  if (Array.isArray(c.files) && c.files.length) return c.files;
-  if (c.fileUrl) return [{ fileUrl: c.fileUrl, fileName: c.fileName || 'Certificate' }];
-  return [];
-}
-
-let modalCertsCache = [];
-
-window.openCertsModal = function(sid) {
-  const entry = certsByStudent[sid] || { name: 'Child', certs: [] };
-  modalCertsCache = entry.certs;
-  document.getElementById('certs-modal-title').textContent = `${entry.name} — Certificates`;
-  const body = document.getElementById('certs-modal-body');
-  if (!entry.certs.length) {
-    body.innerHTML = `<div class="flex flex-col items-center justify-center py-10 text-center text-text-muted gap-2">
-      <span class="material-symbols-outlined text-4xl opacity-30">workspace_premium</span>
-      <p class="text-sm font-semibold">No certificates yet</p>
-      <p class="text-xs">Certificates awarded to your child will appear here.</p>
-    </div>`;
-  } else {
-    body.innerHTML = entry.certs.map(certRowHtml).join('');
-    body.querySelectorAll('[data-view-cert]').forEach(b =>
-      b.addEventListener('click', (event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        const c = modalCertsCache.find(x => x.id === b.dataset.viewCert);
-        if (c) openFileViewer(getCertFiles(c), 0);
-      }));
-  }
-  document.getElementById('certs-modal').classList.remove('hidden');
-};
-window.closeCertsModal = function() { document.getElementById('certs-modal').classList.add('hidden'); };
-
-function certRowHtml(c) {
-  const label = CERT_TYPES[c.type] || 'Other';
-  const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
-  const files = getCertFiles(c);
-  const viewLabel = files.length > 1 ? `View (${files.length})` : 'View';
-  return `
-  <div class="flex items-center gap-3 py-3 border-t border-border-subtle first:border-t-0">
-    <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
-    <div class="flex-1 min-w-0">
-      <p class="font-semibold text-on-surface truncate">${escHtml(c.title || 'Certificate')}</p>
-      <div class="flex items-center gap-2 mt-0.5 flex-wrap">
-        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${label}</span>
-        <span class="text-xs text-text-muted">${escHtml(fmtDate(c.issuedDate))}</span>
-      </div>
-      ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
-    </div>
-    <button type="button" data-view-cert="${escHtml(c.id)}" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0">
-      <span class="material-symbols-outlined text-[16px]">visibility</span> ${viewLabel}
-    </button>
-  </div>`;
-}
-
-function fmtDate(str) {
-  if (!str) return '';
-  const d = new Date(str + 'T00:00:00');
-  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
-}
-
-// ── In-portal file viewer (PDF.js render / image lightbox) ────────────────────
-let fvFiles = [];
-let fvIndex = 0;
-
-window.openFileViewer = function(files, startIndex) {
-  fvFiles = files || [];
-  fvIndex = startIndex || 0;
-  if (!fvFiles.length) { showToast('No files to display.', 'error'); return; }
-  document.getElementById('file-viewer-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  renderViewerFile();
-};
-
-window.closeFileViewer = function() {
-  document.getElementById('file-viewer-modal').classList.add('hidden');
-  document.getElementById('fv-body').innerHTML = '';
-  document.body.style.overflow = '';
-};
-
-window.fvNav = function(dir) {
-  fvIndex = (fvIndex + dir + fvFiles.length) % fvFiles.length;
-  renderViewerFile();
-};
-
-function renderViewerFile() {
-  const f = fvFiles[fvIndex];
-  document.getElementById('fv-filename').textContent = f.fileName || 'File';
-  const multi = fvFiles.length > 1;
-  document.getElementById('fv-prev-btn').classList.toggle('hidden', !multi);
-  document.getElementById('fv-next-btn').classList.toggle('hidden', !multi);
-  const counter = document.getElementById('fv-counter');
-  counter.classList.toggle('hidden', !multi);
-  if (multi) counter.textContent = `${fvIndex + 1} / ${fvFiles.length}`;
-
-  const body = document.getElementById('fv-body');
-  const isPdf = /\.pdf($|\?)/i.test(f.fileName || f.fileUrl || '');
-  if (isPdf) {
-    body.innerHTML = `<div id="fv-pdf-pages" class="flex flex-col items-center gap-4 py-4 w-full max-w-3xl mx-auto"></div>`;
-    renderPdfInViewer(f.fileUrl);
-  } else {
-    body.innerHTML = `<img src="${escHtml(f.fileUrl)}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="${escHtml(f.fileName || '')}"/>`;
-  }
-}
-
-async function renderPdfInViewer(url) {
-  const container = document.getElementById('fv-pdf-pages');
-  container.innerHTML = `<div class="flex items-center gap-3 text-white/70 text-sm py-10">
-    <span class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:#fff;"></span> Loading PDF…</div>`;
-  try {
-    const task   = pdfjsLib.getDocument({ url, withCredentials: false });
-    const pdfDoc = await task.promise;
-    container.innerHTML = '';
-    for (let i = 1; i <= pdfDoc.numPages; i++) {
-      const page     = await pdfDoc.getPage(i);
-      const unscaled = page.getViewport({ scale: 1 });
-      const targetW  = Math.min(container.clientWidth || 760, 760);
-      const viewport = page.getViewport({ scale: targetW / unscaled.width });
-      const dpr      = window.devicePixelRatio || 1;
-      const canvas   = document.createElement('canvas');
-      canvas.className = 'rounded-lg shadow-2xl bg-white';
-      canvas.width  = Math.floor(viewport.width * dpr);
-      canvas.height = Math.floor(viewport.height * dpr);
-      canvas.style.width  = Math.floor(viewport.width) + 'px';
-      canvas.style.height = Math.floor(viewport.height) + 'px';
-      const ctx = canvas.getContext('2d');
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      await page.render({ canvasContext: ctx, viewport }).promise;
-      container.appendChild(canvas);
-    }
-  } catch (e) {
-    console.error('[renderPdfInViewer]', e);
-    container.innerHTML = `<p class="text-white/70 text-sm py-10">Failed to load PDF preview.</p>`;
-  }
-}
-
-// ── Add Child modal ────────────────────────────────────────────────────────────
-window.openAddChildModal = function() {
-  dashFrontFile = null;
-  dashBackFile  = null;
-  document.getElementById('dash-child-name').value = '';
-  document.getElementById('dash-child-dob').value  = '';
-  document.getElementById('dash-front-input').value = '';
-  document.getElementById('dash-back-input').value  = '';
-  resetDashZone('front');
-  resetDashZone('back');
-  document.getElementById('add-child-modal').classList.remove('hidden');
-  document.getElementById('dash-child-name').focus();
-};
-
-window.closeAddChildModal = function() {
-  document.getElementById('add-child-modal').classList.add('hidden');
-};
-
-function resetDashZone(side) {
-  const zone = document.getElementById(`dash-${side}-zone`);
-  zone.innerHTML = `
-    <span class="material-symbols-outlined text-text-muted text-[24px]">upload</span>
-    <span class="text-[11px] text-text-muted">Click to upload</span>`;
-  zone.className = zone.className
-    .replace('border-secondary bg-secondary/5', '')
-    + ' border-dashed border-border-subtle';
-}
-
-window.dashHandleFile = function(side, file) {
-  if (!file) return;
-  const ALLOWED = ['image/jpeg', 'image/png', 'image/heic', 'image/heif'];
-  if (!ALLOWED.includes(file.type) && !file.name.toLowerCase().match(/\.(jpg|jpeg|png|heic)$/)) {
-    showToast('Only JPG, PNG, or HEIC files are allowed.', 'error'); return;
-  }
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('Image must be under 5 MB.', 'error'); return;
-  }
-  if (side === 'front') dashFrontFile = file;
-  else                  dashBackFile  = file;
-
-  const zone = document.getElementById(`dash-${side}-zone`);
-  zone.innerHTML = `
-    <span class="material-symbols-outlined text-[20px]" style="color:#C9A227;font-variation-settings:'FILL' 1;">check_circle</span>
-    <span class="text-[11px] font-medium mt-0.5 block truncate max-w-full px-1" style="color:#C9A227;">${escHtml(file.name)}</span>`;
-  zone.classList.remove('border-dashed', 'border-border-subtle');
-  zone.classList.add('border-secondary', 'bg-secondary/5');
-};
-
-window.submitAddChild = async function() {
-  const name = document.getElementById('dash-child-name').value.trim();
-  const dob  = document.getElementById('dash-child-dob').value;
-  if (!name)          { showToast('Full name is required.', 'error'); return; }
-  if (!dob)           { showToast('Date of birth is required.', 'error'); return; }
-  if (!dashFrontFile) { showToast('IC Front photo is required.', 'error'); return; }
-  if (!dashBackFile)  { showToast('IC Back photo is required.', 'error'); return; }
-
-  const btn = document.getElementById('dash-add-child-btn');
-  const resetBtn = () => {
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-symbols-outlined text-[16px]">person_add</span> Add Child';
-  };
-  const spinner = '<div style="width:18px;height:18px;border:2px solid rgba(62,44,35,.25);border-top-color:#3E2C23;border-radius:50%;animation:spin .7s linear infinite;display:inline-block"></div>';
-  btn.disabled = true;
-
-  // Pre-generate student doc ref — ID reserved, no Firestore write yet
-  const ext        = f => f.name.toLowerCase().endsWith('.heic') ? 'heic'
-                        : f.name.toLowerCase().endsWith('.png')  ? 'png' : 'jpg';
-  const studentRef = doc(collection(db, 'students'));
-  const sid        = studentRef.id;
-  const frontRef   = sRef(storage, `studentIC/${sid}/front.${ext(dashFrontFile)}`);
-  const backRef    = sRef(storage, `studentIC/${sid}/back.${ext(dashBackFile)}`);
-
-  // ── Step 1: Upload both photos first ──────────────────────────────────────
-  btn.innerHTML = `${spinner} Uploading photos…`;
-  let icFrontUrl, icBackUrl;
-  try {
-    await Promise.all([
-      uploadBytes(frontRef, dashFrontFile, { contentType: dashFrontFile.type || 'image/jpeg' }),
-      uploadBytes(backRef,  dashBackFile,  { contentType: dashBackFile.type  || 'image/jpeg' }),
-    ]);
-    [icFrontUrl, icBackUrl] = await Promise.all([
-      getDownloadURL(frontRef),
-      getDownloadURL(backRef),
-    ]);
-  } catch (e) {
-    console.error('[submitAddChild] photo upload failed', e);
-    // Rollback: delete any partial uploads (best-effort)
-    await Promise.allSettled([
-      deleteObject(frontRef).catch(() => {}),
-      deleteObject(backRef).catch(() => {}),
-    ]);
-    showToast('Photo upload failed. Please try again.', 'error');
-    resetBtn(); return;
-  }
-
-  // ── Step 2: Create student doc with URLs embedded from the start ───────────
-  btn.innerHTML = `${spinner} Saving record…`;
-  try {
-    await setDoc(studentRef, {
-      fullName: name, dateOfBirth: dob,
-      grade: '', notes: '', assignedTeachers: [],
-      createdAt: serverTimestamp(),
-      registeredViaParentSignup: true,
-      icFrontUrl, icBackUrl,
-    });
-  } catch (e) {
-    console.error('[submitAddChild] student doc creation failed', e);
-    // Rollback: delete uploaded photos since doc was never created
-    await Promise.allSettled([
-      deleteObject(frontRef).catch(() => {}),
-      deleteObject(backRef).catch(() => {}),
-    ]);
-    showToast('Failed to save student record. Please try again.', 'error');
-    resetBtn(); return;
-  }
-
-  // ── Step 3: Link student to parent ────────────────────────────────────────
-  // Student doc exists and is complete — linking failure is non-fatal; admin can fix
-  btn.innerHTML = `${spinner} Linking…`;
-  try {
-    await updateDoc(doc(db, 'users', currentUserId), {
-      linkedStudentIds: arrayUnion(sid),
-    });
-  } catch (e) {
-    console.error('[submitAddChild] linkedStudentIds update failed', e);
-    showToast('Child saved but account link failed — please contact support.', 'error');
-    resetBtn(); return;
-  }
-
-  linkedIds = [...linkedIds, sid];
-  closeAddChildModal();
-  showToast('Child added successfully!', 'success');
-  await loadChildren(linkedIds);
-  resetBtn();
-};
 
 window.doSignOut = async function() {
-  await signOut(auth);
-  window.location.href = '/index.html';
+  await signOut(auth); window.location.href = '/';
+};
+
+// ── Profile photo ─────────────────────────────────────────────────────────────
+const WORKER_URL     = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
+function renderHeaderAvatar(photoUrl, name) {
+  const el = document.getElementById('header-avatar');
+  if (photoUrl) {
+    el.innerHTML = `<img src="${escHtml(photoUrl)}" class="w-full h-full object-cover" alt="profile"/>`;
+  } else {
+    el.textContent = (name || '?').split(' ').filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+  }
+}
+
+window.uploadProfilePhoto = async function(input) {
+  const file = input.files[0];
+  const user = auth.currentUser;
+  if (!file || !user) return;
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const key = `avatars/${user.uid}_${Date.now()}.${ext}`;
+  showToast('Uploading photo…', 'info');
+  try {
+    const photoUrl = await apiUpload(key, file, file.type || 'image/jpeg');
+    await updateDoc(doc(db, 'users', user.uid), { photoUrl });
+    renderHeaderAvatar(photoUrl, '');
+    showToast('Profile photo updated.', 'success');
+  } catch (e) {
+    console.error('[uploadProfilePhoto]', e);
+    showToast('Photo upload failed. Please try again.', 'error');
+  }
+  input.value = '';
+};
+
+// ── Delete My Account ─────────────────────────────────────────────────────────
+
+// Uploads go through /api/upload (same-origin) — the R2 worker's CORS only
+// allows the old .web.app origin, so direct browser PUTs fail on this domain.
+async function apiUpload(key, blob, contentType) {
+  const dataBase64 = await new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onload = () => res(String(fr.result).split(',')[1]);
+    fr.onerror = () => rej(new Error('Could not read file'));
+    fr.readAsDataURL(blob);
+  });
+  const idToken = await auth.currentUser.getIdToken();
+  const r = await fetch('/api/upload', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ idToken, key, contentType, dataBase64 }),
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Upload failed');
+  return d.url;
+}
+
+// ── Homework: view assignments, submit photos ─────────────────────────────────
+function hwEsc(x) { return String(x ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+let hwDocs = [];
+
+async function loadHomework(linkedIds) {
+  const box = document.getElementById('homework-list');
+  if (!linkedIds || !linkedIds.length) {
+    box.innerHTML = '<p class="text-sm text-text-muted italic">No homework yet.</p>';
+    return;
+  }
+  try {
+    const chunks = [];
+    for (let i = 0; i < linkedIds.length; i += 10) chunks.push(linkedIds.slice(i, i + 10));
+    const snaps = await Promise.all(chunks.map(c =>
+      getDocs(query(collection(db, 'homework'), where('studentId', 'in', c)))));
+    hwDocs = snaps.flatMap(s2 => s2.docs.map(d => ({ id: d.id, ...d.data() })))
+      .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+      .slice(0, 20);
+    renderHomework();
+  } catch (e) {
+    console.error('[homework]', e);
+    box.innerHTML = '<p class="text-sm text-text-muted italic">Could not load homework.</p>';
+  }
+}
+
+function renderHomework() {
+  const box = document.getElementById('homework-list');
+  if (!hwDocs.length) {
+    box.innerHTML = '<p class="text-sm text-text-muted italic">No homework yet — assignments from teachers appear here. 선생님이 내주신 숙제가 여기에 표시됩니다.</p>';
+    return;
+  }
+  box.innerHTML = hwDocs.map(h => {
+    const when = h.createdAt?.seconds ? new Date(h.createdAt.seconds * 1000).toLocaleDateString() : '';
+    const photos = (h.submissionPhotos || []).map(u =>
+      `<a href="${hwEsc(u)}" target="_blank" rel="noopener"><img src="${hwEsc(u)}" class="w-16 h-16 object-cover rounded-lg border border-border-subtle"/></a>`).join('');
+    const badge = h.status === 'reviewed'
+      ? '<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase flex-shrink-0">Checked ✓</span>'
+      : h.status === 'submitted'
+      ? '<span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[10px] font-bold uppercase flex-shrink-0">Submitted</span>'
+      : '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase flex-shrink-0">To do · 할 일</span>';
+    return `<div class="bg-surface-white border ${h.status === 'assigned' ? 'border-amber-200' : 'border-border-subtle'} rounded-2xl p-5 fade-up">
+      <div class="flex items-start justify-between gap-3 mb-1.5">
+        <div class="min-w-0">
+          <p class="font-bold text-on-surface">${hwEsc(h.studentName || '')}</p>
+          <p class="text-xs text-text-muted">${hwEsc(h.teacherName || '')} · ${hwEsc(when)}${h.dueDate ? ' · due ' + hwEsc(h.dueDate) : ''}</p>
+        </div>
+        ${badge}
+      </div>
+      <p class="text-sm whitespace-pre-wrap mb-2">${hwEsc(h.instructions || '')}</p>
+      ${h.attachmentUrl ? `<a href="${hwEsc(h.attachmentUrl)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-xs font-bold text-secondary hover:underline mb-2"><span class="material-symbols-outlined text-[14px]">attach_file</span>${hwEsc(h.attachmentName || 'Attachment')}</a>` : ''}
+      ${photos ? `<div class="flex flex-wrap gap-2 my-2">${photos}</div>` : ''}
+      ${h.status === 'reviewed' && h.feedback ? `<p class="text-sm bg-green-50 border border-green-200 rounded-lg px-3 py-2 mt-1">💬 ${hwEsc(h.feedback)}</p>` : ''}
+      ${h.status === 'assigned' ? `
+        <div class="mt-2">
+          <input type="file" id="hwf-${h.id}" accept="image/*" multiple class="hidden" onchange="submitHwPhotos('${h.id}', this)"/>
+          <button onclick="document.getElementById('hwf-${h.id}').click()"
+                  class="flex items-center gap-2 px-4 py-2 bg-primary-container text-on-primary-fixed rounded-lg text-sm font-bold hover:brightness-105">
+            <span class="material-symbols-outlined text-[16px]">photo_camera</span>
+            Submit photos · 사진 제출
+          </button>
+        </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+window.submitHwPhotos = async function(id, input) {
+  const files = [...(input.files || [])].slice(0, 6);
+  if (!files.length) return;
+  for (const f2 of files) {
+    if (f2.size > 7 * 1024 * 1024) return showToast('Each photo must be under 7 MB.', 'error');
+  }
+  showToast('Uploading… 업로드 중…', 'info');
+  try {
+    const urls = [];
+    for (const f2 of files) {
+      const ext = (f2.name.split('.').pop() || 'jpg').toLowerCase();
+      urls.push(await apiUpload(`homework/${id}/${Date.now()}_${Math.random().toString(36).slice(2, 6)}.${ext}`, f2, f2.type || 'image/jpeg'));
+    }
+    const existing = hwDocs.find(h => h.id === id);
+    const all = [...((existing && existing.submissionPhotos) || []), ...urls];
+    await updateDoc(doc(db, 'homework', id), {
+      status: 'submitted',
+      submissionPhotos: all,
+      submittedAt: serverTimestamp(),
+      submissionNote: '',
+    });
+    if (existing) { existing.status = 'submitted'; existing.submissionPhotos = all; }
+    renderHomework();
+    showToast('Homework submitted! The teacher has been notified. 제출 완료!', 'success');
+  } catch (e) {
+    showToast('Upload failed: ' + e.message, 'error');
+  }
+};
+
+window.openDeleteAccountModal = function() {
+  document.getElementById('delacct-pw').value = '';
+  document.getElementById('delacct-modal').classList.remove('hidden');
+};
+
+window.closeDeleteAccountModal = function() {
+  document.getElementById('delacct-modal').classList.add('hidden');
+};
+
+window.confirmDeleteAccount = async function() {
+  const user = auth.currentUser;
+  if (!user) return;
+  const pw = document.getElementById('delacct-pw').value;
+  if (!pw) { showToast('Please enter your password.', 'error'); return; }
+
+  const btn = document.getElementById('delacct-btn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+  try {
+    await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, pw));
+    await deleteDoc(doc(db, 'users', user.uid));
+    await deleteUser(user);
+    window.location.href = '/';
+  } catch (e) {
+    console.error('[deleteAccount]', e);
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      showToast('Incorrect password.', 'error');
+    } else {
+      showToast('Failed to delete account. Please try again.', 'error');
+    }
+    btn.disabled = false; btn.textContent = t('dash_delete_btn');
+  }
 };
 </script>
-  <script>window.CREMONA_NAV={portal:'parent',active:'dashboard',title:'Dashboard'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

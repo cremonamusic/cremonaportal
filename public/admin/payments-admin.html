@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Payment Management | Cremona Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      spacing: { 'margin-desktop': '40px' },
+      maxWidth: { 'container-max': '1200px' },
+      colors: {
+        'primary': '#3B2A1E', 'primary-container': '#C8A951',
+        'on-primary-fixed': '#2A1D14', 'on-primary-container': '#5A4A22',
+        'secondary': '#7A5A16', 'secondary-fixed': '#F2E6CC',
+        'on-secondary-fixed': '#2A1D14', 'secondary-container': '#9A7524',
+        'on-secondary-container': '#FFFDF8',
+        'surface': '#FAF6EF', 'surface-white': '#FFFFFF',
+        'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+        'surface-container-high': '#EAE0D0',
+        'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+        'border-subtle': '#E2D7C6', 'outline-variant': '#D8C5A8',
+        'text-muted': '#7A6A57',
+        'error': '#B3261E', 'error-container': '#F9DEDC',
+        'background': '#FAF6EF'
+      },
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      fontSize: {
+        'body-sm':    ['14px', { lineHeight: '20px' }],
+        'body-md':    ['16px', { lineHeight: '24px' }],
+        'label-md':   ['14px', { lineHeight: '20px', fontWeight: '500' }],
+        'headline-sm':['20px', { lineHeight: '28px', fontWeight: '600' }]
+      }
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin .7s linear infinite; }
+#toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+#toast.show { opacity:1; }
+#toast.error   { background:#B3261E;color:#fff; }
+#toast.success { background:#1e6e3b;color:#fff; }
+#toast.info    { background:#7A5A16;color:#fff; }
+.nav-active { color:#3B2A1E;font-weight:700;border-bottom:2px solid #3B2A1E;padding-bottom:2px; }
+.badge { display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+.badge-pending { background:#fef3c7;color:#92400e; }
+.badge-paid    { background:#d1fae5;color:#065f46; }
+.badge-overdue { background:#fee2e2;color:#991b1b; }
+th { text-align:left;font-weight:600;font-size:12px;color:#7A6A57;text-transform:uppercase;letter-spacing:.05em;padding:10px 16px; }
+td { padding:12px 16px;font-size:14px;border-top:1px solid #E2D7C6;vertical-align:middle; }
+tbody tr:hover td { background:#F6F0E6; }
+.input-cls { width:100%;border:1px solid #E2D7C6;border-radius:8px;padding:6px 12px;font-size:14px;outline:none; }
+.input-cls:focus { box-shadow:0 0 0 2px rgba(59,42,30,.2); }
+</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
+</head>
+<body class="bg-background text-on-surface min-h-screen" data-portal="admin">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── Payment Plan Modal ───────────────────────────────────────────────────── -->
+<div id="plan-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle flex-shrink-0">
+      <h3 class="font-headline-sm">Edit Payment Plan</h3>
+      <button onclick="closePlanModal()" class="p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-5 flex flex-col gap-4 overflow-y-auto">
+      <p class="text-sm font-semibold text-on-surface" id="plan-modal-parent"></p>
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium">Fee Items</span>
+          <button type="button" onclick="addPlanFeeRow()"
+                  class="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-border-subtle text-xs font-medium hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[14px]">add</span>Add Fee
+          </button>
+        </div>
+        <div id="plan-fees-list" class="flex flex-col gap-2">
+          <!-- fee rows injected by JS -->
+        </div>
+        <p id="plan-fees-empty" class="text-xs text-text-muted text-center py-4">No fee items. Click "Add Fee" to begin.</p>
+      </div>
+      <label class="flex items-center gap-3 cursor-pointer select-none">
+        <input id="plan-active" type="checkbox" class="w-4 h-4 accent-primary rounded"/>
+        <span class="text-sm font-medium">Active — include in invoice generation</span>
+      </label>
+    </div>
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-border-subtle flex-shrink-0">
+      <button onclick="closePlanModal()"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">Cancel</button>
+      <button onclick="savePlan()"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-white hover:bg-primary/90 transition-colors">Save Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── One-Time Charge Modal ───────────────────────────────────────────────── -->
+<div id="onetime-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+      <h3 class="font-headline-sm">Add One-Time Charge</h3>
+      <button onclick="closeOnetimeModal()" class="p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-6 py-5 flex flex-col gap-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Parent</label>
+        <select id="ot-parent" class="input-cls">
+          <option value="">— Select parent —</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Fee Type</label>
+        <select id="ot-feetype" class="input-cls">
+          <option value="tuition">Tuition</option>
+          <option value="registration">Registration</option>
+          <option value="material">Material</option>
+          <option value="adhoc">Ad-hoc</option>
+        </select>
+      </div>
+      <div class="flex gap-3">
+        <div class="flex-1">
+          <label class="block text-sm font-medium mb-1">Amount</label>
+          <input id="ot-amount" type="number" min="0" step="0.01" placeholder="0.00" class="input-cls"/>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Currency</label>
+          <select id="ot-currency" class="input-cls" style="width:auto">
+            <option>MYR</option><option>PHP</option><option>KRW</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Due Date</label>
+        <input id="ot-duedate" type="date" class="input-cls"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Description</label>
+        <input id="ot-description" type="text" placeholder="What is this charge for?" class="input-cls"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium mb-1">Notes (optional)</label>
+        <textarea id="ot-notes" rows="2" class="input-cls resize-none" placeholder="Additional details…"></textarea>
+      </div>
+    </div>
+    <div class="flex justify-end gap-3 px-6 py-4 border-t border-border-subtle">
+      <button onclick="closeOnetimeModal()"
+              class="px-4 py-2 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">Cancel</button>
+      <button onclick="saveOneTimeCharge()"
+              class="px-4 py-2 rounded-lg text-sm font-semibold bg-secondary text-white hover:bg-secondary/90 transition-colors">Add Charge</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Record Detail Modal ─────────────────────────────────────────────────── -->
+<div id="record-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+      <h3 class="font-headline-sm">Payment Record</h3>
+      <button onclick="closeRecordModal()" class="p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div id="record-modal-body" class="px-6 py-5 flex flex-col gap-1 text-sm"></div>
+    <div id="record-modal-footer" class="flex flex-wrap gap-3 px-6 py-4 border-t border-border-subtle"></div>
+  </div>
+</div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-10 h-16 max-w-[1200px] mx-auto">
+    <div class="flex items-center gap-8">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
+        <a class="font-body-md nav-active" href="payments-admin">Payments</a>
+        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
+      </nav>
+    </div>
+    <div class="flex items-center gap-4">
+      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
+      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
+        <span class="material-symbols-outlined text-sm">logout</span>
+        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────────── -->
+<main class="max-w-[1200px] mx-auto px-10 py-8">
+
+  <!-- Page title + toolbar -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl font-bold text-on-surface">Payment Management</h1>
+      <p class="text-sm text-text-muted mt-1">Manage parent payment plans, invoices, and overdue reminders.</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="generateInvoices()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">bolt</span>Generate This Month's Invoices
+      </button>
+      <button onclick="openOnetimeModal()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-white text-sm font-semibold hover:bg-secondary/90 active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">add</span>Add One-Time Charge
+      </button>
+      <button onclick="sendAllOverdueReminders()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">notifications</span>Send All Overdue Reminders
+      </button>
+      <button onclick="exportExcel()"
+              class="flex items-center gap-2 px-4 py-2 rounded-lg border border-border-subtle text-text-muted text-sm font-semibold hover:text-secondary hover:border-secondary active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">table_view</span>Export Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- Payment Plans -->
+  <section class="mb-8">
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-border-subtle">
+        <h2 class="font-headline-sm">Payment Plans</h2>
+        <p class="text-sm text-text-muted mt-0.5">Configure recurring fees per parent. Active plans are included in monthly invoice generation.</p>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-surface-container-low">
+              <th>Parent</th><th>Fee Items</th><th>Status</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="plans-tbody">
+            <tr><td colspan="4" class="text-center py-12 text-text-muted text-sm">Loading parents…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- All Payments -->
+  <section>
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-border-subtle">
+        <h2 class="font-headline-sm">All Payments</h2>
+        <p class="text-sm text-text-muted mt-0.5">All payment records. Click a row to view details and take action.</p>
+      </div>
+      <!-- Filters -->
+      <div class="px-6 py-3 border-b border-border-subtle flex flex-wrap gap-3 bg-surface-container-low">
+        <select id="filter-parent" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="">All Parents</option>
+        </select>
+        <select id="filter-status" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="all">All Status</option>
+          <option value="overdue">Overdue</option>
+          <option value="pending">Pending</option>
+          <option value="paid">Paid</option>
+        </select>
+        <select id="filter-feetype" onchange="applyFilters()"
+                class="border border-border-subtle rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30">
+          <option value="">All Types</option>
+          <option value="tuition">Tuition</option>
+          <option value="registration">Registration</option>
+          <option value="material">Material</option>
+          <option value="adhoc">Ad-hoc</option>
+        </select>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-surface-container-low">
+              <th>Parent</th><th>Amount</th><th>Fee Type</th><th>Due Date</th><th>Type</th><th>Status</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="payments-tbody">
+            <tr><td colspan="7" class="text-center py-12 text-text-muted text-sm">Loading payments…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, addDoc, updateDoc, setDoc, deleteDoc, serverTimestamp, Timestamp }
+                           from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// ── EmailJS placeholders — fill these in before deploying ─────────────────────
+const PAYMENT_REMINDER_SERVICE_ID  = 'service_24g7poi';
+const PAYMENT_REMINDER_TEMPLATE_ID = 'template_ivz4g3u';
+const PAYMENT_REMINDER_PUBLIC_KEY  = '4_7MfuOBZ-dISzPbz';
+
+const app = initializeApp({
+  apiKey:            "REPLACE_ME_CREMONA_API_KEY",
+  authDomain:        "portal.cremonamusic.com",
+  projectId:         "cremona-portal",
+  storageBucket:     "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId:             "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const FEE_TYPE_LABELS = { tuition: 'Tuition', registration: 'Registration', material: 'Material', adhoc: 'Ad-hoc' };
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentUser       = null;
+let allParents        = [];          // [{uid, name, email, linkedStudentIds, ...}]
+let allStudents       = new Map();   // id → student data
+let allPlans          = new Map();   // parentUid → plan doc
+let allPayments       = [];         // all payment records
+let selectedRecord    = null;
+let editingParentUid  = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function fmtAmount(amount, currency) {
+  return `${currency} ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = d.toDate ? d.toDate() : (d.seconds ? new Date(d.seconds * 1000) : new Date(d));
+  return dt.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function fmtDateISO(d) {
+  if (!d) return '';
+  const dt = d.toDate ? d.toDate() : (d.seconds ? new Date(d.seconds * 1000) : new Date(d));
+  return dt.toISOString().slice(0, 10);
+}
+
+function getDisplayStatus(p) {
+  if (p.status === 'paid') return 'paid';
+  if (p.dueDate) {
+    const due = p.dueDate.toDate ? p.dueDate.toDate() : (p.dueDate.seconds ? new Date(p.dueDate.seconds * 1000) : new Date(p.dueDate));
+    if (due < new Date()) return 'overdue';
+  }
+  return 'pending';
+}
+
+function sortPayments(list) {
+  const order = { overdue: 0, pending: 1, paid: 2 };
+  return [...list].sort((a, b) => {
+    const sa = getDisplayStatus(a), sb = getDisplayStatus(b);
+    if (order[sa] !== order[sb]) return order[sa] - order[sb];
+    const toMs = d => d ? (d.toDate ? d.toDate().getTime() : (d.seconds ? d.seconds * 1000 : new Date(d).getTime())) : 0;
+    const da = toMs(a.dueDate), db_ = toMs(b.dueDate);
+    return sa === 'paid' ? db_ - da : da - db_;
+  });
+}
+
+// ── Auth guard ────────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/'; return;
+    }
+    if (snap.data().role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(snap.data(), 'payments')) return;
+    currentUser = user;
+    await init();
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) { console.error(e); window.location.href = '/'; }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  await Promise.all([loadParents(), loadStudents(), loadPlans(), loadPayments()]);
+  populateFilters();
+  renderPlansTable();
+  applyFilters();
+}
+
+async function loadStudents() {
+  const snap = await getDocs(collection(db, 'students'));
+  allStudents.clear();
+  snap.forEach(d => allStudents.set(d.id, { id: d.id, ...d.data() }));
+}
+
+async function loadParents() {
+  const snap = await getDocs(collection(db, 'users'));
+  allParents = [];
+  snap.forEach(d => {
+    const data = d.data();
+    // Skip soft-deleted accounts — they're removed in Accounts but the doc remains
+    if (data.role === 'parent' && data.status !== 'deleted') allParents.push({ uid: d.id, ...data });
+  });
+  allParents.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+}
+
+async function loadPlans() {
+  allPlans.clear();
+  const snap = await getDocs(collection(db, 'paymentPlans'));
+  snap.forEach(d => allPlans.set(d.id, { ...d.data() }));
+}
+
+async function loadPayments() {
+  const snap = await getDocs(collection(db, 'payments'));
+  allPayments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+function populateFilters() {
+  const opts = allParents.map(p => `<option value="${escHtml(p.uid)}">${escHtml(p.name || p.email || p.uid)}</option>`).join('');
+  document.getElementById('filter-parent').innerHTML = '<option value="">All Parents</option>' + opts;
+  document.getElementById('ot-parent').innerHTML = '<option value="">— Select parent —</option>' + opts;
+}
+
+// ── Plans table ───────────────────────────────────────────────────────────────
+function renderPlansTable() {
+  const tbody = document.getElementById('plans-tbody');
+  if (!allParents.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-12 text-text-muted text-sm">No parent accounts found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allParents.map(p => {
+    const plan = allPlans.get(p.uid);
+    const active = plan?.active ?? false;
+    const feeCount = plan?.fees?.length ?? 0;
+    const feeSummary = feeCount
+      ? plan.fees.map(f => `${FEE_TYPE_LABELS[f.feeType] || f.feeType}: ${fmtAmount(f.amount, f.currency)}`).join(', ')
+      : '—';
+    return `<tr>
+      <td>
+        <div class="font-medium">${escHtml(p.name || p.email || p.uid)}</div>
+        <div class="text-xs text-text-muted">${escHtml(p.email || '')}</div>
+      </td>
+      <td class="text-sm max-w-xs truncate">${escHtml(feeSummary)}</td>
+      <td>${plan
+        ? (active ? '<span class="badge badge-paid">Active</span>' : '<span class="badge badge-pending">Inactive</span>')
+        : '<span class="text-xs text-text-muted">Not configured</span>'
+      }</td>
+      <td>
+        <button onclick="openPlanModal('${escHtml(p.uid)}')"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-border-subtle hover:bg-surface-container transition-colors">
+          <span class="material-symbols-outlined text-[14px]">edit</span>${plan ? 'Edit' : 'Set up'}
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Plan modal ────────────────────────────────────────────────────────────────
+window.openPlanModal = function(uid) {
+  editingParentUid = uid;
+  const p    = allParents.find(x => x.uid === uid);
+  const plan = allPlans.get(uid);
+
+  document.getElementById('plan-modal-parent').textContent = p?.name || p?.email || uid;
+  document.getElementById('plan-active').checked           = plan?.active ?? true;
+
+  const list = document.getElementById('plan-fees-list');
+  list.innerHTML = '';
+  (plan?.fees || []).forEach(f => addPlanFeeRow(f));
+  syncFeesEmpty();
+  document.getElementById('plan-modal').classList.remove('hidden');
+};
+
+window.closePlanModal = function() {
+  document.getElementById('plan-modal').classList.add('hidden');
+  editingParentUid = null;
+};
+
+function syncFeesEmpty() {
+  const hasFees = document.querySelectorAll('#plan-fees-list .plan-fee-row').length > 0;
+  document.getElementById('plan-fees-empty').style.display = hasFees ? 'none' : 'block';
+}
+
+window.addPlanFeeRow = function(fee = {}) {
+  const list = document.getElementById('plan-fees-list');
+  const div  = document.createElement('div');
+  div.className = 'plan-fee-row flex flex-wrap gap-2 items-end p-3 bg-surface-container-low rounded-xl relative';
+  div.innerHTML = `
+    <button type="button" onclick="this.closest('.plan-fee-row').remove();syncFeesEmpty()"
+            class="absolute top-2 right-2 p-0.5 rounded hover:text-error hover:bg-error-container transition-colors">
+      <span class="material-symbols-outlined text-[16px]">close</span>
+    </button>
+    <div class="flex-1 min-w-[120px]">
+      <label class="block text-xs font-medium mb-1 text-text-muted">Fee Type</label>
+      <select class="fee-type input-cls">
+        <option value="tuition"${fee.feeType === 'tuition' || !fee.feeType ? ' selected' : ''}>Tuition</option>
+        <option value="registration"${fee.feeType === 'registration' ? ' selected' : ''}>Registration</option>
+        <option value="material"${fee.feeType === 'material' ? ' selected' : ''}>Material</option>
+        <option value="adhoc"${fee.feeType === 'adhoc' ? ' selected' : ''}>Ad-hoc</option>
+      </select>
+    </div>
+    <div class="flex-1 min-w-[90px]">
+      <label class="block text-xs font-medium mb-1 text-text-muted">Amount</label>
+      <input type="number" min="0" step="0.01" value="${fee.amount ?? ''}" placeholder="0.00"
+             class="fee-amount input-cls"/>
+    </div>
+    <div class="w-20">
+      <label class="block text-xs font-medium mb-1 text-text-muted">Currency</label>
+      <select class="fee-currency input-cls">
+        <option${!fee.currency || fee.currency === 'MYR' ? ' selected' : ''}>MYR</option>
+        <option${fee.currency === 'PHP' ? ' selected' : ''}>PHP</option>
+        <option${fee.currency === 'KRW' ? ' selected' : ''}>KRW</option>
+      </select>
+    </div>
+    <div class="w-20 mr-6">
+      <label class="block text-xs font-medium mb-1 text-text-muted">Due Day</label>
+      <input type="number" min="1" max="31" value="${fee.dayOfMonth ?? ''}" placeholder="25"
+             class="fee-day input-cls"/>
+    </div>`;
+  list.appendChild(div);
+  syncFeesEmpty();
+};
+
+// expose syncFeesEmpty for inline onclick
+window.syncFeesEmpty = syncFeesEmpty;
+
+window.savePlan = async function() {
+  if (!editingParentUid) return;
+  const rows = document.querySelectorAll('#plan-fees-list .plan-fee-row');
+  const fees = [];
+  let valid  = true;
+  rows.forEach(row => {
+    const amount    = parseFloat(row.querySelector('.fee-amount').value);
+    const dayOfMonth = parseInt(row.querySelector('.fee-day').value);
+    if (isNaN(amount) || amount <= 0 || !dayOfMonth || dayOfMonth < 1 || dayOfMonth > 31) {
+      valid = false; return;
+    }
+    fees.push({
+      feeType:    row.querySelector('.fee-type').value,
+      amount,
+      currency:   row.querySelector('.fee-currency').value,
+      dayOfMonth
+    });
+  });
+  if (!valid) { showToast('Each fee item needs a valid amount and due day (1–31).', 'error'); return; }
+  const p = allParents.find(x => x.uid === editingParentUid);
+  const payload = {
+    parentUid:  editingParentUid,
+    parentName: p?.name || p?.email || editingParentUid,
+    fees,
+    active:     document.getElementById('plan-active').checked,
+    updatedAt:  serverTimestamp(),
+    updatedBy:  currentUser.uid
+  };
+  try {
+    await setDoc(doc(db, 'paymentPlans', editingParentUid), payload, { merge: true });
+    allPlans.set(editingParentUid, payload);
+    renderPlansTable();
+    closePlanModal();
+    showToast('Payment plan saved.', 'success');
+  } catch (e) { console.error(e); showToast('Failed to save plan.', 'error'); }
+};
+
+// ── Generate invoices ──────────────────────────────────────────────────────────
+window.generateInvoices = async function() {
+  const now   = new Date();
+  const month = now.getMonth() + 1;
+  const year  = now.getFullYear();
+  // Due on the 25th by default
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const day         = Math.min(25, daysInMonth);
+  const dueTs       = Timestamp.fromDate(new Date(year, month - 1, day, 23, 59, 59));
+  const dueSec      = { seconds: Math.floor(dueTs.toMillis() / 1000) };
+
+  // For each parent, generate one tuition invoice per linked student with a monthly rate
+  const parentsWithStudents = allParents.filter(p => (p.linkedStudentIds || []).length > 0);
+  if (!parentsWithStudents.length) {
+    showToast('No parents have linked students configured.', 'info'); return;
+  }
+
+  let created = 0, skipped = 0;
+  for (const parent of parentsWithStudents) {
+    for (const studentId of (parent.linkedStudentIds || [])) {
+      const student = allStudents.get(studentId);
+      if (!student?.parentMonthlyRate) continue;
+
+      const existing = allPayments.find(p =>
+        p.parentUid   === parent.uid &&
+        p.studentId   === studentId &&
+        p.periodMonth === month &&
+        p.periodYear  === year &&
+        p.isRecurring
+      );
+      if (existing) { skipped++; continue; }
+
+      const payload = {
+        parentUid:   parent.uid,
+        parentName:  parent.name || parent.email || parent.uid,
+        parentEmail: parent.email || '',
+        studentId,
+        studentName: student.fullName || studentId,
+        amount:      student.parentMonthlyRate,
+        currency:    student.parentCurrency || 'MYR',
+        feeType:     'tuition',
+        description: `Monthly tuition — ${student.fullName || studentId}`,
+        dueDate:     dueTs,
+        paidDate:    null,
+        status:      'pending',
+        isRecurring: true,
+        periodMonth: month,
+        periodYear:  year,
+        notes:       '',
+        createdAt:   serverTimestamp(),
+        createdBy:   currentUser.uid
+      };
+      const newRef = await addDoc(collection(db, 'payments'), payload);
+      allPayments.unshift({ id: newRef.id, ...payload, dueDate: dueSec });
+      created++;
+    }
+  }
+  applyFilters();
+  showToast(`Created ${created} invoices${skipped ? `, skipped ${skipped} existing` : ''}.`, created > 0 ? 'success' : 'info');
+};
+
+// ── One-time charge ────────────────────────────────────────────────────────────
+window.openOnetimeModal = function() {
+  const now = new Date();
+  const yyyy = now.getFullYear(), mm = String(now.getMonth() + 1).padStart(2,'0'), dd = String(now.getDate()).padStart(2,'0');
+  document.getElementById('ot-parent').value      = '';
+  document.getElementById('ot-feetype').value     = 'tuition';
+  document.getElementById('ot-amount').value      = '';
+  document.getElementById('ot-currency').value    = 'MYR';
+  document.getElementById('ot-duedate').value     = `${yyyy}-${mm}-${dd}`;
+  document.getElementById('ot-description').value = '';
+  document.getElementById('ot-notes').value       = '';
+  document.getElementById('onetime-modal').classList.remove('hidden');
+};
+
+window.closeOnetimeModal = function() {
+  document.getElementById('onetime-modal').classList.add('hidden');
+};
+
+window.saveOneTimeCharge = async function() {
+  const parentUid = document.getElementById('ot-parent').value;
+  const amount    = parseFloat(document.getElementById('ot-amount').value);
+  const dueDateV  = document.getElementById('ot-duedate').value;
+  if (!parentUid)              { showToast('Please select a parent.', 'error'); return; }
+  if (isNaN(amount) || amount <= 0) { showToast('Please enter a valid amount.', 'error'); return; }
+  if (!dueDateV)               { showToast('Please enter a due date.', 'error'); return; }
+
+  const p      = allParents.find(x => x.uid === parentUid);
+  const dueTs  = Timestamp.fromDate(new Date(dueDateV + 'T23:59:59'));
+  const dueSec = { seconds: Math.floor(dueTs.toMillis() / 1000) };
+
+  const payload = {
+    parentUid, parentName: p?.name || p?.email || parentUid,
+    parentEmail: p?.email || '',
+    amount, currency: document.getElementById('ot-currency').value,
+    feeType:     document.getElementById('ot-feetype').value,
+    description: document.getElementById('ot-description').value.trim(),
+    dueDate:     dueTs,
+    paidDate:    null,
+    status:      'pending',
+    isRecurring: false,
+    notes:       document.getElementById('ot-notes').value.trim(),
+    createdAt:   serverTimestamp(),
+    createdBy:   currentUser.uid
+  };
+  try {
+    const newRef = await addDoc(collection(db, 'payments'), payload);
+    allPayments.unshift({ id: newRef.id, ...payload, dueDate: dueSec });
+    applyFilters();
+    closeOnetimeModal();
+    showToast('Charge added.', 'success');
+  } catch (e) { console.error(e); showToast('Failed to add charge.', 'error'); }
+};
+
+// ── Filters + payments table ───────────────────────────────────────────────────
+window.applyFilters = function() {
+  const parentUid = document.getElementById('filter-parent').value;
+  const status    = document.getElementById('filter-status').value;
+  const feeType   = document.getElementById('filter-feetype').value;
+  const filtered  = allPayments.filter(p => {
+    if (parentUid && p.parentUid !== parentUid) return false;
+    if (status !== 'all' && getDisplayStatus(p) !== status) return false;
+    if (feeType && p.feeType !== feeType) return false;
+    return true;
+  });
+  renderPaymentsTable(sortPayments(filtered));
+};
+
+function renderPaymentsTable(data) {
+  const tbody = document.getElementById('payments-tbody');
+  if (!data.length) {
+    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-text-muted text-sm">No records found.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = data.map(p => {
+    const ds = getDisplayStatus(p);
+    return `<tr class="cursor-pointer" onclick='openRecordModal(${JSON.stringify(p).replace(/'/g,"&#39;")})'>
+      <td>
+        <div class="font-medium">${escHtml(p.parentName || '—')}</div>
+        <div class="text-xs text-text-muted">${escHtml(p.parentEmail || '')}</div>
+      </td>
+      <td class="font-medium">${escHtml(fmtAmount(p.amount, p.currency))}</td>
+      <td>
+        <span class="text-xs text-text-muted">${escHtml(FEE_TYPE_LABELS[p.feeType] || p.feeType || '—')}</span>
+        ${p.studentName ? `<div class="text-xs text-text-muted">${escHtml(p.studentName)}</div>` : ''}
+      </td>
+      <td class="text-sm">${escHtml(fmtDate(p.dueDate))}</td>
+      <td><span class="text-xs text-text-muted">${p.isRecurring ? 'Recurring' : 'One-Time'}</span></td>
+      <td><span class="badge badge-${escHtml(ds)}">${escHtml(ds)}</span></td>
+      <td><span class="material-symbols-outlined text-text-muted text-[18px]">chevron_right</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Record detail modal ────────────────────────────────────────────────────────
+window.openRecordModal = function(record) {
+  if (typeof record === 'string') { try { record = JSON.parse(record); } catch { return; } }
+  const fresh = allPayments.find(p => p.id === record.id);
+  selectedRecord = fresh || record;
+  const ds = getDisplayStatus(selectedRecord);
+
+  const row = (label, value) => `
+    <div class="flex justify-between items-center gap-4 py-2.5 border-b border-border-subtle last:border-0">
+      <span class="text-text-muted text-sm">${escHtml(label)}</span>
+      <span class="font-medium text-sm text-right">${value}</span>
+    </div>`;
+
+  document.getElementById('record-modal-body').innerHTML = `
+    ${row('Parent',      escHtml(selectedRecord.parentName || '—'))}
+    ${row('Email',       escHtml(selectedRecord.parentEmail || '—'))}
+    ${selectedRecord.studentName ? row('Student', escHtml(selectedRecord.studentName)) : ''}
+    ${row('Fee Type',    escHtml(FEE_TYPE_LABELS[selectedRecord.feeType] || selectedRecord.feeType || '—'))}
+    ${selectedRecord.description ? row('Description', escHtml(selectedRecord.description)) : ''}
+    ${row('Amount',      `<span class="text-base font-bold">${escHtml(fmtAmount(selectedRecord.amount, selectedRecord.currency))}</span>`)}
+    ${row('Due Date',    escHtml(fmtDate(selectedRecord.dueDate)))}
+    ${row('Status',      `<span class="badge badge-${escHtml(ds)}">${escHtml(ds)}</span>`)}
+    ${selectedRecord.paidDate ? row('Paid Date', escHtml(fmtDate(selectedRecord.paidDate))) : ''}
+    ${row('Type',        selectedRecord.isRecurring ? 'Recurring' : 'One-Time')}
+    ${selectedRecord.notes ? row('Notes', escHtml(selectedRecord.notes)) : ''}
+  `;
+
+  const btns = [];
+  if (ds !== 'paid') {
+    btns.push(`<button onclick="markAsPaid()"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1e6e3b] text-white text-sm font-semibold hover:opacity-90 transition-colors">
+      <span class="material-symbols-outlined text-[16px]">check_circle</span>Mark as Paid</button>`);
+  }
+  if (ds === 'overdue') {
+    btns.push(`<button onclick="sendReminderForSelected()"
+      class="flex items-center gap-2 px-4 py-2 rounded-lg border border-error text-error text-sm font-semibold hover:bg-error-container transition-colors">
+      <span class="material-symbols-outlined text-[16px]">notifications</span>Send Reminder</button>`);
+  }
+  btns.push(`<button onclick="deletePaymentRecord()"
+    class="flex items-center gap-2 px-4 py-2 rounded-lg border border-error/40 text-error text-sm font-semibold hover:bg-error-container transition-colors">
+    <span class="material-symbols-outlined text-[16px]">delete</span>Delete</button>`);
+
+  document.getElementById('record-modal-footer').innerHTML =
+    `<button onclick="closeRecordModal()" class="mr-auto px-4 py-2 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">Close</button>` + btns.join('');
+
+  document.getElementById('record-modal').classList.remove('hidden');
+};
+
+window.deletePaymentRecord = async function() {
+  if (!selectedRecord) return;
+  if (!confirm(`Permanently delete this payment record for "${selectedRecord.parentName || '—'}"? This cannot be undone.`)) return;
+  try {
+    await deleteDoc(doc(db, 'payments', selectedRecord.id));
+    allPayments = allPayments.filter(p => p.id !== selectedRecord.id);
+    closeRecordModal();
+    applyFilters();
+    showToast('Payment record deleted.', 'success');
+  } catch (e) {
+    console.error(e);
+    showToast('Failed to delete: ' + e.message, 'error');
+  }
+};
+
+window.closeRecordModal = function() {
+  document.getElementById('record-modal').classList.add('hidden');
+  selectedRecord = null;
+};
+
+window.markAsPaid = async function() {
+  if (!selectedRecord) return;
+  try {
+    await updateDoc(doc(db, 'payments', selectedRecord.id), { status: 'paid', paidDate: serverTimestamp() });
+    const fakeDate = { seconds: Math.floor(Date.now() / 1000) };
+    selectedRecord.status   = 'paid';
+    selectedRecord.paidDate = fakeDate;
+    const idx = allPayments.findIndex(p => p.id === selectedRecord.id);
+    if (idx !== -1) { allPayments[idx].status = 'paid'; allPayments[idx].paidDate = fakeDate; }
+    openRecordModal(selectedRecord);
+    applyFilters();
+    showToast('Marked as paid.', 'success');
+  } catch (e) { console.error(e); showToast('Failed to update.', 'error'); }
+};
+
+// ── Email reminders ────────────────────────────────────────────────────────────
+async function sendReminder(record) {
+  try {
+    const token = await auth.currentUser.getIdToken();
+    const r = await fetch('https://us-central1-cremona-portal.cloudfunctions.net/sendMail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({
+        type: 'payment',
+        to: record.parentEmail || '',
+        params: {
+          parent_name: record.parentName || '',
+          amount:      record.amount,
+          currency:    record.currency,
+          fee_type:    FEE_TYPE_LABELS[record.feeType] || record.feeType || '',
+          due_date:    fmtDate(record.dueDate)
+        }
+      })
+    });
+    return r.ok;
+  } catch (e) { console.error('EmailJS error:', e); return false; }
+}
+
+window.sendReminderForSelected = async function() {
+  if (!selectedRecord) return;
+  showToast('Sending reminder…', 'info');
+  const ok = await sendReminder(selectedRecord);
+  showToast(ok ? 'Reminder sent.' : 'Failed to send reminder — check EmailJS keys.', ok ? 'success' : 'error');
+};
+
+window.sendAllOverdueReminders = async function() {
+  const overdue = allPayments.filter(p => getDisplayStatus(p) === 'overdue');
+  if (!overdue.length) { showToast('No overdue payments found.', 'info'); return; }
+  showToast(`Sending ${overdue.length} reminders…`, 'info');
+  let sent = 0, failed = 0;
+  for (const p of overdue) {
+    const ok = await sendReminder(p);
+    if (ok) sent++; else failed++;
+  }
+  showToast(`Sent ${sent} reminders${failed ? `, ${failed} failed` : ''}.`, sent > 0 ? 'success' : 'error');
+};
+
+// ── Excel export — respects the current filters ───────────────────────────────
+window.exportExcel = function() {
+  if (typeof XLSX === 'undefined') { showToast('Excel library not loaded.', 'error'); return; }
+  const parentUid = document.getElementById('filter-parent').value;
+  const status    = document.getElementById('filter-status').value;
+  const feeType   = document.getElementById('filter-feetype').value;
+  const data = allPayments.filter(p => {
+    if (parentUid && p.parentUid !== parentUid) return false;
+    if (status !== 'all' && getDisplayStatus(p) !== status) return false;
+    if (feeType && p.feeType !== feeType) return false;
+    return true;
+  });
+  if (!data.length) { showToast('No records to export.', 'info'); return; }
+  const rows = sortPayments(data).map(p => ({
+    'Parent':      p.parentName || '',
+    'Email':       p.parentEmail || '',
+    'Student':     p.studentName || '',
+    'Fee Type':    FEE_TYPE_LABELS[p.feeType] || p.feeType || '',
+    'Description': p.description || '',
+    'Amount':      p.amount,
+    'Currency':    p.currency,
+    'Due Date':    fmtDate(p.dueDate),
+    'Status':      getDisplayStatus(p),
+    'Paid Date':   p.paidDate ? fmtDate(p.paidDate) : '',
+    'Type':        p.isRecurring ? 'Recurring' : 'One-Time',
+    'Notes':       p.notes || '',
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Payments');
+  XLSX.writeFile(wb, `cremona_payments_${new Date().toISOString().slice(0,10)}.xlsx`);
+};
+
+window.doSignOut = async function() {
+  await signOut(auth);
+  window.location.href = '/';
+};
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
+</body>
+</html>

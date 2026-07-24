@@ -2,8 +2,7 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
-<meta content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Messages | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -13,16 +12,16 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#C9A227", "primary-container": "#F5E5B0", "on-primary-container": "#8B6020",
-          "on-primary-fixed": "#3E2C23", "primary-fixed": "#F0E8C0", "primary-fixed-dim": "#D4A520",
-          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0", "on-secondary-fixed": "#3E2C23",
-          "secondary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
-          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "surface-container": "#F0E8D6",
-          "surface-container-low": "#F5EFE4", "surface-container-high": "#EAE0CE",
-          "surface-container-highest": "#E4D8C2",
-          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle": "#E8DCC8", "outline-variant": "#D4BCA0", "outline": "#7A5230",
-          "text-muted": "#8B6B52", "error": "#ba1a1a", "error-container": "#ffdad6",
+          "primary": "#3B2A1E", "primary-container": "#C8A951", "on-primary-container": "#5A4A22",
+          "on-primary-fixed": "#2A1D14", "primary-fixed": "#F0E2C4", "primary-fixed-dim": "#C8A951",
+          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC", "on-secondary-fixed": "#2A1D14",
+          "secondary-container": "#9A7524", "on-secondary-container": "#FFFDF8",
+          "surface": "#FAF6EF", "surface-white": "#FFFFFF", "surface-container": "#F1E9DC",
+          "surface-container-low": "#F6F0E6", "surface-container-high": "#EAE0D0",
+          "surface-container-highest": "#E3D8C6",
+          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle": "#E2D7C6", "outline-variant": "#D8C5A8", "outline": "#8A7A63",
+          "text-muted": "#7A6A57", "error": "#B3261E", "error-container": "#F9DEDC",
           "background": "#FAF6EF"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
@@ -33,67 +32,27 @@
 <style>
   body { font-family: 'Inter', sans-serif; height: 100dvh; overflow: hidden; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,0.2);border-top-color:#C9A227;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(59,42,30,0.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
-
-  /* ── Two-panel shell ─────────────────────────────────────────────────────── */
-  #msg-root { display:flex; height:calc(100dvh - 56px); overflow:hidden; background:#FAF6EF; }
-  #conv-panel { width:340px; flex-shrink:0; border-right:1px solid #E8DCC8; background:#FFFDF9; display:flex; flex-direction:column; overflow:hidden; }
-  #chat-panel { flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; background:#FAF6EF; }
-  #back-btn { display:none; }
-
-  @media (max-width:767px) {
-    #conv-panel { width:100%; }
-    #chat-panel {
-      position:fixed; top:56px; left:0; right:0; height:calc(100dvh - 56px);
-      transform:translateX(100%); transition:transform .26s cubic-bezier(.4,0,.2,1);
-      z-index:40; box-shadow:-4px 0 20px rgba(0,0,0,.12);
-    }
-    #msg-root.chat-open #chat-panel { transform:translateX(0); }
-    #back-btn { display:flex; }
-  }
-
-  /* ── Scrollbars ──────────────────────────────────────────────────────────── */
-  #messages-area, #sidebar-scroll { scroll-behavior:smooth; }
-  #messages-area::-webkit-scrollbar, #sidebar-scroll::-webkit-scrollbar { width:5px; }
-  #messages-area::-webkit-scrollbar-thumb, #sidebar-scroll::-webkit-scrollbar-thumb { background:#D4BCA0;border-radius:4px; }
-  #messages-area::-webkit-scrollbar-track, #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
-
-  /* ── Conversation list items ─────────────────────────────────────────────── */
-  .conv-item { transition: background .12s; }
-  .conv-item:hover:not(.active) { background:#F5EFE4; }
-  .conv-item.active { background:rgba(201,162,39,0.14); }
-
-  /* ── Message bubbles ─────────────────────────────────────────────────────── */
-  .msg-row { display:flex; align-items:flex-end; gap:8px; padding:1px 16px; }
-  .msg-row.own { justify-content:flex-end; }
-  .bubble { max-width:74%; padding:8px 13px; border-radius:20px; font-size:14px; line-height:1.45; word-break:break-word; white-space:pre-wrap; }
-  .bubble.own  { background:#F5E5B0; color:#3E2C23; border-bottom-right-radius:6px; }
-  .bubble.recv { background:#FFFDF9; color:#3E2C23; border-bottom-left-radius:6px; box-shadow:0 1px 2px rgba(0,0,0,.06); }
-  .time-divider { text-align:center; font-size:11px; color:#8B6B52; padding:14px 0 6px; font-weight:500; }
-  .msg-meta { font-size:10px; color:#8B6B52; }
-
+  #messages-area { scroll-behavior: smooth; }
+  #messages-area::-webkit-scrollbar { width:5px; }
+  #messages-area::-webkit-scrollbar-track { background:transparent; }
+  #messages-area::-webkit-scrollbar-thumb { background:#E2D7C6;border-radius:4px; }
+  #sidebar-scroll::-webkit-scrollbar { width:4px; }
+  #sidebar-scroll::-webkit-scrollbar-track { background:transparent; }
+  #sidebar-scroll::-webkit-scrollbar-thumb { background:#E2D7C6;border-radius:4px; }
+  .conv-item { transition: background 0.12s; }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error { background:#ba1a1a;color:#fff; }
+  #toast.error { background:#B3261E;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info { background:#3B2A1E;color:#F5EFE4; }
+  #toast.info { background:#7A5A16;color:#fff; }
 </style>
-<style id="cremona-palette">
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
+<script src="/js/translate.js"></script>
 </head>
 
-<body class="bg-background text-on-surface">
+<body class="bg-background text-on-surface flex flex-col" data-portal="teacher" data-page="messages">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -105,69 +64,139 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
-<!-- ── Two-panel messenger ─────────────────────────────────────────────────── -->
-<div id="msg-root">
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm flex-shrink-0 z-50" style="height:56px">
+  <div class="max-w-full px-6 h-full flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-7 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/home"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books"    class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages"         class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Messages</a>
+        <a href="/students-teacher" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/comments"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a href="/salary"           class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
+      </nav>
+    </div>
+    <a href="/account"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline" id="header-user-name">Account</span>
+    </a>
+  </div>
+</header>
 
-  <!-- ── Conversation list panel ───────────────────────────────────────────── -->
-  <aside id="conv-panel">
-    <div class="px-4 pt-4 pb-3 flex-shrink-0">
-      <h1 class="text-lg font-bold text-on-surface mb-3">Messages</h1>
-      <div class="relative">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
-        <input id="sidebar-search" type="text" placeholder="Search"
+<!-- ── Main layout ─────────────────────────────────────────────────────────── -->
+<div class="flex flex-1 overflow-hidden" style="height:calc(100dvh - 56px)">
+
+  <!-- ── Left sidebar ──────────────────────────────────────────────────────── -->
+  <div class="w-72 flex-shrink-0 border-r border-border-subtle bg-surface-white flex flex-col overflow-hidden">
+
+    <!-- Sidebar top: search + new DM -->
+    <div class="p-3 border-b border-border-subtle flex-shrink-0 flex items-center gap-2">
+      <div class="relative flex-1">
+        <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted text-[18px]">search</span>
+        <input id="sidebar-search" type="text" placeholder="Search conversations…"
                oninput="filterSidebar(this.value)"
-               class="w-full pl-9 pr-3 py-2 text-sm bg-surface-container-low rounded-full border border-transparent focus:border-secondary focus:bg-surface-white focus:ring-1 focus:ring-secondary outline-none transition-all"/>
+               class="w-full pl-8 pr-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all"/>
       </div>
+      <button onclick="openNewChatModal()" title="New chat"
+              class="flex-shrink-0 p-2 rounded-lg text-secondary hover:bg-secondary-fixed/40 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">person_add</span>
+      </button>
+      <button onclick="openNewGroupModal()" title="New group chat"
+              class="flex-shrink-0 p-2 rounded-lg text-secondary hover:bg-secondary-fixed/40 transition-colors">
+        <span class="material-symbols-outlined text-[20px]">group_add</span>
+      </button>
     </div>
 
-    <div id="sidebar-scroll" class="flex-1 overflow-y-auto pb-3">
-      <div class="mb-1">
-        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
-        <div id="sidebar-announcements"></div>
+    <!-- Conversation list -->
+    <div id="sidebar-scroll" class="flex-1 overflow-y-auto py-2">
+
+      <!-- Support -->
+      <div class="mb-1" id="sidebar-support-section" style="display:none">
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Support</p>
+        <div id="sidebar-support"></div>
       </div>
+
+      <!-- Announcements -->
       <div class="mb-1">
-        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Group Chats</p>
-        <div id="sidebar-groups"></div>
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Announcements</p>
+        <div id="sidebar-announcements">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No announcements</p>
+        </div>
       </div>
+
+      <!-- Groups -->
+      <div class="mb-1">
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Group Chats</p>
+        <div id="sidebar-groups">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No group chats</p>
+        </div>
+      </div>
+
+      <!-- DMs -->
       <div>
-        <p class="px-4 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
-        <div id="sidebar-dms"></div>
+        <p class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-text-muted">Direct Messages</p>
+        <div id="sidebar-dms">
+          <p class="px-3 py-2 text-xs text-text-muted italic">No direct messages</p>
+        </div>
       </div>
-    </div>
-  </aside>
 
-  <!-- ── Chat panel ────────────────────────────────────────────────────────── -->
-  <section id="chat-panel">
-
-    <!-- Empty state (desktop) -->
-    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-center px-6 gap-3">
-      <div class="w-20 h-20 rounded-full bg-surface-container-low flex items-center justify-center">
-        <span class="material-symbols-outlined text-[44px] text-outline-variant">forum</span>
-      </div>
-      <p class="text-base font-semibold text-on-surface-variant">Your messages</p>
-      <p class="text-sm text-text-muted max-w-[240px]">Select a conversation from the list to start reading and replying.</p>
     </div>
 
-    <!-- Conversation view -->
+    <!-- Contact support (pinned at sidebar bottom) -->
+    <div class="p-3 border-t border-border-subtle flex-shrink-0">
+      <button onclick="contactSupport()"
+              class="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
+        <span class="material-symbols-outlined text-[16px]">support_agent</span>
+        Contact Support
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Right chat area ───────────────────────────────────────────────────── -->
+  <div class="flex-1 flex flex-col overflow-hidden bg-surface">
+
+    <!-- Empty state -->
+    <div id="empty-state" class="flex-1 flex flex-col items-center justify-center text-text-muted gap-3">
+      <span class="material-symbols-outlined text-[56px] opacity-25">forum</span>
+      <p class="text-base font-medium opacity-50">Select a conversation</p>
+    </div>
+
+    <!-- Conversation view (hidden until conversation selected) -->
     <div id="conv-view" class="hidden flex-col h-full overflow-hidden" style="display:none">
 
       <!-- Chat header -->
-      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-3 sm:px-5 py-2.5 flex items-center gap-2 sm:gap-3">
-        <button id="back-btn" onclick="closeChat()" aria-label="Back"
-                class="flex-shrink-0 w-9 h-9 items-center justify-center rounded-full hover:bg-surface-container transition-colors text-on-surface">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0 overflow-hidden" style="background:#C9A227">—</div>
+      <div id="chat-header" class="flex-shrink-0 bg-surface-white border-b border-border-subtle px-5 py-3 flex items-center gap-3">
+        <div id="chat-avatar" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0" style="background:#3B2A1E">—</div>
         <div class="flex-1 min-w-0">
           <p id="chat-header-name" class="font-semibold text-sm text-on-surface truncate">—</p>
-          <p id="chat-header-sub"  class="text-xs text-text-muted truncate"></p>
+          <p id="chat-header-sub"  class="text-xs text-text-muted"></p>
         </div>
         <button id="members-toggle-btn" onclick="toggleMembersPanel()"
-                class="hidden flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-full text-xs font-medium text-secondary hover:bg-secondary-fixed/40 transition-colors">
+                class="hidden flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-secondary hover:bg-secondary-fixed/40 transition-colors">
           <span class="material-symbols-outlined text-[16px]">group</span>
           <span id="members-count-label"></span>
           <span class="material-symbols-outlined text-[14px]" id="members-chevron">expand_more</span>
         </button>
+        <div class="relative flex-shrink-0">
+          <button id="chat-menu-btn" onclick="toggleChatMenu()"
+                  class="hidden p-1.5 rounded-lg text-text-muted hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[20px]">more_vert</span>
+          </button>
+          <div id="chat-menu" class="hidden absolute right-0 top-9 z-50 bg-white border border-border-subtle rounded-xl shadow-lg py-1 w-44">
+            <button id="chat-menu-leave" onclick="leaveChat()"
+                    class="hidden w-full flex items-center gap-2 px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container transition-colors text-left">
+              <span class="material-symbols-outlined text-[18px]">logout</span> Leave chat
+            </button>
+            <button id="chat-menu-delete" onclick="deleteChat()"
+                    class="hidden w-full flex items-center gap-2 px-4 py-2.5 text-sm text-error hover:bg-error-container/60 transition-colors text-left">
+              <span class="material-symbols-outlined text-[18px]">delete</span> Delete chat
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Members panel (group chats only) -->
@@ -176,15 +205,17 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
 
       <!-- Messages area -->
-      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col"></div>
+      <div id="messages-area" class="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5">
+        <!-- populated by JS -->
+      </div>
 
-      <!-- Read-only notice -->
-      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center justify-center gap-2 text-sm text-text-muted">
+      <!-- Read-only notice (shown for announcement channel for non-admin) -->
+      <div id="readonly-note" class="hidden flex-shrink-0 bg-surface-container border-t border-border-subtle px-5 py-3 flex items-center gap-2 text-sm text-text-muted">
         <span class="material-symbols-outlined text-[18px]">lock</span>
         Read only — only admins can post in announcements
       </div>
 
-      <!-- File preview bar -->
+      <!-- File preview bar (shown when file selected) -->
       <div id="file-preview" class="hidden flex-shrink-0 bg-surface border-t border-border-subtle px-4 py-2 flex items-center gap-2 text-sm">
         <span class="material-symbols-outlined text-[18px] text-secondary">attach_file</span>
         <span id="file-preview-name" class="truncate max-w-[200px] text-on-surface"></span>
@@ -194,18 +225,16 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
 
       <!-- Input bar -->
-      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-2.5 flex items-end gap-2">
-        <label for="file-input" class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-full text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
-          <span class="material-symbols-outlined text-[22px]">add_photo_alternate</span>
+      <div id="input-bar" class="flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-3 flex items-end gap-2">
+        <label for="file-input" class="flex-shrink-0 p-2 rounded-lg text-text-muted hover:text-secondary hover:bg-secondary-fixed/30 cursor-pointer transition-colors">
+          <span class="material-symbols-outlined text-[22px]">attach_file</span>
         </label>
         <input id="file-input" type="file" class="hidden" onchange="handleFileSelect(this)"/>
-        <div class="flex-1 flex items-end bg-surface-container-low rounded-3xl px-1 border border-transparent focus-within:border-secondary transition-colors">
-          <textarea id="msg-input" rows="1"
-                    placeholder="Message…"
-                    onkeydown="handleMsgKeydown(event)"
-                    oninput="autoResize(this)"
-                    class="flex-1 resize-none bg-transparent outline-none text-sm px-3 py-2 max-h-32 overflow-y-auto"></textarea>
-        </div>
+        <textarea id="msg-input" rows="1"
+                  placeholder="Type a message…"
+                  onkeydown="handleMsgKeydown(event)"
+                  oninput="autoResize(this)"
+                  class="flex-1 resize-none rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface max-h-32 overflow-y-auto"></textarea>
         <button id="send-btn" onclick="sendMessage()"
                 class="flex-shrink-0 w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white hover:bg-secondary/90 active:scale-95 transition-all shadow-sm">
           <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">send</span>
@@ -213,53 +242,99 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
       </div>
 
     </div>
-  </section>
+  </div>
 </div>
 
+<!-- ── New Chat Modal ─────────────────────────────────────────────────────── -->
+<div id="newchat-modal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center p-4" onclick="if(event.target===this)closeNewChatModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl flex flex-col" style="max-height:80vh">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-border-subtle flex-shrink-0">
+      <h2 class="font-bold text-base text-on-surface">New Chat</h2>
+      <button onclick="closeNewChatModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-5 py-3 flex-shrink-0">
+      <input id="newchat-search" type="text" placeholder="Search teachers or parents…"
+             oninput="renderNewChatList(this.value)"
+             class="w-full px-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"/>
+    </div>
+    <div id="newchat-list" class="flex-1 overflow-y-auto px-2 pb-3"></div>
+  </div>
+</div>
+
+<!-- ── New Group Modal ────────────────────────────────────────────────────── -->
+<div id="newgroup-modal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center p-4" onclick="if(event.target===this)closeNewGroupModal()">
+  <div class="bg-white rounded-2xl w-full max-w-sm shadow-2xl flex flex-col" style="max-height:80vh">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-border-subtle flex-shrink-0">
+      <h2 class="font-bold text-base text-on-surface">New Group Chat</h2>
+      <button onclick="closeNewGroupModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="px-5 py-3 flex flex-col gap-2 flex-shrink-0">
+      <input id="newgroup-name" type="text" placeholder="Group name" maxlength="60"
+             class="w-full px-3 py-2 text-sm bg-surface rounded-lg border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none"/>
+      <p class="text-xs text-text-muted">Select teachers to add to the group.</p>
+    </div>
+    <div id="newgroup-list" class="flex-1 overflow-y-auto px-2"></div>
+    <div class="px-5 py-4 border-t border-border-subtle flex-shrink-0">
+      <button id="newgroup-create-btn" onclick="createGroupChat()"
+              class="w-full bg-primary-container text-on-primary-fixed font-bold py-2.5 rounded-lg text-sm hover:brightness-105 active:scale-[0.98] transition-all">
+        Create Group
+      </button>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp }        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, setDoc, collection, query, where,
-  onSnapshot, addDoc, updateDoc, getDocs, writeBatch,
-  serverTimestamp, arrayUnion
+  onSnapshot, addDoc, updateDoc, deleteDoc, getDocs, writeBatch,
+  serverTimestamp, arrayUnion, arrayRemove
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
+// ── Constants ─────────────────────────────────────────────────────────────────
+const WORKER_URL    = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
+// ── Firebase init ─────────────────────────────────────────────────────────────
 const app  = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
-const auth    = getAuth(app);
-const db      = getFirestore(app);
-const storage = getStorage(app);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
-// ── State ───────────────────────────────────────────────────────────────────
+// ── Module-level state (never touched before auth fires) ──────────────────────
 let currentUser     = null;
 let currentUserData = null;
 let isAdmin         = false;
-let conversations   = new Map();
+let conversations   = new Map();   // id → data
 let activeConvId    = null;
-let msgArr          = [];
-let allUsers        = new Map();
-let presenceMap     = new Map();
+let msgArr          = [];           // messages for active conv
+let allUsers        = new Map();   // uid → userData
+let allowedContactUids = null;      // Set of uids this user may start a chat with (null = unrestricted)
+let presenceMap     = new Map();   // uid → presenceData
 let convUnsub           = null;
 let msgUnsub            = null;
 let pendingFile         = null;
 let sidebarFilter       = '';
-let dmDisplayNames      = new Map();
-let locallyRead         = new Map();   // convId → local ms of last open (optimistic unread clear)
-let presenceIntervalId  = null;
+let dmDisplayNames      = new Map();  // otherUid → resolved display name for DM sidebar
+let readTimes           = new Map();  // convId → Date.now() when user last opened/read it
+let translatedMsgIds    = new Set();  // message ids currently shown translated
+let presenceIntervalId  = null;       // tracked so we can clear on re-login
 let pollIntervalId      = null;
 let visibilityHandler   = null;
 let membersPanelOpen    = false;
 
-// ── Teardown ──────────────────────────────────────────────────────────────────
+// ── Teardown — unsubscribes all listeners and clears all session state ────────
 function teardown() {
   if (convUnsub)          { convUnsub(); convUnsub = null; }
   if (msgUnsub)           { msgUnsub();  msgUnsub  = null; }
@@ -269,9 +344,11 @@ function teardown() {
 
   conversations.clear();
   allUsers.clear();
+  allowedContactUids = null;
   presenceMap.clear();
   dmDisplayNames.clear();
-  locallyRead.clear();
+  readTimes.clear();
+  translatedMsgIds.clear();
   activeConvId     = null;
   msgArr           = [];
   pendingFile      = null;
@@ -279,9 +356,14 @@ function teardown() {
   membersPanelOpen = false;
   clearFile();
 
-  document.getElementById('members-toggle-btn')?.classList.add('hidden');
-  document.getElementById('members-panel')?.classList.add('hidden');
-  document.getElementById('msg-root')?.classList.remove('chat-open');
+  const membersBtn   = document.getElementById('members-toggle-btn');
+  const membersPanel = document.getElementById('members-panel');
+  if (membersBtn)   membersBtn.classList.add('hidden');
+  if (membersPanel) membersPanel.classList.add('hidden');
+  document.getElementById('chat-menu-btn')?.classList.add('hidden');
+  document.getElementById('chat-menu')?.classList.add('hidden');
+
+  // Reset UI to empty state
   const emptyState = document.getElementById('empty-state');
   const convView   = document.getElementById('conv-view');
   if (emptyState) emptyState.style.display = '';
@@ -294,34 +376,55 @@ function teardown() {
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
+
+    // Always tear down stale state/listeners before re-initializing.
+    // onAuthStateChanged can fire more than once (token refresh, re-login),
+    // and without this, old Maps, intervals, and listeners stack up.
     teardown();
+
     currentUser     = user;
     currentUserData = { uid: user.uid, ...snap.data() };
     isAdmin         = currentUserData.role === 'admin';
+
     await init();
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
-    console.error('[messages] auth/init error', e);
-    window.location.href = '/index.html';
+    console.error('auth error', e);
+    window.location.href = '/';
   }
 });
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// ── Init (called after auth confirmed, always after teardown()) ──────────────
 async function init() {
+  // Display name in header
+  document.getElementById('header-user-name').textContent =
+    (currentUserData.firstName && currentUserData.lastName)
+      ? `${currentUserData.firstName} ${currentUserData.lastName}`
+      : (currentUserData.name || 'Account');
+
+  // Presence — store IDs so teardown() can clear them on re-login
   await updateOwnPresence(true);
   presenceIntervalId = setInterval(() => updateOwnPresence(true), 60000);
   visibilityHandler  = () => updateOwnPresence(!document.hidden);
   document.addEventListener('visibilitychange', visibilityHandler);
 
+  // Load all users for name resolution
   await loadAllUsers();
+
+  // Restrict the new-chat contact list to the student↔teacher assignment graph.
+  await computeAllowedContacts();
+
+  // Poll presence every 30s — store ID so teardown() can clear it
   await pollPresence();
   pollIntervalId = setInterval(pollPresence, 30000);
+
+  // Start real-time conversations listener
   startConversationListener();
 }
 
@@ -338,7 +441,9 @@ async function pollPresence() {
   if (!conversations.size) return;
   try {
     const uids = new Set();
-    conversations.forEach(c => (c.members || []).forEach(u => { if (u !== currentUser.uid) uids.add(u); }));
+    conversations.forEach(c => (c.members || []).forEach(u => {
+      if (u !== currentUser.uid) uids.add(u);
+    }));
     await Promise.all([...uids].map(async uid => {
       const s = await getDoc(doc(db, 'userPresence', uid));
       if (s.exists()) presenceMap.set(uid, s.data());
@@ -353,7 +458,8 @@ async function pollPresence() {
 
 function isOnline(uid) {
   const p = presenceMap.get(uid);
-  if (!p || p.online === false) return false;
+  if (!p) return false;
+  if (p.online === false) return false;
   const ls = p.lastSeen?.toDate ? p.lastSeen.toDate() : null;
   return ls ? (Date.now() - ls.getTime()) < 2 * 60 * 1000 : false;
 }
@@ -366,184 +472,316 @@ async function loadAllUsers() {
   } catch (e) { console.error('loadAllUsers', e); }
 }
 
+// ── Allowed contacts (who this user may START a chat with) ────────────────────
+// Mirrors the mobile app: new chats may only follow the student↔teacher
+// assignment relationship.
+//   • Parent  → only the teachers ASSIGNED to their own children
+//               (own linkedStudentIds → each students/{id}.assignedTeachers).
+//   • Teacher → all other teachers + the PARENTS of their assigned students
+//               (students where assignedTeachers array-contains me → those
+//                student ids → parents whose linkedStudentIds intersect them).
+//   • Admin   → unrestricted (admins keep oversight; also on messages-admin.html).
+// `allowedContactUids` is a Set of allowed uids, or null = unrestricted.
+async function computeAllowedContacts() {
+  allowedContactUids = null;
+  if (!currentUserData || currentUserData.role === 'admin') return;   // admin: unrestricted
+  const allowed = new Set();
+  try {
+    if (currentUserData.role === 'parent') {
+      // Union of assignedTeachers across the parent's own children.
+      const studentIds = currentUserData.linkedStudentIds || [];
+      await Promise.all(studentIds.map(async id => {
+        try {
+          const s = await getDoc(doc(db, 'students', id));
+          if (s.exists()) (s.data().assignedTeachers || []).forEach(t => allowed.add(t));
+        } catch (_) {}
+      }));
+    } else if (currentUserData.role === 'teacher') {
+      // Every other teacher is allowed.
+      allUsers.forEach(u => {
+        if (u.role === 'teacher' && u.uid !== currentUser.uid) allowed.add(u.uid);
+      });
+      // Plus the parents of this teacher's assigned students.
+      const snap = await getDocs(query(
+        collection(db, 'students'),
+        where('assignedTeachers', 'array-contains', currentUser.uid)
+      ));
+      const myStudentIds = new Set();
+      snap.forEach(d => myStudentIds.add(d.id));
+      if (myStudentIds.size) {
+        const parents = await getDocs(query(
+          collection(db, 'users'),
+          where('role', '==', 'parent')
+        ));
+        parents.forEach(d => {
+          const linked = d.data().linkedStudentIds || [];
+          if (linked.some(sid => myStudentIds.has(sid))) allowed.add(d.id);
+        });
+      }
+    }
+  } catch (e) {
+    console.error('computeAllowedContacts', e);
+  }
+  allowedContactUids = allowed;
+}
+
 // ── Conversations listener ────────────────────────────────────────────────────
 function startConversationListener() {
   if (convUnsub) { convUnsub(); convUnsub = null; }
-  const q = query(collection(db, 'conversations'), where('members', 'array-contains', currentUser.uid));
+  const q = query(
+    collection(db, 'conversations'),
+    where('members', 'array-contains', currentUser.uid)
+  );
   convUnsub = onSnapshot(q, async snap => {
     snap.docChanges().forEach(change => {
       if (change.type === 'removed') conversations.delete(change.doc.id);
       else conversations.set(change.doc.id, { id: change.doc.id, ...change.doc.data() });
     });
+
+    // For every DM, ensure the other member's data is in allUsers.
+    // loadAllUsers() runs at init but may miss users added later, or fail silently.
     const missing = new Set();
     conversations.forEach(conv => {
       if (conv.type === 'direct') {
-        (conv.members || []).forEach(uid => { if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid); });
+        (conv.members || []).forEach(uid => {
+          if (uid !== currentUser.uid && !allUsers.has(uid)) missing.add(uid);
+        });
       }
     });
     if (missing.size > 0) {
       await Promise.all([...missing].map(async uid => {
-        try { const s = await getDoc(doc(db, 'users', uid)); if (s.exists()) allUsers.set(uid, { uid, ...s.data() }); } catch (_) {}
+        try {
+          const s = await getDoc(doc(db, 'users', uid));
+          if (s.exists()) allUsers.set(uid, { uid, ...s.data() });
+        } catch (_) {}
       }));
     }
+
     renderSidebar();
   }, err => console.error('convListener', err));
 }
 
 // ── Sidebar rendering ─────────────────────────────────────────────────────────
 function renderSidebar() {
-  const ann = [], grp = [], dms = [];
+  const ann = [], grp = [], dms = [], sup = [];
   const filter = sidebarFilter.toLowerCase();
+
   conversations.forEach(conv => {
-    const displayName = getConvDisplayName(conv);
+    let displayName = getConvDisplayName(conv);
     if (filter && !displayName.toLowerCase().includes(filter)) return;
-    if (conv.type === 'announcement') ann.push(conv);
-    else if (conv.type === 'group')   grp.push(conv);
-    else                              dms.push(conv);
+    if (conv.type === 'announcement')  ann.push(conv);
+    else if (conv.type === 'group')    grp.push(conv);
+    else if (conv.type === 'support')  sup.push(conv);
+    else                               dms.push(conv);
   });
 
-  const byTime = (a, b) =>
-    (b.lastMessageAt?.toDate?.()?.getTime() || 0) - (a.lastMessageAt?.toDate?.()?.getTime() || 0);
+  const byTime = (a, b) => {
+    const ta = a.lastMessageAt?.toDate?.()?.getTime() || 0;
+    const tb = b.lastMessageAt?.toDate?.()?.getTime() || 0;
+    return tb - ta;
+  };
 
   const render = (list, elId, empty) => {
     const el = document.getElementById(elId);
-    if (!el) return;
     el.innerHTML = list.sort(byTime).map(convItemHtml).join('')
-      || `<p class="px-4 py-2 text-xs text-text-muted italic">${empty}</p>`;
+      || `<p class="px-3 py-2 text-xs text-text-muted italic">${empty}</p>`;
   };
+
   render(ann, 'sidebar-announcements', 'No announcements');
   render(grp, 'sidebar-groups',        'No group chats');
-  render(dms, 'sidebar-dms',           'No direct messages yet');
+  render(dms, 'sidebar-dms',           'No direct messages');
+  document.getElementById('sidebar-support-section').style.display = sup.length ? '' : 'none';
+  if (sup.length) render(sup, 'sidebar-support', '');
 }
 
+// Returns the display name for a conversation synchronously.
+// For DMs: looks up the other member's name from dmDisplayNames cache.
+// If not yet cached, triggers an async Firestore fetch and returns a placeholder
+// until the fetch completes and re-renders the sidebar.
 function getConvDisplayName(conv) {
+  if (conv.type === 'support') return 'Cremona Support';
   if (conv.type === 'direct') {
     const otherUid = (conv.members || []).find(u => u !== currentUser.uid);
-    if (!otherUid) return 'Direct Message';
+    if (!otherUid) {
+      console.log('[getConvDisplayName] DM has no otherUid — members:', conv.members, 'currentUser.uid:', currentUser?.uid);
+      return 'Direct Message';
+    }
     const cached = dmDisplayNames.get(otherUid);
+    console.log('[getConvDisplayName] DM conv', conv.id, '| otherUid:', otherUid, '| cached value:', cached);
     if (cached && cached !== '__pending__') return cached;
-    if (!cached) fetchAndCacheDMName(otherUid);
+    if (!cached) fetchAndCacheDMName(otherUid); // fire-and-forget, re-renders when done
     return 'Direct Message';
   }
   return conv.name || 'Unnamed';
 }
 
+// Fetches the other user's doc directly from Firestore (never uses allUsers cache).
+// Supports firstName+lastName or name field. Re-renders sidebar when resolved.
 async function fetchAndCacheDMName(uid) {
-  if (dmDisplayNames.has(uid)) return;
-  dmDisplayNames.set(uid, '__pending__');
+  if (dmDisplayNames.has(uid)) return; // already fetched or in-flight
+  console.log('[fetchAndCacheDMName] fetching uid:', uid);
+  dmDisplayNames.set(uid, '__pending__'); // prevent duplicate concurrent fetches
   try {
     const snap = await getDoc(doc(db, 'users', uid));
+    console.log('[fetchAndCacheDMName] uid:', uid, '| doc exists:', snap.exists(), '| raw data:', snap.exists() ? snap.data() : null);
     if (snap.exists()) {
       const d = snap.data();
-      dmDisplayNames.set(uid, (d.firstName && d.lastName) ? `${d.firstName} ${d.lastName}` : (d.name || d.email || 'Unknown'));
-    } else { dmDisplayNames.set(uid, 'Unknown'); }
-  } catch (err) { dmDisplayNames.delete(uid); return; }
-  renderSidebar();
-}
-
-// Unread = there is a last message from someone else, sent after the last time
-// this user read the conversation. Both sides are server timestamps (skew-free);
-// the currently-open conversation is always treated as read for instant clearing.
-function isUnread(conv) {
-  if (conv.id === activeConvId) return false;
-  if (!conv.lastMessage) return false;
-  const lastSender = String(conv.lastMessageBy || '').trim();
-  if (lastSender === '' || lastSender === String(currentUser.uid).trim()) return false;
-  const lastMsgMs = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
-  const serverReadMs = conv.readAt?.[currentUser.uid]?.toDate?.()?.getTime() || 0;
-  const localReadMs  = locallyRead.get(conv.id) || 0;
-  return lastMsgMs > Math.max(serverReadMs, localReadMs);
+      const name = (d.firstName && d.lastName)
+        ? `${d.firstName} ${d.lastName}`
+        : (d.name || d.email || 'Unknown');
+      console.log('[fetchAndCacheDMName] uid:', uid, '| storing name:', name);
+      dmDisplayNames.set(uid, name);
+    } else {
+      console.log('[fetchAndCacheDMName] uid:', uid, '| doc does not exist — storing Unknown');
+      dmDisplayNames.set(uid, 'Unknown');
+    }
+  } catch (err) {
+    console.error('[fetchAndCacheDMName] uid:', uid, '| fetch error:', err);
+    dmDisplayNames.delete(uid); // allow retry on next render
+    return;
+  }
+  renderSidebar(); // re-render now that the name is known
 }
 
 function convItemHtml(conv) {
-  const isActive    = conv.id === activeConvId;
-  const displayName = getConvDisplayName(conv);
-  const avatarColor = getAvatarColor(displayName);
-  const initials    = getInitials(displayName);
-  const lastMsg     = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 48) : '';
-  const lastTime    = conv.lastMessageAt?.toDate ? formatTime(conv.lastMessageAt.toDate()) : '';
-  const isAnn       = conv.type === 'announcement';
-  const hasUnread   = isUnread(conv);
+  const isActive      = conv.id === activeConvId;
+  const displayName   = getConvDisplayName(conv);
+  const avatarColor   = getAvatarColor(displayName);
+  const initials      = getInitials(displayName);
+  const lastMsg       = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 45) : '';
+  const lastTime      = conv.lastMessageAt?.toDate ? formatTime(conv.lastMessageAt.toDate()) : '';
+  const isAnn         = conv.type === 'announcement';
+  // A conversation is unread when:
+  //  • it has a last message sent by someone else, AND
+  //  • the last message arrived after the user last read it.
+  // The authoritative read marker is conv.lastRead[uid] persisted in Firestore
+  // (survives reloads and other devices); readTimes is a local override so the
+  // dot clears instantly on open without waiting for the write to round-trip.
+  const lastMsgTime  = conv.lastMessageAt?.toDate?.()?.getTime() || 0;
+  const storedRead   = conv.lastRead?.[currentUser.uid]?.toDate?.()?.getTime() || 0;
+  const lastReadTime = Math.max(storedRead, readTimes.get(conv.id) || 0);
+  const lastSender   = String(conv.lastMessageBy || '').trim();
+  const myUid        = String(currentUser.uid || '').trim();
+  const hasUnread    = !!conv.lastMessage && lastSender !== '' && lastSender !== myUid && lastMsgTime > lastReadTime;
 
-  let avatarHtml, onlineDot = '';
-  if (isAnn) {
-    avatarHtml = `<span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+  let avatarHtml;
+  let onlineDot = '';
+  if (conv.type === 'support') {
+    avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">support_agent</span>`;
+  } else if (isAnn) {
+    avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
   } else if (conv.type === 'group') {
-    avatarHtml = conv.photoUrl
-      ? `<img src="${escHtml(conv.photoUrl)}" class="w-full h-full object-cover" alt="group"/>`
-      : `<span class="material-symbols-outlined text-white text-[20px]" style="font-variation-settings:'FILL' 1;">group</span>`;
+    if (conv.photoUrl) {
+      avatarHtml = `<img src="${escHtml(conv.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="group"/>`;
+    } else {
+      avatarHtml = `<span class="material-symbols-outlined text-white text-[18px]" style="font-variation-settings:'FILL' 1;">group</span>`;
+    }
   } else {
     const otherUid  = (conv.members || []).find(u => u !== currentUser.uid);
     const otherUser = otherUid ? allUsers.get(otherUid) : null;
-    avatarHtml = otherUser?.photoUrl
-      ? `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover" alt="${escHtml(displayName)}"/>`
-      : `<span class="text-sm font-bold">${escHtml(initials)}</span>`;
-    if (otherUid && isOnline(otherUid)) {
-      onlineDot = `<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-surface-white bg-green-500"></span>`;
+    if (otherUser?.photoUrl) {
+      avatarHtml = `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="${escHtml(displayName)}"/>`;
+    } else {
+      avatarHtml = `<span class="text-[13px] font-bold">${escHtml(initials)}</span>`;
+    }
+    if (otherUid) {
+      const online = isOnline(otherUid);
+      onlineDot = `<span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${online ? 'bg-green-500' : 'bg-gray-300'}"></span>`;
     }
   }
 
   return `
   <button onclick="openConversation('${conv.id}')"
-    class="conv-item ${isActive ? 'active' : ''} w-full flex items-center gap-3 px-4 py-2.5 text-left">
+    class="conv-item w-full flex items-center gap-2.5 px-2.5 py-2 mx-0.5 rounded-xl text-left ${isActive ? 'bg-secondary-fixed/60' : 'hover:bg-surface-container'} ${isAnn ? 'border-l-[3px] border-primary-container pl-2' : ''}">
     <div class="relative flex-shrink-0">
-      <div class="w-12 h-12 rounded-full flex items-center justify-center text-white overflow-hidden" style="background:${avatarColor}">${avatarHtml}</div>
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white"
+           style="background:${avatarColor}">${avatarHtml}</div>
       ${onlineDot}
     </div>
     <div class="flex-1 min-w-0">
-      <div class="flex items-center justify-between gap-2">
-        <span class="text-sm ${hasUnread ? 'font-bold' : 'font-semibold'} text-on-surface truncate">${escHtml(displayName)}</span>
-        ${lastTime ? `<span class="text-[11px] ${hasUnread ? 'text-secondary font-semibold' : 'text-text-muted'} flex-shrink-0">${lastTime}</span>` : ''}
+      <div class="flex items-center justify-between gap-1">
+        <span class="text-sm font-semibold text-on-surface truncate">${escHtml(displayName)}</span>
+        ${lastTime ? `<span class="text-[10px] text-text-muted flex-shrink-0">${lastTime}</span>` : ''}
       </div>
-      <div class="flex items-center gap-1.5 mt-0.5">
-        <p class="text-xs truncate flex-1 ${hasUnread ? 'text-on-surface font-semibold' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
-        ${hasUnread ? '<span class="w-2.5 h-2.5 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
-      </div>
+      <p class="text-xs truncate mt-0.5 ${hasUnread ? 'text-on-surface font-medium' : 'text-text-muted'}">${lastMsg || '<span class="italic font-normal text-text-muted">No messages yet</span>'}</p>
     </div>
+    ${hasUnread ? '<span class="w-2 h-2 rounded-full bg-secondary flex-shrink-0"></span>' : ''}
   </button>`;
 }
 
 // ── Open conversation ─────────────────────────────────────────────────────────
+// Deep link: /messages?open=<conversationId> jumps straight into that chat
+// (used by the teachers' "Message Parent" hot key).
+{
+  const _openParam = new URLSearchParams(location.search).get('open');
+  if (_openParam) {
+    const _tryOpen = setInterval(() => {
+      if (typeof conversations !== 'undefined' && conversations.has && conversations.has(_openParam)) {
+        clearInterval(_tryOpen);
+        openConversation(_openParam);
+        history.replaceState(null, '', '/messages');
+      }
+    }, 400);
+    setTimeout(() => clearInterval(_tryOpen), 15000);
+  }
+}
+
 window.openConversation = async function(convId) {
   activeConvId = convId;
-  locallyRead.set(convId, Date.now());     // optimistic instant unread clear
+  // Stamp read time immediately so hasUnread clears in this render pass —
+  // don't wait for the Firestore batch commit to come back.
+  readTimes.set(convId, Date.now());
   renderSidebar();
-  markConversationRead(convId);            // persist read state (server timestamp)
+  persistLastRead(convId);
 
   const conv = conversations.get(convId);
   if (!conv) return;
 
-  document.getElementById('empty-state').style.display = 'none';
-  document.getElementById('conv-view').style.display   = 'flex';
-  document.getElementById('msg-root').classList.add('chat-open');   // mobile: slide to chat
+  // Chat menu: leave (groups) / delete (DMs and own groups)
+  const menuBtn   = document.getElementById('chat-menu-btn');
+  const leaveBtn  = document.getElementById('chat-menu-leave');
+  const deleteBtn = document.getElementById('chat-menu-delete');
+  document.getElementById('chat-menu').classList.add('hidden');
+  const canLeave  = conv.type === 'group';
+  const canDelete = conv.type === 'direct' ||
+                    (conv.type === 'group' && (conv.createdBy === currentUser.uid || isAdmin));
+  leaveBtn.classList.toggle('hidden', !canLeave);
+  deleteBtn.classList.toggle('hidden', !canDelete);
+  menuBtn.classList.toggle('hidden', !(canLeave || canDelete));
 
+  // Show conv view
+  document.getElementById('empty-state').style.display   = 'none';
+  const cv = document.getElementById('conv-view');
+  cv.style.display = 'flex';
+
+  // Update header — for DMs, fetch the other user's name fresh if not yet cached
   const avatarEl = document.getElementById('chat-avatar');
 
   if (conv.type === 'direct') {
     const otherUid = (conv.members || []).find(u => u !== currentUser.uid);
+    // Fetch name directly from Firestore, don't trust the stored conv.name
     let headerName = 'Direct Message';
     if (otherUid) {
       try {
         const uSnap = await getDoc(doc(db, 'users', otherUid));
         if (uSnap.exists()) {
           const d = uSnap.data();
-          headerName = (d.firstName && d.lastName) ? `${d.firstName} ${d.lastName}` : (d.name || d.email || 'Unknown');
-          dmDisplayNames.set(otherUid, headerName);
+          headerName = (d.firstName && d.lastName)
+            ? `${d.firstName} ${d.lastName}`
+            : (d.name || d.email || 'Unknown');
+          dmDisplayNames.set(otherUid, headerName); // update cache too
         }
       } catch (_) {}
     }
-    const otherUser = otherUid ? allUsers.get(otherUid) : null;
     document.getElementById('chat-header-name').textContent = headerName;
     avatarEl.style.background = getAvatarColor(headerName);
-    avatarEl.innerHTML = otherUser?.photoUrl
-      ? `<img src="${escHtml(otherUser.photoUrl)}" class="w-full h-full object-cover" alt=""/>`
-      : escHtml(getInitials(headerName));
+    avatarEl.textContent = getInitials(headerName);
     const online = otherUid ? isOnline(otherUid) : false;
     document.getElementById('chat-header-sub').innerHTML =
-      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">${online ? 'Active now' : 'Offline'}</span>`;
+      `<span class="${online ? 'text-green-600' : 'text-text-muted'}">● ${online ? 'Online' : 'Offline'}</span>`;
     document.getElementById('members-toggle-btn').classList.add('hidden');
     document.getElementById('members-panel').classList.add('hidden');
-    renderSidebar();
+    renderSidebar(); // update sidebar with freshly fetched name
   } else {
     const displayName = getConvDisplayName(conv);
     document.getElementById('chat-header-name').textContent = displayName;
@@ -551,17 +789,20 @@ window.openConversation = async function(convId) {
     const toggleBtn    = document.getElementById('members-toggle-btn');
     const membersPanel = document.getElementById('members-panel');
     if (conv.type === 'announcement') {
-      avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[19px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
+      avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">campaign</span>`;
       document.getElementById('chat-header-sub').textContent = 'Announcements channel';
       toggleBtn.classList.add('hidden');
       membersPanel.classList.add('hidden');
+    } else if (conv.type === 'support') {
+      avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">support_agent</span>`;
+      document.getElementById('chat-header-sub').textContent = 'Ask the Cremona Music team anything — we usually reply within a day';
+      toggleBtn.classList.add('hidden');
+      membersPanel.classList.add('hidden');
     } else {
-      avatarEl.innerHTML = conv.photoUrl
-        ? `<img src="${escHtml(conv.photoUrl)}" class="w-full h-full object-cover" alt=""/>`
-        : `<span class="material-symbols-outlined text-white text-[19px]" style="font-variation-settings:'FILL' 1;">group</span>`;
+      avatarEl.innerHTML = `<span class="material-symbols-outlined text-white text-[17px]" style="font-variation-settings:'FILL' 1;">group</span>`;
+      document.getElementById('chat-header-sub').textContent = '';
       const memberCount = (conv.members || []).length;
-      document.getElementById('chat-header-sub').textContent = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
-      document.getElementById('members-count-label').textContent = `${memberCount}`;
+      document.getElementById('members-count-label').textContent = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
       document.getElementById('members-chevron').textContent = 'expand_more';
       membersPanelOpen = false;
       membersPanel.classList.add('hidden');
@@ -570,22 +811,13 @@ window.openConversation = async function(convId) {
     }
   }
 
+  // Show/hide input bar vs read-only notice
   const isReadOnly = conv.type === 'announcement' && !isAdmin;
-  document.getElementById('input-bar').style.display     = isReadOnly ? 'none' : 'flex';
+  document.getElementById('input-bar').style.display    = isReadOnly ? 'none' : 'flex';
   document.getElementById('readonly-note').style.display = isReadOnly ? 'flex' : 'none';
 
+  // Start message listener
   startMessageListener(convId);
-};
-
-// Mobile: back to the conversation list. Clearing activeConvId + stopping the
-// listener ensures unread state reflects reality (readAt was already persisted).
-window.closeChat = function() {
-  document.getElementById('msg-root').classList.remove('chat-open');
-  if (msgUnsub) { msgUnsub(); msgUnsub = null; }
-  activeConvId = null;
-  document.getElementById('conv-view').style.display = 'none';
-  document.getElementById('empty-state').style.display = '';
-  renderSidebar();
 };
 
 // ── Members panel ─────────────────────────────────────────────────────────────
@@ -599,7 +831,9 @@ function renderMembersPanel(conv) {
   const inner = document.getElementById('members-panel-inner');
   inner.innerHTML = (conv.members || []).map(uid => {
     const u = allUsers.get(uid);
-    const name = u ? ((u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || u.email || 'Unknown')) : 'Unknown';
+    const name = u
+      ? ((u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || u.email || 'Unknown'))
+      : 'Unknown';
     const online = isOnline(uid);
     const avatarHtml = u?.photoUrl
       ? `<img src="${escHtml(u.photoUrl)}" class="w-9 h-9 rounded-full object-cover" alt="${escHtml(name)}"/>`
@@ -619,156 +853,193 @@ function renderMembersPanel(conv) {
 function startMessageListener(convId) {
   if (msgUnsub) { msgUnsub(); msgUnsub = null; }
   const area = document.getElementById('messages-area');
-  area.innerHTML = `<div class="flex-1 flex justify-center items-center py-8"><div class="spinner"></div></div>`;
+  area.innerHTML = `<div class="flex justify-center py-8"><div class="spinner"></div></div>`;
 
   const q = query(collection(db, 'messages'), where('conversationId', '==', convId));
+
   msgUnsub = onSnapshot(q, async snap => {
     msgArr = [];
     snap.forEach(d => msgArr.push({ id: d.id, ...d.data() }));
-    msgArr.sort((a, b) => (a.timestamp?.toDate?.()?.getTime() || 0) - (b.timestamp?.toDate?.()?.getTime() || 0));
+    msgArr.sort((a, b) =>
+      (a.timestamp?.toDate?.()?.getTime() || 0) -
+      (b.timestamp?.toDate?.()?.getTime() || 0));
     renderMessages();
-    // Mark read: readBy on each message (for receipts) + readAt on the conversation
-    // (for the unread indicator). Runs on open AND whenever a new message arrives
-    // while this conversation is open, so no unread badge is shown while viewing.
+    // Await the batch so we know exactly when all messages are marked read,
+    // then re-stamp readTimes and re-render the sidebar in one go.
     await markAllRead(convId);
-    locallyRead.set(convId, Date.now());
-    markConversationRead(convId);
+    readTimes.set(convId, Date.now());
+    persistLastRead(convId);
     renderSidebar();
   }, err => console.error('msgListener', err));
 }
 
-// ── Render messages (grouped, with time dividers) ──────────────────────────────
+// Persist the per-user read marker on the conversation doc so unread state
+// survives page reloads and is shared across devices.
+function persistLastRead(convId) {
+  if (!currentUser) return;
+  updateDoc(doc(db, 'conversations', convId), {
+    [`lastRead.${currentUser.uid}`]: serverTimestamp()
+  }).catch(() => {});
+}
+
+// ── Render messages ───────────────────────────────────────────────────────────
 function renderMessages() {
   const area = document.getElementById('messages-area');
-  const conv = conversations.get(activeConvId);
   if (!msgArr.length) {
-    area.innerHTML = `
-      <div class="flex-1 flex flex-col items-center justify-center text-center gap-2 py-16 px-6">
-        <span class="material-symbols-outlined text-[40px] text-outline-variant">chat_bubble</span>
-        <p class="text-sm text-text-muted">No messages yet.${conv?.type === 'announcement' ? '' : ' Say hello!'}</p>
-      </div>`;
+    area.innerHTML = `<div class="flex-1 flex items-center justify-center py-16 text-sm text-text-muted italic">No messages yet. Say hello!</div>`;
     return;
   }
 
   const wasAtBottom = area.scrollHeight - area.scrollTop <= area.clientHeight + 120;
-  const lastOwnIdx  = (() => { for (let i = msgArr.length - 1; i >= 0; i--) if (msgArr[i].senderUid === currentUser.uid) return i; return -1; })();
-
-  let html = '';
-  let prev = null;
-  msgArr.forEach((msg, i) => {
-    const t = msg.timestamp?.toDate ? msg.timestamp.toDate() : null;
-    const pt = prev?.timestamp?.toDate ? prev.timestamp.toDate() : null;
-    // Time divider on first message, day change, or >15min gap
-    const showDivider = !pt || !t || (t - pt) > 15 * 60 * 1000 || t.toDateString() !== pt.toDateString();
-    if (showDivider && t) html += `<div class="time-divider">${dividerLabel(t)}</div>`;
-    // Show sender meta (avatar + name) when sender changes or after a divider
-    const showMeta = showDivider || !prev || prev.senderUid !== msg.senderUid;
-    html += buildMessageHtml(msg, { conv, showMeta, isLastOwn: i === lastOwnIdx });
-    prev = msg;
-  });
-  area.innerHTML = html;
+  area.innerHTML = msgArr.map(buildMessageHtml).join('');
   if (wasAtBottom || msgArr.length < 20) area.scrollTop = area.scrollHeight;
 }
 
-function buildMessageHtml(msg, { conv, showMeta, isLastOwn }) {
-  const isOwn    = msg.senderUid === currentUser.uid;
-  const convType = conv?.type || 'direct';
-  const timeAttr = msg.timestamp?.toDate ? ` title="${escHtml(formatTimeFull(msg.timestamp.toDate()))}"` : '';
+function buildMessageHtml(msg) {
+  const isOwn  = msg.senderUid === currentUser.uid;
+  const ts     = msg.timestamp?.toDate ? formatTimeFull(msg.timestamp.toDate()) : '';
+  const sender = escHtml(msg.senderName || 'Unknown');
+
+  // Translation toggle — teachers view in English; offer it when the message
+  // is in another language. Server-stored textEn/textKo are instant; otherwise
+  // we translate on demand (see toggleMsgTranslation).
+  const viewerLang   = 'en';
+  const origLang     = msg.origLang || (msg.text ? cremonaDetectLang(msg.text) : viewerLang);
+  const canTranslate = !!msg.text && origLang !== viewerLang;
+  const showTr       = canTranslate && translatedMsgIds.has(msg.id);
+  const serverTr     = viewerLang === 'ko' ? msg.textKo : msg.textEn;
+  const displayText  = showTr ? (msg._trText || serverTr || msg.text) : msg.text;
+  const trLink = canTranslate
+    ? `<button onclick="toggleMsgTranslation('${msg.id}')"
+         class="block text-[10px] font-semibold mt-1 hover:underline ${isOwn ? 'text-primary' : 'text-secondary'}">
+         ${showTr ? 'Show original' : 'Translate'}</button>`
+    : '';
+
+  // Read receipts (up to 3 others)
+  const receipts = (msg.readBy || [])
+    .filter(u => u !== currentUser.uid)
+    .slice(-3)
+    .map(u => {
+      const usr  = allUsers.get(u);
+      const nm   = usr?.name || '?';
+      const col  = getAvatarColor(nm);
+      const init = getInitials(nm);
+      return `<div class="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] font-bold text-white" style="background:${col}" title="${escHtml(nm)}">${escHtml(init)}</div>`;
+    }).join('');
 
   let fileHtml = '';
   if (msg.fileUrl) {
     const isImg = (msg.fileType || '').startsWith('image/');
     fileHtml = isImg
-      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[220px] rounded-xl" alt="attachment"/></a>`
+      ? `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener" class="block mt-1.5"><img src="${escHtml(msg.fileUrl)}" class="max-w-[200px] rounded-lg border border-border-subtle" alt="attachment"/></a>`
       : `<a href="${escHtml(msg.fileUrl)}" target="_blank" rel="noopener"
-           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-xl ${isOwn ? 'bg-black/5' : 'bg-surface-container-low'} text-xs hover:opacity-80 transition-opacity">
+           class="flex items-center gap-2 mt-1.5 px-3 py-2 rounded-lg border ${isOwn ? 'border-amber-200 bg-amber-50' : 'border-border-subtle bg-surface'} text-xs hover:opacity-80 transition-opacity">
            <span class="material-symbols-outlined text-[16px]">description</span>
            <span class="truncate max-w-[150px]">${escHtml(msg.fileName || 'Attachment')}</span>
            <span class="material-symbols-outlined text-[14px] ml-auto opacity-60">download</span>
          </a>`;
   }
-  const body = `${msg.text ? escHtml(msg.text) : ''}${fileHtml}`;
-
-  // ── Read receipts ──
-  // Announcements: never shown here (only admin sees them, via the admin console).
-  // DMs: "Seen" under the last own message once the other participant has read it.
-  // Groups: reader-avatar stack under the last own message.
-  let receiptHtml = '';
-  if (isOwn && isLastOwn && convType !== 'announcement') {
-    const others = (msg.readBy || []).filter(u => u !== currentUser.uid);
-    if (convType === 'direct' && others.length) {
-      receiptHtml = `<div class="flex justify-end mt-0.5 pr-1"><span class="msg-meta">Seen</span></div>`;
-    } else if (convType === 'group' && others.length) {
-      const avs = others.slice(-4).map(u => {
-        const usr = allUsers.get(u);
-        const nm  = usr ? ((usr.firstName && usr.lastName) ? `${usr.firstName} ${usr.lastName}` : (usr.name || usr.email || '?')) : '?';
-        return usr?.photoUrl
-          ? `<img src="${escHtml(usr.photoUrl)}" class="w-3.5 h-3.5 rounded-full object-cover ring-1 ring-surface" title="${escHtml(nm)}"/>`
-          : `<div class="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[6px] font-bold text-white ring-1 ring-surface" style="background:${getAvatarColor(nm)}" title="${escHtml(nm)}">${escHtml(getInitials(nm))}</div>`;
-      }).join('');
-      receiptHtml = `<div class="flex justify-end items-center gap-0.5 mt-0.5 pr-1">${avs}</div>`;
-    }
-  }
 
   if (isOwn) {
+    // For DMs, show an explicit Read / Unread label based on whether the other
+    // member appears in readBy. Groups keep the avatar receipts only.
+    let readLabel = '';
+    const activeConv = conversations.get(activeConvId);
+    if (activeConv?.type === 'direct') {
+      const otherUid = (activeConv.members || []).find(u => u !== currentUser.uid);
+      const isRead   = otherUid && (msg.readBy || []).includes(otherUid);
+      readLabel = isRead
+        ? '<span class="text-[10px] font-semibold text-secondary">Read</span>'
+        : '<span class="text-[10px] text-text-muted">Unread</span>';
+    }
     return `
-    <div class="msg-row own"${timeAttr}>
-      <div class="flex flex-col items-end" style="max-width:74%">
-        <div class="bubble own">${body}</div>
-        ${receiptHtml}
+    <div class="flex flex-col items-end px-4 py-0.5">
+      <div class="max-w-[72%]">
+        <div class="bg-amber-100 text-on-primary-fixed rounded-2xl rounded-tr-sm px-4 py-2 text-sm leading-relaxed break-words">
+          ${msg.text ? escHtml(displayText) : ''}${trLink}${fileHtml}
+        </div>
+        <div class="flex items-center justify-end gap-1 mt-0.5 pr-0.5">
+          ${readLabel}
+          <span class="text-[10px] text-text-muted">${ts}</span>
+          ${!readLabel && receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
+        </div>
       </div>
     </div>`;
   }
 
   const senderUser = msg.senderUid ? allUsers.get(msg.senderUid) : null;
-  const avatarSlot = showMeta
-    ? (senderUser?.photoUrl
-        ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-7 h-7 rounded-full flex-shrink-0 object-cover" alt=""/>`
-        : `<div class="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`)
-    : `<div class="w-7 flex-shrink-0"></div>`;
-  // Sender name only for groups + announcements (not DMs)
-  const nameHtml = (showMeta && convType !== 'direct')
-    ? `<p class="text-[11px] text-text-muted mb-0.5 ml-1">${escHtml(msg.senderName || 'Unknown')}</p>` : '';
+  const senderAvatarHtml = senderUser?.photoUrl
+    ? `<img src="${escHtml(senderUser.photoUrl)}" class="w-6 h-6 rounded-full flex-shrink-0 object-cover" alt="${escHtml(msg.senderName || '')}"/>`
+    : `<div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white" style="background:${getAvatarColor(msg.senderName || '')}">${escHtml(getInitials(msg.senderName || '?'))}</div>`;
 
   return `
-  <div class="msg-row"${timeAttr} style="padding-top:${showMeta ? '4px' : '1px'}">
-    ${avatarSlot}
-    <div style="max-width:74%">
-      ${nameHtml}
-      <div class="bubble recv">${body}</div>
+  <div class="flex items-end gap-2 px-4 py-0.5">
+    ${senderAvatarHtml}
+    <div class="max-w-[72%]">
+      <p class="text-[11px] text-text-muted mb-1 ml-1">${sender}</p>
+      <div class="bg-surface-white border border-border-subtle rounded-2xl rounded-tl-sm px-4 py-2 text-sm leading-relaxed text-on-surface break-words">
+        ${msg.text ? escHtml(displayText) : ''}${trLink}${fileHtml}
+      </div>
+      <div class="flex items-center gap-1 mt-0.5 ml-1">
+        <span class="text-[10px] text-text-muted">${ts}</span>
+        ${receipts ? `<div class="flex gap-0.5 ml-1">${receipts}</div>` : ''}
+      </div>
     </div>
   </div>`;
 }
 
-// ── Mark read ───────────────────────────────────────────────────────────────
+// ── Message translation toggle ────────────────────────────────────────────────
+window.toggleMsgTranslation = async function(mid) {
+  const msg = msgArr.find(m => m.id === mid);
+  if (!msg || !msg.text) return;
+  if (translatedMsgIds.has(mid)) {
+    translatedMsgIds.delete(mid);
+    renderMessages();
+    return;
+  }
+  const viewerLang = 'en';
+  let tr = viewerLang === 'ko' ? msg.textKo : msg.textEn;
+  if (!tr) {
+    try {
+      tr = await cremonaTranslate(msg.text, viewerLang);
+    } catch (e) {
+      console.error('[translate]', e);
+      showToast('Translation failed. Please try again.', 'error');
+      return;
+    }
+  }
+  msg._trText = tr;
+  translatedMsgIds.add(mid);
+  renderMessages();
+};
+
+// ── Mark all read ─────────────────────────────────────────────────────────────
 async function markAllRead(convId) {
   if (!currentUser || !msgArr.length) return;
+  // Normalise uid to a trimmed string to guard against type mismatches
   const myUid = String(currentUser.uid).trim();
   try {
     const batch = writeBatch(db);
-    let count = 0;
+    let   count = 0;
     msgArr.forEach(msg => {
+      // Normalise every stored uid in readBy before comparing
       const alreadyRead = (msg.readBy || []).some(u => String(u).trim() === myUid);
-      if (!alreadyRead) { batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) }); count++; }
+      if (!alreadyRead) {
+        batch.update(doc(db, 'messages', msg.id), { readBy: arrayUnion(currentUser.uid) });
+        count++;
+      }
     });
     if (count > 0) await batch.commit();
-  } catch (e) { console.error('[markAllRead]', e); }
-}
-
-// Persist this user's read position on the conversation doc (server timestamp).
-// Drives the unread indicator reliably across reloads and devices.
-async function markConversationRead(convId) {
-  if (!currentUser) return;
-  try {
-    await updateDoc(doc(db, 'conversations', convId), { [`readAt.${currentUser.uid}`]: serverTimestamp() });
-  } catch (e) { console.error('[markConversationRead]', e); }
+  } catch (e) {
+    console.error('[markAllRead]', e);
+  }
 }
 
 // ── Send message ──────────────────────────────────────────────────────────────
 window.sendMessage = async function() {
   if (!activeConvId || !currentUser) return;
-  const input = document.getElementById('msg-input');
-  const text  = input.value.trim();
+  const input   = document.getElementById('msg-input');
+  const text    = input.value.trim();
   if (!text && !pendingFile) return;
 
   const sendBtn = document.getElementById('send-btn');
@@ -782,27 +1053,24 @@ window.sendMessage = async function() {
       ({ fileUrl, fileName, fileType } = await uploadFile(pendingFile));
       clearFile();
     }
-    const senderName = (currentUserData.firstName && currentUserData.lastName)
-      ? `${currentUserData.firstName} ${currentUserData.lastName}`
-      : (currentUserData.name || currentUser.email || 'Unknown');
 
     const msgData = {
       conversationId: activeConvId,
-      senderUid: currentUser.uid,
-      senderName,
+      senderUid:      currentUser.uid,
+      senderName:     currentUserData.name || currentUser.email || 'Unknown',
       text,
-      timestamp: serverTimestamp(),
-      readBy: [currentUser.uid]
+      timestamp:      serverTimestamp(),
+      readBy:         [currentUser.uid]
     };
     if (fileUrl) { msgData.fileUrl = fileUrl; msgData.fileName = fileName; msgData.fileType = fileType; }
 
     await addDoc(collection(db, 'messages'), msgData);
     await updateDoc(doc(db, 'conversations', activeConvId), {
-      lastMessage: text || fileName,
+      lastMessage:   text || fileName,
       lastMessageAt: serverTimestamp(),
-      lastMessageBy: currentUser.uid,
-      [`readAt.${currentUser.uid}`]: serverTimestamp()
+      lastMessageBy: currentUser.uid
     });
+
     input.value = '';
   } catch (e) {
     console.error('sendMessage', e);
@@ -825,67 +1093,304 @@ window.handleFileSelect = function(input) {
 
 window.clearFile = function() {
   pendingFile = null;
-  const fp = document.getElementById('file-preview');
-  if (fp) fp.style.display = 'none';
-  const fi = document.getElementById('file-input');
-  if (fi) fi.value = '';
+  document.getElementById('file-preview').style.display = 'none';
+  document.getElementById('file-input').value = '';
 };
 
 async function uploadFile(file) {
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-  const path = `messages/${activeConvId}/${Date.now()}_${safeName}`;
-  const storageRef = ref(storage, path);
-  await uploadBytes(storageRef, file, { contentType: file.type });
-  const fileUrl = await getDownloadURL(storageRef);
-  return { fileUrl, fileName: file.name, fileType: file.type };
+  const key = `messages/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${WORKER_URL}/${key}`);
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.onload = () => xhr.status === 200
+      ? resolve({ fileUrl: `${R2_PUBLIC_BASE}/${key}`, fileName: file.name, fileType: file.type })
+      : reject(new Error(`Upload failed: ${xhr.status}`));
+    xhr.onerror = () => reject(new Error('Upload network error'));
+    xhr.send(file);
+  });
 }
 
 // ── Input helpers ─────────────────────────────────────────────────────────────
 window.handleMsgKeydown = function(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 };
+
 window.autoResize = function(el) {
   el.style.height = '';
   el.style.height = Math.min(el.scrollHeight, 128) + 'px';
 };
-window.filterSidebar = function(val) { sidebarFilter = val; renderSidebar(); };
 
-// ── Avatar / time / misc helpers ────────────────────────────────────────────────
+// ── Sidebar filter ────────────────────────────────────────────────────────────
+window.filterSidebar = function(val) {
+  sidebarFilter = val;
+  renderSidebar();
+};
+
+// ── New chat / new group ──────────────────────────────────────────────────────
+// Candidates are scoped to the student↔teacher assignment graph (see
+// computeAllowedContacts): teachers see all other teachers + the parents of
+// their assigned students; parents see only the teachers assigned to their own
+// children. Admins are never messageable here, and parents can never be messaged
+// by other parents. Group chats remain teacher-only.
+function chatPartnerCandidates() {
+  const out = [];
+  allUsers.forEach(u => {
+    if (u.uid === currentUser.uid) return;
+    if (u.status === 'deleted' || u.status === 'inactive') return;
+    if (u.role !== 'teacher' && u.role !== 'parent') return;
+    if (allowedContactUids && !allowedContactUids.has(u.uid)) return;   // assignment-scoped
+    out.push(u);
+  });
+  return out.sort((a, b) => (userDisplayName(a)).localeCompare(userDisplayName(b)));
+}
+
+function userDisplayName(u) {
+  return (u.firstName && u.lastName) ? `${u.firstName} ${u.lastName}` : (u.name || u.email || 'Unknown');
+}
+
+window.openNewChatModal = function() {
+  document.getElementById('newchat-search').value = '';
+  renderNewChatList('');
+  document.getElementById('newchat-modal').classList.remove('hidden');
+  document.getElementById('newchat-search').focus();
+};
+
+window.closeNewChatModal = function() {
+  document.getElementById('newchat-modal').classList.add('hidden');
+};
+
+window.renderNewChatList = function(filter) {
+  const f    = (filter || '').toLowerCase();
+  const list = chatPartnerCandidates().filter(u =>
+    !f || userDisplayName(u).toLowerCase().includes(f) || (u.email || '').toLowerCase().includes(f));
+  document.getElementById('newchat-list').innerHTML = list.length ? list.map(u => {
+    const name = userDisplayName(u);
+    return `
+    <button onclick="startDirectChat('${u.uid}')"
+            class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-container transition-colors text-left">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
+           style="background:${getAvatarColor(name)}">${escHtml(getInitials(name))}</div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-semibold text-on-surface truncate">${escHtml(name)}</p>
+        <p class="text-xs text-text-muted truncate">${u.role === 'parent' ? 'Parent' : 'Teacher'}</p>
+      </div>
+    </button>`;
+  }).join('') : '<p class="px-4 py-6 text-center text-xs text-text-muted italic">No users found</p>';
+};
+
+window.startDirectChat = async function(otherUid) {
+  closeNewChatModal();
+  // Re-use an existing DM if there is one
+  let existing = null;
+  conversations.forEach(c => {
+    if (c.type === 'direct' && (c.members || []).includes(otherUid)) existing = c;
+  });
+  if (existing) { openConversation(existing.id); return; }
+  try {
+    const ref = await addDoc(collection(db, 'conversations'), {
+      type:          'direct',
+      members:       [currentUser.uid, otherUid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: ''
+    });
+    // The snapshot listener will add it; open once it arrives
+    const openWhenReady = setInterval(() => {
+      if (conversations.has(ref.id)) { clearInterval(openWhenReady); openConversation(ref.id); }
+    }, 150);
+    setTimeout(() => clearInterval(openWhenReady), 5000);
+  } catch (e) {
+    console.error('startDirectChat', e);
+    showToast('Failed to start chat.', 'error');
+  }
+};
+
+window.openNewGroupModal = function() {
+  document.getElementById('newgroup-name').value = '';
+  const teachers = chatPartnerCandidates().filter(u => u.role === 'teacher');
+  document.getElementById('newgroup-list').innerHTML = teachers.length ? teachers.map(u => {
+    const name = userDisplayName(u);
+    return `
+    <label class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-container transition-colors cursor-pointer">
+      <input type="checkbox" data-group-member value="${u.uid}"
+             class="w-4 h-4 rounded border-border-subtle text-secondary focus:ring-secondary"/>
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-[12px] font-bold flex-shrink-0"
+           style="background:${getAvatarColor(name)}">${escHtml(getInitials(name))}</div>
+      <span class="text-sm font-medium text-on-surface truncate">${escHtml(name)}</span>
+    </label>`;
+  }).join('') : '<p class="px-4 py-6 text-center text-xs text-text-muted italic">No other teachers found</p>';
+  document.getElementById('newgroup-modal').classList.remove('hidden');
+};
+
+window.closeNewGroupModal = function() {
+  document.getElementById('newgroup-modal').classList.add('hidden');
+};
+
+window.createGroupChat = async function() {
+  const name = document.getElementById('newgroup-name').value.trim();
+  const uids = [...document.querySelectorAll('#newgroup-list input[data-group-member]:checked')].map(c => c.value);
+  if (!name)        return showToast('Please enter a group name.', 'error');
+  if (!uids.length) return showToast('Select at least one teacher.', 'error');
+  const btn = document.getElementById('newgroup-create-btn');
+  btn.disabled = true; btn.textContent = 'Creating…';
+  try {
+    const ref = await addDoc(collection(db, 'conversations'), {
+      type:          'group',
+      name,
+      members:       [currentUser.uid, ...uids],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: ''
+    });
+    closeNewGroupModal();
+    const openWhenReady = setInterval(() => {
+      if (conversations.has(ref.id)) { clearInterval(openWhenReady); openConversation(ref.id); }
+    }, 150);
+    setTimeout(() => clearInterval(openWhenReady), 5000);
+    showToast('Group created.', 'success');
+  } catch (e) {
+    console.error('createGroupChat', e);
+    showToast('Failed to create group.', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Group';
+  }
+};
+
+// ── Contact support ───────────────────────────────────────────────────────────
+// Opens (or creates) the user's private support thread with the Cremona Music team.
+window.contactSupport = async function() {
+  let existing = null;
+  conversations.forEach(c => { if (c.type === 'support') existing = c; });
+  if (existing) { openConversation(existing.id); return; }
+  try {
+    const ref = await addDoc(collection(db, 'conversations'), {
+      type:          'support',
+      name:          'Support',
+      members:       [currentUser.uid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: ''
+    });
+    const openWhenReady = setInterval(() => {
+      if (conversations.has(ref.id)) { clearInterval(openWhenReady); openConversation(ref.id); }
+    }, 150);
+    setTimeout(() => clearInterval(openWhenReady), 5000);
+  } catch (e) {
+    console.error('contactSupport', e);
+    showToast('Failed to open support chat.', 'error');
+  }
+};
+
+// ── Chat menu: leave / delete ─────────────────────────────────────────────────
+window.toggleChatMenu = function() {
+  document.getElementById('chat-menu').classList.toggle('hidden');
+};
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#chat-menu') && !e.target.closest('#chat-menu-btn')) {
+    document.getElementById('chat-menu')?.classList.add('hidden');
+  }
+});
+
+window.leaveChat = async function() {
+  document.getElementById('chat-menu').classList.add('hidden');
+  const conv = conversations.get(activeConvId);
+  if (!conv || conv.type !== 'group') return;
+  if (!confirm(`Leave "${conv.name || 'this group'}"? You will no longer see its messages.`)) return;
+  try {
+    await updateDoc(doc(db, 'conversations', conv.id), {
+      members: arrayRemove(currentUser.uid)
+    });
+    activeConvId = null;
+    if (msgUnsub) { msgUnsub(); msgUnsub = null; }
+    document.getElementById('empty-state').style.display = '';
+    document.getElementById('conv-view').style.display   = 'none';
+    showToast('You left the group.', 'success');
+  } catch (e) {
+    console.error('leaveChat', e);
+    showToast('Failed to leave chat.', 'error');
+  }
+};
+
+window.deleteChat = async function() {
+  document.getElementById('chat-menu').classList.add('hidden');
+  const conv = conversations.get(activeConvId);
+  if (!conv) return;
+  const label = conv.type === 'group' ? (conv.name || 'this group') : 'this conversation';
+  if (!confirm(`Delete ${label} and all its messages for everyone? This cannot be undone.`)) return;
+  try {
+    // Delete all messages of the conversation in batches of 400
+    const snap = await getDocs(query(collection(db, 'messages'), where('conversationId', '==', conv.id)));
+    const docs = snap.docs;
+    for (let i = 0; i < docs.length; i += 400) {
+      const batch = writeBatch(db);
+      docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+    await deleteDoc(doc(db, 'conversations', conv.id));
+    activeConvId = null;
+    if (msgUnsub) { msgUnsub(); msgUnsub = null; }
+    document.getElementById('empty-state').style.display = '';
+    document.getElementById('conv-view').style.display   = 'none';
+    showToast('Chat deleted.', 'success');
+  } catch (e) {
+    console.error('deleteChat', e);
+    showToast('Failed to delete chat.', 'error');
+  }
+};
+
+// ── Avatar helpers ────────────────────────────────────────────────────────────
 function getAvatarColor(str) {
-  const palette = ['#C9A227','#7A5230','#1e6e3b','#b91c1c','#7c3aed','#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
+  const palette = ['#3B2A1E','#7A5A16','#1e6e3b','#b91c1c','#7c3aed',
+                   '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
   let h = 0;
   for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
   return palette[h % palette.length];
 }
+
 function getInitials(name) {
   const parts = (name || '').trim().split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   return (name || '?').slice(0, 2).toUpperCase();
 }
+
+// ── Time helpers ──────────────────────────────────────────────────────────────
 function formatTime(date) {
-  const now = new Date(), diff = now - date;
-  if (diff < 60000) return 'now';
+  const now  = new Date();
+  const diff = now - date;
+  if (diff < 60000)   return 'now';
   if (diff < 3600000) return `${Math.floor(diff / 60000)}m`;
-  if (date.toDateString() === now.toDateString()) return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (date.toDateString() === now.toDateString())
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
 }
-function formatTimeFull(date) { return date.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); }
-function dividerLabel(date) {
-  const now = new Date();
-  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (date.toDateString() === now.toDateString()) return `Today ${time}`;
-  const y = new Date(now); y.setDate(now.getDate() - 1);
-  if (date.toDateString() === y.toDateString()) return `Yesterday ${time}`;
-  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' · ' + time;
+
+function formatTimeFull(date) {
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
-function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ── Escape HTML ───────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'info') {
   const t = document.getElementById('toast');
   t.textContent = msg; t.className = `show ${type}`;
   setTimeout(() => { t.className = ''; }, 3000);
 }
 </script>
-  <script>window.CREMONA_NAV={portal:'teacher',active:'messages',title:'Messages'};</script>
-  <script src="/js/portal-nav.js"></script>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

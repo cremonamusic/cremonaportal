@@ -1,0 +1,164 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Cremona Music portal design system — a global polish layer loaded on every page
+   (injected by /js/theme.js). Upgrades typography, depth, motion, and detail
+   across teacher / parent / admin pages without touching page structure.
+   Every rule has a dark-mode (.cremona-dark) counterpart where needed.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
+/* ── Typography ────────────────────────────────────────────────────────────── */
+body {
+  font-family: 'Pretendard Variable', Pretendard, 'Inter', -apple-system, 'Malgun Gothic', sans-serif !important;
+  letter-spacing: -0.011em;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .font-headline-sm, .font-headline-md {
+  letter-spacing: -0.02em;
+}
+
+/* ── Selection & focus ─────────────────────────────────────────────────────── */
+::selection { background: #ffe08a; color: #3d2b00; }
+.cremona-dark ::selection { background: #5a4300; color: #ffe4a3; }
+:focus-visible { outline: 2px solid #b8860b; outline-offset: 2px; border-radius: 4px; }
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d8cfb9; border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: #b8ac8d; border: 2px solid transparent; background-clip: content-box; }
+.cremona-dark ::-webkit-scrollbar-thumb { background: #3a3e42; border: 2px solid transparent; background-clip: content-box; }
+
+/* ── Global motion ─────────────────────────────────────────────────────────── */
+button, a, input, select, textarea, [onclick] {
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease,
+              box-shadow .18s ease, transform .12s ease, opacity .16s ease, filter .16s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* ── Headers: frosted glass ────────────────────────────────────────────────── */
+header {
+  background: rgba(255, 255, 255, .84) !important;
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  border-bottom-color: rgba(224, 224, 224, .7) !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .02) !important;
+}
+.cremona-dark header {
+  background: rgba(24, 26, 27, .82) !important;
+  border-bottom-color: rgba(255, 255, 255, .07) !important;
+}
+
+/* nav link hover: animated underline */
+header nav a { position: relative; }
+header nav a::after {
+  content: ''; position: absolute; left: 0; right: 100%; bottom: -3px; height: 2px;
+  background: currentColor; opacity: .55; transition: right .22s cubic-bezier(.22,1,.36,1);
+}
+header nav a:hover::after { right: 0; }
+header nav a[class*="border-b-2"]::after { display: none; }
+
+/* ── Cards: layered elevation + hover lift on interactive cards ────────────── */
+.bg-surface-white.rounded-xl, .bg-surface-white.rounded-2xl,
+.bg-surface-white[class*="rounded-xl"], .bg-surface-white[class*="rounded-2xl"] {
+  box-shadow: 0 1px 2px rgba(25, 28, 29, .04), 0 8px 24px -12px rgba(25, 28, 29, .10) !important;
+  border-color: rgba(224, 224, 224, .85) !important;
+}
+.cremona-dark .bg-surface-white.rounded-xl, .cremona-dark .bg-surface-white.rounded-2xl,
+.cremona-dark .bg-surface-white[class*="rounded-xl"], .cremona-dark .bg-surface-white[class*="rounded-2xl"] {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .35), 0 10px 28px -14px rgba(0, 0, 0, .55) !important;
+}
+[onclick].bg-surface-white:hover, a.bg-surface-white:hover, button.bg-surface-white:hover,
+.cursor-pointer.bg-surface-white:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(25, 28, 29, .05), 0 16px 34px -14px rgba(25, 28, 29, .16) !important;
+}
+
+/* ── Primary buttons: gold gradient + press feel ───────────────────────────── */
+.bg-primary-container {
+  background-image: linear-gradient(180deg, #ffd54f, #C8A951) !important;
+  box-shadow: 0 1px 0 rgba(59,42,30, .28), 0 10px 22px -10px rgba(59,42,30, .45) !important;
+}
+.bg-primary-container:hover { filter: brightness(1.04); transform: translateY(-1px); }
+.bg-primary-container:active { transform: translateY(1px) scale(.99); box-shadow: 0 1px 0 rgba(59,42,30, .25) !important; }
+.cremona-dark .bg-primary-container {
+  background-image: linear-gradient(180deg, #6b5100, #5a4300) !important;
+  box-shadow: 0 10px 22px -10px rgba(0, 0, 0, .5) !important;
+}
+
+/* secondary / outline buttons subtle lift */
+button[class*="border"]:not([class*="bg-primary"]):hover { transform: translateY(-1px); }
+button[class*="border"]:not([class*="bg-primary"]):active { transform: translateY(0) scale(.99); }
+
+/* ── Inputs: soft chrome + gold focus ring ─────────────────────────────────── */
+input[type="text"], input[type="email"], input[type="password"], input[type="tel"],
+input[type="number"], input[type="date"], input[type="time"], input[type="url"],
+input[type="datetime-local"], input[type="search"], select, textarea {
+  border-radius: 12px !important;
+  transition: border-color .15s ease, box-shadow .15s ease !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #b8860b !important;
+  box-shadow: 0 0 0 4px rgba(184, 134, 11, .13) !important;
+  outline: none !important;
+}
+.cremona-dark input:focus, .cremona-dark select:focus, .cremona-dark textarea:focus {
+  border-color: #ffc84d !important;
+  box-shadow: 0 0 0 4px rgba(255, 200, 77, .14) !important;
+}
+
+/* ── Tables: refined rows ──────────────────────────────────────────────────── */
+table thead th {
+  font-size: 11px !important; letter-spacing: .08em; text-transform: uppercase;
+}
+table tbody tr { transition: background-color .14s ease; }
+table tbody tr:hover { background: rgba(59,42,30, .035); }
+.cremona-dark table tbody tr:hover { background: rgba(255, 200, 77, .05); }
+
+/* ── Status pills & badges: subtle ring ────────────────────────────────────── */
+[class*="rounded-full"][class*="text-xs"], [class*="rounded-full"][class*="text-[1"] {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .04);
+}
+
+/* ── Modals: deeper shadow + entrance ──────────────────────────────────────── */
+[id*="modal"] > div, [id$="-modal"] .bg-surface-white {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08), 0 32px 80px -24px rgba(0, 0, 0, .35) !important;
+}
+@keyframes cremonaModalIn { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+[id*="modal"]:not(.hidden) > div { animation: cremonaModalIn .22s cubic-bezier(.22, 1, .36, 1); }
+
+/* ── Page entrance: gentle rise for the main content ───────────────────────── */
+@keyframes cremonaPageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+main { animation: cremonaPageIn .4s cubic-bezier(.22, 1, .36, 1) both; }
+
+/* ── Notification bell alignment with the design ───────────────────────────── */
+#inb-btn { border-radius: 16px !important; }
+
+/* ── Material symbols: optical crispness ───────────────────────────────────── */
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 22; }
+
+
+/* ── Unified header layout: wide container, menu centered ──────────────────── */
+header > div {
+  max-width: 1360px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  position: relative;
+}
+/* nav centering is applied by notifbell.js only when it actually fits */
+header nav.nav-compact a { font-size: 13px !important; }
+
+/* ── Header account menu (multi-account switcher) ──────────────────────────── */
+.hdr-menu { position:absolute; right:0; top:calc(100% + 8px); min-width:264px; background:#fff; border:1px solid rgba(224,224,224,.9); border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,.06), 0 24px 60px -18px rgba(0,0,0,.3); padding:6px; z-index:130; }
+.cremona-dark .hdr-menu { background:#1a2027; border-color:rgba(255,255,255,.09); }
+.hdr-menu-item { display:flex; align-items:center; gap:10px; width:100%; padding:9px 12px; border-radius:10px; font-size:13px; font-weight:600; color:inherit; text-align:left; background:transparent; border:none; cursor:pointer; text-decoration:none; }
+.hdr-menu-item:hover { background:#F6F0E6; }
+.cremona-dark .hdr-menu-item:hover { background:#2E241C; }
+.hdr-menu-name { display:block; font-size:13px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+.hdr-menu-sub { display:block; font-size:11px; color:#7A6A57; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
+.cremona-dark .hdr-menu-sub { color:#9aa4ad; }
+.hdr-menu-hr { border:none; border-top:1px solid rgba(224,224,224,.8); margin:6px 8px; }
+.cremona-dark .hdr-menu-hr { border-top-color:rgba(255,255,255,.08); }

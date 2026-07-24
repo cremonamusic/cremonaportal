@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>My Salary | Cremona Music</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        'primary': '#3B2A1E', 'primary-container': '#C8A951',
+        'on-primary-fixed': '#2A1D14', 'on-primary-container': '#5A4A22',
+        'secondary': '#7A5A16', 'secondary-fixed': '#F2E6CC',
+        'surface': '#FAF6EF', 'surface-white': '#FFFFFF',
+        'surface-container': '#F1E9DC', 'surface-container-low': '#F6F0E6',
+        'on-surface': '#2B2019', 'on-surface-variant': '#6B5844',
+        'border-subtle': '#E2D7C6', 'text-muted': '#7A6A57',
+        'error': '#B3261E', 'error-container': '#F9DEDC'
+      },
+      fontFamily: { sans: ['Inter', 'sans-serif'] }
+    }
+  }
+}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align: middle; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: fadeUp .3s ease-out both; }
+#toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
+#toast.show { opacity:1; }
+#toast.error   { background:#B3261E;color:#fff; }
+#toast.success { background:#1e6e3b;color:#fff; }
+#toast.info    { background:#7A5A16;color:#fff; }
+.badge { display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+.badge-pending { background:#fef3c7;color:#92400e; }
+.badge-paid    { background:#d1fae5;color:#065f46; }
+</style>
+<script src="/js/theme.js"></script>
+</head>
+<body class="text-on-surface min-h-screen flex flex-col">
+
+<!-- Loading overlay -->
+<div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
+  <div class="flex flex-col items-center gap-3">
+    <div class="spinner"></div>
+    <p class="text-text-muted text-sm">Loading...</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm flex-shrink-0 z-50" style="height:56px">
+  <div class="max-w-full px-6 h-full flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-7 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4">
+        <a href="/home"             class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
+        <a href="/books"            class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Books</a>
+        <a href="/schedule"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/messages"         class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
+        <a href="/students-teacher" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/level-tests"      class="whitespace-nowrap text-sm font-medium text-text-muted hover:text-primary transition-colors">Level Tests</a>
+        <a href="/comments"          class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a href="/salary"           class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Salary</a>
+      </nav>
+    </div>
+    <a href="/account"
+       class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
+      <span class="material-symbols-outlined text-[18px]">account_circle</span>
+      <span class="hidden sm:inline" id="header-user-name">Account</span>
+    </a>
+  </div>
+</header>
+
+<!-- ── Main ────────────────────────────────────────────────────────────────── -->
+<main class="flex-1 max-w-2xl mx-auto w-full px-6 py-8">
+
+  <!-- Page title -->
+  <div class="mb-8 fade-up">
+    <h1 class="text-2xl font-bold text-on-surface">My Salary</h1>
+    <p class="text-text-muted mt-1 text-sm">View your salary records and download payslips.</p>
+  </div>
+
+  <!-- Latest record card -->
+  <div id="latest-card" class="mb-8 fade-up" style="animation-delay:60ms"></div>
+
+  <!-- All records -->
+  <section class="fade-up" style="animation-delay:120ms">
+    <h2 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4">Salary History</h2>
+    <div id="records-list" class="flex flex-col gap-3"></div>
+  </section>
+
+</main>
+
+<footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle flex-shrink-0">
+  © 2026 Cremona Music.
+</footer>
+
+<script type="module">
+import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, getDocs, collection, query, where }
+                              from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:            "REPLACE_ME_CREMONA_API_KEY",
+  authDomain:        "portal.cremonamusic.com",
+  projectId:         "cremona-portal",
+  storageBucket:     "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId:             "REPLACE_ME_APP_ID"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+
+function escHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(msg, type = 'info') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.className = ''; }, 3500);
+}
+
+function fmtAmount(amount, currency) {
+  return `${currency} ${Number(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function fmtPeriod(month, year) {
+  return `${MONTHS[(month - 1) % 12]} ${year}`;
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = d.toDate ? d.toDate() : (d.seconds ? new Date(d.seconds * 1000) : new Date(d));
+  return dt.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+// ── Auth guard ───────────────────────────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = '/'; return; }
+  try {
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (!snap.exists() || snap.data().status === 'inactive') {
+      await signOut(auth); window.location.href = '/'; return;
+    }
+    const data = snap.data();
+    if (data.role === 'parent') { window.location.href = '/'; return; }
+
+    const name = data.firstName || (data.name || '').split(' ')[0] || 'Account';
+    document.getElementById('header-user-name').textContent = name;
+
+    await loadSalaries(user.uid);
+    document.getElementById('loading-overlay').style.display = 'none';
+  } catch (e) { console.error(e); window.location.href = '/'; }
+});
+
+async function loadSalaries(uid) {
+  let records = [];
+  try {
+    const q    = query(collection(db, 'salaries'), where('teacherUid', '==', uid));
+    const snap = await getDocs(q);
+    records = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    records.sort((a, b) => {
+      if (b.periodYear !== a.periodYear) return b.periodYear - a.periodYear;
+      return b.periodMonth - a.periodMonth;
+    });
+  } catch (e) {
+    showToast('Failed to load salary records.', 'error');
+    return;
+  }
+
+  renderLatestCard(records[0] || null);
+  renderRecordsList(records);
+}
+
+function renderLatestCard(record) {
+  const el = document.getElementById('latest-card');
+  if (!record) {
+    el.innerHTML = `
+      <div class="bg-surface-white rounded-2xl border border-border-subtle p-8 flex flex-col items-center gap-3 text-center">
+        <span class="material-symbols-outlined text-4xl text-text-muted opacity-30">payments</span>
+        <p class="font-semibold text-text-muted text-sm">No salary records yet</p>
+        <p class="text-xs text-text-muted">Your salary information will appear here once set up by admin.</p>
+      </div>`;
+    return;
+  }
+
+  const isPaid = record.status === 'paid';
+  el.innerHTML = `
+    <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm p-6">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <p class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Latest Salary</p>
+          <p class="text-3xl font-bold text-on-surface">${escHtml(fmtAmount(record.amount, record.currency))}</p>
+          <p class="text-sm text-text-muted mt-1">${escHtml(fmtPeriod(record.periodMonth, record.periodYear))}</p>
+        </div>
+        <span class="badge badge-${escHtml(record.status)} mt-1">${escHtml(record.status)}</span>
+      </div>
+      ${isPaid && record.paymentDate ? `
+        <div class="flex items-center gap-2 text-sm text-text-muted mb-4">
+          <span class="material-symbols-outlined text-[16px] text-[#1e6e3b]">check_circle</span>
+          Paid on ${escHtml(fmtDate(record.paymentDate))}
+        </div>` : ''}
+      ${record.payslipUrl ? `
+        <a href="${escHtml(record.payslipUrl)}" target="_blank" rel="noopener"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary/90 transition-colors no-underline">
+          <span class="material-symbols-outlined text-[16px]">download</span>Download Payslip
+        </a>` : `
+        <p class="text-xs text-text-muted flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-[14px]">info</span>Payslip will appear here once generated by admin.
+        </p>`}
+    </div>`;
+}
+
+function renderRecordsList(records) {
+  const el = document.getElementById('records-list');
+  if (!records.length) {
+    el.innerHTML = '';
+    return;
+  }
+  // Skip index 0 — that's shown in the latest card above
+  const history = records.slice(1);
+  if (!history.length) {
+    el.innerHTML = `<p class="text-sm text-text-muted py-4 text-center">No previous records.</p>`;
+    return;
+  }
+  el.innerHTML = history.map((r, i) => `
+    <div class="bg-surface-white rounded-xl border border-border-subtle px-5 py-4 flex items-center justify-between gap-4"
+         style="animation-delay:${(i+1)*40}ms">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center flex-shrink-0">
+          <span class="material-symbols-outlined text-text-muted text-[20px]">payments</span>
+        </div>
+        <div>
+          <p class="font-semibold text-sm">${escHtml(fmtPeriod(r.periodMonth, r.periodYear))}</p>
+          <p class="text-xs text-text-muted mt-0.5">${escHtml(fmtAmount(r.amount, r.currency))} · ${r.isRecurring ? 'Recurring' : 'One-Time'}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <span class="badge badge-${escHtml(r.status)}">${escHtml(r.status)}</span>
+        ${r.payslipUrl ? `
+          <a href="${escHtml(r.payslipUrl)}" target="_blank" rel="noopener"
+             class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-medium text-text-muted hover:bg-surface-container transition-colors no-underline">
+            <span class="material-symbols-outlined text-[14px]">download</span>Payslip
+          </a>` : ''}
+      </div>
+    </div>`).join('');
+}
+</script>
+<script src="/js/notifbell.js?v=4" defer></script>
+</body>
+</html>

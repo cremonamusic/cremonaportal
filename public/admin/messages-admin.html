@@ -2,9 +2,8 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
-<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Messages | Cremona Music Admin</title>
+<title>Messages Admin | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -18,21 +17,21 @@
         },
         maxWidth: { "container-max": "1200px" },
         colors: {
-          "primary":                "#C9A227", "primary-container": "#F5E5B0",
-          "on-primary-container":   "#6d5100", "on-primary-fixed": "#3E2C23",
-          "primary-fixed":          "#F0E8C0", "primary-fixed-dim": "#D4A520",
-          "secondary":              "#C9A227", "secondary-fixed": "#F0E8C0",
-          "on-secondary-fixed":     "#3E2C23", "secondary-container": "#F5E5B0",
-          "on-secondary-container": "#3E2C23",
-          "tertiary":               "#005e6e", "tertiary-container": "#F0E8C0",
+          "primary":                "#3B2A1E", "primary-container": "#C8A951",
+          "on-primary-container":   "#5A4A22", "on-primary-fixed": "#2A1D14",
+          "primary-fixed":          "#F0E2C4", "primary-fixed-dim": "#C8A951",
+          "secondary":              "#7A5A16", "secondary-fixed": "#F2E6CC",
+          "on-secondary-fixed":     "#2A1D14", "secondary-container": "#9A7524",
+          "on-secondary-container": "#FFFDF8",
+          "tertiary":               "#005e6e", "tertiary-container": "#b1eeff",
           "on-tertiary-fixed":      "#001f26",
-          "surface":                "#FAF6EF", "surface-white": "#FFFDF9",
-          "surface-container":      "#edeeef", "surface-container-low": "#F5EFE4",
-          "surface-container-high": "#EAE0CE", "surface-container-highest": "#E4D8C2",
-          "on-surface":             "#3E2C23", "on-surface-variant": "#7A5A42",
-          "border-subtle":          "#E8DCC8", "outline-variant": "#D4BCA0",
-          "outline":                "#827660", "text-muted": "#8B6B52",
-          "error":                  "#ba1a1a", "error-container": "#ffdad6"
+          "surface":                "#FAF6EF", "surface-white": "#FFFFFF",
+          "surface-container":      "#F1E9DC", "surface-container-low": "#F6F0E6",
+          "surface-container-high": "#EAE0D0", "surface-container-highest": "#E3D8C6",
+          "on-surface":             "#2B2019", "on-surface-variant": "#6B5844",
+          "border-subtle":          "#E2D7C6", "outline-variant": "#D8C5A8",
+          "outline":                "#8A7A63", "text-muted": "#7A6A57",
+          "error":                  "#B3261E", "error-container": "#F9DEDC"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] },
         fontSize: {
@@ -46,30 +45,19 @@
 <style>
   body { font-family: 'Inter', sans-serif; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .spinner { width:18px;height:18px;border:2px solid rgba(201,162,39,0.2);border-top-color:#C9A227;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
+  .spinner { width:18px;height:18px;border:2px solid rgba(59,42,30,0.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity 0.3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error { background:#ba1a1a;color:#fff; }
+  #toast.error { background:#B3261E;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info { background:#3B2A1E;color:#F5EFE4; }
+  #toast.info { background:#7A5A16;color:#fff; }
 </style>
-<style id="cremona-palette">
-/* Cremona Music Portal: header / footer / logo */
-header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
-header img[src*="logo"] { filter: invert(1) brightness(1.2); }
-header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
-header nav a:hover { color: #C9A227 !important; }
-header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
-footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
-footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
-footer a { color: #C9A227 !important; }
-footer a:hover { color: #E8DCC8 !important; }
-footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
-</style>
+<script src="/js/theme.js"></script>
+<script src="/js/admin-guard.js"></script>
 </head>
 
-<body class="bg-surface min-h-screen text-on-surface">
+<body class="bg-surface min-h-screen text-on-surface" data-portal="admin" data-page="messages">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -81,12 +69,43 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
 <div id="toast"></div>
 
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
+  <div class="max-w-container-max mx-auto px-margin-desktop py-3 flex items-center justify-between gap-4">
+    <div class="flex items-center gap-6">
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <nav class="hidden sm:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
+        <a href="/admin/accounts"        class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Accounts</a>
+        <a href="/admin/security"        class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Security</a>
+        <a href="/admin/resources"       class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Resources</a>
+        <a href="/admin/students"        class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Students</a>
+        <a href="/admin/schedule-admin"  class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
+        <a href="/admin/messages-admin"  class="text-nav font-bold text-secondary border-b-2 border-secondary pb-0.5">Messages</a>
+        <a href="/admin/comments-admin"   class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
+        <a href="/admin/salary-admin"    class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
+        <a href="/admin/payments-admin"  class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Payments</a>
+        <a href="/admin/billing-admin"   class="text-nav font-medium text-text-muted hover:text-primary transition-colors">Billing</a>
+      </nav>
+    </div>
+    <button onclick="adminSignOut()"
+            class="flex items-center gap-1.5 px-3 py-1.5 border border-error text-error font-medium text-sm rounded-lg hover:bg-error-container transition-all">
+      <span class="material-symbols-outlined text-[17px]">logout</span>
+      <span class="hidden sm:inline">Sign Out</span>
+    </button>
+  </div>
+</header>
+
 <!-- ── Page content ───────────────────────────────────────────────────────── -->
 <main class="max-w-container-max mx-auto px-margin-desktop py-8">
 
   <div class="mb-6">
     <h1 class="text-header font-bold text-on-surface">Messages Admin</h1>
-    <p class="text-text-muted text-sm mt-1">Manage conversations, post announcements, create group chats, and open direct messages between teachers.</p>
+    <p class="text-text-muted text-sm mt-1">Manage conversations, post announcements, create group chats, and chat directly with any teacher or parent.</p>
+    <button onclick="openAdminChatModal()"
+            class="mt-3 flex items-center gap-2 px-4 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm">
+      <span class="material-symbols-outlined text-[18px]">chat_add_on</span>
+      New Chat (as me)
+    </button>
   </div>
 
   <!-- Grid of panels -->
@@ -236,7 +255,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
 
       <!-- Create parent–teacher DM panel -->
       <div class="bg-surface-white rounded-2xl border border-border-subtle shadow-sm overflow-hidden">
-        <div class="flex items-center gap-2 px-5 py-4 border-b border-border-subtle" style="background:#eff6ff">
+        <div class="flex items-center gap-2 px-5 py-4 border-b border-border-subtle bg-blue-50">
           <span class="material-symbols-outlined text-secondary text-[22px]" style="font-variation-settings:'FILL' 1;">family_restroom</span>
           <h2 class="font-bold text-sm text-on-surface">Create Parent–Teacher DM</h2>
         </div>
@@ -306,6 +325,7 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
           <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="announcement" onclick="setConvFilter('announcement')">Announcements</button>
           <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="group"  onclick="setConvFilter('group')">Groups</button>
           <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="direct" onclick="setConvFilter('direct')">Direct Messages</button>
+          <button class="conv-filter-btn        text-xs font-semibold px-3 py-1 rounded-full transition-colors" data-filter="support" onclick="setConvFilter('support')">Support</button>
         </div>
 
         <div id="all-conv-list" class="divide-y divide-border-subtle">
@@ -353,13 +373,23 @@ footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
     <div id="view-modal-messages" class="flex-1 overflow-y-auto py-3 flex flex-col gap-0.5 bg-surface">
       <!-- populated -->
     </div>
+    <!-- Reply bar — shown for support conversations only -->
+    <div id="view-modal-reply" class="hidden flex-shrink-0 bg-surface-white border-t border-border-subtle px-3 py-3 flex items-end gap-2">
+      <textarea id="support-reply-input" rows="1" placeholder="Reply as Cremona Support…"
+                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendSupportReply();}"
+                class="flex-1 resize-none rounded-xl border border-border-subtle focus:border-secondary focus:ring-1 focus:ring-secondary outline-none transition-all text-sm px-3 py-2 bg-surface max-h-32 overflow-y-auto"></textarea>
+      <button id="support-reply-btn" onclick="sendSupportReply()"
+              class="flex-shrink-0 w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white hover:bg-secondary/90 active:scale-95 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">send</span>
+      </button>
+    </div>
   </div>
 </div>
 
 <style>
-  .conv-filter-btn { background:transparent; color:#8B6B52; }
-  .conv-filter-btn.active { background:#F5E5B0; color:#A07818; }
-  .conv-filter-btn:hover:not(.active) { background:#edeeef; }
+  .conv-filter-btn { background:transparent; color:#7A6A57; }
+  .conv-filter-btn.active { background:#F2E6CC; color:#7A5A16; }
+  .conv-filter-btn:hover:not(.active) { background:#F1E9DC; }
 </style>
 
 <script type="module">
@@ -370,20 +400,18 @@ import {
   onSnapshot, addDoc, updateDoc, getDocs, writeBatch, deleteDoc,
   serverTimestamp, arrayUnion, orderBy
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 // ── Firebase init ─────────────────────────────────────────────────────────────
 const app  = initializeApp({
-  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
-  authDomain: "cremonamusic-portal.firebaseapp.com",
-  projectId: "cremonamusic-portal",
-  storageBucket: "cremonamusic-portal.firebasestorage.app",
-  messagingSenderId: "227259733472",
-  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
+  apiKey: "REPLACE_ME_CREMONA_API_KEY",
+  authDomain: "portal.cremonamusic.com",
+  projectId: "cremona-portal",
+  storageBucket: "cremona-portal.firebasestorage.app",
+  messagingSenderId: "REPLACE_ME_SENDER_ID",
+  appId: "REPLACE_ME_APP_ID"
 });
-const auth    = getAuth(app);
-const db      = getFirestore(app);
-const storage = getStorage(app);
+const auth = getAuth(app);
+const db   = getFirestore(app);
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let currentUser      = null;
@@ -401,16 +429,20 @@ let dmPTParent       = null;   // { uid, name, email }
 let dmPTTeacher      = null;   // { uid, name, email }
 let groupPhotoFile   = null;   // File object for pending group photo upload
 
+const WORKER_URL     = 'https://cremona-upload-worker.garam-9b9.workers.dev';
+const R2_PUBLIC_BASE = 'https://files.cremonamusic.com';
+
 // ── Auth guard (admin only) ───────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/index.html'; return; }
+  if (!user) { window.location.href = '/'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/index.html'; return;
+      await signOut(auth); window.location.href = '/'; return;
     }
     const data = snap.data();
-    if (data.role !== 'admin') { window.location.href = '/home.html'; return; }
+    if (data.role !== 'admin') { window.location.href = '/home'; return; }
+    if (!window.applyAdminPermissions(data, 'messages')) return;
 
     currentUser     = user;
     currentUserData = { uid: user.uid, ...data };
@@ -418,14 +450,14 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
     console.error('auth error', e);
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 });
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 window.adminSignOut = async function() {
   await signOut(auth);
-  window.location.href = '/index.html';
+  window.location.href = '/';
 };
 
 async function init() {
@@ -496,6 +528,7 @@ function renderConvList() {
     const isAnn  = conv.type === 'announcement';
     const isGrp  = conv.type === 'group';
     const isDM   = conv.type === 'direct';
+    const isSup  = conv.type === 'support';
 
     let displayName = conv.name || 'Unnamed';
     if (isDM) {
@@ -506,13 +539,19 @@ function renderConvList() {
         .join(' ↔ ');
       displayName = other || 'Direct Message';
     }
+    if (isSup) {
+      const requester = allUsers.get((conv.members || [])[0]);
+      displayName = `Support — ${requester ? (requester.name || requester.email) : 'Unknown user'}`;
+    }
 
-    const typeLabel = isAnn ? 'Announcement' : isGrp ? 'Group' : 'Direct';
+    const typeLabel = isAnn ? 'Announcement' : isGrp ? 'Group' : isSup ? 'Support' : 'Direct';
     const typeBadge = isAnn
       ? 'bg-amber-100 text-amber-800'
       : isGrp
         ? 'bg-blue-100 text-blue-800'
-        : 'bg-gray-100 text-gray-700';
+        : isSup
+          ? 'bg-purple-100 text-purple-800'
+          : 'bg-gray-100 text-gray-700';
 
     const memberCount = (conv.members || []).length;
     const lastMsg = conv.lastMessage ? escHtml(conv.lastMessage).slice(0, 60) : '<span class="italic">No messages</span>';
@@ -522,7 +561,9 @@ function renderConvList() {
     return `
     <div class="flex items-center gap-3 px-4 py-3 hover:bg-surface-container-low transition-colors">
       <div class="w-9 h-9 rounded-full flex items-center justify-center text-white flex-shrink-0 text-xs font-bold overflow-hidden" style="background:${avatarColor}">
-        ${isAnn
+        ${isSup
+          ? '<span class="material-symbols-outlined text-[17px]" style="font-variation-settings:\'FILL\' 1;">support_agent</span>'
+          : isAnn
           ? '<span class="material-symbols-outlined text-[17px]" style="font-variation-settings:\'FILL\' 1;">campaign</span>'
           : isGrp && conv.photoUrl
             ? `<img src="${escHtml(conv.photoUrl)}" class="w-full h-full object-cover rounded-full" alt="${escHtml(displayName)}"/>`
@@ -653,7 +694,7 @@ window.renderGroupMemberSearch = function(filter) {
   const q   = (filter || '').toLowerCase();
   const el  = document.getElementById('group-member-list');
   const list = [...allUsers.values()]
-    .filter(u => u.uid !== currentUser.uid && u.status !== 'inactive' && u.role !== 'admin')
+    .filter(u => u.uid !== currentUser.uid && u.status !== 'inactive' && u.status !== 'deleted' && u.role !== 'admin')
     .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
@@ -717,7 +758,7 @@ window.renderDMSlotSearch = function(slot, filter) {
   const otherSelected = slot === 'a' ? dmTeacherB : dmTeacherA;
 
   const list = [...allUsers.values()]
-    .filter(u => u.status !== 'inactive' && u.role !== 'admin')
+    .filter(u => u.status !== 'inactive' && u.status !== 'deleted' && u.role !== 'admin')
     .filter(u => !otherSelected || u.uid !== otherSelected.uid)  // can't pick same person for both slots
     .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
@@ -1010,11 +1051,18 @@ window.createGroupChat = async function() {
     if (groupPhotoFile) {
       try {
         const ext = (groupPhotoFile.name.split('.').pop() || 'jpg').toLowerCase();
-        const path = `groups/${convRef.id}_${Date.now()}.${ext}`;
-        const storageRef = ref(storage, path);
-        await uploadBytes(storageRef, groupPhotoFile, { contentType: groupPhotoFile.type || 'image/jpeg' });
-        const photoUrl = await getDownloadURL(storageRef);
-        await updateDoc(doc(db, 'conversations', convRef.id), { photoUrl });
+        const key = `groups/${convRef.id}_${Date.now()}.${ext}`;
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open('PUT', `${WORKER_URL}/${key}`);
+          xhr.setRequestHeader('Content-Type', groupPhotoFile.type || 'image/jpeg');
+          xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error(`HTTP ${xhr.status}`));
+          xhr.onerror = () => reject(new Error('Network error'));
+          xhr.send(groupPhotoFile);
+        });
+        await updateDoc(doc(db, 'conversations', convRef.id), {
+          photoUrl: `${R2_PUBLIC_BASE}/${key}`
+        });
       } catch (photoErr) {
         console.warn('[createGroupChat] photo upload failed (group still created):', photoErr);
       }
@@ -1058,6 +1106,8 @@ window.openViewModal = async function(convId) {
   const conv = allConversations.find(c => c.id === convId);
   if (!conv) return;
 
+  viewingConvId = convId;
+
   // Build display name for the header
   let displayName = conv.name || 'Conversation';
   if (conv.type === 'direct') {
@@ -1069,14 +1119,27 @@ window.openViewModal = async function(convId) {
       .join(' ↔ ');
     displayName = names || 'Direct Message';
   }
+  if (conv.type === 'support') {
+    const requester = allUsers.get((conv.members || [])[0]);
+    displayName = `Support — ${requester ? (requester.name || requester.email) : 'Unknown user'}`;
+  }
 
   const typeLabel = conv.type === 'announcement' ? 'Announcement'
                   : conv.type === 'group'         ? 'Group chat'
+                  : conv.type === 'support'       ? 'Support thread'
                   :                                 'Direct message';
 
   document.getElementById('view-modal-title').textContent = displayName;
   document.getElementById('view-modal-sub').textContent =
     `${typeLabel} · ${(conv.members || []).length} members`;
+
+  // Admins reply in support threads AND chat normally in any conversation
+  const canReply = conv.type === 'support' || conv.type === 'direct' || conv.type === 'group'
+    || (conv.members || []).includes(currentUser.uid);
+  document.getElementById('view-modal-reply').classList.toggle('hidden', !canReply);
+  document.getElementById('support-reply-input').placeholder = conv.type === 'support'
+    ? 'Reply as Cremona Support…'
+    : `Message as ${currentUserData?.name || 'Admin'}…`;
 
   const msgsEl = document.getElementById('view-modal-messages');
   msgsEl.innerHTML = `<div class="flex justify-center py-8"><div class="spinner"></div></div>`;
@@ -1121,7 +1184,7 @@ window.openViewModal = async function(convId) {
             <span class="text-[11px] font-semibold text-on-surface">${sender}</span>
             <span class="text-[10px] text-text-muted">${ts}</span>
           </div>
-          <div class="bg-surface-white rounded-2xl rounded-tl-md px-3.5 py-2 text-sm text-on-surface leading-relaxed break-words shadow-sm">
+          <div class="bg-surface-white border border-border-subtle rounded-2xl rounded-tl-sm px-3 py-2 text-sm text-on-surface leading-relaxed break-words">
             ${text || '<span class="italic text-text-muted text-xs">[attachment]</span>'}
             ${attach}
           </div>
@@ -1138,7 +1201,94 @@ window.openViewModal = async function(convId) {
 };
 
 window.closeViewModal = function() {
+  viewingConvId = null;
   document.getElementById('view-modal').style.display = 'none';
+};
+
+// ── Support reply ─────────────────────────────────────────────────────────────
+let viewingConvId = null;
+
+// ── Admin-initiated direct chats ──
+window.openAdminChatModal = function() {
+  document.getElementById('admin-chat-search').value = '';
+  renderAdminChatList('');
+  document.getElementById('admin-chat-modal').classList.remove('hidden');
+};
+
+window.renderAdminChatList = function(qstr) {
+  const q = (qstr || '').toLowerCase().trim();
+  const box = document.getElementById('admin-chat-list');
+  const people = [...allUsers.entries()]
+    .map(([uid, u]) => ({ uid, ...u }))
+    .filter(u => (u.role === 'teacher' || u.role === 'parent') && u.status !== 'deleted' && u.status !== 'inactive')
+    .filter(u => !q || (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q))
+    .sort((a, b) => (a.role || '').localeCompare(b.role || '') || (a.name || '').localeCompare(b.name || ''));
+  box.innerHTML = people.slice(0, 60).map(u => `
+    <button onclick="startAdminChat('${u.uid}')"
+            class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface-container-low text-left transition-colors">
+      <span class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0" style="background:${getAvatarColor(u.name || '')}">${escHtml(getInitials(u.name || u.email || '?'))}</span>
+      <span class="min-w-0">
+        <span class="block text-sm font-semibold truncate">${escHtml(u.name || u.email || '—')}</span>
+        <span class="block text-[11px] text-text-muted">${u.role === 'teacher' ? 'Teacher' : 'Parent'}</span>
+      </span>
+    </button>`).join('') || '<p class="text-sm text-text-muted text-center py-6">No one matches.</p>';
+};
+
+window.startAdminChat = async function(otherUid) {
+  document.getElementById('admin-chat-modal').classList.add('hidden');
+  const existing = allConversations.find(c =>
+    c.type === 'direct'
+    && (c.members || []).includes(currentUser.uid)
+    && (c.members || []).includes(otherUid));
+  if (existing) { openViewModal(existing.id); return; }
+  try {
+    const ref = await addDoc(collection(db, 'conversations'), {
+      type:          'direct',
+      members:       [currentUser.uid, otherUid],
+      createdBy:     currentUser.uid,
+      createdAt:     serverTimestamp(),
+      lastMessage:   '',
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: ''
+    });
+    allConversations.unshift({ id: ref.id, type: 'direct', members: [currentUser.uid, otherUid] });
+    openViewModal(ref.id);
+  } catch (e) {
+    console.error('startAdminChat', e);
+    showToast('Failed to start the chat.', 'error');
+  }
+};
+
+window.sendSupportReply = async function() {
+  const input = document.getElementById('support-reply-input');
+  const text  = input.value.trim();
+  if (!text || !viewingConvId || !currentUser) return;
+  const btn = document.getElementById('support-reply-btn');
+  btn.disabled = true;
+  try {
+    const conv = allConversations.find(c => c.id === viewingConvId);
+    await addDoc(collection(db, 'messages'), {
+      conversationId: viewingConvId,
+      senderUid:      currentUser.uid,
+      senderName:     conv?.type === 'support' ? 'Cremona Support' : (currentUserData?.name || 'Admin'),
+      text,
+      timestamp:      serverTimestamp(),
+      readBy:         [currentUser.uid]
+    });
+    await updateDoc(doc(db, 'conversations', viewingConvId), {
+      lastMessage:   text,
+      lastMessageAt: serverTimestamp(),
+      lastMessageBy: currentUser.uid
+    });
+    input.value = '';
+    // Refresh the thread so the reply appears immediately
+    openViewModal(viewingConvId);
+  } catch (e) {
+    console.error('sendSupportReply', e);
+    showToast('Failed to send reply.', 'error');
+  } finally {
+    btn.disabled = false;
+  }
 };
 
 // ── Delete conversation ───────────────────────────────────────────────────────
@@ -1180,7 +1330,7 @@ window.confirmDelete = async function() {
 
 // ── Avatar helpers ────────────────────────────────────────────────────────────
 function getAvatarColor(str) {
-  const palette = ['#C9A227','#7A5230','#1e6e3b','#b91c1c','#7c3aed',
+  const palette = ['#3B2A1E','#7A5A16','#1e6e3b','#b91c1c','#7c3aed',
                    '#0e7490','#c2410c','#0f766e','#1d4ed8','#be185d'];
   let h = 0;
   for (const c of (str || '')) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
@@ -1220,7 +1370,18 @@ function showToast(msg, type = 'info') {
   setTimeout(() => { t.className = ''; }, 3000);
 }
 </script>
-  <script>window.CREMONA_NAV={portal:'admin',active:'messages',title:'Messages'};</script>
-  <script src="/js/portal-nav.js"></script>
+<!-- Admin new chat modal -->
+<div id="admin-chat-modal" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('admin-chat-modal').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-sm bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-3 max-h-[80vh]">
+    <h3 class="font-headline-sm text-on-surface">Start a chat</h3>
+    <input id="admin-chat-search" type="text" placeholder="Search teachers or parents…"
+           oninput="renderAdminChatList(this.value)"
+           class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm outline-none"/>
+    <div id="admin-chat-list" class="overflow-y-auto flex-1 min-h-[200px] flex flex-col gap-1"></div>
+  </div>
+</div>
+<script src="/js/notifbell.js?v=4" defer></script>
+<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>
