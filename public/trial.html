@@ -118,9 +118,15 @@
           <label class="field-label req" for="p-email"><span class="lang-en">Email</span><span class="lang-zh">電子郵件</span></label>
           <input id="p-email" type="email" class="input" data-en-ph="your@email.com" data-zh-ph="your@email.com" placeholder="your@email.com"/>
         </div>
-        <div>
-          <label class="field-label req" for="p-name"><span class="lang-en">Full Name</span><span class="lang-zh">姓名</span></label>
-          <input id="p-name" type="text" class="input"/>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="field-label req" for="p-surname"><span class="lang-en">Surname</span><span class="lang-zh">姓</span></label>
+            <input id="p-surname" type="text" class="input"/>
+          </div>
+          <div>
+            <label class="field-label req" for="p-name"><span class="lang-en">Name</span><span class="lang-zh">名</span></label>
+            <input id="p-name" type="text" class="input"/>
+          </div>
         </div>
         <div>
           <label class="field-label req" for="p-address"><span class="lang-en">Home Address</span><span class="lang-zh">現居地址</span></label>
@@ -172,9 +178,15 @@
       </h2>
 
       <div class="flex flex-col gap-4">
-        <div>
-          <label class="field-label req" for="s-name"><span class="lang-en">Student Full Name</span><span class="lang-zh">學生姓名</span></label>
-          <input id="s-name" type="text" class="input"/>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="field-label req" for="s-surname"><span class="lang-en">Student Surname</span><span class="lang-zh">學生姓</span></label>
+            <input id="s-surname" type="text" class="input"/>
+          </div>
+          <div>
+            <label class="field-label req" for="s-name"><span class="lang-en">Student Name</span><span class="lang-zh">學生名</span></label>
+            <input id="s-name" type="text" class="input"/>
+          </div>
         </div>
         <div>
           <label class="field-label req" for="s-dob"><span class="lang-en">Student Date of Birth</span><span class="lang-zh">學生出生年月日</span></label>
@@ -527,13 +539,15 @@ function showToast(msg, type = 'error') {
 window.submitEnrollment = async function() {
   // Collect
   const parentEmail = val('p-email');
-  const parentName  = val('p-name');
+  const pSurname    = val('p-surname');
+  const pName       = val('p-name');
   const parentAddr  = val('p-address');
   const parentPhone = val('p-phone');
   const heard       = val('p-heard');
   const heardOther  = val('p-heard-other');
   const siblings    = document.querySelector('input[name="siblings"]:checked')?.value || 'no';
   const siblingName = val('p-siblings-name');
+  const sSurname    = val('s-surname');
   const sName       = val('s-name');
   const sDob        = val('s-dob');
   const sIc         = val('s-ic');
@@ -547,10 +561,10 @@ window.submitEnrollment = async function() {
   // Validate
   if (!parentEmail) return showToast(t('Please enter your email.', '請輸入電子郵件。'));
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail)) return showToast(t('Please enter a valid email.', '請輸入有效的電子郵件。'));
-  if (!parentName)  return showToast(t('Please enter parent full name.', '請輸入家長姓名。'));
+  if (!pSurname || !pName) return showToast(t('Please enter the parent surname and name.', '請輸入家長姓與名。'));
   if (!parentAddr)  return showToast(t('Please enter your home address.', '請輸入現居地址。'));
   if (!parentPhone) return showToast(t('Please enter your contact number.', '請輸入聯絡電話。'));
-  if (!sName)       return showToast(t('Please enter the student name.', '請輸入學生姓名。'));
+  if (!sSurname || !sName) return showToast(t('Please enter the student surname and name.', '請輸入學生姓與名。'));
   if (!sDob)        return showToast(t('Please enter the student date of birth.', '請輸入學生出生年月日。'));
   if (!sIc)         return showToast(t('Please enter the student IC / passport number.', '請輸入學生證件號碼。'));
   if (!icFrontFile) return showToast(t('Please upload the IC front photo.', '請上傳證件正面照片。'));
@@ -595,12 +609,16 @@ window.submitEnrollment = async function() {
     // ── Firestore doc ──
     btn.innerHTML = '<div class="spinner"></div>' + `<span>${t('Submitting…','正在提交…')}</span>`;
     await setDoc(studentRef, {
-      fullName:                 sName,
+      fullName:                 `${sName} ${sSurname}`,
+      firstName:                sName,
+      lastName:                 sSurname,
       dateOfBirth:              sDob,
       icNumber:                 sIc,
       icFrontUrl,
       icBackUrl,
-      parentName,
+      parentName:               `${pName} ${pSurname}`,
+      parentFirstName:          pName,
+      parentLastName:           pSurname,
       parentEmails:             [parentEmail.toLowerCase()],
       parentPhone,
       parentAddress:            parentAddr,

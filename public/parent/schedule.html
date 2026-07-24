@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Schedule | Cremona Parent Portal</title>
+<title>Schedule | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -12,14 +13,14 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#3B2A1E", "primary-container": "#C8A951",
-          "on-primary-fixed": "#2A1D14", "on-primary-container": "#5A4A22",
-          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC",
-          "surface": "#FAF6EF", "surface-white": "#FFFFFF",
-          "surface-container": "#F1E9DC", "surface-container-low": "#F6F0E6",
-          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
-          "border-subtle": "#E2D7C6", "text-muted": "#7A6A57",
-          "error": "#B3261E"
+          "primary": "#C9A227", "primary-container": "#F5E5B0",
+          "on-primary-fixed": "#3E2C23", "on-primary-container": "#8B6020",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9",
+          "surface-container": "#F0E8D6", "surface-container-low": "#F5EFE4",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "text-muted": "#8B6B52",
+          "error": "#ba1a1a", "background": "#FAF6EF"
         },
         fontFamily: { sans: ["Inter", "sans-serif"] }
       }
@@ -30,34 +31,30 @@
   body { font-family: 'Inter', sans-serif; background-color: #FAF6EF; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,0.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  .child-tab { border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; }
-  .child-tab.active { color: #7A5A16; border-bottom-color: #7A5A16; font-weight: 600; }
-  .child-tab:not(.active) { color: #7A6A57; }
-  .child-tab:not(.active):hover { color: #2B2019; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity: 1; }
-  #toast.error   { background: #B3261E; color: #fff; }
+  #toast.error   { background: #ba1a1a; color: #fff; }
   #toast.success { background: #1e6e3b; color: #fff; }
-  #toast.info    { background: #7A5A16; color: #fff; }
-  .session-block { transition: filter .12s; }
-  .session-block.clickable:hover { filter: brightness(0.94); cursor: pointer; }
+  #toast.info    { background: #3B2A1E; color: #F5EFE4; }
+  .filter-chip { transition: all .15s; }
+  .filter-chip.active { background:#C9A227; color:#3E2C23; border-color:#C9A227; font-weight:700; }
+  .class-card { transition: box-shadow .15s, transform .1s; }
+  .class-card.clickable:hover { box-shadow:0 4px 14px rgba(0,0,0,.08); cursor:pointer; }
 </style>
-<script src="/js/theme.js"></script>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
 </head>
-<body class="text-on-surface min-h-screen flex flex-col" data-portal="parent" data-page="schedule">
-
-<script>
-window.CREMONA_LANG = localStorage.getItem('cremona-lang') || 'en';
-window.toggleLang = function() {
-  window.CREMONA_LANG = window.CREMONA_LANG === 'en' ? 'ko' : 'en';
-  localStorage.setItem('cremona-lang', window.CREMONA_LANG);
-  localStorage.setItem('cremona-lang-explicit', '1');
-  if (window._i18nApply) window._i18nApply();
-  if (window._rerender)  window._rerender();
-  if (window._syncLang)  window._syncLang(window.CREMONA_LANG);
-};
-</script>
+<body class="text-on-surface min-h-screen flex flex-col">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -68,403 +65,194 @@ window.toggleLang = function() {
 
 <div id="toast"></div>
 
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-6">
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
-      <nav class="hidden sm:flex items-center gap-5">
-        <a data-i18n="nav_dashboard" href="dashboard" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Dashboard</a>
-        <a data-i18n="nav_schedule"  href="schedule"  class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Schedule</a>
-        <a data-i18n="nav_reports"   href="reports"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
-        <a data-i18n="nav_messages"  href="messages"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
-        <a data-i18n="nav_payments"  href="payments"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Payments</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-3">
-      <span id="header-name" class="hidden sm:block text-sm text-text-muted font-medium"></span>
-      <button id="lang-toggle" onclick="toggleLang()"
-              class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-border-subtle text-text-muted hover:bg-surface-container transition-colors flex-shrink-0">
-        한국어
-      </button>
-      <button onclick="doSignOut()"
-              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-text-muted hover:bg-surface-container hover:text-on-surface transition-colors">
-        <span class="material-symbols-outlined text-[18px]">logout</span>
-        <span data-i18n="nav_signout" class="hidden sm:inline">Sign Out</span>
-      </button>
-    </div>
-  </div>
-</header>
+<main class="flex-1 max-w-2xl mx-auto w-full px-4 sm:px-6 py-6">
 
-<main class="flex-1 max-w-5xl mx-auto w-full px-6 py-8">
+  <h1 class="text-2xl font-bold text-on-surface mb-1">Schedule</h1>
+  <p class="text-sm text-text-muted mb-5">Upcoming classes for your children.</p>
 
-  <h1 data-i18n="sched_title" class="text-2xl font-bold text-on-surface mb-6">Schedule</h1>
+  <!-- Child filter chips (shown when >1 child) -->
+  <div id="filter-chips" class="hidden flex-wrap gap-2 mb-5"></div>
 
-  <div id="child-tabs-wrap" class="hidden mb-6 border-b border-border-subtle">
-    <div id="child-tabs" class="flex gap-6 overflow-x-auto"></div>
-  </div>
-
-  <div class="flex items-center gap-3 mb-4">
-    <button id="prev-week-btn"
-            class="p-2 rounded-lg border border-border-subtle bg-surface-white hover:bg-surface-container transition-colors text-text-muted hover:text-on-surface">
-      <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-    </button>
-    <button id="today-btn"
-            class="px-3 py-1.5 rounded-lg border border-border-subtle bg-surface-white text-sm font-medium text-text-muted hover:bg-surface-container transition-colors">
-      <span data-i18n="sched_today">Today</span>
-    </button>
-    <button id="next-week-btn"
-            class="p-2 rounded-lg border border-border-subtle bg-surface-white hover:bg-surface-container transition-colors text-text-muted hover:text-on-surface">
-      <span class="material-symbols-outlined text-[18px]">chevron_right</span>
-    </button>
-    <span id="week-label" class="text-sm font-semibold text-on-surface ml-1"></span>
-    <span class="flex-1"></span>
-      <div class="flex items-center gap-1 ml-1 bg-surface-white border border-border-subtle rounded-lg p-1 shadow-sm">
-        <button data-cm="day" onclick="setCalMode('day')" class="cm-btn px-3 py-1 rounded-md text-xs font-bold text-text-muted">Day</button>
-        <button data-cm="week" onclick="setCalMode('week')" class="cm-btn px-3 py-1 rounded-md text-xs font-bold text-text-muted">Week</button>
-        <button data-cm="month" onclick="setCalMode('month')" class="cm-btn px-3 py-1 rounded-md text-xs font-bold text-text-muted">Month</button>
-      </div>
-  </div>
-
-  <div class="bg-surface-white rounded-2xl border border-border-subtle overflow-hidden">
-    <div id="cal-scroll" style="overflow-y:auto;max-height:640px;">
-      <div id="cal-inner"></div>
-    </div>
-  </div>
-
-  <div class="flex items-center gap-5 mt-4 flex-wrap">
-    <div class="flex items-center gap-1.5 text-xs text-text-muted">
-      <span class="leg-up w-3 h-3 rounded-sm flex-shrink-0" style="background:#eff6ff;border-left:3px solid #3b82f6;"></span>
-      <span data-i18n="sched_upcoming">Upcoming</span>
-    </div>
-    <div class="flex items-center gap-1.5 text-xs text-text-muted">
-      <span class="leg-done w-3 h-3 rounded-sm flex-shrink-0" style="background:#f0fdf4;border-left:3px solid #22c55e;"></span>
-      <span data-i18n="sched_completed">Completed</span>
-    </div>
-    <div class="flex items-center gap-1.5 text-xs text-text-muted">
-      <span class="leg-cancel w-3 h-3 rounded-sm flex-shrink-0" style="background:#f9fafb;border-left:3px solid #9ca3af;"></span>
-      <span data-i18n="sched_cancelled">Cancelled</span>
-    </div>
-    <div class="flex items-center gap-1.5 text-xs text-text-muted ml-auto">
-      <span class="material-symbols-outlined text-[14px] text-secondary">video_call</span>
-      <span data-i18n="sched_tap">Tap a session to join</span>
-    </div>
+  <!-- Class list -->
+  <div id="class-list" class="flex flex-col gap-6">
+    <div class="flex items-center justify-center py-16 gap-3 text-text-muted text-sm"><div class="spinner"></div> Loading…</div>
   </div>
 
 </main>
 
 <footer class="py-4 text-center text-xs text-text-muted border-t border-border-subtle">
-  <span data-i18n="footer">© 2026 Cremona Music.</span>
+  © 2025 Cremona Music.
 </footer>
 
-<script src="/js/monthgrid.js"></script>
 <script type="module">
 import { initializeApp }                        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, getDocs, updateDoc,
-         collection, query, where }             from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app  = initializeApp({
-  apiKey: "REPLACE_ME_CREMONA_API_KEY",
-  authDomain: "portal.cremonamusic.com",
-  projectId: "cremona-portal",
-  storageBucket: "cremona-portal.firebasestorage.app",
-  messagingSenderId: "REPLACE_ME_SENDER_ID",
-  appId: "REPLACE_ME_APP_ID"
+  apiKey:            "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain:        "cremonamusic-portal.firebaseapp.com",
+  projectId:         "cremonamusic-portal",
+  storageBucket:     "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId:             "1:227259733472:web:3cb86ab0da1d5338858785"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
-// ── i18n ──────────────────────────────────────────────────────────────────────
-const TRANS = {
-  en: {
-    nav_dashboard:'Dashboard', nav_schedule:'Schedule', nav_reports:'Comments',
-    nav_messages:'Messages', nav_payments:'Payments', nav_signout:'Sign Out',
-    sched_title:'Schedule', sched_today:'Today',
-    sched_upcoming:'Upcoming', sched_completed:'Completed', sched_cancelled:'Cancelled',
-    sched_tap:'Tap a session to join', sched_tap_join:'Tap to join',
-    sched_no_children:'No children linked to your account yet.',
-    sched_no_records:'No student records found.',
-    day_mon:'Mon', day_tue:'Tue', day_wed:'Wed', day_thu:'Thu',
-    day_fri:'Fri', day_sat:'Sat', day_sun:'Sun',
-    footer:'© 2026 Cremona Music.',
-  },
-  ko: {
-    nav_dashboard:'대시보드', nav_schedule:'일정', nav_reports:'보고서',
-    nav_messages:'메시지', nav_payments:'결제', nav_signout:'로그아웃',
-    sched_title:'일정', sched_today:'오늘',
-    sched_upcoming:'예정', sched_completed:'완료', sched_cancelled:'취소',
-    sched_tap:'세션을 탭하여 참여하세요', sched_tap_join:'탭하여 참여',
-    sched_no_children:'아직 연결된 자녀가 없습니다.',
-    sched_no_records:'학생 정보를 찾을 수 없습니다.',
-    day_mon:'월', day_tue:'화', day_wed:'수', day_thu:'목',
-    day_fri:'금', day_sat:'토', day_sun:'일',
-    footer:'© 2026 Cremona Music.',
-  }
-};
+// ── State ───────────────────────────────────────────────────────────────────
+let allStudents = [];         // [{id, fullName, ...}]
+let allSessions = [];         // merged across children, each tagged with studentId/studentName
+let selectedFilter = 'all';   // 'all' | studentId
 
-function t(key) {
-  return TRANS[window.CREMONA_LANG || 'en']?.[key] || TRANS.en[key] || key;
-}
+// ── Helpers ─────────────────────────────────────────────────────────────────
+function escHtml(s) { return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg, type = 'info') { const el = document.getElementById('toast'); el.textContent = msg; el.className = `show ${type}`; setTimeout(() => { el.className = ''; }, 3500); }
+function avatarBg(name) { const colors = ['#C9A227','#7A5230','#1e6e3b','#c2410c','#6d28d9','#0369a1']; let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff; return colors[Math.abs(h) % colors.length]; }
+function initials(name) { return (name || '?').split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2); }
+function toDate(v) { if (!v) return new Date(0); if (v.toDate) return v.toDate(); return new Date(v); }
+function getMonday(d) { const date = new Date(d); const day = date.getDay(); date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day)); date.setHours(0,0,0,0); return date; }
+function fmtTime(d) { return d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }); }
+function absUrl(url) { return /^https?:\/\//i.test(url) ? url : 'https://' + url; }
+function getDisplayStatus(s) { if (s.status === 'cancelled') return 'cancelled'; return toDate(s.dateTime) < new Date() ? 'completed' : 'scheduled'; }
 
-function applyTranslations() {
-  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
-  const btn = document.getElementById('lang-toggle');
-  if (btn) btn.textContent = (window.CREMONA_LANG === 'en') ? '한국어' : 'English';
-  document.documentElement.lang = window.CREMONA_LANG || 'en';
-}
-
-window._i18nApply = applyTranslations;
-window._rerender = function() {
-  renderCalendar();
-  renderTabs();
-  applyTranslations();
-};
-
-// ── calendar constants ─────────────────────────────────────────────────────────
-const CAL_START   = 7;
-const CAL_END     = 21;
-const PX_PER_HOUR = 64;
-const TIME_W      = 52;
-const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR;
-
-const STATUS_STYLE = {
-  scheduled: { bg: '#eff6ff', border: '#3b82f6', text: '#1d4ed8' },
-  completed:  { bg: '#f0fdf4', border: '#22c55e', text: '#15803d' },
-  cancelled:  { bg: '#f9fafb', border: '#9ca3af', text: '#6b7280' },
-};
-
-let allStudents = [], allSessions = [], selectedSid = '', weekStart = getMonday(new Date());
-
-function escHtml(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function showToast(msg, type='info') {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.className = `show ${type}`;
-  setTimeout(() => { el.className = ''; }, 3500);
-}
-function avatarBg(name) {
-  const colors = ['#3B2A1E','#7A5A16','#1e6e3b','#c2410c','#6d28d9','#0369a1'];
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff;
-  return colors[Math.abs(h) % colors.length];
-}
-function toDate(v) {
-  if (!v) return new Date(0);
-  if (v.toDate) return v.toDate();
-  return new Date(v);
-}
-function getMonday(d) {
-  const date = new Date(d);
-  const day  = date.getDay();
-  date.setDate(date.getDate() + (day === 0 ? -6 : 1 - day));
-  date.setHours(0,0,0,0);
-  return date;
-}
-function getWeekDays(monday) {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday); d.setDate(d.getDate() + i); return d;
-  });
-}
-function offsetWeek(d, days) {
-  const r = new Date(d); r.setDate(r.getDate() + days); return r;
-}
-function fmtWeekLabel(days) {
+// Friendly week header label ("This week", "Next week", or "Week of Mon D")
+function weekLabel(monday) {
+  const thisMon = getMonday(new Date());
+  const diffWeeks = Math.round((monday - thisMon) / (7 * 864e5));
+  if (diffWeeks === 0) return 'This Week';
+  if (diffWeeks === 1) return 'Next Week';
+  const end = new Date(monday); end.setDate(end.getDate() + 6);
   const o = { month: 'short', day: 'numeric' };
-  return `${days[0].toLocaleDateString('en-US', o)} – ${days[6].toLocaleDateString('en-US', { ...o, year: 'numeric' })}`;
-}
-function fmtTime(d) {
-  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
-}
-function sessionTop(s) {
-  const dt = toDate(s.dateTime);
-  return Math.max(0, ((dt.getHours() + dt.getMinutes() / 60) - CAL_START) * PX_PER_HOUR);
-}
-function sessionH(s) { return Math.max(24, ((s.duration || 30) / 60) * PX_PER_HOUR); }
-function sessionsForDay(day) {
-  return allSessions
-    .filter(s => toDate(s.dateTime).toDateString() === day.toDateString())
-    .sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
-}
-function getDisplayStatus(s) {
-  if (s.status === 'cancelled') return 'cancelled';
-  return toDate(s.dateTime) < new Date() ? 'completed' : 'scheduled';
+  return `Week of ${monday.toLocaleDateString('en-US', o)}`;
 }
 
-function renderCalendar() {
-  updateCmBtns();
-  if (calMode === 'month') { renderMonthView(); return; }
-  const days  = calMode === 'day' ? [new Date(weekStart)] : getWeekDays(weekStart);
-  const today = new Date();
-  document.getElementById('week-label').textContent = calMode === 'day'
-    ? weekStart.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-    : fmtWeekLabel(days);
-
-  // Theme-aware colors — the calendar re-renders when dark mode is toggled
-  const C = window.cremonaCalPalette();
-
-  const DAY_KEYS = ['day_mon','day_tue','day_wed','day_thu','day_fri','day_sat','day_sun'];
-  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(${days.length},minmax(72px,1fr));
-    position:sticky;top:0;z-index:10;background:${C.headBg};border-bottom:1px solid ${C.outerBorder};">
-    <div style="height:52px;background:${C.timeColBg};border-right:1px solid ${C.outerBorder};"></div>`;
-
-  days.forEach((day, i) => {
-    const isToday = day.toDateString() === today.toDateString();
-    html += `<div style="height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border-left:1px solid ${C.cellBorder};">
-      <span style="font-size:11px;font-weight:500;color:${C.dayLabel};text-transform:uppercase;letter-spacing:.04em;">${t(DAY_KEYS[i])}</span>
-      <span style="width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:13px;font-weight:600;
-        ${isToday ? 'background:#7A5A16;color:#fff;' : `color:${C.dayNum};`}">${day.getDate()}</span>
-    </div>`;
-  });
-  html += `</div>`;
-
-  html += `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(${days.length},minmax(72px,1fr));height:${CAL_HEIGHT}px;">`;
-  html += `<div style="position:relative;border-right:1px solid ${C.outerBorder};background:${C.timeColBg};">`;
-  for (let h = CAL_START; h < CAL_END; h++) {
-    const top = (h - CAL_START) * PX_PER_HOUR;
-    html += `<div style="position:absolute;top:${top}px;left:0;right:0;padding:3px 5px 0 0;text-align:right;font-size:10px;color:${C.timeLabel};line-height:1;">${String(h).padStart(2,'0')}:00</div>`;
-  }
-  html += `</div>`;
-
-  days.forEach(day => {
-    const isToday = day.toDateString() === today.toDateString();
-    const daySess = sessionsForDay(day);
-    html += `<div style="position:relative;border-left:1px solid ${C.cellBorder};background:${isToday ? C.todayCol : 'transparent'};">`;
-    for (let h = CAL_START; h <= CAL_END; h++) {
-      const top = (h - CAL_START) * PX_PER_HOUR;
-      html += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:${C.hourLine};"></div>`;
-      if (h < CAL_END) html += `<div style="position:absolute;left:0;right:0;top:${top + 32}px;height:1px;border-top:1px dashed ${C.halfLine};"></div>`;
-    }
-    daySess.forEach(s => {
-      const disp   = getDisplayStatus(s);
-      const style  = STATUS_STYLE[disp] || STATUS_STYLE.scheduled;
-      const top    = sessionTop(s);
-      const height = sessionH(s);
-      const time   = fmtTime(toDate(s.dateTime));
-      const hasLink = s.meetLink && disp !== 'cancelled';
-      const tooltip = [s.subject, time, s.teacherName, s.notes].filter(Boolean).join(' · ');
-      html += `<div class="session-block${hasLink ? ' clickable' : ''}"
-        data-meet="${hasLink ? escHtml(s.meetLink) : ''}"
-        title="${escHtml(tooltip)}"
-        style="position:absolute;left:3px;right:3px;top:${top}px;height:${height}px;
-          background:${style.bg};border-left:3px solid ${style.border};
-          border-radius:4px;padding:3px 5px;overflow:hidden;z-index:2;
-          ${disp === 'cancelled' ? 'opacity:0.5;' : ''}">
-        <div style="font-size:11px;font-weight:700;color:${style.text};line-height:1.3;
-          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-          ${disp === 'cancelled' ? 'text-decoration:line-through;' : ''}">${escHtml(s.subject || '—')}</div>
-        ${height >= 36 ? `<div style="font-size:10px;color:${style.text};opacity:.8;line-height:1.3;">${time}</div>` : ''}
-        ${height >= 52 ? `<div style="font-size:10px;color:${style.text};opacity:.7;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escHtml(s.teacherName || '')}</div>` : ''}
-        ${s.notes && height >= 68 ? `<div style="font-size:9px;color:${style.text};opacity:.7;line-height:1.2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📝 ${escHtml(s.notes)}</div>` : ''}
-        ${hasLink && height >= 52 ? `<div style="font-size:9px;color:${style.text};opacity:.65;line-height:1.2;margin-top:2px;">${t('sched_tap_join')}</div>` : ''}
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  html += `</div>`;
-
-  const inner = document.getElementById('cal-inner');
-  inner.innerHTML = html;
-  inner.querySelectorAll('.session-block.clickable').forEach(el => {
-    el.addEventListener('click', () => {
-      const link = el.dataset.meet;
-      if (link) window.open(/^https?:\/\//i.test(link) ? link : 'https://' + link, '_blank', 'noopener');
-    });
-  });
-}
-
-function renderTabs() {
-  if (allStudents.length < 2) return;
-  const wrap = document.getElementById('child-tabs-wrap');
-  const tabs = document.getElementById('child-tabs');
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderChips() {
+  const wrap = document.getElementById('filter-chips');
+  if (allStudents.length < 2) { wrap.classList.add('hidden'); return; }
   wrap.classList.remove('hidden');
-  tabs.innerHTML = allStudents.map(s => {
-    const name    = s.fullName || '—';
-    const initials = name.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2);
-    const bg      = avatarBg(name);
-    return `
-      <button data-sid="${escHtml(s.id)}"
-              class="child-tab ${s.id === selectedSid ? 'active' : ''} flex items-center gap-2 pb-3 px-1 text-sm whitespace-nowrap">
-        <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-              style="background:${bg}">${escHtml(initials)}</span>
-        ${escHtml(name)}
-      </button>`;
-  }).join('');
-  tabs.querySelectorAll('.child-tab').forEach(btn => {
-    btn.addEventListener('click', () => switchChild(btn.dataset.sid));
-  });
+  wrap.classList.add('flex');
+  const chip = (id, label) =>
+    `<button onclick="setFilter('${id}')" class="filter-chip ${selectedFilter === id ? 'active' : ''} px-3.5 py-1.5 rounded-full border border-border-subtle bg-surface-white text-sm text-text-muted hover:border-secondary transition-colors">${escHtml(label)}</button>`;
+  wrap.innerHTML = chip('all', 'All Children') + allStudents.map(s => chip(s.id, (s.fullName || 'Child').split(' ')[0])).join('');
 }
 
-async function switchChild(sid) {
-  if (sid === selectedSid) return;
-  selectedSid = sid;
-  document.querySelectorAll('#child-tabs .child-tab').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.sid === sid);
-  });
-  await loadSessions(sid);
-}
+window.setFilter = function(id) { selectedFilter = id; renderChips(); renderList(); };
 
-async function loadSessions(sid) {
-  allSessions = [];
-  renderCalendar();
-  try {
-    const q    = query(collection(db, 'sessions'), where('studentId', '==', sid));
-    const snap = await getDocs(q);
-    allSessions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (e) {
-    showToast('Failed to load sessions: ' + e.message, 'error');
+function renderList() {
+  const listEl = document.getElementById('class-list');
+  const now = new Date();
+
+  // Upcoming, non-cancelled, filtered by selected child, sorted ascending
+  let items = allSessions
+    .filter(s => getDisplayStatus(s) !== 'cancelled')
+    .filter(s => toDate(s.dateTime) >= new Date(now.getTime() - 30 * 60000))   // include just-started
+    .filter(s => selectedFilter === 'all' || s.studentId === selectedFilter)
+    .sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
+
+  if (!items.length) {
+    listEl.innerHTML = `
+      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
+        <div class="w-16 h-16 rounded-full bg-surface-container-low flex items-center justify-center">
+          <span class="material-symbols-outlined text-[36px] opacity-40">event_available</span>
+        </div>
+        <p class="font-semibold text-on-surface-variant">No upcoming classes</p>
+        <p class="text-xs max-w-[260px]">When your ${allStudents.length > 1 ? "children's" : "child's"} teacher schedules a class, it'll appear here.</p>
+      </div>`;
+    return;
   }
-  renderCalendar();
+
+  // Group by week (Monday)
+  const groups = new Map();  // mondayMs → [items]
+  items.forEach(s => {
+    const key = getMonday(toDate(s.dateTime)).getTime();
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  });
+
+  let html = '';
+  [...groups.keys()].sort((a, b) => a - b).forEach(key => {
+    html += `<section>
+      <h2 class="text-xs font-bold uppercase tracking-widest text-text-muted mb-2.5 px-1">${escHtml(weekLabel(new Date(key)))}</h2>
+      <div class="flex flex-col gap-2.5">${groups.get(key).map(cardHtml).join('')}</div>
+    </section>`;
+  });
+  listEl.innerHTML = html;
+
+  listEl.querySelectorAll('.class-card.clickable').forEach(el => {
+    el.addEventListener('click', () => { const link = el.dataset.meet; if (link) window.open(absUrl(link), '_blank', 'noopener'); });
+  });
 }
 
-document.getElementById('prev-week-btn').addEventListener('click', () => {
-  calStep(-1);
-});
-document.getElementById('next-week-btn').addEventListener('click', () => {
-  calStep(1);
-});
-document.getElementById('today-btn').addEventListener('click', () => {
-  weekStart = calMode === 'week' ? getMonday(new Date()) : new Date(); renderCalendar();
-});
+function cardHtml(s) {
+  const dt      = toDate(s.dateTime);
+  const child   = s.studentName || 'Child';
+  const bg      = avatarBg(child);
+  const dateStr = dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  const timeStr = fmtTime(dt);
+  const hasLink = s.meetLink && getDisplayStatus(s) !== 'cancelled';
+  const isToday = dt.toDateString() === new Date().toDateString();
 
+  return `
+  <div class="class-card ${hasLink ? 'clickable' : ''} bg-surface-white border border-border-subtle rounded-2xl p-4 flex items-center gap-4 shadow-sm"
+       data-meet="${hasLink ? escHtml(s.meetLink) : ''}">
+    <!-- Date block -->
+    <div class="flex flex-col items-center justify-center w-14 flex-shrink-0 ${isToday ? 'text-secondary' : 'text-on-surface'}">
+      <span class="text-[10px] font-bold uppercase tracking-wide ${isToday ? 'text-secondary' : 'text-text-muted'}">${dt.toLocaleDateString('en-US',{weekday:'short'})}</span>
+      <span class="text-2xl font-bold leading-none">${dt.getDate()}</span>
+      <span class="text-[10px] text-text-muted">${dt.toLocaleDateString('en-US',{month:'short'})}</span>
+    </div>
+    <div class="w-px self-stretch bg-border-subtle"></div>
+    <!-- Details -->
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style="background:${bg}">${escHtml(initials(child))}</span>
+        <span class="font-bold text-sm text-on-surface truncate">${escHtml(child)}</span>
+      </div>
+      <p class="text-sm font-semibold text-on-surface truncate">${escHtml(s.subject || 'Lesson')}</p>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-1 text-xs text-text-muted">
+        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">schedule</span>${timeStr}${s.duration ? ` · ${s.duration} min` : ''}</span>
+        ${s.teacherName ? `<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span>${escHtml(s.teacherName)}</span>` : ''}
+      </div>
+    </div>
+    ${hasLink ? `<span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;" title="Tap to join">video_call</span>` : ''}
+  </div>`;
+}
+
+// ── Load ────────────────────────────────────────────────────────────────────
+async function loadAll() {
+  allSessions = [];
+  const results = await Promise.all(allStudents.map(async st => {
+    try {
+      const snap = await getDocs(query(collection(db, 'sessions'), where('studentId', '==', st.id)));
+      return snap.docs.map(d => {
+        const data = d.data();
+        return { id: d.id, ...data, studentId: st.id, studentName: data.studentName || st.fullName || 'Child' };
+      });
+    } catch (e) { console.error('loadSessions', st.id, e); return []; }
+  }));
+  allSessions = results.flat();
+}
+
+// ── Auth ────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
   let parentData;
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
-    if (!snap.exists() || snap.data().role !== 'parent') {
-      await signOut(auth); window.location.href = '/'; return;
-    }
+    if (!snap.exists() || snap.data().role !== 'parent') { await signOut(auth); window.location.href = '/index.html'; return; }
     parentData = snap.data();
-  } catch (e) { window.location.href = '/'; return; }
-
-  const fsLang = parentData.preferredLanguage;
-  // Only adopt the stored (app) preference when this browser has no explicit
-  // choice. Otherwise a toggle whose fire-and-forget write hasn't landed yet
-  // would get clobbered back on the next page load.
-  const langExplicit = localStorage.getItem('cremona-lang-explicit') === '1';
-  if ((fsLang === 'en' || fsLang === 'ko') && fsLang !== window.CREMONA_LANG && !langExplicit) {
-    window.CREMONA_LANG = fsLang;
-    localStorage.setItem('cremona-lang', fsLang);
-  } else if (langExplicit && fsLang !== window.CREMONA_LANG) {
-    updateDoc(doc(db, 'users', user.uid), { preferredLanguage: window.CREMONA_LANG }).catch(() => {});
-  }
-  window._syncLang = (lang) => {
-    updateDoc(doc(db, 'users', user.uid), { preferredLanguage: lang }).catch(() => {});
-  };
-
-  const firstName = parentData.firstName || (parentData.name || '').split(' ')[0] || '';
-  if (firstName) document.getElementById('header-name').textContent = firstName;
+  } catch (e) { window.location.href = '/index.html'; return; }
 
   const linkedIds = Array.isArray(parentData.linkedStudentIds) ? parentData.linkedStudentIds : [];
   if (!linkedIds.length) {
     document.getElementById('loading-overlay').style.display = 'none';
-    document.getElementById('cal-inner').innerHTML = `
+    document.getElementById('class-list').innerHTML = `
       <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
         <span class="material-symbols-outlined text-5xl opacity-30">child_care</span>
-        <p class="font-semibold text-sm">${t('sched_no_children')}</p>
+        <p class="font-semibold text-sm">No children linked to your account yet.</p>
       </div>`;
-    applyTranslations();
     return;
   }
 
@@ -477,96 +265,19 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  if (!allStudents.length) {
-    document.getElementById('loading-overlay').style.display = 'none';
-    document.getElementById('cal-inner').innerHTML = `
-      <div class="flex flex-col items-center justify-center py-16 text-center text-text-muted gap-3">
-        <span class="material-symbols-outlined text-5xl opacity-30">person_off</span>
-        <p class="font-semibold text-sm">${t('sched_no_records')}</p>
-      </div>`;
-    applyTranslations();
-    return;
-  }
-
+  // Optional deep-link to a specific child from the dashboard
   const urlSid = new URLSearchParams(window.location.search).get('studentId') || '';
-  selectedSid  = allStudents.find(s => s.id === urlSid) ? urlSid : allStudents[0].id;
+  if (allStudents.find(s => s.id === urlSid)) selectedFilter = urlSid;
 
-  renderTabs();
-  applyTranslations();
+  await loadAll();
+  renderChips();
+  renderList();
   document.getElementById('loading-overlay').style.display = 'none';
-  await loadSessions(selectedSid);
 });
 
-window.doSignOut = async function() {
-  await signOut(auth); window.location.href = '/';
-};
-
-// Re-render the calendar when light/dark mode is toggled
-window.addEventListener('cremona-theme', () => renderCalendar());
-
-// ── Day / Week / Month views ───────────────────────────────────────────────────
-let calMode = localStorage.getItem('cremona-calview') || 'week';
-
-window.setCalMode = function(m) {
-  calMode = m;
-  try { localStorage.setItem('cremona-calview', m); } catch (e) {}
-  if (m === 'week') weekStart = getMonday(weekStart);
-  renderCalendar();
-};
-
-function updateCmBtns() {
-  document.querySelectorAll('.cm-btn').forEach(b => {
-    const on = b.dataset.cm === calMode;
-    b.className = 'cm-btn px-3 py-1 rounded-md text-xs font-bold transition-colors ' +
-      (on ? 'bg-primary-container text-on-primary-fixed' : 'text-text-muted hover:text-on-surface');
-  });
-}
-
-function calStep(dir) {
-  if (calMode === 'day') { const d = new Date(weekStart); d.setDate(d.getDate() + dir); weekStart = d; }
-  else if (calMode === 'month') weekStart = new Date(weekStart.getFullYear(), weekStart.getMonth() + dir, 1);
-  else weekStart = offsetWeek(weekStart, dir * 7);
-  renderCalendar();
-}
-
-function renderMonthView() {
-  const C = window.cremonaCalPalette();
-  document.getElementById('week-label').textContent =
-    weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  const inner = document.getElementById('cal-inner');
-  inner.innerHTML = window.cremonaMonthGrid({
-    anchor: weekStart,
-    C,
-    sessionsForDay,
-    chip: (s) => {
-      const disp = getDisplayStatus(s);
-      const style = STATUS_STYLE[disp] || STATUS_STYLE.scheduled;
-      const dt = toDate(s.dateTime);
-      const hh = String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
-      const hasLink = s.meetLink && disp !== 'cancelled';
-      return {
-        bg: style.bg, border: style.border, text: style.text,
-        label: `${hh} ${escHtml(s.subject || s.teacherName || '—')}`,
-        attrs: `class="session-block${hasLink ? ' clickable' : ''}" data-meet="${hasLink ? escHtml(s.meetLink) : ''}"`,
-        strike: disp === 'cancelled',
-      };
-    },
-  });
-  inner.querySelectorAll('.session-block.clickable').forEach(el => {
-    el.addEventListener('click', () => {
-      const link = el.dataset.meet;
-      if (link) window.open(link.startsWith('http') ? link : 'https://' + link, '_blank', 'noopener');
-    });
-  });
-  inner.querySelectorAll('.cal-day-jump').forEach(el => {
-    el.addEventListener('click', () => {
-      weekStart = new Date(el.dataset.date + 'T00:00:00');
-      setCalMode('day');
-    });
-  });
-}
+window.doSignOut = async function() { await signOut(auth); window.location.href = '/index.html'; };
 </script>
-<script src="/js/notifbell.js?v=4" defer></script>
-<script src="/js/portal-nav.js?v=1" defer></script>
+  <script>window.CREMONA_NAV={portal:'parent',active:'schedule',title:'Schedule'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

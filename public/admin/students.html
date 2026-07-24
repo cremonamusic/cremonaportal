@@ -2,30 +2,31 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Students | Cremona Music Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script id="tailwind-config">
   tailwind.config = {
     darkMode:"class",
     theme: { extend: {
       colors: {
-        "on-tertiary-fixed":"#1b1c1c","surface-variant":"#E3D8C6","inverse-primary":"#C8A951",
-        "error-container":"#F9DEDC","on-secondary-fixed":"#2A1D14","text-muted":"#7A6A57",
-        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFFFF","surface-container-low":"#F6F0E6",
-        "primary-container":"#C8A951","on-secondary-container":"#FFFDF8",
-        "secondary-container":"#9A7524","secondary":"#7A5A16","on-surface-variant":"#6B5844",
-        "primary-fixed-dim":"#C8A951","on-surface":"#2B2019","surface-tint":"#3B2A1E",
-        "secondary-fixed":"#F2E6CC","surface-container-highest":"#E3D8C6",
-        "border-subtle":"#E2D7C6","background":"#FAF6EF",
-        "primary-fixed":"#F0E2C4","primary":"#3B2A1E","on-primary-container":"#5A4A22",
-        "outline":"#8A7A63","outline-variant":"#D8C5A8","surface-container":"#F1E9DC",
-        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#ffffff",
-        "on-error-container":"#93000a","error":"#B3261E","surface-dim":"#d9dadb",
-        "surface-container-high":"#EAE0D0","on-primary":"#ffffff","on-background":"#2B2019"
+        "on-tertiary-fixed":"#3E2C23","surface-variant":"#E4D8C2","inverse-primary":"#D4A520",
+        "error-container":"#ffdad6","on-secondary-fixed":"#3E2C23","text-muted":"#8B6B52",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFDF9","surface-container-low":"#F5EFE4",
+        "primary-container":"#F5E5B0","on-secondary-container":"#3E2C23",
+        "secondary-container":"#F5E5B0","secondary":"#C9A227","on-surface-variant":"#7A5A42",
+        "primary-fixed-dim":"#D4A520","on-surface":"#3E2C23","surface-tint":"#C9A227",
+        "secondary-fixed":"#F0E8C0","surface-container-highest":"#E4D8C2",
+        "border-subtle":"#E8DCC8","background":"#FAF6EF",
+        "primary-fixed":"#F0E8C0","primary":"#C9A227","on-primary-container":"#8B6020",
+        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#3E2C23",
+        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
+        "surface-container-high":"#EAE0CE","on-primary":"#3E2C23","on-background":"#3E2C23"
       },
       spacing:{"gutter":"24px","container-max":"1200px","margin-mobile":"16px","margin-desktop":"40px"},
       fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
@@ -44,23 +45,34 @@
 <style>
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
   body { font-family:'Inter',sans-serif; }
-  .spinner { width:20px;height:20px;border:2px solid rgba(59,42,30,.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,.2);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#B3261E;color:#fff; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#7A5A16;color:#fff; }
-  .nav-active { color:#7A5A16!important;border-bottom:2px solid #7A5A16;padding-bottom:4px;font-weight:700!important; }
-  .teacher-pill { display:inline-flex;align-items:center;padding:1px 7px;background:rgba(122,90,22,0.09);color:#7A5A16;border-radius:999px;font-size:11px;font-weight:600;line-height:18px; }
-  .teacher-check-item:hover { background:#F6F0E6; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  .nav-active { color:#C9A227!important;border-bottom:2px solid #C9A227;padding-bottom:4px;font-weight:700!important; }
+  .teacher-pill { display:inline-flex;align-items:center;padding:1px 7px;background:rgba(201,162,39,0.15);color:#A07818;border-radius:999px;font-size:11px;font-weight:600;line-height:18px; }
+  .teacher-check-item:hover { background:#f3f4f5; }
   tr.student-row:hover td { background:#FAF6EF; }
   tr.student-row { cursor:pointer; }
 </style>
-<script src="/js/theme.js"></script>
-<script src="/js/admin-guard.js"></script>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
 </head>
-<body class="bg-background text-on-surface selection:bg-primary-fixed-dim" data-portal="admin" data-page="students">
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -80,9 +92,14 @@
       </button>
     </div>
     <form id="student-form" class="px-6 py-5 grid grid-cols-2 gap-4">
-      <div class="col-span-2">
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Full Name *</label>
-        <input id="f-name" type="text" required placeholder="e.g. Kim Minji"
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Surname *</label>
+        <input id="f-surname" type="text" required placeholder="Tan"
+               class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+      </div>
+      <div>
+        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Name *</label>
+        <input id="f-name" type="text" required placeholder="Wei Ming"
                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
       </div>
       <div>
@@ -101,53 +118,9 @@
         </select>
       </div>
       <div class="col-span-2">
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Parent Contact
-          <span class="text-[11px] font-normal text-text-muted">— fill these in and the parent account is created automatically (random password emailed to them)</span>
-        </label>
-        <div class="grid grid-cols-2 gap-3">
-          <input id="f-parent-name" type="text" placeholder="Parent name (optional)"
-                 class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-          <input id="f-parent-phone" type="tel" placeholder="Parent phone (optional)"
-                 class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-          <div class="col-span-2">
-            <input id="f-parent-email" type="email" placeholder="Parent email — account auto-created" oninput="updateParentEmailStatus()"
-                   class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-            <span id="parent-email-status" class="hidden mt-1.5 inline-block"></span>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-2">
         <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Notes</label>
         <textarea id="f-notes" rows="3" placeholder="Learning goals, special needs, etc."
                   class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
-      </div>
-      <div class="col-span-2">
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Monthly Billing Rates</label>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <p class="text-xs text-text-muted mb-1.5">Parent Pays / month</p>
-            <div class="flex gap-2">
-              <select id="f-parent-currency"
-                      class="w-20 border border-border-subtle rounded-lg px-2 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
-                <option>MYR</option><option>PHP</option><option>KRW</option><option>USD</option>
-              </select>
-              <input id="f-parent-rate" type="number" min="0" step="0.01" placeholder="500.00"
-                     class="flex-1 border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-            </div>
-          </div>
-          <div>
-            <p class="text-xs text-text-muted mb-1.5">Teacher Earns / month</p>
-            <div class="flex gap-2">
-              <select id="f-teacher-currency"
-                      class="w-20 border border-border-subtle rounded-lg px-2 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
-                <option>MYR</option><option>PHP</option><option>KRW</option><option>USD</option>
-              </select>
-              <input id="f-teacher-rate" type="number" min="0" step="0.01" placeholder="300.00"
-                     class="flex-1 border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-            </div>
-          </div>
-        </div>
-        <p class="text-xs text-text-muted mt-1">Margin per hour = Parent Rate − Teacher Rate</p>
       </div>
       <div class="col-span-2">
         <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Assigned Teachers</label>
@@ -185,41 +158,84 @@
       <!-- Session history -->
       <h3 class="font-headline-sm text-sm mb-3 text-on-surface-variant uppercase tracking-wide text-xs font-bold">Session History</h3>
       <div id="profile-sessions" class="text-sm text-text-muted">Loading…</div>
+
+      <!-- Certificates -->
+      <div class="mt-6 pt-5 border-t border-border-subtle">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-bold uppercase tracking-wide text-on-surface-variant">Certificates</h3>
+          <button onclick="toggleCertForm()" class="text-sm font-semibold text-secondary flex items-center gap-1 hover:underline">
+            <span class="material-symbols-outlined text-[16px]">add</span> Add Certificate
+          </button>
+        </div>
+
+        <!-- Upload form -->
+        <div id="cert-form" class="hidden bg-surface-container-low border border-border-subtle rounded-xl p-4 mb-4 grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Title *</label>
+            <input id="cert-title" type="text" placeholder='e.g. Grade 3 Violin Exam'
+                   class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Type *</label>
+            <select id="cert-type" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white">
+              <option value="exam">Exam Result</option>
+              <option value="recital">Recital</option>
+              <option value="competition">Competition</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Issued Date *</label>
+            <input id="cert-date" type="date" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Notes <span class="font-normal text-text-muted">(optional)</span></label>
+            <textarea id="cert-notes" rows="2" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-on-surface-variant mb-1">Files — PDF or image, up to 5 *</label>
+            <input id="cert-file" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,image/*" onchange="handleCertFilesSelect(this)"
+                   class="w-full text-sm text-text-muted file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border file:border-border-subtle file:text-sm file:font-semibold file:bg-surface-white file:text-on-surface hover:file:bg-surface-container cursor-pointer"/>
+            <div id="cert-file-preview" class="flex flex-col gap-1 mt-2"></div>
+          </div>
+          <div class="col-span-2 flex justify-end gap-2">
+            <button onclick="toggleCertForm()" class="px-3 py-2 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
+            <button id="cert-upload-btn" onclick="uploadCertificate()" class="px-4 py-2 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm">Upload</button>
+          </div>
+        </div>
+
+        <div id="profile-certs" class="text-sm text-text-muted">Loading…</div>
+      </div>
     </div>
     <div class="flex justify-end px-6 pb-5 gap-3">
+      <a id="profile-enroll-btn" href="#" class="hidden px-4 py-2.5 text-sm font-bold border border-border-subtle text-text-muted rounded-lg hover:bg-surface-container hover:text-on-surface transition-colors inline-flex items-center gap-1.5 no-underline">
+        <span class="material-symbols-outlined text-[16px]">assignment</span> View Enrollment Form
+      </a>
       <button id="profile-edit-btn" onclick="editCurrentStudent()" class="px-4 py-2.5 text-sm font-bold border border-secondary text-secondary rounded-lg hover:bg-secondary/5 transition-colors">Edit Student</button>
       <button onclick="closeProfileModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
     </div>
   </div>
 </div>
 
-<!-- ── Header ───────────────────────────────────────────────────────────────── -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
-    <div class="flex items-center gap-8">
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
-      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
-        <a class="font-body-md nav-active" href="students">Students</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-4">
-      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
-      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
-        <span class="material-symbols-outlined text-sm">logout</span>
-        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
+<!-- ── In-portal File Viewer (PDF.js / image lightbox) ────────────────────────── -->
+<div id="file-viewer-modal" class="hidden fixed inset-0 bg-black/90 z-[200] flex flex-col" onclick="if(event.target===this)closeFileViewer()">
+  <div class="flex items-center justify-between px-4 sm:px-6 py-3 flex-shrink-0">
+    <p id="fv-filename" class="text-white text-sm font-semibold truncate flex-1 min-w-0 pr-4">—</p>
+    <div class="flex items-center gap-1 flex-shrink-0">
+      <button id="fv-prev-btn" onclick="fvNav(-1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <span id="fv-counter" class="hidden text-white/70 text-xs font-medium px-1"></span>
+      <button id="fv-next-btn" onclick="fvNav(1)" class="hidden w-9 h-9 items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+      <button onclick="closeFileViewer()" class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10 text-white transition-colors ml-1">
+        <span class="material-symbols-outlined">close</span>
       </button>
     </div>
   </div>
-</header>
+  <div id="fv-body" class="flex-1 overflow-auto flex items-center justify-center px-4 pb-6"></div>
+</div>
 
 <main class="max-w-container-max mx-auto px-margin-desktop py-gutter">
   <!-- Page header -->
@@ -228,33 +244,11 @@
       <h1 class="font-headline-lg text-on-surface mb-1">Student Database</h1>
       <p class="font-body-md text-text-muted">Manage student profiles and view session history.</p>
     </div>
-    <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
-      <button onclick="downloadStudentTemplate()"
-              class="flex items-center gap-2 px-4 py-2.5 bg-surface-white border border-border-subtle font-medium text-sm rounded-xl text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[18px]">download</span>
-        Excel Template
-      </button>
-      <label class="flex items-center gap-2 px-4 py-2.5 bg-secondary text-white font-bold text-sm rounded-xl hover:brightness-110 active:scale-95 transition-all shadow-sm cursor-pointer">
-        <span class="material-symbols-outlined text-[18px]">upload_file</span>
-        Import Excel
-        <input id="import-excel-input" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importStudentsFromExcel(this)"/>
-      </label>
-      <button onclick="openAddStudent()"
-              class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm">
-        <span class="material-symbols-outlined text-[18px]">person_add</span>
-        Add Student
-      </button>
-      <button onclick="sendReportRequests()" id="req-reports-btn"
-              class="flex items-center gap-2 px-4 py-2.5 bg-surface-white border border-border-subtle font-bold text-sm rounded-xl text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[18px]">edit_note</span>
-        <span id="req-reports-label">Request Comments (all)</span>
-      </button>
-      <button onclick="openReportProgress()"
-              class="flex items-center gap-2 px-4 py-2.5 bg-surface-white border border-border-subtle font-bold text-sm rounded-xl text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[18px]">monitoring</span>
-        <span id="report-progress-chip">Comments: …</span>
-      </button>
-    </div>
+    <button onclick="openAddStudent()"
+            class="flex items-center gap-2 px-5 py-2.5 bg-primary-container text-on-primary-fixed font-bold text-sm rounded-xl hover:brightness-105 active:scale-95 transition-all shadow-sm flex-shrink-0">
+      <span class="material-symbols-outlined text-[18px]">person_add</span>
+      Add Student
+    </button>
   </div>
 
   <!-- Filters -->
@@ -293,14 +287,13 @@
     <table class="w-full text-sm">
       <thead>
         <tr class="border-b border-border-subtle">
-          <th class="w-10 px-4 py-3.5"><input type="checkbox" id="sel-all" onchange="toggleSelectAll(this)" class="w-4 h-4 accent-secondary"/></th>
           <th class="text-left px-6 py-3.5 font-label-md text-text-muted">Name</th>
           <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden sm:table-cell">Grade</th>
           <th class="text-right px-6 py-3.5 font-label-md text-text-muted">Actions</th>
         </tr>
       </thead>
       <tbody id="students-tbody">
-        <tr><td colspan="4" class="text-center py-12 text-text-muted">
+        <tr><td colspan="3" class="text-center py-12 text-text-muted">
           <div class="flex items-center justify-center gap-3">
             <div class="spinner"></div> Loading students…
           </div>
@@ -315,17 +308,30 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, collection, query, where,
-  getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp
+  getDocs, addDoc, setDoc, updateDoc, deleteDoc, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const app = initializeApp({
-  apiKey:"REPLACE_ME_CREMONA_API_KEY",
-  authDomain:"portal.cremonamusic.com",projectId:"cremona-portal",
-  storageBucket:"cremona-portal.firebasestorage.app",
-  messagingSenderId:"REPLACE_ME_SENDER_ID",appId:"REPLACE_ME_APP_ID"
+  apiKey:"AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain:"cremonamusic-portal.firebaseapp.com",projectId:"cremonamusic-portal",
+  storageBucket:"cremonamusic-portal.firebasestorage.app",
+  messagingSenderId:"227259733472",appId:"1:227259733472:web:3cb86ab0da1d5338858785"
 });
-const auth = getAuth(app);
-const db   = getFirestore(app);
+const auth    = getAuth(app);
+const db      = getFirestore(app);
+const storage = getStorage(app);
+
+// PDF.js — used only for the stripped-down in-portal certificate viewer (no annotation/editing)
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// Certificate type metadata (shared look across all portals)
+const CERT_TYPES = { exam:'Exam Result', recital:'Recital', competition:'Competition', other:'Other' };
+const CERT_BADGE = { exam:'bg-blue-50 text-blue-700', recital:'bg-purple-50 text-purple-700', competition:'bg-green-50 text-green-700', other:'bg-gray-100 text-gray-600' };
+const MAX_CERT_FILES = 5;
+let currentAdminUid = null;
+let pendingCertFiles = [];   // File[] selected in the upload form (max 5)
+let profileCertsCache = [];  // certificates currently shown in the open profile (for delete lookups)
 
 // ── State ──────────────────────────────────────────────────────────────────────
 let allStudents       = [];
@@ -338,24 +344,23 @@ let selectedTeacherUids = new Set();
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
   const snap = await getDoc(doc(db, 'users', user.uid));
   if (!snap.exists() || snap.data().role !== 'admin') {
-    window.location.href = '/'; return;
+    window.location.href = '/index.html'; return;
   }
-  if (!window.applyAdminPermissions(snap.data(), 'students')) return;
+  currentAdminUid = user.uid;
   await Promise.all([loadStudents(), loadTeachers(), loadParentEmails()]);
   console.log('[students] initial load complete — rendering table');
   applyFilters();
   document.getElementById('loading-overlay').style.display = 'none';
 });
 
-window.doSignOut = async () => { await signOut(auth); window.location.href = '/'; };
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
 
 // ── Load data ──────────────────────────────────────────────────────────────────
 async function loadStudents() {
   const snap = await getDocs(collection(db, 'students'));
-  loadReportProgress();
   allStudents = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
   // Do NOT render here — render happens after all parallel fetches complete
@@ -421,118 +426,17 @@ function hexToRgba(hex, alpha) {
 function teacherPill(uid) {
   const t = allTeachers.find(x => x.id === uid);
   if (!t) return '';
-  const color = (t.color && /^#[0-9a-f]{6}$/i.test(t.color)) ? t.color : '#7A5A16';
+  const color = (t.color && /^#[0-9a-f]{6}$/i.test(t.color)) ? t.color : '#C9A227';
   const bg = hexToRgba(color, 0.09);
   return `<span style="display:inline-flex;align-items:center;padding:1px 8px;background:${bg};color:${color};border-radius:999px;font-size:11px;font-weight:600;line-height:18px;">${escHtml(t.name || t.email || uid)}</span>`;
 }
 
 // ── Render ─────────────────────────────────────────────────────────────────────
-// ── Monthly report requests ──
-const selectedIds = new Set();
-window.toggleRowSel = function(cb) {
-  if (cb.checked) selectedIds.add(cb.dataset.sid); else selectedIds.delete(cb.dataset.sid);
-  updateReqLabel();
-};
-window.toggleSelectAll = function(cb) {
-  document.querySelectorAll('.row-sel').forEach(x => {
-    x.checked = cb.checked;
-    if (cb.checked) selectedIds.add(x.dataset.sid); else selectedIds.delete(x.dataset.sid);
-  });
-  updateReqLabel();
-};
-function updateReqLabel() {
-  document.getElementById('req-reports-label').textContent =
-    selectedIds.size ? `Request Comments (${selectedIds.size})` : 'Request Comments (all)';
-}
-
-window.sendReportRequests = async function() {
-  const targets = selectedIds.size
-    ? allStudents.filter(s => selectedIds.has(s.id))
-    : allStudents;
-  const items = [];
-  let noTeacher = 0;
-  for (const st of targets) {
-    const teachers = st.assignedTeachers || [];
-    if (!teachers.length) { noTeacher++; continue; }
-    for (const uid of teachers) {
-      const t = allTeachers.find(x => x.id === uid);
-      items.push({ studentId: st.id, studentName: st.fullName || '', teacherUid: uid, teacherName: t ? (t.name || t.email || '') : '' });
-    }
-  }
-  if (!items.length) return showToast('No students with assigned teachers selected.', 'error');
-  const scope = selectedIds.size ? `${targets.length} selected student(s)` : `ALL ${targets.length} students`;
-  if (!confirm(`Ask teachers to write this month's report for ${scope}?\n\nEach teacher gets one notification listing their students.` +
-      (noTeacher ? `\n⚠ ${noTeacher} student(s) skipped — no assigned teacher.` : ''))) return;
-  const btn = document.getElementById('req-reports-btn');
-  btn.disabled = true;
-  try {
-    const idToken = await auth.currentUser.getIdToken();
-    const r = await fetch('/api/requestReports', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken, items }),
-    });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Failed');
-    showToast(`Requested ${d.created} report(s)${d.skipped ? ` (${d.skipped} already requested this month)` : ''}.`, 'success');
-    loadReportProgress();
-  } catch (e) {
-    showToast('Failed: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-  }
-};
-
-let reportReqs = [];
-async function loadReportProgress() {
-  try {
-    const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const snap = await getDocs(query(collection(db, 'reportRequests'), where('period', '==', period)));
-    reportReqs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    const done = reportReqs.filter(r => r.status === 'done').length;
-    document.getElementById('report-progress-chip').textContent =
-      reportReqs.length ? `Comments: ${done}/${reportReqs.length} done` : 'Comments: none requested';
-  } catch (e) {
-    console.warn('[reportProgress]', e);
-    document.getElementById('report-progress-chip').textContent = 'Comments: —';
-  }
-}
-
-window.openReportProgress = function() {
-  const now = new Date();
-  const period = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  document.getElementById('rp-subtitle').textContent =
-    `${period} — ${reportReqs.filter(r => r.status === 'done').length} of ${reportReqs.length} written`;
-  const body = document.getElementById('rp-body');
-  if (!reportReqs.length) {
-    body.innerHTML = '<p class="text-sm text-text-muted text-center py-8">No report requests this month yet — use "Request Comments" to send them.</p>';
-  } else {
-    const byTeacher = {};
-    reportReqs.forEach(r => { (byTeacher[r.teacherName || r.teacherUid] = byTeacher[r.teacherName || r.teacherUid] || []).push(r); });
-    body.innerHTML = Object.entries(byTeacher).sort((a, b) => a[0].localeCompare(b[0])).map(([teacher, reqs]) => {
-      const done = reqs.filter(r => r.status === 'done').length;
-      return `<div class="mb-3">
-        <p class="text-xs font-bold uppercase tracking-wider text-text-muted mb-1.5">${escHtml(teacher)} · ${done}/${reqs.length}</p>
-        <div class="flex flex-col gap-1">
-          ${reqs.sort((a, b) => (a.studentName || '').localeCompare(b.studentName || '')).map(r => `
-            <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-border-subtle">
-              <span class="text-sm font-semibold truncate">${escHtml(r.studentName || '—')}</span>
-              ${r.status === 'done'
-                ? '<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase flex-shrink-0">Written</span>'
-                : '<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold uppercase flex-shrink-0">Waiting</span>'}
-            </div>`).join('')}
-        </div>
-      </div>`;
-    }).join('');
-  }
-  document.getElementById('report-progress-modal').classList.remove('hidden');
-};
-
 function renderStudents(list) {
   document.getElementById('result-count').textContent = `${list.length} student${list.length !== 1 ? 's' : ''}`;
   const tbody = document.getElementById('students-tbody');
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center py-16 text-text-muted">
+    tbody.innerHTML = `<tr><td colspan="3" class="text-center py-16 text-text-muted">
       <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">groups</span>
       <p class="font-semibold text-sm">No students found</p>
     </td></tr>`;
@@ -540,7 +444,6 @@ function renderStudents(list) {
   }
   tbody.innerHTML = list.map(s => `
     <tr class="student-row border-b border-border-subtle last:border-0 transition-colors" data-sid="${s.id}">
-      <td class="px-4 py-3.5"><input type="checkbox" class="row-sel w-4 h-4 accent-secondary" data-sid="${s.id}" ${selectedIds.has(s.id) ? 'checked' : ''} onchange="toggleRowSel(this)" onclick="event.stopPropagation()"/></td>
       <td class="px-6 py-3.5">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-primary-container/30 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
@@ -619,18 +522,12 @@ function openEditStudent(sid) {
   if (!s) return;
   selectedTeacherUids = new Set(s.assignedTeachers || []);
   document.getElementById('student-modal-title').textContent = 'Edit Student';
-  document.getElementById('f-name').value           = s.fullName          || '';
-  document.getElementById('f-dob').value            = s.dateOfBirth       || '';
-  document.getElementById('f-grade').value          = s.grade             || '';
-  document.getElementById('f-notes').value          = s.notes             || '';
-  document.getElementById('f-parent-name').value    = s.parentName        || '';
-  document.getElementById('f-parent-email').value   = s.parentEmail       || '';
-  document.getElementById('f-parent-phone').value   = s.parentPhone       || '';
-  updateParentEmailStatus();
-  document.getElementById('f-parent-rate').value      = s.parentMonthlyRate  || '';
-  document.getElementById('f-parent-currency').value  = s.parentCurrency     || 'MYR';
-  document.getElementById('f-teacher-rate').value     = s.teacherMonthlyRate || '';
-  document.getElementById('f-teacher-currency').value = s.teacherCurrency    || 'MYR';
+  const parts = (s.fullName || '').trim().split(/\s+/);
+  document.getElementById('f-surname').value      = s.lastName  || (parts.length > 1 ? parts.slice(1).join(' ') : '');
+  document.getElementById('f-name').value         = s.firstName || parts[0] || '';
+  document.getElementById('f-dob').value          = s.dateOfBirth  || '';
+  document.getElementById('f-grade').value        = s.grade        || '';
+  document.getElementById('f-notes').value        = s.notes        || '';
   renderTeacherCheckboxes();
   updateTeacherAssignLabel();
   document.getElementById('student-modal').classList.remove('hidden');
@@ -699,22 +596,19 @@ window.addEventListener('focus', async () => {
 
 window.saveStudent = async function() {
   const btn = document.getElementById('student-save-btn');
-  const name = document.getElementById('f-name').value.trim();
-  if (!name) { showToast('Full name is required.', 'error'); return; }
+  const surname = document.getElementById('f-surname').value.trim();
+  const name    = document.getElementById('f-name').value.trim();
+  if (!surname) { showToast('Surname is required.', 'error'); return; }
+  if (!name)    { showToast('Name is required.', 'error'); return; }
 
   const data = {
-    fullName:           name,
-    dateOfBirth:        document.getElementById('f-dob').value,
-    grade:              document.getElementById('f-grade').value,
-    notes:              document.getElementById('f-notes').value.trim(),
-    parentName:         document.getElementById('f-parent-name').value.trim(),
-    parentEmail:        document.getElementById('f-parent-email').value.trim().toLowerCase(),
-    parentPhone:        document.getElementById('f-parent-phone').value.trim(),
-    assignedTeachers:   [...selectedTeacherUids],
-    parentMonthlyRate:  parseFloat(document.getElementById('f-parent-rate').value)     || 0,
-    parentCurrency:     document.getElementById('f-parent-currency').value,
-    teacherMonthlyRate: parseFloat(document.getElementById('f-teacher-rate').value)   || 0,
-    teacherCurrency:    document.getElementById('f-teacher-currency').value,
+    fullName:         `${name} ${surname}`,
+    firstName:        name,
+    lastName:         surname,
+    dateOfBirth:      document.getElementById('f-dob').value,
+    grade:            document.getElementById('f-grade').value,
+    notes:            document.getElementById('f-notes').value.trim(),
+    assignedTeachers: [...selectedTeacherUids],
   };
 
   btn.textContent = 'Saving…'; btn.disabled = true;
@@ -740,120 +634,15 @@ window.saveStudent = async function() {
   }
 };
 
-// ── Excel import / template ───────────────────────────────────────────────────
-// Template columns map 1:1 to the Add Student form. "Teacher Email" is matched
-// against teacher accounts to fill assignedTeachers automatically.
-const IMPORT_COLUMNS = ['Full Name', 'Date of Birth', 'Grade', 'Notes', 'Teacher Email', 'Parent Name', 'Parent Email', 'Parent Phone', 'Parent Rate', 'Parent Currency', 'Teacher Rate', 'Teacher Currency'];
-
-window.downloadStudentTemplate = function() {
-  if (typeof XLSX === 'undefined') { showToast('Excel library not loaded yet — try again.', 'error'); return; }
-  const example = {
-    'Full Name': 'Kim Minji', 'Date of Birth': '2015-03-01', 'Grade': '4',
-    'Notes': 'Loves reading', 'Teacher Email': 'teacher@cremonamusic.com',
-    'Parent Name': 'Kim Jiyoung', 'Parent Email': 'parent@example.com', 'Parent Phone': '010-1234-5678',
-    'Parent Rate': 300, 'Parent Currency': 'MYR', 'Teacher Rate': 200, 'Teacher Currency': 'MYR',
-  };
-  const ws = XLSX.utils.json_to_sheet([example], { header: IMPORT_COLUMNS });
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Students');
-  XLSX.writeFile(wb, 'cremona_students_template.xlsx');
-};
-
-window.importStudentsFromExcel = async function(input) {
-  const file = input.files[0];
-  input.value = '';
-  if (!file) return;
-  if (typeof XLSX === 'undefined') { showToast('Excel library not loaded yet — try again.', 'error'); return; }
-
-  let rows;
-  try {
-    const buf = await file.arrayBuffer();
-    const wb  = XLSX.read(buf);
-    rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
-  } catch (e) {
-    showToast('Could not read that file — is it a valid Excel file?', 'error'); return;
-  }
-  if (!rows.length) { showToast('No rows found in the file.', 'error'); return; }
-
-  // Case-insensitive header lookup so the template can be edited loosely
-  const get = (row, name) => {
-    const key = Object.keys(row).find(k => k.trim().toLowerCase() === name.toLowerCase());
-    return key ? String(row[key]).trim() : '';
-  };
-  const teacherByEmail = new Map(allTeachers.map(t => [(t.email || '').toLowerCase(), t.id]));
-  const existingNames  = new Set(allStudents.map(s => (s.fullName || '').toLowerCase()));
-
-  if (!confirm(`Import ${rows.length} student${rows.length !== 1 ? 's' : ''} from "${file.name}"?`)) return;
-
-  let created = 0, skipped = 0;
-  const problems = [];
-  showToast('Importing…', 'info');
-
-  for (let i = 0; i < rows.length; i++) {
-    const row  = rows[i];
-    const name = get(row, 'Full Name');
-    if (!name) { skipped++; problems.push(`Row ${i + 2}: missing Full Name`); continue; }
-    if (existingNames.has(name.toLowerCase())) { skipped++; problems.push(`Row ${i + 2}: "${name}" already exists`); continue; }
-
-    const teacherEmail = get(row, 'Teacher Email').toLowerCase();
-    const teacherUid   = teacherEmail ? teacherByEmail.get(teacherEmail) : null;
-    if (teacherEmail && !teacherUid) problems.push(`Row ${i + 2}: no teacher account for ${teacherEmail} — student created without a teacher`);
-
-    // Excel may deliver dates as serial numbers — normalise to YYYY-MM-DD
-    let dob = get(row, 'Date of Birth');
-    if (dob && /^\d+(\.\d+)?$/.test(dob)) {
-      const d = new Date(Date.UTC(1899, 11, 30) + parseFloat(dob) * 86400000);
-      dob = d.toISOString().slice(0, 10);
-    }
-
-    const data = {
-      fullName:           name,
-      dateOfBirth:        dob,
-      grade:              get(row, 'Grade'),
-      notes:              get(row, 'Notes'),
-      parentName:         get(row, 'Parent Name'),
-      parentEmail:        get(row, 'Parent Email').toLowerCase(),
-      parentPhone:        get(row, 'Parent Phone'),
-      assignedTeachers:   teacherUid ? [teacherUid] : [],
-      parentMonthlyRate:  parseFloat(get(row, 'Parent Rate'))  || 0,
-      parentCurrency:     get(row, 'Parent Currency')  || 'MYR',
-      teacherMonthlyRate: parseFloat(get(row, 'Teacher Rate')) || 0,
-      teacherCurrency:    get(row, 'Teacher Currency') || 'MYR',
-      createdAt:          serverTimestamp(),
-    };
-    try {
-      const ref = await addDoc(collection(db, 'students'), data);
-      allStudents.push({ id: ref.id, ...data });
-      existingNames.add(name.toLowerCase());
-      created++;
-    } catch (e) {
-      skipped++;
-      problems.push(`Row ${i + 2}: save failed (${e.message})`);
-    }
-  }
-
-  allStudents.sort((a, b) => (a.fullName || '').localeCompare(b.fullName || ''));
-  applyFilters();
-  showToast(`Imported ${created} student${created !== 1 ? 's' : ''}${skipped ? `, skipped ${skipped}` : ''}.`, created ? 'success' : 'error');
-  if (problems.length) alert('Import notes:\n\n' + problems.join('\n'));
-};
-
 async function confirmDeleteStudent(sid) {
   const s = allStudents.find(x => x.id === sid);
   if (!s) return;
-  if (!confirm(`Delete student "${s.fullName}"?\n\nAll of this student's progress reports will be deleted too. This cannot be undone.`)) return;
+  if (!confirm(`Delete student "${s.fullName}"? This cannot be undone.`)) return;
   try {
-    // Cascade: delete every report belonging to this student first
-    const repSnap = await getDocs(query(collection(db, 'comments'), where('studentId', '==', sid)));
-    let deletedReports = 0;
-    for (const d of repSnap.docs) {
-      await deleteDoc(d.ref);
-      deletedReports++;
-    }
     await deleteDoc(doc(db, 'students', sid));
     allStudents = allStudents.filter(x => x.id !== sid);
     applyFilters();
-    showToast(`Student deleted${deletedReports ? ` (with ${deletedReports} report${deletedReports !== 1 ? 's' : ''})` : ''}.`, 'success');
+    showToast('Student deleted.', 'success');
   } catch (e) {
     showToast('Delete failed: ' + e.message, 'error');
   }
@@ -873,18 +662,30 @@ async function openProfile(sid) {
     : '';
   const linkedParents = studentParentMap.get(s.id) || [];
   const teacherPills  = (s.assignedTeachers || []).map(uid => teacherPill(uid)).filter(Boolean).join(' ');
-  const pCur = s.parentCurrency  || 'MYR';
-  const tCur = s.teacherCurrency || 'MYR';
   infoDiv.innerHTML = [
     field('Date of Birth', s.dateOfBirth),
     field('Grade', s.grade),
-    (s.parentMonthlyRate || s.teacherMonthlyRate) ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Monthly Billing Rates</p><div class="flex flex-wrap gap-6 text-sm mt-0.5"><span class="text-text-muted">Parent pays: <strong class="text-secondary">${pCur} ${(s.parentMonthlyRate||0).toLocaleString()}/mo</strong></span><span class="text-text-muted">Teacher earns: <strong class="text-on-surface">${tCur} ${(s.teacherMonthlyRate||0).toLocaleString()}/mo</strong></span></div></div>` : '',
     teacherPills ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Assigned Teachers</p><div class="flex flex-wrap gap-1">${teacherPills}</div></div>` : '',
     linkedParents.length ? `<div class="col-span-2"><p class="text-xs text-text-muted font-semibold uppercase tracking-wide mb-1">Linked Parent${linkedParents.length > 1 ? 's' : ''}</p><div class="flex flex-col gap-1">${linkedParents.map(p => `<div class="flex items-center gap-2"><span class="font-medium">${escHtml(p.name || '—')}</span>${p.email ? `<span class="text-xs text-text-muted">${escHtml(p.email)}</span>` : ''}</div>`).join('')}</div></div>` : '',
     s.notes ? `<div class="col-span-2">${field('Notes', s.notes)}</div>` : '',
   ].join('');
 
+  // "View Enrollment Form" button — only for students who came in via a form
+  const enrollBtn = document.getElementById('profile-enroll-btn');
+  if (s.registeredViaEnrollmentForm) {
+    enrollBtn.href = `/admin/enrollments.html?studentId=${encodeURIComponent(s.id)}`;
+    enrollBtn.classList.remove('hidden');
+  } else {
+    enrollBtn.classList.add('hidden');
+  }
+
   document.getElementById('profile-modal').classList.remove('hidden');
+
+  // Reset + load certificates for this student
+  document.getElementById('cert-form').classList.add('hidden');
+  pendingCertFiles = [];
+  renderCertFilePreview();
+  loadCertificates(sid);
 
   // Load session history
   const sessDiv = document.getElementById('profile-sessions');
@@ -937,6 +738,263 @@ window.editCurrentStudent = function() {
   openEditStudent(profileStudent.id);
 };
 
+// ── Certificates ─────────────────────────────────────────────────────────────
+// Returns a certificate's files as an array, regardless of schema version —
+// new docs store `files: [{fileUrl,fileName}]`; legacy docs store a single
+// top-level `fileUrl`/`fileName` pair (treated as a one-item array).
+function getCertFiles(c) {
+  if (Array.isArray(c.files) && c.files.length) return c.files;
+  if (c.fileUrl) return [{ fileUrl: c.fileUrl, fileName: c.fileName || 'Certificate' }];
+  return [];
+}
+
+window.toggleCertForm = function() {
+  const f = document.getElementById('cert-form');
+  const opening = f.classList.contains('hidden');
+  f.classList.toggle('hidden');
+  if (opening) {
+    document.getElementById('cert-title').value = '';
+    document.getElementById('cert-type').value  = 'exam';
+    document.getElementById('cert-date').value   = '';
+    document.getElementById('cert-notes').value  = '';
+    document.getElementById('cert-file').value   = '';
+    pendingCertFiles = [];
+    renderCertFilePreview();
+    document.getElementById('cert-title').focus();
+  }
+};
+
+// Accumulates newly picked files into pendingCertFiles (cap 5), so the admin
+// can add files across multiple picks rather than one FileList replacing another.
+window.handleCertFilesSelect = function(input) {
+  const picked = [...input.files];
+  input.value = ''; // allow re-picking the same file later
+  for (const file of picked) {
+    if (pendingCertFiles.length >= MAX_CERT_FILES) {
+      showToast(`Maximum ${MAX_CERT_FILES} files per certificate.`, 'error');
+      break;
+    }
+    if (file.size > 15 * 1024 * 1024) { showToast(`"${file.name}" is too large (max 15MB).`, 'error'); continue; }
+    if (pendingCertFiles.some(f => f.name === file.name && f.size === file.size)) continue; // skip dupes
+    pendingCertFiles.push(file);
+  }
+  renderCertFilePreview();
+};
+
+window.removeCertFile = function(idx) {
+  pendingCertFiles.splice(idx, 1);
+  renderCertFilePreview();
+};
+
+function renderCertFilePreview() {
+  const el = document.getElementById('cert-file-preview');
+  if (!pendingCertFiles.length) { el.innerHTML = ''; return; }
+  el.innerHTML = pendingCertFiles.map((f, i) => `
+    <div class="flex items-center gap-2 px-2.5 py-1.5 bg-surface-white border border-border-subtle rounded-lg text-xs">
+      <span class="material-symbols-outlined text-[15px] text-text-muted">${/\.pdf$/i.test(f.name) ? 'picture_as_pdf' : 'image'}</span>
+      <span class="flex-1 min-w-0 truncate text-on-surface">${escHtml(f.name)}</span>
+      <button type="button" onclick="removeCertFile(${i})" class="text-text-muted hover:text-error transition-colors flex-shrink-0">
+        <span class="material-symbols-outlined text-[15px]">close</span>
+      </button>
+    </div>`).join('') + `<p class="text-[11px] text-text-muted mt-0.5">${pendingCertFiles.length}/${MAX_CERT_FILES} files selected</p>`;
+}
+
+async function loadCertificates(sid) {
+  const el = document.getElementById('profile-certs');
+  el.innerHTML = '<span class="text-text-muted text-sm">Loading…</span>';
+  try {
+    const snap = await getDocs(query(collection(db, 'certificates'), where('studentId', '==', sid)));
+    profileCertsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => (b.issuedDate || '').localeCompare(a.issuedDate || ''));
+    if (!profileCertsCache.length) { el.innerHTML = '<p class="text-text-muted text-sm">No certificates yet.</p>'; return; }
+    el.innerHTML = profileCertsCache.map(certRowHtml).join('');
+    el.querySelectorAll('[data-view-cert]').forEach(b =>
+      b.addEventListener('click', () => {
+        const c = profileCertsCache.find(x => x.id === b.dataset.viewCert);
+        if (c) openFileViewer(getCertFiles(c), 0);
+      }));
+    el.querySelectorAll('[data-del-cert]').forEach(b =>
+      b.addEventListener('click', () => deleteCertificate(b.dataset.delCert)));
+  } catch (e) {
+    el.innerHTML = `<p class="text-error text-sm">Failed to load certificates: ${escHtml(e.message)}</p>`;
+  }
+}
+
+function certRowHtml(c) {
+  const label = CERT_TYPES[c.type] || 'Other';
+  const badge = CERT_BADGE[c.type] || CERT_BADGE.other;
+  const files = getCertFiles(c);
+  const viewLabel = files.length > 1 ? `View (${files.length})` : 'View';
+  return `
+  <div class="flex items-center gap-3 py-2.5 border-t border-border-subtle first:border-t-0">
+    <span class="material-symbols-outlined text-secondary flex-shrink-0" style="font-variation-settings:'FILL' 1;">workspace_premium</span>
+    <div class="flex-1 min-w-0">
+      <p class="font-semibold text-on-surface truncate">${escHtml(c.title || 'Certificate')}</p>
+      <div class="flex items-center gap-2 mt-0.5 flex-wrap">
+        <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${badge}">${label}</span>
+        <span class="text-xs text-text-muted">${escHtml(fmtDate(c.issuedDate))}</span>
+      </div>
+      ${c.notes ? `<p class="text-xs text-text-muted mt-1">${escHtml(c.notes)}</p>` : ''}
+    </div>
+    <button data-view-cert="${escHtml(c.id)}" class="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors flex-shrink-0">
+      <span class="material-symbols-outlined text-[16px]">visibility</span> ${viewLabel}
+    </button>
+    <button data-del-cert="${escHtml(c.id)}"
+            class="p-2 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors flex-shrink-0" title="Delete">
+      <span class="material-symbols-outlined text-[18px]">delete</span>
+    </button>
+  </div>`;
+}
+
+window.uploadCertificate = async function() {
+  const sid = profileStudent?.id;
+  if (!sid) return;
+  const title = document.getElementById('cert-title').value.trim();
+  const type  = document.getElementById('cert-type').value;
+  const date  = document.getElementById('cert-date').value;
+  const notes = document.getElementById('cert-notes').value.trim();
+
+  if (!title) { showToast('Title is required.', 'error'); return; }
+  if (!date)  { showToast('Issued date is required.', 'error'); return; }
+  if (!pendingCertFiles.length) { showToast('Please choose at least one PDF or image file.', 'error'); return; }
+
+  const btn = document.getElementById('cert-upload-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px"></span> Uploading…';
+  try {
+    // Pre-generate the doc id so the Storage path can reference it
+    const certRef = doc(collection(db, 'certificates'));
+    const files = [];
+    for (const file of pendingCertFiles) {
+      const path = `certificates/${sid}/${certRef.id}/${file.name}`;
+      const sref = ref(storage, path);
+      await uploadBytes(sref, file, { contentType: file.type || 'application/octet-stream' });
+      const fileUrl = await getDownloadURL(sref);
+      files.push({ fileUrl, fileName: file.name });
+    }
+
+    await setDoc(certRef, {
+      studentId:   sid,
+      studentName: profileStudent?.fullName || '',
+      title, type,
+      files,
+      issuedDate:  date,
+      notes,
+      uploadedBy:  currentAdminUid,
+      uploadedAt:  serverTimestamp(),
+    });
+    showToast('Certificate uploaded.', 'success');
+    document.getElementById('cert-form').classList.add('hidden');
+    pendingCertFiles = [];
+    loadCertificates(sid);
+  } catch (e) {
+    console.error('[uploadCertificate]', e);
+    showToast('Upload failed: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Upload';
+  }
+};
+
+window.deleteCertificate = async function(certId) {
+  if (!confirm('Delete this certificate? All attached files will be permanently removed.')) return;
+  const c = profileCertsCache.find(x => x.id === certId);
+  try {
+    await deleteDoc(doc(db, 'certificates', certId));
+    // Best-effort Storage cleanup — delete every file attached to this certificate
+    if (c) {
+      const files = getCertFiles(c);
+      await Promise.allSettled(files.map(f =>
+        deleteObject(ref(storage, `certificates/${c.studentId}/${certId}/${f.fileName}`))));
+    }
+    showToast('Certificate deleted.', 'success');
+    loadCertificates(c?.studentId || profileStudent?.id);
+  } catch (e) {
+    showToast('Delete failed: ' + e.message, 'error');
+  }
+};
+
+// ── In-portal file viewer (PDF.js render / image lightbox) ────────────────────
+let fvFiles = [];
+let fvIndex = 0;
+
+window.openFileViewer = function(files, startIndex) {
+  fvFiles = files || [];
+  fvIndex = startIndex || 0;
+  if (!fvFiles.length) { showToast('No files to display.', 'error'); return; }
+  document.getElementById('file-viewer-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  renderViewerFile();
+};
+
+window.closeFileViewer = function() {
+  document.getElementById('file-viewer-modal').classList.add('hidden');
+  document.getElementById('fv-body').innerHTML = '';
+  document.body.style.overflow = '';
+};
+
+window.fvNav = function(dir) {
+  fvIndex = (fvIndex + dir + fvFiles.length) % fvFiles.length;
+  renderViewerFile();
+};
+
+function renderViewerFile() {
+  const f = fvFiles[fvIndex];
+  document.getElementById('fv-filename').textContent = f.fileName || 'File';
+  const multi = fvFiles.length > 1;
+  document.getElementById('fv-prev-btn').classList.toggle('hidden', !multi);
+  document.getElementById('fv-next-btn').classList.toggle('hidden', !multi);
+  const counter = document.getElementById('fv-counter');
+  counter.classList.toggle('hidden', !multi);
+  if (multi) counter.textContent = `${fvIndex + 1} / ${fvFiles.length}`;
+
+  const body = document.getElementById('fv-body');
+  const isPdf = /\.pdf($|\?)/i.test(f.fileName || f.fileUrl || '');
+  if (isPdf) {
+    body.innerHTML = `<div id="fv-pdf-pages" class="flex flex-col items-center gap-4 py-4 w-full max-w-3xl mx-auto"></div>`;
+    renderPdfInViewer(f.fileUrl);
+  } else {
+    body.innerHTML = `<img src="${escHtml(f.fileUrl)}" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" alt="${escHtml(f.fileName || '')}"/>`;
+  }
+}
+
+async function renderPdfInViewer(url) {
+  const container = document.getElementById('fv-pdf-pages');
+  container.innerHTML = `<div class="flex items-center gap-3 text-white/70 text-sm py-10">
+    <span class="spinner" style="border-color:rgba(255,255,255,.2);border-top-color:#fff;"></span> Loading PDF…</div>`;
+  try {
+    const task   = pdfjsLib.getDocument({ url, withCredentials: false });
+    const pdfDoc = await task.promise;
+    container.innerHTML = '';
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page     = await pdfDoc.getPage(i);
+      const unscaled = page.getViewport({ scale: 1 });
+      const targetW  = Math.min(container.clientWidth || 760, 760);
+      const viewport = page.getViewport({ scale: targetW / unscaled.width });
+      const dpr      = window.devicePixelRatio || 1;
+      const canvas   = document.createElement('canvas');
+      canvas.className = 'rounded-lg shadow-2xl bg-white';
+      canvas.width  = Math.floor(viewport.width * dpr);
+      canvas.height = Math.floor(viewport.height * dpr);
+      canvas.style.width  = Math.floor(viewport.width) + 'px';
+      canvas.style.height = Math.floor(viewport.height) + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      container.appendChild(canvas);
+    }
+  } catch (e) {
+    console.error('[renderPdfInViewer]', e);
+    container.innerHTML = `<p class="text-white/70 text-sm py-10">Failed to load PDF preview.</p>`;
+  }
+}
+
+function fmtDate(str) {
+  if (!str) return '';
+  const d = new Date(str + 'T00:00:00');
+  return isNaN(d) ? str : d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' });
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function toDate(v) {
   if (!v) return new Date(0);
@@ -954,21 +1012,7 @@ window.showToast = function(msg, type = 'info') {
   setTimeout(() => t.className = '', 3500);
 };
 </script>
-<!-- Comment progress modal -->
-<div id="report-progress-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('report-progress-modal').classList.add('hidden')"></div>
-  <div class="relative w-full max-w-lg bg-surface-white rounded-2xl shadow-2xl p-6 flex flex-col gap-3 max-h-[85vh]">
-    <div class="flex items-start justify-between gap-3">
-      <div>
-        <h3 class="font-headline-sm text-on-surface">Comment Progress</h3>
-        <p id="rp-subtitle" class="font-body-sm text-text-muted"></p>
-      </div>
-      <button onclick="document.getElementById('report-progress-modal').classList.add('hidden')" class="text-text-muted hover:text-on-surface"><span class="material-symbols-outlined">close</span></button>
-    </div>
-    <div id="rp-body" class="overflow-y-auto flex-1 min-h-[160px]"></div>
-  </div>
-</div>
-<script src="/js/notifbell.js?v=4" defer></script>
-<script src="/js/portal-nav.js?v=1" defer></script>
+  <script>window.CREMONA_NAV={portal:'admin',active:'students',title:'Students'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

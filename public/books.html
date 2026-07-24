@@ -2,6 +2,7 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Books | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -11,7 +12,7 @@
 <style>
   body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FAF6EF; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .spinner { width: 28px; height: 28px; border: 3px solid rgba(59,42,30,0.15); border-top-color: #3B2A1E; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  .spinner { width: 28px; height: 28px; border: 3px solid rgba(201,162,39,0.15); border-top-color: #C9A227; border-radius: 50%; animation: spin 0.7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .book-card { transition: transform .15s ease, box-shadow .15s ease; }
   .book-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(33,33,33,0.14); }
@@ -53,24 +54,36 @@
     theme: {
       extend: {
         colors: {
-          "primary": "#3B2A1E", "primary-container": "#C8A951", "on-primary-container": "#5A4A22",
-          "on-primary-fixed": "#2A1D14", "primary-fixed": "#F0E2C4", "primary-fixed-dim": "#C8A951",
-          "secondary": "#7A5A16", "secondary-fixed": "#F2E6CC",
-          "secondary-container": "#9A7524", "on-secondary-container": "#FFFDF8",
-          "surface": "#FAF6EF", "surface-white": "#FFFFFF", "surface-container": "#F1E9DC",
-          "surface-container-low": "#F6F0E6", "surface-container-high": "#EAE0D0",
-          "surface-container-highest": "#E3D8C6", "surface-container-lowest": "#ffffff",
-          "on-surface": "#2B2019", "on-surface-variant": "#6B5844",
-          "border-subtle": "#E2D7C6", "outline-variant": "#D8C5A8", "outline": "#8A7A63",
-          "text-muted": "#7A6A57", "error": "#B3261E", "error-container": "#F9DEDC",
+          "primary": "#C9A227", "primary-container": "#F5E5B0", "on-primary-container": "#8B6020",
+          "on-primary-fixed": "#3E2C23", "primary-fixed": "#F0E8C0", "primary-fixed-dim": "#D4A520",
+          "secondary": "#C9A227", "secondary-fixed": "#F0E8C0",
+          "secondary-container": "#F5E5B0", "on-secondary-container": "#3E2C23",
+          "surface": "#FAF6EF", "surface-white": "#FFFDF9", "surface-container": "#F0E8D6",
+          "surface-container-low": "#F5EFE4", "surface-container-high": "#EAE0CE",
+          "surface-container-highest": "#E4D8C2", "surface-container-lowest": "#FFFDF9",
+          "on-surface": "#3E2C23", "on-surface-variant": "#7A5A42",
+          "border-subtle": "#E8DCC8", "outline-variant": "#D4BCA0", "outline": "#7A5230",
+          "text-muted": "#8B6B52", "error": "#ba1a1a", "error-container": "#ffdad6",
         }
       }
     }
   }
 </script>
-<script src="/js/theme.js"></script>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
 </head>
-<body class="text-on-surface min-h-screen flex flex-col" data-portal="teacher" data-page="books">
+<body class="text-on-surface min-h-screen flex flex-col">
 
 <!-- Loading overlay -->
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
@@ -79,29 +92,6 @@
     <p class="text-text-muted text-sm">Loading...</p>
   </div>
 </div>
-
-<!-- Header -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="max-w-3xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
-    <div class="flex items-center gap-6">
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
-      <nav class="hidden sm:flex items-center gap-4">
-        <a href="/home"     class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Home</a>
-        <a href="/books"    class="text-sm font-bold text-secondary border-b-2 border-secondary pb-0.5">Books</a>
-        <a href="/schedule" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Schedule</a>
-        <a href="/messages" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Messages</a>
-        <a href="/students-teacher" class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Students</a>
-        <a href="/level-tests" class="whitespace-nowrap text-sm font-medium text-text-muted hover:text-primary transition-colors">Level Tests</a>
-        <a href="/comments"  class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Comments</a>
-        <a href="/salary"   class="text-sm font-medium text-text-muted hover:text-primary transition-colors">Salary</a>
-      </nav>
-    </div>
-    <a href="/account" class="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-surface-container transition-colors text-sm font-semibold text-text-muted">
-      <span class="material-symbols-outlined text-[18px]">account_circle</span>
-      <span class="hidden sm:inline">Account</span>
-    </a>
-  </div>
-</header>
 
 <main class="flex-grow max-w-5xl mx-auto w-full px-6 py-8 flex flex-col gap-6">
 
@@ -158,8 +148,8 @@
 <!-- Footer -->
 <footer class="bg-surface-container-highest border-t border-border-subtle py-4 mt-4">
   <div class="max-w-5xl mx-auto px-6 flex justify-between items-center">
-    <p class="text-xs text-text-muted">© 2026 Cremona Music Portal.</p>
-    <a href="/home" class="text-xs text-text-muted hover:text-primary transition-colors underline">Home</a>
+    <p class="text-xs text-text-muted">© 2025 Cremona Music.</p>
+    <a href="/home.html" class="text-xs text-text-muted hover:text-primary transition-colors underline">Home</a>
   </div>
 </footer>
 
@@ -177,12 +167,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 // ── Firebase ───────────────────────────────────────────────────────────────────
 const app = initializeApp({
-  apiKey: "REPLACE_ME_CREMONA_API_KEY",
-  authDomain: "portal.cremonamusic.com",
-  projectId: "cremona-portal",
-  storageBucket: "cremona-portal.firebasestorage.app",
-  messagingSenderId: "REPLACE_ME_SENDER_ID",
-  appId: "REPLACE_ME_APP_ID"
+  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain: "cremonamusic-portal.firebaseapp.com",
+  projectId: "cremonamusic-portal",
+  storageBucket: "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -195,43 +185,45 @@ let currentSort  = 'az';   // default: A → Z
 
 // ── Auth guard ─────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/'; return;
+      await signOut(auth); window.location.href = '/index.html'; return;
     }
     const data = snap.data();
-    if (data.role === 'admin') { window.location.href = '/admin/accounts'; return; }
-    if (data.role !== 'teacher') { window.location.href = '/'; return; }
+    if (data.role === 'admin') { window.location.href = '/admin/accounts.html'; return; }
+    if (data.role !== 'teacher') { window.location.href = '/index.html'; return; }
 
     currentUser = { uid: user.uid, name: data.name || user.email };
     await loadBooks();
     document.getElementById('loading-overlay').style.display = 'none';
   } catch (e) {
     console.error(e);
-    window.location.href = '/';
+    window.location.href = '/index.html';
   }
 });
 
 // ── Load books from Firestore ──────────────────────────────────────────────────
 async function loadBooks() {
-  // Fetch the whole collection and filter client-side. A `where('visibility','!=',false)`
-  // query silently excludes every book that has no `visibility` field at all
-  // (older uploads), which hid a large share of the library from teachers.
   try {
-    const snap = await getDocs(collection(db, 'books'));
-    allBooks   = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-                         .filter(b => b.visibility !== false)
-                         .sort((a, b) => (b.uploadedAt?.seconds || 0) - (a.uploadedAt?.seconds || 0));
-  } catch (e) {
-    console.error('loadBooks', e);
-    document.getElementById('books-grid').innerHTML =
-      `<div class="col-span-full text-center py-16 text-error text-sm">
-        <span class="material-symbols-outlined text-4xl block mb-2">error</span>
-        Failed to load books. Please refresh.
-      </div>`;
-    return;
+    const q    = query(collection(db, 'books'), where('visibility', '!=', false), orderBy('uploadedAt', 'desc'));
+    const snap = await getDocs(q);
+    allBooks   = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch {
+    try {
+      const snap = await getDocs(collection(db, 'books'));
+      allBooks   = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                           .filter(b => b.visibility !== false)
+                           .sort((a, b) => (b.uploadedAt?.seconds || 0) - (a.uploadedAt?.seconds || 0));
+    } catch (e2) {
+      document.getElementById('books-grid').innerHTML =
+        `<div class="col-span-full text-center py-16 text-error text-sm">
+          <span class="material-symbols-outlined text-4xl block mb-2">error</span>
+          Failed to load books. Please refresh.
+        </div>`;
+      return;
+    }
   }
   buildFilterChips();
   renderBooks();
@@ -306,9 +298,8 @@ function renderBooks() {
     const accent  = subjectAccent(book.subject);
     const titleSafe = escHtml(book.title || 'Untitled');
 
-    const isPdf = !book.fileName || /\.pdf$/i.test(book.fileName) || (book.fileType || '').includes('pdf');
     return `
-    <a href="${isPdf ? `/reader?bookId=${book.id}` : escHtml(book.r2Url || '#')}" ${isPdf ? '' : 'target="_blank" rel="noopener"'}
+    <a href="/reader.html?bookId=${book.id}"
        data-book-id="${book.id}"
        data-title="${titleSafe}"
        class="book-card bg-surface-white border border-border-subtle rounded-2xl overflow-hidden flex flex-col shadow-sm cursor-pointer group">
@@ -349,7 +340,7 @@ function renderBooks() {
 
 // ── Thumbnail generation ───────────────────────────────────────────────────────
 const THUMB_SCALE   = 0.3;
-const CACHE_PREFIX  = 'cremona_thumb_v1_';
+const CACHE_PREFIX  = 'italk_thumb_v1_';
 
 async function generateThumbnail(bookId, r2Url) {
   const cacheKey = CACHE_PREFIX + bookId;
@@ -453,7 +444,7 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
-<script src="/js/notifbell.js?v=4" defer></script>
-<script src="/js/portal-nav.js?v=1" defer></script>
+  <script>window.CREMONA_NAV={portal:'teacher',active:'books',title:'Books'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

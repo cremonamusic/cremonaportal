@@ -2,6 +2,7 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Comments | Cremona Music Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -12,20 +13,20 @@
     darkMode: "class",
     theme: { extend: {
       colors: {
-        "on-tertiary-fixed":"#1b1c1c","surface-variant":"#E3D8C6","inverse-primary":"#C8A951",
-        "error-container":"#F9DEDC","on-secondary-fixed":"#2A1D14","text-muted":"#7A6A57",
-        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFFFF","surface-container-low":"#F6F0E6",
-        "primary-container":"#C8A951","on-secondary-container":"#FFFDF8",
-        "secondary-container":"#9A7524","secondary":"#7A5A16","on-surface-variant":"#6B5844",
-        "primary-fixed-dim":"#C8A951","on-surface":"#2B2019","surface-tint":"#3B2A1E",
-        "secondary-fixed":"#F2E6CC","surface-container-highest":"#E3D8C6",
-        "border-subtle":"#E2D7C6","background":"#FAF6EF",
-        "primary-fixed":"#F0E2C4","primary":"#3B2A1E","on-primary-container":"#5A4A22",
-        "outline":"#8A7A63","outline-variant":"#D8C5A8","surface-container":"#F1E9DC",
-        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#ffffff",
-        "on-error-container":"#93000a","error":"#B3261E","surface-dim":"#d9dadb",
-        "surface-container-high":"#EAE0D0","on-primary":"#ffffff","on-background":"#2B2019",
-        "on-primary-fixed":"#2A1D14"
+        "on-tertiary-fixed":"#3E2C23","surface-variant":"#E4D8C2","inverse-primary":"#D4A520",
+        "error-container":"#ffdad6","on-secondary-fixed":"#3E2C23","text-muted":"#8B6B52",
+        "secondary-fixed-dim":"#adc7ff","surface-white":"#FFFDF9","surface-container-low":"#F5EFE4",
+        "primary-container":"#F5E5B0","on-secondary-container":"#3E2C23",
+        "secondary-container":"#F5E5B0","secondary":"#C9A227","on-surface-variant":"#7A5A42",
+        "primary-fixed-dim":"#D4A520","on-surface":"#3E2C23","surface-tint":"#C9A227",
+        "secondary-fixed":"#F0E8C0","surface-container-highest":"#E4D8C2",
+        "border-subtle":"#E8DCC8","background":"#FAF6EF",
+        "primary-fixed":"#F0E8C0","primary":"#C9A227","on-primary-container":"#8B6020",
+        "outline":"#827660","outline-variant":"#d4c5ab","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#3E2C23",
+        "on-error-container":"#93000a","error":"#ba1a1a","surface-dim":"#d9dadb",
+        "surface-container-high":"#EAE0CE","on-primary":"#3E2C23","on-background":"#3E2C23",
+        "on-primary-fixed":"#3E2C23"
       },
       fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
       fontSize:{
@@ -43,23 +44,33 @@
 <style>
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
   body { font-family:'Inter',sans-serif; }
-  .spinner { width:20px;height:20px;border:2px solid rgba(59,42,30,.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,.2);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#B3261E;color:#fff; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#7A5A16;color:#fff; }
-  .nav-active { color:#7A5A16!important;border-bottom:2px solid #7A5A16;padding-bottom:4px;font-weight:700!important; }
-  tr.report-row { cursor:pointer; }
-  tr.report-row:hover td { background:#FAF6EF; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  .nav-active { color:#C9A227!important;border-bottom:2px solid #C9A227;padding-bottom:4px;font-weight:700!important; }
+  tr.comment-row { cursor:pointer; }
+  tr.comment-row:hover td { background:#FAF6EF; }
   .tab-btn { transition: all .15s ease; }
-  .tab-btn.active { background:#7A5A16;color:#fff; }
+  .tab-btn.active { background:#C9A227;color:#3E2C23; }
 </style>
-<script src="/js/theme.js"></script>
-<script src="/js/admin-guard.js"></script>
+<style id="cremona-palette">
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
 </head>
-<body class="bg-background text-on-surface selection:bg-primary-fixed-dim" data-portal="admin" data-page="comments">
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -69,12 +80,12 @@
 </div>
 <div id="toast"></div>
 
-<!-- ── Comment Detail Modal ─────────────────────────────────────────────────── -->
+<!-- ── Comment Detail Modal ────────────────────────────────────────────────── -->
 <div id="detail-modal" class="hidden fixed inset-0 bg-black/40 z-[100] flex items-start justify-center p-4 pt-12 overflow-y-auto" onclick="if(event.target===this)closeDetailModal()">
   <div class="bg-white rounded-2xl w-full max-w-2xl shadow-2xl mb-8">
 
     <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
-      <h2 class="font-headline-sm">Progress Comment</h2>
+      <h2 class="font-headline-sm">Comment Detail</h2>
       <button onclick="closeDetailModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
         <span class="material-symbols-outlined">close</span>
       </button>
@@ -84,82 +95,28 @@
       <!-- populated by openDetailModal() -->
     </div>
 
-    <div class="flex items-center justify-end gap-3 px-6 pb-5 border-t border-border-subtle pt-4" id="detail-actions">
-      <!-- approve / decline buttons -->
+    <div class="flex items-center justify-end px-6 pb-5 border-t border-border-subtle pt-4">
+      <button onclick="closeDetailModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
     </div>
   </div>
 </div>
-
-<!-- ── Decline Modal ───────────────────────────────────────────────────────── -->
-<div id="decline-modal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
-      <h2 class="font-headline-sm">Decline Comment</h2>
-      <button onclick="closeDeclineModal()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-    <div class="px-6 py-5">
-      <label class="block text-label-md text-on-surface-variant mb-2">Reason for declining <span class="text-error">*</span></label>
-      <textarea id="decline-reason" rows="4" placeholder="Explain what needs to be corrected or added..."
-                class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
-    </div>
-    <div class="flex justify-end gap-3 px-6 pb-5">
-      <button onclick="closeDeclineModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
-      <button id="decline-submit-btn" onclick="submitDecline()" class="px-5 py-2.5 text-sm font-bold bg-error text-white rounded-lg hover:brightness-110 active:scale-95 transition-all">Decline Comment</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Header ─────────────────────────────────────────────────────────────── -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-10 h-16 max-w-[1200px] mx-auto">
-    <div class="flex items-center gap-8">
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
-      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="schedule-admin">Schedule</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
-        <a class="font-body-md nav-active" href="reports-admin">Comments</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-4">
-      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
-      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
-        <span class="material-symbols-outlined text-sm">logout</span>
-        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
-      </button>
-    </div>
-  </div>
-</header>
 
 <main class="max-w-[1200px] mx-auto px-10 py-6">
 
   <!-- Page header -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
     <div>
-      <h1 class="font-headline-lg text-on-surface mb-1">Student Progress Comments</h1>
-      <p class="font-body-md text-text-muted">Review and approve reports submitted by teachers.</p>
+      <h1 class="font-headline-lg text-on-surface mb-1">Student Comments</h1>
+      <p class="font-body-md text-text-muted">Read-only view of all comments from teachers across all students.</p>
     </div>
-    <div class="flex items-center gap-2">
-      <span id="result-count" class="text-label-sm text-text-muted"></span>
-    </div>
+    <span id="result-count" class="text-label-sm text-text-muted"></span>
   </div>
 
   <!-- Filter tabs -->
   <div class="flex gap-2 mb-5 flex-wrap">
-    <button class="tab-btn active px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle" data-tab="all"      onclick="setTab('all')">All</button>
-    <button class="tab-btn       px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="pending"  onclick="setTab('pending')">
-      Pending <span id="badge-pending" class="ml-1 px-1.5 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full"></span>
-    </button>
-    <button class="tab-btn       px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="approved" onclick="setTab('approved')">Approved</button>
-    <button class="tab-btn       px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="declined" onclick="setTab('declined')">Declined</button>
+    <button class="tab-btn active px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle" data-tab="all"   onclick="setTab('all')">All</button>
+    <button class="tab-btn        px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="sent"  onclick="setTab('sent')">Sent</button>
+    <button class="tab-btn        px-4 py-2 text-sm font-semibold rounded-lg border border-border-subtle bg-white text-text-muted" data-tab="draft" onclick="setTab('draft')">Draft</button>
   </div>
 
   <!-- Search row -->
@@ -175,18 +132,6 @@
     <button onclick="clearSearch()" class="text-sm text-text-muted hover:text-error transition-colors px-2">Clear</button>
   </div>
 
-  <!-- Send-all bar (approved tab only, when there are un-emailed approved reports) -->
-  <div id="send-all-bar" class="hidden bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-5 flex flex-wrap items-center gap-3">
-    <span class="material-symbols-outlined text-yellow-700">mark_email_unread</span>
-    <p class="flex-1 min-w-[200px] text-sm text-yellow-800">
-      <span id="send-all-count" class="font-bold">0</span> approved report(s) have not been emailed to parents yet.
-    </p>
-    <button id="send-all-btn" onclick="sendAllNotEmailed()"
-            class="px-4 py-2 text-sm font-bold bg-secondary text-white rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2">
-      <span class="material-symbols-outlined text-[18px]">send</span> Send all not-emailed
-    </button>
-  </div>
-
   <!-- Comments table -->
   <div class="bg-surface-white border border-border-subtle rounded-xl shadow-sm overflow-hidden">
     <table class="w-full text-sm">
@@ -194,14 +139,14 @@
         <tr class="border-b border-border-subtle">
           <th class="text-left px-6 py-3.5 font-label-md text-text-muted">Student</th>
           <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden sm:table-cell">Teacher</th>
-          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden md:table-cell">Date Range</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden md:table-cell">Lesson Date</th>
           <th class="text-left px-4 py-3.5 font-label-md text-text-muted">Status</th>
-          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden lg:table-cell">Submitted</th>
+          <th class="text-left px-4 py-3.5 font-label-md text-text-muted hidden lg:table-cell">Created</th>
         </tr>
       </thead>
-      <tbody id="reports-tbody">
+      <tbody id="comments-tbody">
         <tr><td colspan="5" class="text-center py-12 text-text-muted">
-          <div class="flex items-center justify-center gap-3"><div class="spinner"></div> Loading reports…</div>
+          <div class="flex items-center justify-center gap-3"><div class="spinner"></div> Loading comments…</div>
         </td></tr>
       </tbody>
     </table>
@@ -214,74 +159,44 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
   getFirestore, doc, getDoc, collection,
-  getDocs, updateDoc, deleteDoc, serverTimestamp
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ── EmailJS placeholders — fill these in before deploying ─────────────────────
-const EMAILJS_REPORT_SERVICE_ID  = 'service_24g7poi';
-const EMAILJS_REPORT_TEMPLATE_ID = 'template_p9kkfgv';
-const EMAILJS_PUBLIC_KEY         = '4_7MfuOBZ-dISzPbz';
-
 const app = initializeApp({
-  apiKey: "REPLACE_ME_CREMONA_API_KEY",
-  authDomain: "portal.cremonamusic.com",
-  projectId: "cremona-portal",
-  storageBucket: "cremona-portal.firebasestorage.app",
-  messagingSenderId: "REPLACE_ME_SENDER_ID",
-  appId: "REPLACE_ME_APP_ID"
+  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain: "cremonamusic-portal.firebaseapp.com",
+  projectId: "cremonamusic-portal",
+  storageBucket: "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
 
 // ── State ──────────────────────────────────────────────────────────────────────
-let currentAdminUid  = null;
-let allReports       = [];
-let filteredReports  = [];
+let allComments      = [];
+let filteredComments = [];
 let currentTab       = 'all';
-let selectedReport   = null;
-let decliningId      = null;
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
   const snap = await getDoc(doc(db, 'users', user.uid));
   if (!snap.exists() || snap.data().role !== 'admin') {
-    window.location.href = '/home'; return;
+    window.location.href = '/home.html'; return;
   }
-  if (!window.applyAdminPermissions(snap.data(), 'reports')) return;
-  currentAdminUid = user.uid;
-  await loadReports();
+  await loadComments();
   document.getElementById('loading-overlay').style.display = 'none';
 });
 
-window.doSignOut = async () => { await signOut(auth); window.location.href = '/'; };
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
 
-// ── Load reports ───────────────────────────────────────────────────────────────
-async function loadReports() {
-  const [snap, usersSnap] = await Promise.all([
-    getDocs(collection(db, 'comments')),
-    getDocs(collection(db, 'users')),
-  ]);
-  // Hide reports written by soft-deleted teacher accounts (deleted in Accounts —
-  // the report docs remain in Firestore as records, they're just not shown here)
-  const deletedUids = new Set(
-    usersSnap.docs.filter(d => d.data().status === 'deleted').map(d => d.id)
-  );
-  allReports = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .filter(r => !r.teacherUid || !deletedUids.has(r.teacherUid))
-    // Drafts are the teacher's unsubmitted work-in-progress — they only
-    // appear here once the teacher submits them (status becomes 'pending')
-    .filter(r => r.status !== 'draft')
+// ── Load comments ──────────────────────────────────────────────────────────────
+async function loadComments() {
+  const snap = await getDocs(collection(db, 'reports'));
+  allComments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-  updatePendingBadge();
   applyFilters();
-}
-
-function updatePendingBadge() {
-  const count = allReports.filter(r => r.status === 'pending').length;
-  const badge = document.getElementById('badge-pending');
-  badge.textContent = count > 0 ? count : '';
-  badge.style.display = count > 0 ? '' : 'none';
 }
 
 // ── Tabs & filters ─────────────────────────────────────────────────────────────
@@ -298,11 +213,11 @@ window.setTab = function(tab) {
 
 window.applyFilters = function() {
   const q = document.getElementById('search-input').value.trim().toLowerCase();
-  filteredReports = allReports.filter(r => {
-    const matchTab = currentTab === 'all' || r.status === currentTab;
+  filteredComments = allComments.filter(c => {
+    const matchTab = currentTab === 'all' || c.status === currentTab;
     const matchQ   = !q ||
-      (r.studentName || '').toLowerCase().includes(q) ||
-      (r.teacherName  || '').toLowerCase().includes(q);
+      (c.studentName || '').toLowerCase().includes(q) ||
+      (c.teacherName  || '').toLowerCase().includes(q);
     return matchTab && matchQ;
   });
   renderTable();
@@ -314,511 +229,90 @@ window.clearSearch = function() {
 };
 
 // ── Render table ───────────────────────────────────────────────────────────────
-// A report counts as "emailed to parents" once parentEmailedAt is set. Approval
-// no longer emails — sending is now an explicit, separate step (see sendReportEmail).
-function isEmailed(r) { return !!r.parentEmailedAt; }
-
-function reportRowHtml(r, opts = {}) {
-  const dateRange = r.dateRangeStart && r.dateRangeEnd
-    ? `${r.dateRangeStart} – ${r.dateRangeEnd}` : (r.dateRangeStart || '—');
-  const createdStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString() : '—';
-  let statusCell = statusBadge(r.status);
-  // On the Approved tab, surface the email state (and a send button when not sent)
-  if (opts.showEmailState && r.status === 'approved') {
-    if (isEmailed(r)) {
-      const emailedStr = r.parentEmailedAt?.toDate ? r.parentEmailedAt.toDate().toLocaleDateString() : '';
-      statusCell += `<div class="mt-1.5 text-xs text-text-muted flex items-center gap-1">
-        <span class="material-symbols-outlined text-[14px]">mark_email_read</span>Emailed${emailedStr ? ' · ' + escHtml(emailedStr) : ''}
-        <button onclick="openResendReport('${escAttr(r.id)}', event)" class="ml-1 text-secondary font-bold hover:underline">Resend</button></div>`;
-    } else {
-      statusCell += `<div class="mt-1.5">
-        <button data-send-rid="${escAttr(r.id)}"
-                class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold bg-secondary text-white rounded-lg hover:brightness-110 active:scale-95 transition-all">
-          <span class="material-symbols-outlined text-[14px]">send</span> Send to parents
-        </button></div>`;
-    }
-  }
-  const rowExtra = opts.highlight ? ' bg-yellow-50' : '';
-  return `<tr class="report-row border-b border-border-subtle last:border-0 transition-colors${rowExtra}" data-rid="${escAttr(r.id)}">
-      <td class="px-6 py-3.5">
-        <p class="font-semibold text-on-surface">${escHtml(r.studentName || '—')}</p>
-      </td>
-      <td class="px-4 py-3.5 hidden sm:table-cell text-text-muted">${escHtml(r.teacherName || '—')}</td>
-      <td class="px-4 py-3.5 hidden md:table-cell text-text-muted text-sm">${escHtml(dateRange)}</td>
-      <td class="px-4 py-3.5">${statusCell}</td>
-      <td class="px-4 py-3.5 hidden lg:table-cell text-text-muted text-sm">${createdStr}</td>
-    </tr>`;
-}
-
-function groupHeaderRow(label, colorClasses) {
-  return `<tr><td colspan="5" class="px-6 py-2.5 bg-surface-container-low border-b border-border-subtle">
-      <span class="text-xs font-bold uppercase tracking-wide ${colorClasses}">${escHtml(label)}</span>
-    </td></tr>`;
-}
-
-function attachRowHandlers(tbody) {
-  tbody.querySelectorAll('tr.report-row').forEach(row => {
-    row.addEventListener('click', () => {
-      const r = allReports.find(x => x.id === row.dataset.rid);
-      if (r) openDetailModal(r);
-    });
-  });
-  // Per-row "Send to parents" buttons — don't let the click bubble to the row
-  tbody.querySelectorAll('button[data-send-rid]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      e.stopPropagation();
-      handleSendClick(btn.dataset.sendRid, btn);
-    });
-  });
-}
-
 function renderTable() {
-  const count = filteredReports.length;
-  document.getElementById('result-count').textContent = `${count} report${count !== 1 ? 's' : ''}`;
-  const tbody = document.getElementById('reports-tbody');
-  renderSendAllBar();
-
+  const count = filteredComments.length;
+  document.getElementById('result-count').textContent = `${count} comment${count !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('comments-tbody');
   if (!count) {
     tbody.innerHTML = `<tr><td colspan="5" class="text-center py-16 text-text-muted">
-      <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">assignment</span>
-      <p class="font-semibold text-sm">No reports found</p>
+      <span class="material-symbols-outlined text-4xl block mb-2 opacity-30">chat</span>
+      <p class="font-semibold text-sm">No comments found</p>
     </td></tr>`;
     return;
   }
+  tbody.innerHTML = filteredComments.map(c => {
+    const badge      = statusBadge(c.status);
+    const lessonDate = c.lessonDate || '—';
+    const createdStr = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleDateString() : '—';
+    return `<tr class="comment-row border-b border-border-subtle last:border-0 transition-colors" data-cid="${escAttr(c.id)}">
+      <td class="px-6 py-3.5">
+        <p class="font-semibold text-on-surface">${escHtml(c.studentName || '—')}</p>
+        ${c.commentText ? `<p class="text-xs text-text-muted mt-0.5 truncate max-w-[200px]">${escHtml(c.commentText)}</p>` : ''}
+      </td>
+      <td class="px-4 py-3.5 hidden sm:table-cell text-text-muted">${escHtml(c.teacherName || '—')}</td>
+      <td class="px-4 py-3.5 hidden md:table-cell text-text-muted text-sm">${escHtml(lessonDate)}</td>
+      <td class="px-4 py-3.5">${badge}</td>
+      <td class="px-4 py-3.5 hidden lg:table-cell text-text-muted text-sm">${createdStr}</td>
+    </tr>`;
+  }).join('');
 
-  // Approved tab: split into "not emailed" (first, highlighted) and "emailed"
-  if (currentTab === 'approved') {
-    const notEmailed = filteredReports.filter(r => !isEmailed(r));
-    const emailed    = filteredReports.filter(r => isEmailed(r));
-    let html = '';
-    html += groupHeaderRow(`Approved · not emailed (${notEmailed.length})`, 'text-yellow-700');
-    html += notEmailed.length
-      ? notEmailed.map(r => reportRowHtml(r, { showEmailState: true, highlight: true })).join('')
-      : `<tr><td colspan="5" class="px-6 py-4 text-text-muted text-sm italic">All approved reports have been emailed to parents.</td></tr>`;
-    html += groupHeaderRow(`Approved · emailed (${emailed.length})`, 'text-text-muted');
-    html += emailed.length
-      ? emailed.map(r => reportRowHtml(r, { showEmailState: true })).join('')
-      : `<tr><td colspan="5" class="px-6 py-4 text-text-muted text-sm italic">None emailed yet.</td></tr>`;
-    tbody.innerHTML = html;
-    attachRowHandlers(tbody);
-    return;
-  }
-
-  tbody.innerHTML = filteredReports.map(r => reportRowHtml(r)).join('');
-  attachRowHandlers(tbody);
-}
-
-// Show the "Send all not-emailed" bar only on the Approved tab when work is pending
-function renderSendAllBar() {
-  const bar = document.getElementById('send-all-bar');
-  const pending = allReports.filter(r => r.status === 'approved' && !isEmailed(r)).length;
-  if (currentTab !== 'approved' || !pending) { bar.classList.add('hidden'); return; }
-  document.getElementById('send-all-count').textContent = pending;
-  bar.classList.remove('hidden');
+  tbody.querySelectorAll('tr.comment-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const c = allComments.find(x => x.id === row.dataset.cid);
+      if (c) openDetailModal(c);
+    });
+  });
 }
 
 function statusBadge(status) {
-  if (status === 'approved') return `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Approved</span>`;
-  if (status === 'declined') return `<span class="px-2 py-0.5 bg-red-100 text-error text-xs font-bold rounded-full">Declined</span>`;
-  return `<span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-bold rounded-full">Pending</span>`;
+  if (status === 'sent')  return `<span class="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-bold rounded-full">Sent</span>`;
+  return `<span class="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs font-bold rounded-full">Draft</span>`;
 }
 
 // ── Detail modal ───────────────────────────────────────────────────────────────
-window.openDetailModal = function(report) {
-  selectedReport = report;
+window.openDetailModal = function(comment) {
+  const createdStr = comment.createdAt?.toDate ? comment.createdAt.toDate().toLocaleString() : '—';
+  const sentStr    = comment.sentAt?.toDate    ? comment.sentAt.toDate().toLocaleString()    : null;
 
-  const body = document.getElementById('detail-body');
-  const booksHtml = report.books?.length
-    ? report.books.map(b => `<span class="px-2 py-0.5 bg-surface-container-low border border-border-subtle text-sm rounded-full">${escHtml(b.title || b.bookId)}</span>`).join(' ')
-    : '<span class="text-text-muted text-sm">None specified</span>';
-
-  const catsHtml = report.categories?.length ? `
-    <table class="w-full text-sm border border-border-subtle rounded-lg overflow-hidden">
-      <thead><tr class="bg-surface-container-low border-b border-border-subtle">
-        <th class="text-left px-4 py-2 font-semibold text-on-surface-variant w-1/3">Category</th>
-        <th class="text-left px-4 py-2 font-semibold text-on-surface-variant">Feedback</th>
-      </tr></thead>
-      <tbody>
-        ${report.categories.map(c => `<tr class="border-b border-border-subtle last:border-0">
-          <td class="px-4 py-2.5 font-semibold text-on-surface align-top">${escHtml(c.name || '')}</td>
-          <td class="px-4 py-2.5 text-on-surface-variant">${escHtml(c.feedback || '—')}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>` : '<p class="text-text-muted text-sm">No categories.</p>';
-
-  const enhHtml = report.enhancementAreas?.length
-    ? `<ul class="list-disc list-inside space-y-1 text-sm text-on-surface-variant">
-        ${report.enhancementAreas.map(e => `<li>${escHtml(e)}</li>`).join('')}
-      </ul>`
-    : '<p class="text-text-muted text-sm">None specified.</p>';
-
-  const createdStr = report.createdAt?.toDate ? report.createdAt.toDate().toLocaleString() : '—';
-  const reviewedStr = report.reviewedAt?.toDate ? report.reviewedAt.toDate().toLocaleString() : null;
-
-  body.innerHTML = `
-    <!-- Header info -->
+  document.getElementById('detail-body').innerHTML = `
     <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
       <div>
         <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Student</p>
-        <p class="font-semibold text-on-surface">${escHtml(report.studentName || '—')}</p>
+        <p class="font-semibold text-on-surface">${escHtml(comment.studentName || '—')}</p>
       </div>
       <div>
         <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Teacher</p>
-        <p class="font-semibold text-on-surface">${escHtml(report.teacherName || '—')}</p>
+        <p class="font-semibold text-on-surface">${escHtml(comment.teacherName || '—')}</p>
       </div>
       <div>
-        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Date Range</p>
-        <p>${escHtml(report.dateRangeStart || '—')} – ${escHtml(report.dateRangeEnd || '—')}</p>
-      </div>
-      <div>
-        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Class Time</p>
-        <p>${escHtml(report.classTime || '—')}</p>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Lesson Date</p>
+        <p>${escHtml(comment.lessonDate || '—')}</p>
       </div>
       <div>
         <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Status</p>
-        ${statusBadge(report.status)}
-        ${report.status === 'declined' && report.declineReason
-          ? `<p class="text-xs text-error mt-1"><span class="font-semibold">Reason:</span> ${escHtml(report.declineReason)}</p>` : ''}
+        ${statusBadge(comment.status)}
       </div>
-      <div class="col-span-2">
-        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Submitted</p>
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Created</p>
         <p class="text-text-muted">${createdStr}</p>
       </div>
-      ${reviewedStr ? `<div class="col-span-2">
-        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Reviewed</p>
-        <p class="text-text-muted">${reviewedStr}</p>
+      ${sentStr ? `<div class="col-span-2">
+        <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-0.5">Sent</p>
+        <p class="text-text-muted">${sentStr}</p>
       </div>` : ''}
     </div>
 
-    <!-- Books -->
-    <div>
-      <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">Books Studied</p>
-      <div class="flex flex-wrap gap-2">${booksHtml}</div>
-    </div>
-
-    <!-- Feedback table -->
-    <div>
-      <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">Feedback Categories</p>
-      ${catsHtml}
-    </div>
-
-    <!-- Enhancements -->
-    <div>
-      <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">Areas for Enhancement</p>
-      ${enhHtml}
-    </div>
-
-    <!-- Evaluation -->
-    ${report.evaluation ? `<div>
-      <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">Overall Evaluation</p>
-      <p class="text-sm text-on-surface leading-relaxed whitespace-pre-wrap border border-border-subtle rounded-lg px-4 py-3 bg-surface-container-low">${escHtml(report.evaluation)}</p>
+    ${comment.commentText ? `<div>
+      <p class="text-xs font-bold uppercase tracking-wide text-text-muted mb-2">Comment</p>
+      <p class="text-sm text-on-surface leading-relaxed whitespace-pre-wrap border border-border-subtle rounded-lg px-4 py-3 bg-surface-container-low">${escHtml(comment.commentText)}</p>
     </div>` : ''}
   `;
-
-  // Action buttons — Delete is always available to the admin
-  const actions   = document.getElementById('detail-actions');
-  const deleteBtn = `
-      <button onclick="deleteReport('${escAttr(report.id)}')"
-              class="mr-auto px-4 py-2.5 text-sm font-bold text-error border border-error/40 rounded-lg hover:bg-error-container transition-colors flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">delete</span> Delete
-      </button>`;
-  if (report.status === 'pending') {
-    actions.innerHTML = deleteBtn + `
-      <button onclick="closeDetailModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
-      <button id="open-decline-btn" onclick="openDeclineModal('${escAttr(report.id)}')"
-              class="px-5 py-2.5 text-sm font-bold bg-error text-white rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">cancel</span> Decline
-      </button>
-      <button id="approve-btn" onclick="approveReport('${escAttr(report.id)}')"
-              class="px-5 py-2.5 text-sm font-bold bg-green-600 text-white rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">check_circle</span> Approve
-      </button>`;
-  } else if (report.status === 'approved' && !isEmailed(report)) {
-    // Approved but not yet emailed — offer the explicit send step
-    actions.innerHTML = deleteBtn + `
-      <button onclick="closeDetailModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>
-      <button id="modal-send-btn" onclick="handleSendClick('${escAttr(report.id)}', this)"
-              class="px-5 py-2.5 text-sm font-bold bg-secondary text-white rounded-lg hover:brightness-110 active:scale-95 transition-all flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px]">send</span> Send to parents
-      </button>`;
-  } else {
-    const isApprovedEmailed = report.status === 'approved' && isEmailed(report);
-    const emailedNote = isApprovedEmailed
-      ? `<span class="mr-auto text-xs text-text-muted flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">mark_email_read</span>Emailed to parents${report.parentEmailedAt?.toDate ? ' · ' + report.parentEmailedAt.toDate().toLocaleDateString() : ''}</span>`
-      : '';
-    const resendBtn = isApprovedEmailed
-      ? `<button onclick="openResendReport('${escAttr(report.id)}', event)" class="px-4 py-2.5 text-sm font-bold text-secondary border border-secondary rounded-lg hover:bg-secondary/5 transition-colors">Resend / send elsewhere</button>`
-      : '';
-    actions.innerHTML = deleteBtn + emailedNote + resendBtn + `<button onclick="closeDetailModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Close</button>`;
-  }
 
   document.getElementById('detail-modal').classList.remove('hidden');
 };
 
 window.closeDetailModal = function() {
   document.getElementById('detail-modal').classList.add('hidden');
-  selectedReport = null;
-};
-
-// ── Approve ────────────────────────────────────────────────────────────────────
-window.approveReport = async function(reportId) {
-  const report = allReports.find(r => r.id === reportId);
-  if (!report) return;
-
-  const btn = document.getElementById('approve-btn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<div class="spinner" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></div><span>Approving...</span>'; }
-
-  try {
-    // Approval only sets status — it deliberately does NOT notify parents.
-    // Emailing AND the parent push are now a separate, explicit step (see
-    // sendReportEmail / "Send to parents"): the server-side onReportEmailed
-    // trigger fires the push when parentEmailedAt is first stamped, so parents
-    // hear nothing until you actually send the report.
-    await updateDoc(doc(db, 'reports', reportId), {
-      status:      'approved',
-      reviewedAt:  serverTimestamp(),
-      reviewedBy:  currentAdminUid,
-      updatedAt:   serverTimestamp(),
-    });
-
-    // Update local state
-    const idx = allReports.findIndex(r => r.id === reportId);
-    if (idx !== -1) allReports[idx] = { ...allReports[idx], status: 'approved', reviewedBy: currentAdminUid };
-    updatePendingBadge();
-    applyFilters();
-    closeDetailModal();
-    showToast('Comment approved. Not emailed yet — use "Send to parents".', 'success');
-  } catch (e) {
-    console.error('[approveReport]', e);
-    showToast('Failed to approve: ' + e.message, 'error');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check_circle</span> Approve'; }
-  }
-};
-
-// ── Email report to parents (explicit, separate from approval) ──────────────────
-// Fetches the student's parent email(s), sends the existing EmailJS report
-// template, and — if at least one email went out — stamps parentEmailedAt.
-// Pass { silent:true } to suppress per-report toasts (used by the bulk sender).
-async function sendReportEmail(reportId, { silent = false, overrideEmails = null } = {}) {
-  const report = allReports.find(r => r.id === reportId);
-  if (!report) return { ok: false, sent: 0, total: 0, reason: 'not-found' };
-
-  // overrideEmails: explicit recipients (resend to registered or a custom
-  // address). Otherwise fetch the student's linked parent emails.
-  let parentEmails = [];
-  if (Array.isArray(overrideEmails) && overrideEmails.length) {
-    parentEmails = overrideEmails.filter(Boolean);
-  } else {
-    try {
-      const studentSnap = await getDoc(doc(db, 'students', report.studentId));
-      if (studentSnap.exists()) {
-        const data = studentSnap.data();
-        if (Array.isArray(data.parentEmails) && data.parentEmails.length) {
-          parentEmails = data.parentEmails.filter(Boolean);
-        } else if (data.parentEmail) {
-          parentEmails = [data.parentEmail];
-        }
-      }
-    } catch (e) {
-      console.warn('[sendReportEmail] could not fetch parent emails:', e.message);
-    }
-  }
-
-  if (!parentEmails.length) {
-    if (!silent) showToast(`No parent email on file for ${report.studentName || 'this student'}.`, 'error');
-    return { ok: false, sent: 0, total: 0, reason: 'no-email' };
-  }
-
-  const baseParams = {
-    student_name:      report.studentName || '',
-    date_range:        `${report.dateRangeStart || ''} – ${report.dateRangeEnd || ''}`,
-    class_time:        report.classTime || '',
-    books:             (report.books || []).map(b => b.title || b.bookId).join(', ') || 'None',
-    categories:        (report.categories || []).map(c => `${c.name}: ${c.feedback}`).join('\n') || '',
-    enhancement_areas: (report.enhancementAreas || []).map(e => `• ${e}`).join('\n') || 'None',
-    evaluation:        report.evaluation || '',
-  };
-
-  let sent = 0;
-  for (const email of parentEmails) {
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const r = await fetch('https://us-central1-cremona-portal.cloudfunctions.net/sendMail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-        body: JSON.stringify({ type: 'report', to: email, params: baseParams })
-      });
-      if (!r.ok) throw new Error('sendMail ' + r.status);
-      sent++;
-    } catch (emailErr) {
-      console.error('[sendReportEmail] EmailJS error for', email, ':', emailErr);
-    }
-  }
-
-  // Mark as emailed only if at least one message actually went out
-  if (sent > 0) {
-    try {
-      await updateDoc(doc(db, 'reports', reportId), { parentEmailedAt: serverTimestamp() });
-      const idx = allReports.findIndex(r => r.id === reportId);
-      if (idx !== -1) allReports[idx] = { ...allReports[idx], parentEmailedAt: { toDate: () => new Date() } };
-    } catch (e) {
-      console.error('[sendReportEmail] failed to set parentEmailedAt:', e);
-    }
-  }
-
-  if (!silent) {
-    if (sent === parentEmails.length) {
-      showToast(`Email sent to ${sent > 1 ? `${sent} parents` : 'parent'}.`, 'success');
-    } else if (sent > 0) {
-      showToast(`Email sent to ${sent}/${parentEmails.length} parents.`, 'info');
-    } else {
-      showToast(`Failed to send email for ${report.studentName || 'this student'}.`, 'error');
-    }
-  }
-  return { ok: sent > 0, sent, total: parentEmails.length, reason: sent > 0 ? null : 'send-failed' };
-}
-
-// ── Resend a report to the registered parent email(s) or a custom address ──
-let _resendReportId = null;
-window.openResendReport = async function(reportId, ev) {
-  if (ev) ev.stopPropagation();
-  const report = allReports.find(r => r.id === reportId);
-  if (!report) return;
-  _resendReportId = reportId;
-  let reg = [];
-  try {
-    const s = await getDoc(doc(db, 'students', report.studentId));
-    if (s.exists()) {
-      const d = s.data();
-      reg = (Array.isArray(d.parentEmails) && d.parentEmails.length) ? d.parentEmails.filter(Boolean)
-          : (d.parentEmail ? [d.parentEmail] : []);
-    }
-  } catch (_) {}
-  document.getElementById('resend-student').textContent = report.studentName || 'this student';
-  document.getElementById('resend-registered').textContent = reg.length ? reg.join(', ') : 'none on file';
-  document.getElementById('resend-email').value = reg.join(', ');
-  document.getElementById('resend-modal').classList.remove('hidden');
-};
-
-window.closeResendReport = function() {
-  document.getElementById('resend-modal').classList.add('hidden');
-  _resendReportId = null;
-};
-
-window.doResendReport = async function() {
-  if (!_resendReportId) return;
-  const raw = document.getElementById('resend-email').value || '';
-  const emails = raw.split(/[,\s;]+/).map(e => e.trim()).filter(Boolean);
-  if (!emails.length) return showToast('Enter at least one email address.', 'error');
-  const bad = emails.find(e => !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e));
-  if (bad) return showToast(`"${bad}" is not a valid email.`, 'error');
-  const btn = document.getElementById('resend-go-btn');
-  btn.disabled = true;
-  try {
-    const res = await sendReportEmail(_resendReportId, { silent: true, overrideEmails: emails });
-    if (res.ok) showToast(`Comment sent to ${emails.join(', ')}.`, 'success');
-    else showToast('Could not send. Please try again.', 'error');
-    if (res.ok) closeResendReport();
-  } finally {
-    btn.disabled = false;
-  }
-};
-
-// Single-report send (table row button or detail modal)
-window.handleSendClick = async function(reportId, btnEl) {
-  if (btnEl) {
-    btnEl.disabled = true;
-    btnEl.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-top-color:#fff;border-color:rgba(255,255,255,.3)"></div><span>Sending…</span>';
-  }
-  await sendReportEmail(reportId);
-  applyFilters();               // re-renders the table (moves row into "emailed")
-  if (selectedReport && selectedReport.id === reportId) {
-    const fresh = allReports.find(r => r.id === reportId);
-    if (fresh) openDetailModal(fresh); // refresh modal actions
-  }
-};
-
-// Bulk send — every approved, not-yet-emailed report
-window.sendAllNotEmailed = async function() {
-  const targets = allReports.filter(r => r.status === 'approved' && !isEmailed(r));
-  if (!targets.length) { showToast('No approved reports awaiting email.', 'info'); return; }
-  if (!confirm(`Send the progress report email to parents for ${targets.length} approved report${targets.length > 1 ? 's' : ''}? This cannot be undone.`)) return;
-
-  const btn = document.getElementById('send-all-btn');
-  if (btn) { btn.disabled = true; }
-
-  let ok = 0, fail = 0;
-  for (let i = 0; i < targets.length; i++) {
-    if (btn) btn.innerHTML = `<div class="spinner" style="width:16px;height:16px;border-top-color:#fff;border-color:rgba(255,255,255,.3)"></div><span>Sending ${i + 1}/${targets.length}…</span>`;
-    showToast(`Sending ${i + 1}/${targets.length}…`, 'info');
-    const res = await sendReportEmail(targets[i].id, { silent: true });
-    if (res.ok) ok++; else fail++;
-  }
-
-  applyFilters();
-  if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">send</span> Send all not-emailed'; }
-  showToast(`Sent ${ok}/${targets.length} report${targets.length > 1 ? 's' : ''}${fail ? ` · ${fail} failed` : ''}.`, fail ? 'info' : 'success');
-};
-
-// ── Delete ─────────────────────────────────────────────────────────────────────
-window.deleteReport = async function(reportId) {
-  const report = allReports.find(r => r.id === reportId);
-  if (!report) return;
-  if (!confirm(`Permanently delete the report for "${report.studentName || 'this student'}"? This cannot be undone.`)) return;
-  try {
-    await deleteDoc(doc(db, 'reports', reportId));
-    allReports = allReports.filter(r => r.id !== reportId);
-    updatePendingBadge();
-    applyFilters();
-    closeDetailModal();
-    showToast('Comment deleted.', 'success');
-  } catch (e) {
-    console.error('[deleteReport]', e);
-    showToast('Failed to delete: ' + e.message, 'error');
-  }
-};
-
-// ── Decline ────────────────────────────────────────────────────────────────────
-window.openDeclineModal = function(reportId) {
-  decliningId = reportId;
-  document.getElementById('decline-reason').value = '';
-  document.getElementById('decline-modal').classList.remove('hidden');
-};
-
-window.closeDeclineModal = function() {
-  document.getElementById('decline-modal').classList.add('hidden');
-  decliningId = null;
-};
-
-window.submitDecline = async function() {
-  if (!decliningId) return;
-  const reason = document.getElementById('decline-reason').value.trim();
-  if (!reason) { showToast('Please enter a reason for declining.', 'error'); return; }
-
-  const btn = document.getElementById('decline-submit-btn');
-  btn.disabled = true; btn.textContent = 'Declining...';
-
-  try {
-    await updateDoc(doc(db, 'reports', decliningId), {
-      status:        'declined',
-      declineReason: reason,
-      reviewedAt:    serverTimestamp(),
-      reviewedBy:    currentAdminUid,
-      updatedAt:     serverTimestamp(),
-    });
-    const idx = allReports.findIndex(r => r.id === decliningId);
-    if (idx !== -1) allReports[idx] = { ...allReports[idx], status: 'declined', declineReason: reason, reviewedBy: currentAdminUid };
-    updatePendingBadge();
-    applyFilters();
-    closeDeclineModal();
-    closeDetailModal();
-    showToast('Comment declined.', 'info');
-  } catch (e) {
-    console.error('[submitDecline]', e);
-    showToast('Failed to decline: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false; btn.textContent = 'Decline Comment';
-  }
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -835,30 +329,7 @@ window.showToast = function(msg, type = 'info') {
   setTimeout(() => { t.className = ''; }, 3500);
 };
 </script>
-<script src="/js/notifbell.js?v=4" defer></script>
-<!-- Resend report email to registered or a custom address -->
-<div id="resend-modal" class="hidden fixed inset-0 bg-black/40 z-[120] flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-    <div class="flex items-center justify-between px-6 py-5 border-b border-border-subtle">
-      <h2 class="font-headline-sm">Send report by email</h2>
-      <button onclick="closeResendReport()" class="text-text-muted hover:text-on-surface p-1 rounded-lg hover:bg-surface-container transition-colors">
-        <span class="material-symbols-outlined">close</span>
-      </button>
-    </div>
-    <div class="px-6 py-5">
-      <p class="text-sm text-text-muted mb-3">Comment for <span id="resend-student" class="font-bold text-on-surface"></span>.</p>
-      <p class="text-xs text-text-muted mb-1">Registered parent email(s): <span id="resend-registered" class="font-medium text-on-surface"></span></p>
-      <label class="block text-label-md text-on-surface-variant mb-2 mt-3">Send to (comma-separated — edit to send elsewhere)</label>
-      <input id="resend-email" type="text" placeholder="parent@example.com"
-             class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
-      <p class="text-[11px] text-text-muted mt-2">Use this if the parent didn't get the email — you can resend to the registered address or type a different one.</p>
-    </div>
-    <div class="flex justify-end gap-3 px-6 pb-5">
-      <button onclick="closeResendReport()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
-      <button id="resend-go-btn" onclick="doResendReport()" class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 active:scale-95 transition-all">Send email</button>
-    </div>
-  </div>
-</div>
-<script src="/js/portal-nav.js?v=1" defer></script>
+  <script>window.CREMONA_NAV={portal:'admin',active:'comments',title:'Comments'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>

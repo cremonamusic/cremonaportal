@@ -1,360 +1,146 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Terms &amp; Conditions | Cremona Music</title>
+<title>Terms &amp; Conditions | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <style>
   body { font-family: 'Inter', sans-serif; }
   .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
-  .prose h2 { font-size: 1.1rem; font-weight: 700; color: #2B2019; margin-top: 2rem; margin-bottom: 0.5rem; padding-bottom: 0.375rem; border-bottom: 1px solid #E2D7C6; }
-  .prose h3 { font-size: 0.95rem; font-weight: 600; color: #2B2019; margin-top: 1.25rem; margin-bottom: 0.25rem; }
+  .prose h2 { font-size: 1.1rem; font-weight: 700; color: #3E2C23; margin-top: 2rem; margin-bottom: 0.5rem; padding-bottom: 0.375rem; border-bottom: 1px solid #E8DCC8; }
+  .prose h3 { font-size: 0.95rem; font-weight: 600; color: #3E2C23; margin-top: 1.25rem; margin-bottom: 0.25rem; }
   .prose p  { font-size: 0.9375rem; color: #3c3c3c; line-height: 1.75; margin-bottom: 0.75rem; }
   .prose ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 0.75rem; }
   .prose ul li { font-size: 0.9375rem; color: #3c3c3c; line-height: 1.75; margin-bottom: 0.25rem; }
-  .prose a { color: #7A5A16; text-decoration: underline; }
-  .prose a:hover { color: #3B2A1E; }
+  .prose a { color: #A07818; text-decoration: underline; }
+  .prose a:hover { color: #C9A227; }
   .copyright-notice {
-    background: #fff8e1; border: 1px solid #C8A951; border-radius: 10px;
+    background: #F5EFE4; border: 1px solid #E8DCC8; border-radius: 10px;
     padding: 16px 20px; margin: 1.5rem 0;
   }
   .copyright-notice p { margin-bottom: 0; color: #5d4100; }
   .copyright-notice strong { color: #3d2b00; }
 </style>
-<script src="/js/theme.js"></script>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="bg-[#FAF6EF] text-[#3E2C23] min-h-screen flex flex-col">
 
 <!-- Header -->
-<header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+<header class="bg-white border-b border-[#E8DCC8] shadow-sm sticky top-0 z-50">
   <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <a href="javascript:history.back()"
-         class="p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-800" title="Go back">
+         class="p-2 rounded-lg hover:bg-[#F0E8D6] transition-colors text-[#8B6B52] hover:text-[#3E2C23]" title="Go back">
         <span class="material-symbols-outlined">arrow_back</span>
       </a>
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
+      <img src="/logo.png" alt="Cremona Music" class="h-10 w-auto"/>
     </div>
-    <span class="text-sm font-semibold text-gray-500 hidden sm:inline">Terms &amp; Conditions</span>
+    <span class="text-sm font-semibold text-[#8B6B52] hidden sm:inline">Terms &amp; Conditions</span>
   </div>
 </header>
 
 <!-- Hero band -->
-<div style="background:#7A5A16;" class="text-white py-10 px-6">
+<div style="background:#3B2A1E;" class="text-white py-10 px-6">
   <div class="max-w-4xl mx-auto">
-    <p class="text-sm font-semibold uppercase tracking-widest text-blue-200 mb-1">Legal</p>
+    <p class="text-sm font-semibold uppercase tracking-widest text-[#E8DCC8] mb-1">Legal</p>
     <h1 class="text-3xl font-bold mb-2">Terms &amp; Conditions</h1>
-    <p class="text-sm text-white/70">Last updated: July 2026 &nbsp;·&nbsp; CREMONA CO. LTD</p>
+    <p class="text-sm text-white/70">Last updated: June 2025 &nbsp;·&nbsp; Cremona Music</p>
   </div>
 </div>
 
 <!-- Content -->
-
-<div class="max-w-4xl mx-auto px-6 pt-4 flex justify-end">
-  <button id="legal-lang-btn" onclick="toggleLegalLang()"
-    class="text-xs font-bold border border-gray-300 rounded-full px-4 py-1.5 text-gray-600 hover:border-gray-500">한국어</button>
-</div>
 <main class="flex-grow max-w-4xl mx-auto w-full px-6 py-10">
-<div id="legal-en" class="prose">
-  <div class="bg-white rounded-2xl border border-gray-200 shadow-sm px-8 py-8 prose max-w-none">
+  <div class="bg-white rounded-2xl border border-[#E8DCC8] shadow-sm px-8 py-8 prose max-w-none">
 
     <h2>1. About This Portal</h2>
-    <p>The Cremona Music Portal ("Portal"), available at <a href="https://cremonamusic.com" target="_blank" rel="noopener">cremonamusic.com</a>, is operated by CREMONA CO. LTD ("CREMONA", "we", "us"). It serves two groups of authorised users:</p>
+    <p>The Cremona Music Portal is an internal web portal operated by Cremona Music for the exclusive use of authorised Cremona Music staff. It provides quick access to class materials, shared teaching resources, third-party educational platforms, and internal communication tools.</p>
+
+    <h2>2. Authorised Use Only</h2>
+    <p>Access to this portal is granted solely to current, authorised employees and contractors of Cremona Music. You must not:</p>
     <ul>
-      <li><strong>Teachers and staff</strong> — access to class materials, books, schedules, progress reports, salary records, and internal messaging.</li>
-      <li><strong>Parents and guardians</strong> — access to their children's class schedule, progress reports, tuition payment information, and direct messaging with teachers.</li>
+      <li>Share your access credentials or portal URL with any unauthorised person.</li>
+      <li>Use the portal for any personal, commercial, or non-educational purpose outside of your duties at Cremona Music.</li>
+      <li>Attempt to gain access to any part of the portal or its linked systems beyond what you have been authorised for.</li>
     </ul>
-    <p>By creating an account or using the Portal you agree to these Terms and to our <a href="/privacy">Privacy Policy</a>.</p>
 
-    <h2>2. Accounts &amp; Authorised Use</h2>
-    <p>Accounts are created with an access code issued by CREMONA. You agree to:</p>
-    <ul>
-      <li>Provide accurate registration information and keep your credentials confidential.</li>
-      <li>Not share your account or access code with any unauthorised person.</li>
-      <li>Use the Portal only for its intended educational and administrative purposes.</li>
-      <li>Not attempt to access data or areas of the Portal you are not authorised for.</li>
-    </ul>
-    <p>CREMONA may suspend or remove accounts that violate these Terms or that are no longer associated with an active teacher, student, or parent relationship.</p>
-
-    <h2>3. Messaging</h2>
-    <p>The Portal includes a messaging feature. Parents may message teachers, and teachers may message parents and other teachers. You agree to use messaging respectfully and only for matters related to lessons and the academy. CREMONA administrators may access conversations for safeguarding, support, and moderation purposes. Do not share sensitive personal information (such as payment card numbers or passwords) in chat.</p>
-
-    <h2>4. Intellectual Property &amp; Copyrighted Materials</h2>
-    <p>All teaching materials, books, documents, reports, and files accessible through this Portal are the exclusive intellectual property of CREMONA CO. LTD or their respective copyright owners.</p>
+    <h2>3. Intellectual Property &amp; Copyrighted Materials</h2>
+    <p>All teaching materials, books, documents, and files accessible through this portal — including those hosted on linked Google Drive folders — are the exclusive intellectual property of Cremona Music or their respective copyright owners.</p>
 
     <div class="copyright-notice">
       <p><strong>You expressly agree that you will NOT:</strong></p>
     </div>
 
     <ul>
-      <li>Download, copy, reproduce, or duplicate any materials from this Portal except where a download option is explicitly provided.</li>
-      <li>Share, distribute, forward, or transmit any materials to any third party.</li>
-      <li>Print, scan, photograph, or otherwise reproduce copyrighted content beyond what is strictly necessary for a live lesson.</li>
+      <li>Download, copy, reproduce, or duplicate any materials from this portal for personal use.</li>
+      <li>Share, distribute, forward, or transmit any materials to any third party, whether inside or outside Cremona Music.</li>
+      <li>Print, scan, photograph, or otherwise reproduce any copyrighted content beyond what is strictly necessary for a live classroom session.</li>
       <li>Upload any materials to external platforms, cloud services, or social media.</li>
     </ul>
-    <p>Violations may result in immediate termination of access and may be subject to legal action under applicable copyright law.</p>
+    <p>Violations of copyright policy may result in immediate termination of access and may be subject to legal action under applicable copyright law.</p>
 
-    <h2>5. Payments (Parents)</h2>
-    <p>Tuition and fee amounts, due dates, and payment status shown in the Portal are provided for information. Actual payment terms are governed by your enrolment agreement with CREMONA. If you believe a charge shown in the Portal is incorrect, contact <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a>.</p>
+    <h2>4. Third-Party Services</h2>
+    <p>This portal links to third-party services including but not limited to Google Drive, Google Classroom, Google Meet, EBricks, and NE Times. Your use of these services is governed by their respective terms of service and privacy policies. Cremona Music is not responsible for the content, availability, or conduct of any third-party service.</p>
 
-    <h2>6. Third-Party Services</h2>
-    <p>This Portal links to and relies on third-party services including Google (sign-in, Meet), Firebase, Cloudflare, and email delivery providers. Your use of these services is governed by their respective terms and privacy policies. CREMONA is not responsible for the content, availability, or conduct of any third-party service.</p>
+    <h2>5. Acceptable Use</h2>
+    <p>When using this portal and its linked services, you agree to:</p>
+    <ul>
+      <li>Use the portal only for lawful, work-related educational purposes.</li>
+      <li>Respect the privacy and confidentiality of student data and colleague information.</li>
+      <li>Report any unauthorised access, security concerns, or broken links to <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a> promptly.</li>
+      <li>Comply with all Cremona Music internal policies, including the Employee Code of Conduct.</li>
+    </ul>
 
-    <h2>7. Account Deletion</h2>
-    <p>You may delete your account at any time using the "Delete My Account" option in the Portal, or by emailing <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a>. Deleting your account removes your sign-in access and profile. Academic and financial records that CREMONA is required to keep (e.g. attendance, invoices) may be retained as described in our <a href="/privacy">Privacy Policy</a>.</p>
+    <h2>6. Availability &amp; Disclaimers</h2>
+    <p>Cremona Music provides this portal on an "as is" basis and makes no warranties regarding uptime, accuracy, or fitness for any particular purpose. We reserve the right to modify, suspend, or discontinue the portal or any part of it at any time without notice. Cremona Music is not liable for any loss or damage arising from your inability to access the portal, errors in content, or interruptions to third-party services.</p>
 
-    <h2>8. Availability &amp; Disclaimers</h2>
-    <p>CREMONA provides this Portal on an "as is" basis and makes no warranties regarding uptime, accuracy, or fitness for any particular purpose. We reserve the right to modify, suspend, or discontinue the Portal or any part of it at any time without notice. CREMONA is not liable for any loss or damage arising from your inability to access the Portal, errors in content, or interruptions to third-party services.</p>
+    <h2>7. Privacy</h2>
+    <p>This portal does not collect personal data beyond what is necessary for access logging and security monitoring. Any personal data processed by Cremona Music is handled in accordance with applicable data protection laws. For questions about data privacy, contact <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a> or review our <a href="/privacy.html">Privacy Policy</a>.</p>
 
-    <h2>9. Modifications to These Terms</h2>
-    <p>CREMONA reserves the right to update these Terms and Conditions at any time. Continued use of the Portal after changes are posted constitutes acceptance of the revised terms.</p>
+    <h2>8. Modifications to These Terms</h2>
+    <p>Cremona Music reserves the right to update these Terms and Conditions at any time. Continued use of the portal after changes are posted constitutes acceptance of the revised terms.</p>
 
-    <h2>10. Governing Law</h2>
+    <h2>9. Governing Law</h2>
     <p>These Terms and Conditions are governed by and construed in accordance with the laws of Malaysia. Any disputes arising in connection with these terms shall be subject to the exclusive jurisdiction of the competent courts of Malaysia.</p>
 
-    <h2>11. Contact</h2>
+    <h2>10. Contact</h2>
     <ul>
-      <li><strong>CREMONA CO. LTD</strong></li>
-      <li>Email: <a href="mailto:op@cremonamusic.com">op@cremonamusic.com</a></li>
+      <li><strong>Cremona Music</strong></li>
+      <li>Email: <a href="mailto:info@cremonamusic.com">info@cremonamusic.com</a></li>
       <li>Website: <a href="https://cremonamusic.com" target="_blank" rel="noopener">cremonamusic.com</a></li>
     </ul>
 
   </div>
-</div>
-<div id="legal-ko" class="prose hidden">
-<p style="font-size:12px;color:#888;margin-bottom:1rem">최종 업데이트: 2026년 6월 · CREMONA CO. LTD</p>
-<h2>1. CREMONA 포털 소개</h2>
-<p>CREMONA 포털("포털")은 CREMONA CO. LTD가 운영하는 온라인 플랫폼으로, 인가된 학생, 학부모, 보호자, 교사, 직원, 계약자, 관리자 및 기타 승인된 사용자를 위해 제공됩니다.</p>
-<p>포털은 다음을 포함하되 이에 국한되지 않는 교육 및 행정 서비스를 제공합니다:</p>
-<ul>
-<li>계정 관리</li>
-<li>보안 및 인증 서비스</li>
-<li>학습 자료 및 교재</li>
-<li>학생 정보 및 기록</li>
-<li>수업 일정 및 출석 관리</li>
-<li>내부 메시지 및 커뮤니케이션 도구</li>
-<li>리포트 및 성과 모니터링</li>
-<li>급여 관리(인가된 인력용)</li>
-<li>결제 및 청구 서비스</li>
-<li>행정 기능</li>
-<li>승인된 제3자 교육 플랫폼 접근</li>
-</ul>
-<p>포털에 접속하거나 이를 사용함으로써 귀하는 본 이용약관을 준수하는 데 동의합니다.</p>
-<h2>2. 이용 자격 및 인가된 접근</h2>
-<p>포털 접근은 CREMONA CO. LTD가 승인한 인가된 사용자로 제한됩니다.</p>
-<p>귀하는 다음에 대한 책임이 있습니다:</p>
-<ul>
-<li>사용자 이름과 비밀번호의 기밀 유지</li>
-<li>본인만 계정을 사용하도록 하는 것</li>
-<li>계정 정보를 정확하고 최신 상태로 유지하는 것</li>
-<li>의심되는 무단 접근을 즉시 신고하는 것</li>
-</ul>
-<p>귀하는 다음 행위를 해서는 안 됩니다:</p>
-<ul>
-<li>로그인 정보를 타인과 공유하는 행위</li>
-<li>허위 또는 오해의 소지가 있는 계정 정보를 생성하는 행위</li>
-<li>인가된 권한을 초과하여 데이터 또는 기능에 접근을 시도하는 행위</li>
-<li>보안 조치나 접근 통제를 우회하는 행위</li>
-</ul>
-<p>CREMONA는 오남용이 의심되는 경우 접근을 정지하거나 종료할 권리를 보유합니다.</p>
-<h2>3. 사용자 계정</h2>
-<p>각 사용자에게는 개별 계정이 부여될 수 있습니다.</p>
-<p>사용자는 자신의 계정을 통해 이루어지는 모든 활동에 대한 책임을 집니다.</p>
-<p>CREMONA는 사용자 계정 및 시스템 무결성을 보호하기 위해 비밀번호 변경, 다단계 인증 또는 추가 보안 조치를 요구할 수 있습니다.</p>
-<p>사용자는 계정이 유출되었다고 판단되는 경우 즉시 CREMONA에 알려야 합니다.</p>
-<h2>4. 교육 자료 및 지적 재산권</h2>
-<p>교재, 수업 계획, 워크시트, 도서, 영상, 녹화물, 평가 자료, 프레젠테이션, 소프트웨어, 리포트, 데이터베이스, 문서, 그래픽 및 브랜딩을 포함하여 포털을 통해 제공되는 모든 콘텐츠는 CREMONA CO. LTD 또는 해당 저작권 보유자의 소유이며 관련 지적 재산권법의 보호를 받습니다.</p>
-<p>CREMONA의 명시적 승인이 없는 한, 사용자는 다음을 할 수 없습니다:</p>
-<ul>
-<li>자료를 복사하거나 재제작하는 행위</li>
-<li>개인 배포를 위해 자료를 다운로드하는 행위</li>
-<li>자료를 인가되지 않은 사람과 공유하는 행위</li>
-<li>자료를 외부 웹사이트나 클라우드 서비스에 업로드하는 행위</li>
-<li>자료를 판매, 라이선스 부여, 수정 또는 재배포하는 행위</li>
-<li>저작권 표시나 소유권 정보를 제거하는 행위</li>
-</ul>
-<p>CREMONA 프로그램 참여에 필요한 범위 내에서 인가된 교육 목적의 제한적 사용은 허용됩니다.</p>
-<h2>5. 학생 및 학부모의 책임</h2>
-<p>학생과 학부모/보호자는 다음에 동의합니다:</p>
-<ul>
-<li>포털을 교육 목적으로만 사용하는 것</li>
-<li>계정 정보의 기밀을 유지하는 것</li>
-<li>CREMONA에 제공하는 정보가 정확하도록 하는 것</li>
-<li>교사, 직원 및 다른 사용자를 존중하는 것</li>
-<li>필요한 경우 학생의 접근을 관리·감독하는 것</li>
-</ul>
-<p>학부모 및 보호자는 자녀와 관련된 학생 정보, 출석 기록, 일정, 청구서, 리포트 및 커뮤니케이션에 대한 접근 권한을 부여받을 수 있습니다.</p>
-<h2>6. 교사 및 직원의 책임</h2>
-<p>교사, 직원, 계약자 및 관리자는 다음을 준수해야 합니다:</p>
-<ul>
-<li>포털을 인가된 업무 목적으로만 사용할 것</li>
-<li>기밀 학생 정보 및 회사 정보를 보호할 것</li>
-<li>CREMONA의 정책 및 절차를 따를 것</li>
-<li>포털을 통한 커뮤니케이션 시 전문적인 태도를 유지할 것</li>
-<li>보안 사고를 신속히 보고할 것</li>
-</ul>
-<p>학생 기록, 교재, 급여 정보, 결제 정보 또는 회사 데이터의 무단 공개는 엄격히 금지됩니다.</p>
-<h2>7. 메시지 및 커뮤니케이션</h2>
-<p>포털은 메시지 및 커뮤니케이션 기능을 제공할 수 있습니다. 사용자는 다음 행위를 하지 않기로 동의합니다:</p>
-<ul>
-<li>모욕적, 위협적, 불쾌하거나 차별적이거나 불법적인 메시지를 보내는 행위</li>
-<li>타인을 사칭하는 행위</li>
-<li>스팸, 광고 또는 원치 않는 콘텐츠를 배포하는 행위</li>
-<li>적절한 승인 없이 기밀 정보를 공유하는 행위</li>
-</ul>
-<p>CREMONA는 법이 허용하는 범위 내에서 커뮤니케이션 도구의 오남용에 대해 검토, 조사 및 조치를 취할 권리를 보유합니다.</p>
-<h2>8. 학생 기록, 리포트, 급여 및 결제 정보</h2>
-<p>포털은 학생 기록, 출석 데이터, 학업 리포트, 재무 기록, 급여 정보, 결제 정보 및 청구 정보에 대한 접근을 제공할 수 있습니다.</p>
-<p>사용자는 자신이 권한을 부여받은 정보에만 접근할 수 있습니다. 이러한 정보에 대한 무단 접근, 공유, 수정 또는 공개는 엄격히 금지됩니다.</p>
-<h2>9. 제3자 서비스</h2>
-<p>포털은 Google Drive, Google Meet, EBricks, NE Times, Zoom, Microsoft 서비스 및 결제 제공업체를 포함하되 이에 국한되지 않는 제3자 서비스와 연동될 수 있습니다.</p>
-<p>제3자 서비스의 이용은 해당 서비스 자체의 이용약관 및 개인정보처리방침의 적용을 받습니다. CREMONA는 제3자 콘텐츠, 서비스 중단, 데이터 처리 방식 또는 제3자 서비스의 이용 가능 여부에 대해 책임을 지지 않습니다.</p>
-<h2>10. 보안</h2>
-<p>사용자는 다음 행위를 해서는 안 됩니다:</p>
-<ul>
-<li>시스템이나 데이터에 무단으로 접근을 시도하는 행위</li>
-<li>악성 소프트웨어, 바이러스 또는 유해한 코드를 업로드하는 행위</li>
-<li>포털 운영을 방해하는 행위</li>
-<li>서면 허가 없이 보안 테스트를 수행하는 행위</li>
-<li>보안 통제를 우회하려는 행위</li>
-</ul>
-<p>CREMONA는 보안, 규정 준수, 운영 및 법적 목적을 위해 시스템 활동 및 접근 기록을 모니터링할 수 있습니다.</p>
-<h2>11. 개인정보 및 데이터 보호</h2>
-<p>CREMONA는 사용자 인증, 교육 서비스, 커뮤니케이션, 청구 및 결제, 보안 모니터링, 법적 준수 및 운영 관리에 필요한 정보를 수집 및 처리할 수 있습니다.</p>
-<p>여기에는 로그인 기록, 접근 기록, 계정 정보, 출석 데이터, 학업 기록, 결제 기록 및 커뮤니케이션 이력이 포함될 수 있습니다. 개인정보는 관련 데이터 보호법 및 CREMONA의 개인정보처리방침에 따라 처리됩니다.</p>
-<h2>12. 서비스 제공</h2>
-<p>포털은 "있는 그대로" 및 "제공 가능한 상태로" 제공됩니다. CREMONA는 포털이 항상 이용 가능하거나, 중단 없이 작동하거나, 모든 정보가 완전히 정확하거나 오류가 없거나, 제3자 서비스가 계속 이용 가능할 것이라고 보장하지 않습니다.</p>
-<p>유지보수, 업그레이드 및 예기치 않은 기술적 문제로 인해 일시적인 서비스 중단이 발생할 수 있습니다.</p>
-<h2>13. 책임의 제한</h2>
-<p>법이 허용하는 최대 범위 내에서, CREMONA CO. LTD는 포털 사용, 포털 접근 불가, 서비스 중단, 데이터 손실, 제3자 서비스 장애 또는 사용자의 과실로 인한 무단 접근으로 인해 발생하는 직접적, 간접적, 부수적, 결과적 또는 특별 손해에 대해 책임을 지지 않습니다.</p>
-<p>사용자는 자신의 책임 하에 포털에 접근하고 이를 사용합니다.</p>
-<h2>14. 정지 및 종료</h2>
-<p>CREMONA는 본 이용약관 위반, 보안 위험 발견, 무단 활동 감지 또는 접근이 더 이상 필요하지 않은 경우 사전 통지 없이 접근을 정지, 제한 또는 종료할 수 있습니다.</p>
-<p>학생의 등록이 종료되거나, 고용 또는 계약 관계가 종료되거나, 학부모/보호자의 접근 권한이 더 이상 인가되지 않는 경우에도 접근이 종료될 수 있습니다.</p>
-<h2>15. 포털의 변경</h2>
-<p>CREMONA는 포털 기능을 수정하거나, 서비스를 추가·제거하거나, 사용자 권한을 변경하거나, 시스템 요구사항을 업데이트하거나, 포털의 일부를 중단할 권리를 보유합니다. 이러한 변경은 사전 통지 없이 이루어질 수 있습니다.</p>
-<h2>16. 본 약관의 개정</h2>
-<p>CREMONA는 언제든지 본 이용약관을 개정할 수 있습니다. 업데이트된 버전은 포털 또는 기타 공식 커뮤니케이션 채널을 통해 게시됩니다. 업데이트 게시 후 포털을 계속 사용하는 것은 개정된 약관에 대한 동의로 간주됩니다.</p>
-<h2>17. 준거법</h2>
-<p>본 이용약관은 말레이시아 법률에 따라 규율되고 해석됩니다. 본 약관 또는 포털 이용과 관련하여 발생하는 모든 분쟁은 말레이시아 법원의 전속 관할에 따릅니다.</p>
-<h2>18. 연락처 정보</h2>
-<p>웹사이트: <a href="https://cremonamusic.com">cremonamusic.com</a></p>
-<p>지원 이메일: <a href="mailto:support@cremonamusic.com">support@cremonamusic.com</a></p>
-<p>기술 지원, 계정 문의, 보안 문제, 결제 문의 또는 일반 문의사항은 <a href="mailto:support@cremonamusic.com">support@cremonamusic.com</a>로 연락해 주시기 바랍니다.</p>
-<h2>1. Introduction</h2>
-<p>CREMONA CO. LTD ("CREMONA", "we", "us", or "our") is committed to protecting the privacy and security of all users of the CREMONA Portal ("Portal").</p>
-<p>This Privacy Policy explains how we collect, use, store, protect, and disclose information relating to students, parents, guardians, teachers, staff, contractors, administrators, and other authorised users of the Portal.</p>
-<p>By accessing or using the Portal, you acknowledge that you have read and understood this Privacy Policy.</p>
-<h2>2. Who This Policy Applies To</h2>
-<p>This Privacy Policy applies to all authorised users of the CREMONA Portal, including but not limited to students, parents and guardians, teachers, staff members, contractors, administrators, and other authorised users approved by CREMONA.</p>
-<h2>3. Information We Collect</h2>
-<p>Depending on your role and use of the Portal, we may collect information including:</p>
-<ul>
-<li>Full name</li>
-<li>Email address</li>
-<li>Telephone number</li>
-<li>Parent or guardian information</li>
-<li>Student information</li>
-<li>Account credentials</li>
-<li>Billing and payment information</li>
-<li>Communications submitted through the Portal</li>
-<li>Support requests and enquiries</li>
-</ul>
-<p>Users are responsible for ensuring that information provided is accurate and up to date.</p>
-<p>When you access or use the Portal, we may automatically collect:</p>
-<ul>
-<li>IP address</li>
-<li>Device and browser/OS type</li>
-<li>Login activity, pages/features used, and time of access</li>
-<li>Error logs and diagnostic information</li>
-</ul>
-<p>This information is collected for security, administration, system maintenance, analytics, and service improvement purposes.</p>
-<p>Where applicable, the Portal may process student enrolment information, attendance records, academic reports, class schedules, teacher assignments, salary records, payment records, invoice information, and administrative records. Access to such information is restricted according to user permissions.</p>
-<p>The Portal may provide access to third-party services including but not limited to Google Drive, Google Meet, EBricks, NE Times, Zoom, Microsoft Services, and payment service providers. These services operate independently and may collect information according to their own privacy policies. CREMONA does not control and is not responsible for the privacy practices of third-party services.</p>
-<h2>4. How We Use Information</h2>
-<p>We may use collected information to:</p>
-<ul>
-<li>Provide educational services and manage user accounts</li>
-<li>Maintain Portal functionality</li>
-<li>Process enrolments and student records</li>
-<li>Manage schedules and attendance</li>
-<li>Process payments, billing, and salary information</li>
-<li>Facilitate communication between users</li>
-<li>Respond to support requests</li>
-<li>Improve Portal performance and user experience</li>
-<li>Detect and prevent fraud, abuse, or unauthorised access</li>
-<li>Comply with legal and regulatory obligations</li>
-</ul>
-<p>We do not sell personal information to third parties.</p>
-<h2>5. Legal Basis for Processing</h2>
-<p>Where required by applicable law, CREMONA processes personal information based on one or more of: performance of educational or service-related obligations, compliance with legal obligations, legitimate business interests, or user consent where required.</p>
-<h2>6. Sharing of Information</h2>
-<p>With trusted service providers that assist with hosting, payment processing, communication services, technical support, and security monitoring. Such providers are required to maintain appropriate confidentiality and security protections.</p>
-<p>We may disclose information when required by applicable law, court orders, government authorities, or regulatory agencies, or when necessary to protect the rights, safety, property, or security of CREMONA, its users, or others.</p>
-<h2>7. Data Security</h2>
-<p>CREMONA implements reasonable technical, organisational, and administrative safeguards designed to protect personal information from unauthorised access, loss, misuse, alteration, disclosure, and destruction. These measures may include access controls, authentication systems, activity logging, encrypted communications, and security monitoring.</p>
-<p>However, no system can guarantee absolute security.</p>
-<h2>8. Data Retention</h2>
-<p>We retain information only for as long as reasonably necessary to provide educational and administrative services, fulfil contractual obligations, maintain business records, resolve disputes, and comply with legal requirements. Retention periods may vary depending on the type of information and applicable legal obligations.</p>
-<h2>9. Cookies and Similar Technologies</h2>
-<p>The Portal may use cookies, session identifiers, and similar technologies to maintain user sessions, improve security, remember user preferences, and analyse Portal usage. Certain Portal features may not function correctly if cookies are disabled.</p>
-<p>Third-party services accessible through the Portal may also use their own cookies and tracking technologies.</p>
-<h2>10. Your Rights</h2>
-<p>Subject to applicable law, users may have the right to:</p>
-<ul>
-<li>Request access to personal information</li>
-<li>Request correction of inaccurate information</li>
-<li>Request deletion of information where legally permitted</li>
-<li>Request restriction of processing</li>
-<li>Object to certain processing activities</li>
-<li>Withdraw consent where processing is based on consent</li>
-</ul>
-<p>Requests may be submitted using the contact details below. CREMONA may require identity verification before fulfilling requests.</p>
-<h2>11. Children's Privacy</h2>
-<p>The Portal may be used by students who are minors as part of educational services provided by CREMONA. Where required by law, parental or guardian consent may be obtained for the collection and processing of student information. Parents and guardians may contact CREMONA regarding information associated with their child.</p>
-<h2>12. International Data Transfers</h2>
-<p>Certain third-party services used by the Portal may process or store information outside Malaysia. By using the Portal, users acknowledge that information may be transferred and processed in other jurisdictions where permitted by applicable law and appropriate safeguards are maintained.</p>
-<h2>13. Changes to This Privacy Policy</h2>
-<p>CREMONA may update this Privacy Policy from time to time. Updated versions will be published through the Portal or other official communication channels. Continued use of the Portal after changes become effective constitutes acceptance of the revised Privacy Policy. For significant changes, CREMONA may provide additional notice where reasonably practicable.</p>
-<h2>14. Contact Information</h2>
-<p>Website: <a href="https://cremonamusic.com">cremonamusic.com</a></p>
-<p>Support Email: <a href="mailto:support@cremonamusic.com">support@cremonamusic.com</a></p>
-<p>If you have any questions, concerns, or requests regarding this Privacy Policy or your personal information, please contact <a href="mailto:support@cremonamusic.com">support@cremonamusic.com</a>.</p>
-</div>
 </main>
 
 <!-- Footer -->
-<footer class="bg-gray-100 border-t border-gray-200 py-6 mt-4">
+<footer class="bg-[#F0E8D6] border-t border-[#E8DCC8] py-6 mt-4">
   <div class="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-3">
     <div class="flex items-center gap-3">
-      <img src="/logo.png" alt="Cremona Music" class="h-7 w-auto rounded"/>
-      <p class="text-xs text-gray-500">© 2026 CREMONA CO. LTD. All rights reserved.</p>
+      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto"/>
+      <p class="text-xs text-[#8B6B52]">© 2025 Cremona Music. All rights reserved.</p>
     </div>
     <div class="flex gap-5">
-      <a href="/terms" class="text-xs font-semibold text-blue-700 underline transition-colors">Terms &amp; Conditions</a>
-      <a href="/privacy" class="text-xs text-gray-500 hover:text-amber-700 underline transition-colors">Privacy Policy</a>
+      <a href="/terms.html" class="text-xs font-semibold text-[#A07818] underline transition-colors">Terms &amp; Conditions</a>
+      <a href="/privacy.html" class="text-xs text-[#8B6B52] hover:text-[#A07818] underline transition-colors">Privacy Policy</a>
     </div>
   </div>
 </footer>
 
-
-<script>
-(function () {
-  var lang = localStorage.getItem('cremona-lang') || 'en';
-  window.setLegalLang = function (l) {
-    document.getElementById('legal-en').classList.toggle('hidden', l === 'ko');
-    document.getElementById('legal-ko').classList.toggle('hidden', l !== 'ko');
-    document.getElementById('legal-lang-btn').textContent = l === 'ko' ? 'English' : '한국어';
-    window._legalLang = l;
-  };
-  window.toggleLegalLang = function () {
-    setLegalLang(window._legalLang === 'ko' ? 'en' : 'ko');
-  };
-  setLegalLang(lang === 'ko' ? 'ko' : 'en');
-})();
-</script>
 </body>
 </html>

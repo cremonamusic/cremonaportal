@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Reader | Cremona Music Portal</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
@@ -11,7 +12,7 @@
 <style>
   body { font-family:'Plus Jakarta Sans',sans-serif; background:#1a1a1a; overflow:hidden; height:100vh; }
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
-  .spinner { width:36px;height:36px;border:3px solid rgba(200,169,81,.2);border-top-color:#C8A951;border-radius:50%;animation:spin .7s linear infinite; }
+  .spinner { width:36px;height:36px;border:3px solid rgba(255,193,7,.2);border-top-color:#ffc107;border-radius:50%;animation:spin .7s linear infinite; }
   @keyframes spin { to { transform:rotate(360deg); } }
 
   /* ── Toolbar ─────────────────────────────────────────────────────────────── */
@@ -19,7 +20,7 @@
   .tb-btn { display:flex;align-items:center;justify-content:center;padding:4px 7px;border-radius:6px;color:#9ca3af;transition:background .15s,color .15s;cursor:pointer;border:none;background:transparent;font-size:12px;gap:3px;white-space:nowrap; }
   .tb-btn:hover { background:rgba(255,255,255,.07);color:#e5e7eb; }
   .tb-btn:disabled { opacity:.3;cursor:not-allowed; }
-  .tb-btn.active-tool { background:rgba(200,169,81,.18);color:#C8A951; }
+  .tb-btn.active-tool { background:rgba(255,193,7,.18);color:#ffc107; }
   .tb-divider { width:1px;height:22px;background:#333;flex-shrink:0; }
 
   /* ── PDF scroll ──────────────────────────────────────────────────────────── */
@@ -55,20 +56,20 @@
   #note-popup { position:fixed;z-index:200;top:64px;left:50%;transform:translateX(-50%);width:300px;max-width:calc(100vw - 32px);background:#242424;border:1px solid #3a3a3a;border-radius:14px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.7);animation:popup-in .12s ease; }
   @keyframes popup-in { from{opacity:0;transform:translateX(-50%) translateY(-6px);}to{opacity:1;transform:translateX(-50%) translateY(0);} }
   #note-popup.hidden { display:none!important; }
-  #popup-note-text:focus { outline:1px solid #C8A951; }
+  #popup-note-text:focus { outline:1px solid #ffc107; }
 
   /* ── Text-tool floating input ────────────────────────────────────────────── */
   #text-overlay { position:fixed;z-index:300;background:#242424;border:1px solid #444;border-radius:10px;padding:10px;box-shadow:0 8px 32px rgba(0,0,0,.6);width:240px; }
   #text-overlay.hidden { display:none!important; }
   #text-input-field { width:100%;background:#1a1a1a;border:1px solid #3a3a3a;border-radius:6px;color:#e5e7eb;font-size:13px;padding:6px 8px;resize:none;font-family:inherit;outline:none; }
-  #text-input-field:focus { outline:1px solid #C8A951; }
+  #text-input-field:focus { outline:1px solid #ffc107; }
 
   /* ── Toast ───────────────────────────────────────────────────────────────── */
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#B3261E;color:#fff; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#7A5A16;color:#fff; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
 
   /* ── Sidebar scrollbar ───────────────────────────────────────────────────── */
   #notes-scroll::-webkit-scrollbar { width:5px; }
@@ -100,10 +101,10 @@
   }
 </style>
 <script>
-  tailwind.config={theme:{extend:{colors:{"primary":"#C8A951"}}}}
+  tailwind.config={theme:{extend:{colors:{"primary":"#ffc107"}}}}
 </script>
 </head>
-<body class="flex flex-col" style="height:100vh;overflow:hidden" data-portal="teacher" data-page="books">
+<body class="flex flex-col" style="height:100vh;overflow:hidden">
 
 <div id="toast"></div>
 
@@ -111,9 +112,9 @@
 <div id="note-popup" class="hidden">
   <div class="flex items-center justify-between mb-3">
     <span style="color:#e5e7eb;font-size:13px;font-weight:700;">
-      📌 Note — <span style="color:#C8A951">Page </span>
+      📌 Note — <span style="color:#ffc107">Page </span>
       <input id="popup-page-input" type="number" min="1" value="1"
-             style="width:36px;background:#1a1a1a;border:1px solid #444;border-radius:4px;color:#C8A951;font-size:12px;font-weight:700;padding:1px 4px;text-align:center;-moz-appearance:textfield;"/>
+             style="width:36px;background:#1a1a1a;border:1px solid #444;border-radius:4px;color:#ffc107;font-size:12px;font-weight:700;padding:1px 4px;text-align:center;-moz-appearance:textfield;"/>
     </span>
     <button onclick="closeNotePopup()" style="background:none;border:none;color:#555;cursor:pointer;padding:2px;">
       <span class="material-symbols-outlined" style="font-size:16px">close</span>
@@ -130,7 +131,7 @@
   </div>
   <div style="display:flex;gap:8px;">
     <button onclick="closeNotePopup()" style="flex:1;padding:7px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:8px;color:#888;font-size:12px;cursor:pointer;font-family:inherit;">Cancel</button>
-    <button onclick="savePopupNote()" id="popup-save-btn" style="flex:2;padding:7px;background:#C8A951;border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Save Note</button>
+    <button onclick="savePopupNote()" id="popup-save-btn" style="flex:2;padding:7px;background:#ffc107;border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Save Note</button>
   </div>
 </div>
 
@@ -140,7 +141,7 @@
   <textarea id="text-input-field" rows="2" placeholder="Annotation text…"></textarea>
   <div style="display:flex;gap:6px;margin-top:8px;">
     <button onclick="cancelText()"   style="flex:1;padding:5px;background:#2a2a2a;border:1px solid #3a3a3a;border-radius:6px;color:#888;font-size:12px;cursor:pointer;font-family:inherit;">Cancel</button>
-    <button onclick="confirmText()" style="flex:2;padding:5px;background:#C8A951;border:none;border-radius:6px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Place ✓</button>
+    <button onclick="confirmText()" style="flex:2;padding:5px;background:#ffc107;border:none;border-radius:6px;color:#000;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Place ✓</button>
   </div>
 </div>
 
@@ -153,7 +154,7 @@
 <!-- ── Toolbar ─────────────────────────────────────────────────────────────── -->
 <div id="toolbar" class="flex items-center gap-1.5 px-3 z-50">
 
-  <a href="/books" class="tb-btn px-2">
+  <a href="/books.html" class="tb-btn px-2">
     <span class="material-symbols-outlined" style="font-size:18px">arrow_back</span>
     <span class="hidden sm:inline text-xs font-semibold">Books</span>
   </a>
@@ -165,12 +166,7 @@
   <!-- Page indicator (replaces prev/next) -->
   <div style="display:flex;align-items:center;gap:4px;color:#9ca3af;font-size:11px;font-weight:600;flex-shrink:0;">
     <span class="material-symbols-outlined" style="font-size:14px">article</span>
-    <input id="page-input" type="text" inputmode="numeric" value="—" title="Type a page number and press Enter"
-           style="width:40px;background:#2a2a2a;border:1px solid #444;border-radius:6px;color:#e8e8e8;font-size:11px;font-weight:600;text-align:center;padding:2px 0;outline:none;"
-           onfocus="this.select()"
-           onkeydown="if(event.key==='Enter'){jumpToPage(this.value);this.blur();}if(event.key==='Escape'){this.blur();}"
-           onblur="syncPageInput()"/>
-    <span id="page-total">/ —</span>
+    <span id="page-indicator">— / —</span>
   </div>
   <div class="tb-divider"></div>
 
@@ -244,7 +240,7 @@
 
   <!-- Download -->
   <button id="download-btn" onclick="downloadPdf()" class="hidden tb-btn font-bold"
-          style="background:rgba(200,169,81,.1);color:#C8A951;" title="Download PDF">
+          style="background:rgba(255,193,7,.1);color:#ffc107;" title="Download PDF">
     <span class="material-symbols-outlined" style="font-size:16px">download</span>
     <span class="hidden sm:inline text-xs">Download</span>
   </button>
@@ -273,7 +269,7 @@
       <p class="text-white font-bold text-sm">My Notes</p>
       <div class="flex items-center gap-1">
         <button onclick="openNotePopup()"
-                style="background:rgba(200,169,81,.12);border:none;border-radius:6px;padding:4px 8px;color:#C8A951;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px;">
+                style="background:rgba(255,193,7,.12);border:none;border-radius:6px;padding:4px 8px;color:#ffc107;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:3px;">
           <span class="material-symbols-outlined" style="font-size:14px">add</span> Add
         </button>
         <button onclick="toggleSidebar()" class="text-gray-500 hover:text-white transition-colors p-1">
@@ -311,12 +307,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
 
 // ── Firebase ──────────────────────────────────────────────────────────────────
 const app = initializeApp({
-  apiKey: "REPLACE_ME_CREMONA_API_KEY",
-  authDomain: "portal.cremonamusic.com",
-  projectId: "cremona-portal",
-  storageBucket: "cremona-portal.firebasestorage.app",
-  messagingSenderId: "REPLACE_ME_SENDER_ID",
-  appId: "REPLACE_ME_APP_ID"
+  apiKey: "AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain: "cremonamusic-portal.firebaseapp.com",
+  projectId: "cremonamusic-portal",
+  storageBucket: "cremonamusic-portal.firebasestorage.app",
+  messagingSenderId: "227259733472",
+  appId: "1:227259733472:web:3cb86ab0da1d5338858785"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -361,15 +357,15 @@ let textPending  = null; // { pageNum, nx, ny }
 
 // ── Auth guard ────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
   try {
     const snap = await getDoc(doc(db, 'users', user.uid));
     if (!snap.exists() || snap.data().status === 'inactive') {
-      await signOut(auth); window.location.href = '/'; return;
+      await signOut(auth); window.location.href = '/index.html'; return;
     }
     const data = snap.data();
     if (data.role !== 'teacher' && data.role !== 'admin') {
-      window.location.href = '/'; return;
+      window.location.href = '/index.html'; return;
     }
     currentUser = { uid: user.uid, name: data.name || user.email };
     await initReader();
@@ -386,12 +382,12 @@ async function initReader() {
   bookId = params.get('bookId');
   if (!bookId) {
     document.getElementById('load-msg').textContent = 'No book specified.';
-    setTimeout(() => window.location.href = '/books', 2000); return;
+    setTimeout(() => window.location.href = '/books.html', 2000); return;
   }
   const snap = await getDoc(doc(db, 'books', bookId));
   if (!snap.exists()) {
     document.getElementById('load-msg').textContent = 'Book not found.';
-    setTimeout(() => window.location.href = '/books', 2000); return;
+    setTimeout(() => window.location.href = '/books.html', 2000); return;
   }
   bookData = { id: snap.id, ...snap.data() };
 
@@ -399,11 +395,6 @@ async function initReader() {
   document.title = `${bookData.title || 'Book'} | Cremona Music Portal`;
 
   if (!bookData.r2Url) { document.getElementById('load-msg').textContent = 'PDF URL not found.'; return; }
-  if (bookData.fileName && !/\.pdf$/i.test(bookData.fileName)) {
-    // non-PDF files open directly instead of through the PDF reader
-    location.replace(bookData.r2Url);
-    return;
-  }
 
   if (bookData.downloadEnabled) {
     document.getElementById('download-btn').classList.remove('hidden');
@@ -423,27 +414,8 @@ async function initReader() {
 // ── PDF load + multi-page setup ───────────────────────────────────────────────
 async function loadPdf(url) {
   try {
-    // Books live on R2. The r2.dev development URL is rate-limited by
-    // Cloudflare, so we prefer the production custom domain when it exists,
-    // then fall back to r2.dev, then to a cache-busted r2.dev fetch.
-    const R2_DEV = 'pub-3f7584895ca846e09820b47c54ebad41.r2.dev';
-    const R2_FAST = 'files.cremonamusic.com';
-    const candidates = [];
-    if (url.includes(R2_DEV)) candidates.push(url.replace(R2_DEV, R2_FAST));
-    candidates.push(url);
-    candidates.push(url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now());
-    let lastErr = null;
-    for (const u of candidates) {
-      try {
-        pdfDoc = await pdfjsLib.getDocument({ url: u, withCredentials: false }).promise;
-        lastErr = null;
-        break;
-      } catch (e) {
-        lastErr = e;
-        console.warn('PDF attempt failed:', u.slice(0, 80), e?.message);
-      }
-    }
-    if (lastErr) throw lastErr;
+    const task = pdfjsLib.getDocument({ url, withCredentials: false });
+    pdfDoc     = await task.promise;
     totalPages = pdfDoc.numPages;
 
     // Use first page to compute placeholder dimensions for all wrappers
@@ -459,7 +431,7 @@ async function loadPdf(url) {
       container.appendChild(wrapper);
     }
 
-    setPageIndicator(1);
+    document.getElementById('page-indicator').textContent = `1 / ${totalPages}`;
 
     // Lazy-render pages as they scroll into view
     const scroll = document.getElementById('pdf-scroll');
@@ -482,7 +454,7 @@ async function loadPdf(url) {
       `<div style="color:#888;text-align:center;padding:60px 20px;max-width:400px">
         <span class="material-symbols-outlined" style="font-size:48px;color:#555;display:block;margin-bottom:12px">error</span>
         <p style="font-size:14px;margin-bottom:8px">Failed to load PDF.</p>
-        <p style="font-size:12px;color:#555">${e.message?.includes('fetch') ? 'Network problem loading the book — please close this tab and open the book again. If it keeps failing, tell your admin which book and we will fix it.' : (e.message||'Unknown error')}</p>
+        <p style="font-size:12px;color:#555">${e.message?.includes('fetch') ? 'Check Firebase Storage CORS rules: allow GET from this origin.' : (e.message||'Unknown error')}</p>
       </div>`;
   }
 }
@@ -555,26 +527,8 @@ function updatePageIndicator() {
   document.querySelectorAll('.page-wrapper').forEach(w => {
     if (w.offsetTop <= midY) current = parseInt(w.dataset.page);
   });
-  setPageIndicator(current);
+  document.getElementById('page-indicator').textContent = `${current} / ${totalPages}`;
 }
-
-let shownPage = 1;
-function setPageIndicator(current) {
-  shownPage = current;
-  const inp = document.getElementById('page-input');
-  if (document.activeElement !== inp) inp.value = current;
-  document.getElementById('page-total').textContent = `/ ${totalPages || '—'}`;
-}
-window.syncPageInput = function() {
-  document.getElementById('page-input').value = shownPage;
-};
-window.jumpToPage = function(v) {
-  const n = Math.min(Math.max(parseInt(String(v).replace(/[^0-9]/g, ''), 10) || 0, 1), totalPages || 1);
-  const wrapper = document.querySelector(`.page-wrapper[data-page="${n}"]`);
-  if (!wrapper) return;
-  document.getElementById('pdf-scroll').scrollTo({ top: wrapper.offsetTop - 8, behavior: 'auto' });
-  setPageIndicator(n);
-};
 
 // ── Zoom ──────────────────────────────────────────────────────────────────────
 window.adjustZoom = async function(delta) {
@@ -1080,7 +1034,5 @@ window.showToast = function(msg, type = 'info') {
   setTimeout(() => t.className = '', 3000);
 };
 </script>
-<script src="/js/notifbell.js?v=4" defer></script>
-<script src="/js/portal-nav.js?v=1" defer></script>
 </body>
 </html>

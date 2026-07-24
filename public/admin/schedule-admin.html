@@ -2,28 +2,28 @@
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
+<link rel="icon" href="/favicon.png"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Schedule Management | Cremona Music Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script id="tailwind-config">
   tailwind.config = {
     darkMode:"class",
     theme: { extend: {
       colors: {
-        "text-muted":"#7A6A57","surface-white":"#FFFFFF","surface-container-low":"#F6F0E6",
-        "primary-container":"#C8A951","on-secondary-container":"#FFFDF8",
-        "secondary-container":"#9A7524","secondary":"#7A5A16","on-surface-variant":"#6B5844",
-        "primary-fixed-dim":"#C8A951","on-surface":"#2B2019",
-        "secondary-fixed":"#F2E6CC","surface-container-highest":"#E3D8C6",
-        "border-subtle":"#E2D7C6","background":"#FAF6EF",
-        "primary-fixed":"#F0E2C4","primary":"#3B2A1E","on-primary-container":"#5A4A22",
-        "outline":"#8A7A63","surface-container":"#F1E9DC",
-        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#ffffff",
-        "error":"#B3261E","error-container":"#F9DEDC","surface-container-high":"#EAE0D0",
-        "on-primary":"#ffffff","on-background":"#2B2019","on-primary-fixed":"#2A1D14"
+        "text-muted":"#8B6B52","surface-white":"#FFFDF9","surface-container-low":"#F5EFE4",
+        "primary-container":"#F5E5B0","on-secondary-container":"#3E2C23",
+        "secondary-container":"#F5E5B0","secondary":"#C9A227","on-surface-variant":"#7A5A42",
+        "primary-fixed-dim":"#D4A520","on-surface":"#3E2C23",
+        "secondary-fixed":"#F0E8C0","surface-container-highest":"#E4D8C2",
+        "border-subtle":"#E8DCC8","background":"#FAF6EF",
+        "primary-fixed":"#F0E8C0","primary":"#C9A227","on-primary-container":"#8B6020",
+        "outline":"#827660","surface-container":"#edeeef",
+        "on-error":"#ffffff","surface":"#FAF6EF","on-secondary":"#3E2C23",
+        "error":"#ba1a1a","error-container":"#ffdad6","surface-container-high":"#EAE0CE",
+        "on-primary":"#3E2C23","on-background":"#3E2C23","on-primary-fixed":"#3E2C23"
       },
       spacing:{"gutter":"24px","container-max":"1200px","margin-mobile":"16px","margin-desktop":"40px"},
       fontFamily:{"body-sm":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"headline-sm":["Inter"],"label-md":["Inter"],"headline-md":["Inter"]},
@@ -42,31 +42,42 @@
 <style>
   .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; vertical-align:middle; }
   body { font-family:'Inter',sans-serif; }
-  .spinner { width:20px;height:20px;border:2px solid rgba(59,42,30,.2);border-top-color:#3B2A1E;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
+  .spinner { width:20px;height:20px;border:2px solid rgba(201,162,39,.2);border-top-color:#C9A227;border-radius:50%;animation:spin .7s linear infinite;display:inline-block; }
   @keyframes spin { to { transform:rotate(360deg); } }
   #toast { position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;white-space:nowrap; }
   #toast.show { opacity:1; }
-  #toast.error   { background:#B3261E;color:#fff; }
+  #toast.error   { background:#ba1a1a;color:#fff; }
   #toast.success { background:#1e6e3b;color:#fff; }
-  #toast.info    { background:#7A5A16;color:#fff; }
-  .nav-active { color:#7A5A16!important;border-bottom:2px solid #7A5A16;padding-bottom:4px;font-weight:700!important; }
+  #toast.info    { background:#3B2A1E;color:#F5EFE4; }
+  .nav-active { color:#C9A227!important;border-bottom:2px solid #C9A227;padding-bottom:4px;font-weight:700!important; }
   .status-scheduled { background:#eff6ff;color:#1d4ed8; }
   .status-completed  { background:#f0fdf4;color:#15803d; }
   .status-cancelled  { background:#f9fafb;color:#6b7280; }
   tr.row-selected td { background:#eff6ff; }
   /* View toggle */
   .view-tab { padding:8px 16px;font-size:14px;border-radius:8px;display:flex;align-items:center;gap:6px;transition:all .15s;cursor:pointer;border:none;background:transparent; }
-  .view-tab.active { background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#7A5A16;font-weight:700; }
-  .view-tab.inactive { color:#7A6A57;font-weight:500; }
-  .view-tab.inactive:hover { color:#2B2019; }
+  .view-tab.active { background:#FFFDF9;box-shadow:0 1px 3px rgba(0,0,0,.1);color:#C9A227;font-weight:700; }
+  .view-tab.inactive { color:#8B6B52;font-weight:500; }
+  .view-tab.inactive:hover { color:#3E2C23; }
   /* Admin calendar session blocks */
   .session-block-admin { transition:filter .12s,transform .1s;cursor:pointer; }
   .session-block-admin:hover { filter:brightness(.88);transform:scaleX(.97); }
 </style>
-<script src="/js/theme.js"></script>
-<script src="/js/admin-guard.js"></script>
+<style id="cremona-palette">
+/* Cremona Music Portal: header / footer / logo */
+header { background-color: #3B2A1E !important; border-bottom-color: rgba(255,255,255,0.08) !important; box-shadow: 0 1px 5px rgba(0,0,0,0.4) !important; }
+header img[src*="logo"] { filter: invert(1) brightness(1.2); }
+header nav a, header nav button span:not(.material-symbols-outlined) { color: rgba(255,248,235,0.72) !important; }
+header nav a:hover { color: #C9A227 !important; }
+header nav a.nav-active, header nav a[class*="text-secondary"], header nav a[class*="border-secondary"], header nav a[class*="border-b-2"] { color: #C9A227 !important; border-color: #C9A227 !important; }
+footer { background-color: #3B2A1E !important; border-top-color: rgba(255,255,255,0.08) !important; }
+footer p, footer span:not(.material-symbols-outlined), footer small { color: rgba(255,248,235,0.65) !important; }
+footer a { color: #C9A227 !important; }
+footer a:hover { color: #E8DCC8 !important; }
+footer img[src*="logo"] { filter: invert(1) brightness(1.2); }
+</style>
 </head>
-<body class="bg-background text-on-surface selection:bg-primary-fixed-dim" data-portal="admin" data-page="schedule">
+<body class="bg-background text-on-surface selection:bg-primary-fixed-dim">
 
 <div id="loading-overlay" class="fixed inset-0 bg-white z-[200] flex items-center justify-center">
   <div class="flex flex-col items-center gap-3">
@@ -157,20 +168,7 @@
         </select>
       </div>
 
-      <div class="col-span-2">
-        <label class="block text-label-md font-label-md text-on-surface-variant mb-1.5">Notes</label>
-        <textarea id="f-notes" rows="3" placeholder="Optional notes — visible to the teacher and parent (e.g. topic, materials, homework)"
-                  class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none resize-none"></textarea>
-      </div>
-
       <!-- Repeat weekly — only shown in create / copy mode -->
-      <div class="col-span-2 flex items-center gap-2.5">
-        <input type="checkbox" id="f-replacement"
-               class="w-4 h-4 accent-secondary cursor-pointer"/>
-        <label for="f-replacement" class="text-sm font-semibold text-on-surface cursor-pointer select-none">
-          Replacement class (보강) <span id="f-replaces-note" class="text-xs font-normal text-text-muted"></span>
-        </label>
-      </div>
       <div id="f-repeat-section" class="col-span-2 pt-3 border-t border-border-subtle">
         <div class="flex items-center gap-2">
           <input type="checkbox" id="f-repeat" onchange="onRepeatChange()"
@@ -193,61 +191,12 @@
         </p>
       </div>
     </div>
-    <div class="flex items-center justify-between gap-3 px-6 pb-5">
-      <!-- Quick reschedule — only shown when editing an existing session -->
-      <button id="session-reschedule-btn" onclick="openAdminReschedule()" class="hidden inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold text-secondary border border-secondary rounded-lg hover:bg-secondary hover:text-white transition-colors">
-        <span class="material-symbols-outlined text-[18px]">event_repeat</span>Reschedule
-      </button>
-      <div class="flex items-center gap-3 ml-auto">
-        <button onclick="closeSessionModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
-        <button id="session-save-btn" onclick="saveSession()" class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm">Save Session</button>
-      </div>
+    <div class="flex items-center justify-end gap-3 px-6 pb-5">
+      <button onclick="closeSessionModal()" class="px-4 py-2.5 text-sm font-medium text-text-muted border border-border-subtle rounded-lg hover:bg-surface-container transition-colors">Cancel</button>
+      <button id="session-save-btn" onclick="saveSession()" class="px-5 py-2.5 text-sm font-bold bg-primary-container text-on-primary-fixed rounded-lg hover:brightness-105 transition-all active:scale-95 shadow-sm">Save Session</button>
     </div>
   </div>
 </div>
-
-<!-- ── Reschedule modal (mirrors the teacher schedule quick-reschedule) ───────── -->
-<div id="admin-resched-modal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center p-4" onclick="if(event.target===this)closeAdminReschedule()">
-  <div class="bg-surface-white rounded-2xl w-full max-w-sm p-6 shadow-xl">
-    <h2 class="font-bold text-lg text-on-surface mb-1">Reschedule Class</h2>
-    <p id="ars-student" class="text-sm text-text-muted mb-4">—</p>
-    <label class="block text-xs font-bold text-text-muted uppercase tracking-wide mb-1.5">New date &amp; time</label>
-    <input id="ars-datetime" type="datetime-local" class="w-full border border-border-subtle rounded-lg px-3 py-2.5 text-sm text-on-surface bg-surface-white" />
-    <p class="text-xs text-text-muted mt-2">The student's parents are notified automatically.</p>
-    <div class="flex items-center gap-3 mt-5">
-      <button onclick="closeAdminReschedule()" class="flex-1 border border-border-subtle rounded-xl py-2.5 text-sm font-bold text-text-muted hover:bg-surface-container transition-colors">Back</button>
-      <button id="ars-save" onclick="submitAdminReschedule()" class="flex-1 bg-secondary text-white rounded-xl py-2.5 text-sm font-bold hover:brightness-110">Reschedule</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── Header ───────────────────────────────────────────────────────────────── -->
-<header class="bg-surface-white border-b border-border-subtle shadow-sm sticky top-0 z-50">
-  <div class="flex justify-between items-center w-full px-margin-desktop h-16 max-w-container-max mx-auto">
-    <div class="flex items-center gap-8">
-      <img src="/logo.png" alt="Cremona Music" class="h-8 w-auto rounded-lg"/>
-      <nav class="hidden md:flex items-center gap-4 overflow-x-auto whitespace-nowrap" style="scrollbar-width:none">
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="accounts">Accounts</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="security">Security</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="resources">Resources</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="students">Students</a>
-        <a class="font-body-md nav-active" href="schedule-admin">Schedule</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="messages-admin">Messages</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="reports-admin">Comments</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="salary-admin">Salary</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="payments-admin">Payments</a>
-        <a class="font-body-md text-text-muted hover:text-primary transition-colors duration-200" href="billing-admin">Billing</a>
-      </nav>
-    </div>
-    <div class="flex items-center gap-4">
-      <span class="hidden 2xl:inline font-body-md text-text-muted whitespace-nowrap">Admin Portal</span>
-      <button onclick="doSignOut()" class="flex items-center gap-2 cursor-pointer active:scale-95 duration-150 hover:text-error transition-colors px-3 py-1.5 rounded-lg hover:bg-error-container">
-        <span class="material-symbols-outlined text-sm">logout</span>
-        <span class="font-body-md font-bold text-on-surface hidden md:inline">Sign Out</span>
-      </button>
-    </div>
-  </div>
-</header>
 
 <main class="max-w-container-max mx-auto px-margin-desktop py-gutter">
   <!-- Page header -->
@@ -289,20 +238,15 @@
       <button id="btn-list-view" onclick="setView('list')" class="view-tab active">
         <span class="material-symbols-outlined text-[16px]">list</span>List View
       </button>
-      <button id="btn-day-view" onclick="setView('day')" class="view-tab inactive">
-        <span class="material-symbols-outlined text-[16px]">today</span> Day
-      </button>
       <button id="btn-week-view" onclick="setView('week')" class="view-tab inactive">
         <span class="material-symbols-outlined text-[16px]">calendar_view_week</span>Week View
-      </button>
-      <button id="btn-month-view" onclick="setView('month')" class="view-tab inactive">
-        <span class="material-symbols-outlined text-[16px]">calendar_month</span> Month
       </button>
     </div>
   </div>
 
   <!-- ── LIST VIEW ──────────────────────────────────────────────────────────── -->
-  <!-- Filters (apply to list AND calendar views) -->
+  <div id="list-view-section">
+    <!-- Filters -->
     <div class="bg-surface-white border border-border-subtle rounded-xl p-4 shadow-[0px_2px_4px_rgba(0,0,0,.05)] mb-5 flex flex-wrap gap-3 items-end">
       <div class="min-w-[160px]">
         <label class="block text-label-sm text-text-muted mb-1">Teacher</label>
@@ -338,38 +282,10 @@
         <input id="f-filter-to" type="date" onchange="applyFilters()"
                class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none"/>
       </div>
-      <div class="flex items-end gap-1">
-        <button onclick="setQuickRange('day')" class="px-2.5 py-2 rounded-lg border border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">Today</button>
-        <button onclick="setQuickRange('week')" class="px-2.5 py-2 rounded-lg border border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">This Week</button>
-        <button onclick="setQuickRange('month')" class="px-2.5 py-2 rounded-lg border border-border-subtle text-xs font-bold text-text-muted hover:text-secondary hover:border-secondary transition-colors">This Month</button>
-      </div>
       <button onclick="clearFilters()" class="text-sm text-text-muted hover:text-error transition-colors px-2">Clear</button>
-      <button onclick="exportScheduleExcel()"
-              class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-subtle text-sm font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[16px]">table_view</span>Export Excel
-      </button>
-      <button onclick="exportSchedulePDF()"
-              class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-subtle text-sm font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>Export PDF
-      </button>
-      <button onclick="openDigestSettings()"
-              class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-subtle text-sm font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[16px]">schedule_send</span>Digest Settings
-      </button>
-      <button onclick="document.getElementById('import-excel-input').click()"
-              class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-subtle text-sm font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[16px]">upload_file</span>Import Excel
-      </button>
-      <input id="import-excel-input" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importScheduleExcel(this)"/>
-      <button id="send-schedule-btn" onclick="sendTodaySchedule()"
-              class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border-subtle text-sm font-semibold text-text-muted hover:text-secondary hover:border-secondary transition-colors">
-        <span class="material-symbols-outlined text-[16px]">send</span>Send Today's Schedule
-      </button>
       <span id="result-count" class="text-label-sm text-text-muted ml-auto self-center"></span>
     </div>
 
-
-  <div id="list-view-section">
     <!-- Bulk action bar -->
     <div id="bulk-bar" class="hidden mb-3 bg-secondary-fixed border border-secondary/20 rounded-xl px-5 py-3 flex items-center gap-3 flex-wrap">
       <span class="material-symbols-outlined text-secondary text-[18px]">checklist</span>
@@ -445,9 +361,18 @@
       <!-- Teacher colour legend -->
       <div id="week-legend" class="flex flex-wrap items-center gap-3 text-xs text-text-muted"></div>
     </div>
+    <!-- Teacher filter -->
+    <div class="flex items-center gap-2 mb-4">
+      <span class="material-symbols-outlined text-[18px] text-text-muted">filter_alt</span>
+      <label class="text-sm text-text-muted">Teacher:</label>
+      <select id="week-teacher-filter" onchange="onWeekTeacherFilter()"
+              class="border border-border-subtle rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none bg-white min-w-[200px]">
+        <option value="">All teachers</option>
+      </select>
+    </div>
     <!-- Calendar grid -->
     <div class="bg-surface-white rounded-xl border border-border-subtle shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
+      <div class="overflow-auto" style="max-height:calc(100dvh - 300px)">
         <div id="admin-calendar" class="min-w-[640px]">
           <div class="flex items-center justify-center py-16 text-text-muted text-sm gap-3">
             <div class="spinner"></div> Loading calendar…
@@ -459,20 +384,19 @@
   </div><!-- /week-view-section -->
 </main>
 
-<script src="/js/monthgrid.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import {
-  getFirestore, doc, getDoc, setDoc, collection, query, where, getDocs,
+  getFirestore, doc, getDoc, collection, query, where, getDocs,
   addDoc, updateDoc, deleteDoc, Timestamp, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey:"REPLACE_ME_CREMONA_API_KEY",
-  authDomain:"portal.cremonamusic.com",projectId:"cremona-portal",
-  storageBucket:"cremona-portal.firebasestorage.app",
-  messagingSenderId:"REPLACE_ME_SENDER_ID",appId:"REPLACE_ME_APP_ID"
+  apiKey:"AIzaSyB_TQF-oExYsPY4qOJtfrcDCwXbc4HV0-0",
+  authDomain:"cremonamusic-portal.firebaseapp.com",projectId:"cremonamusic-portal",
+  storageBucket:"cremonamusic-portal.firebasestorage.app",
+  messagingSenderId:"227259733472",appId:"1:227259733472:web:3cb86ab0da1d5338858785"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -489,12 +413,13 @@ let currentAdmin = null;
 let selectedIds  = new Set();
 let currentView  = 'list';
 let adminWeekStart = getMonday(new Date());
+let adminWeekTeacher = '';   // week-view teacher filter ('' = all)
 
 // ── Calendar constants ─────────────────────────────────────────────────────────
-const CAL_START   = 0;   // midnight
-const CAL_END     = 24;  // midnight (next day)
-const PX_PER_HOUR = 60;
-const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 1440 px
+const CAL_START   = 8;    // 08:00 — schedule spans 8am–10pm only
+const CAL_END     = 22;   // 22:00
+const PX_PER_HOUR = 40;   // compact rows
+const CAL_HEIGHT  = (CAL_END - CAL_START) * PX_PER_HOUR; // 560 px
 const TIME_W      = 52;
 const DAY_NAMES   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const MONTHS      = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -578,12 +503,11 @@ window.bulkDelete = async function() {
 
 // ── Auth ───────────────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, async user => {
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
   const snap = await getDoc(doc(db, 'users', user.uid));
   if (!snap.exists() || snap.data().role !== 'admin') {
-    window.location.href = '/'; return;
+    window.location.href = '/index.html'; return;
   }
-  if (!window.applyAdminPermissions(snap.data(), 'schedule')) return;
   currentAdmin = { uid: user.uid, name: snap.data().name || user.email };
   await Promise.all([loadSessions(), loadTeachers(), loadStudents()]);
   updateStats(allSessions);
@@ -591,7 +515,7 @@ onAuthStateChanged(auth, async user => {
   document.getElementById('loading-overlay').style.display = 'none';
 });
 
-window.doSignOut = async () => { await signOut(auth); window.location.href = '/'; };
+window.doSignOut = async () => { await signOut(auth); window.location.href = '/index.html'; };
 
 // ── Load data ──────────────────────────────────────────────────────────────────
 async function loadSessions() {
@@ -604,7 +528,6 @@ async function loadTeachers() {
   const q    = query(collection(db, 'users'), where('role', '==', 'teacher'));
   const snap = await getDocs(q);
   allTeachers = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-    .filter(t => t.status !== 'deleted')
     .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
   // Assign default colours to teachers that have none
@@ -613,10 +536,18 @@ async function loadTeachers() {
   });
 
   const filterSel = document.getElementById('f-filter-teacher');
+  const weekSel   = document.getElementById('week-teacher-filter');
   allTeachers.forEach(t => {
-    filterSel.appendChild(new Option(t.name || t.email || t.id, t.id));
+    const label = t.name || t.email || t.id;
+    filterSel.appendChild(new Option(label, t.id));
+    if (weekSel) weekSel.appendChild(new Option(label, t.id));
   });
 }
+
+window.onWeekTeacherFilter = function() {
+  adminWeekTeacher = document.getElementById('week-teacher-filter').value;
+  renderAdminCalendar();
+};
 
 async function loadStudents() {
   const snap = await getDocs(collection(db, 'students'));
@@ -680,7 +611,7 @@ function renderSessions(list) {
           const bg = hexToRgba(color, 0.09);
           return `<span style="display:inline-flex;align-items:center;padding:1px 8px;background:${bg};color:${color};border-radius:999px;font-size:11px;font-weight:600;line-height:18px;">${escHtml(s.teacherName||'—')}</span>`;
         })()}</td>
-        <td class="px-4 py-3.5">${escHtml(s.subject || '—')}${s.isReplacement ? ' <span class="repl-badge" style="display:inline-block;padding:0 6px;background:#F2E6CC;color:#7A5A16;border-radius:999px;font-size:10px;font-weight:700;line-height:16px;vertical-align:middle;">보강</span>' : ''}</td>
+        <td class="px-4 py-3.5">${escHtml(s.subject || '—')}</td>
         <td class="px-4 py-3.5 text-text-muted">${s.duration || '—'} min</td>
         <td class="px-4 py-3.5">
           <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${sc}">${escHtml(label)}</span>
@@ -698,11 +629,6 @@ function renderSessions(list) {
                     class="p-1.5 rounded-lg hover:bg-surface-container text-text-muted hover:text-secondary transition-colors" title="Edit">
               <span class="material-symbols-outlined text-[16px]">edit</span>
             </button>
-            ${s.status === 'cancelled' ? `
-            <button data-action="replace" data-sid="${s.id}"
-                    class="p-1.5 rounded-lg hover:bg-secondary/10 text-text-muted hover:text-secondary transition-colors" title="Schedule replacement (보강)">
-              <span class="material-symbols-outlined text-[16px]">event_repeat</span>
-            </button>` : ''}
             ${s.status !== 'cancelled' ? `
             <button data-action="cancel" data-sid="${s.id}"
                     class="p-1.5 rounded-lg hover:bg-error-container text-text-muted hover:text-error transition-colors" title="Cancel session">
@@ -723,8 +649,7 @@ document.getElementById('sessions-tbody').addEventListener('click', e => {
   const btn = e.target.closest('[data-action]');
   if (!btn) return;
   const { action, sid } = btn.dataset;
-  if (action === 'copy')    openCopySession(sid);
-  if (action === 'replace') openReplacementSession(sid);
+  if (action === 'copy')   openCopySession(sid);
   if (action === 'edit')   openEditSession(sid);
   if (action === 'cancel') confirmCancelSession(sid);
   if (action === 'delete') confirmDeleteSession(sid);
@@ -758,428 +683,12 @@ window.applyFilters = function() {
     return true;
   });
   renderSessions(filtered);
-  if (currentView !== 'list') renderAdminCalendar();
-};
-
-window.setQuickRange = function(kind) {
-  const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
-  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  let from, to;
-  if (kind === 'day') { from = to = now; }
-  else if (kind === 'week') {
-    const mon = new Date(now); mon.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-    from = mon; to = sun;
-  } else {
-    from = new Date(now.getFullYear(), now.getMonth(), 1);
-    to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  }
-  document.getElementById('f-filter-from').value = iso(from);
-  document.getElementById('f-filter-to').value = iso(to);
-  applyFilters();
-};
-
-window.exportSchedulePDF = function() {
-  // same filters as the list/Excel export
-  const tId    = document.getElementById('f-filter-teacher').value;
-  const sId    = document.getElementById('f-filter-student').value;
-  const status = document.getElementById('f-filter-status').value;
-  const from   = document.getElementById('f-filter-from').value;
-  const to     = document.getElementById('f-filter-to').value;
-  const rows = allSessions.filter(x => {
-    if (tId    && x.teacherUid !== tId) return false;
-    if (sId    && x.studentId  !== sId) return false;
-    if (status && getDisplayStatus(x) !== status) return false;
-    const dt = toDate(x.dateTime);
-    if (from && dt < new Date(from + 'T00:00:00')) return false;
-    if (to   && dt > new Date(to   + 'T23:59:59')) return false;
-    return true;
-  }).sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
-
-  const teacherName = tId ? (allTeachers.find(t => t.id === tId)?.name || '') : '';
-  const filterBits = [
-    teacherName && `Teacher: ${teacherName}`,
-    sId && `Student: ${document.getElementById('f-filter-student').selectedOptions[0]?.textContent || ''}`,
-    status && `Status: ${status}`,
-    (from || to) && `${from || '…'} → ${to || '…'}`,
-  ].filter(Boolean).join(' · ');
-
-  const body = rows.map(x => {
-    const dt = toDate(x.dateTime);
-    return `<tr>
-      <td>${dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</td>
-      <td>${dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</td>
-      <td>${escHtml(x.studentName || '—')}</td>
-      <td>${escHtml(x.teacherName || '—')}</td>
-      <td>${escHtml(x.subject || '—')}${x.isReplacement ? ' (보강)' : ''}</td>
-      <td>${x.duration || '—'}</td>
-      <td>${getDisplayStatus(x)}</td>
-    </tr>`;
-  }).join('');
-
-  const w = window.open('', '_blank');
-  w.document.write(`<!DOCTYPE html><html><head><title>Cremona Music Schedule</title><style>
-    body { font-family: -apple-system, 'Malgun Gothic', sans-serif; padding: 24px; color: #2B2019; }
-    h1 { font-size: 20px; margin: 0 0 2px; } .sub { color: #666; font-size: 12px; margin-bottom: 16px; }
-    table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    th { text-align: left; background: #F6F0E6; }
-    th, td { border: 1px solid #ddd; padding: 6px 8px; }
-    @media print { .noprint { display: none; } }
-  </style></head><body>
-    <button class="noprint" onclick="window.print()" style="padding:8px 18px;font-weight:700;margin-bottom:14px;cursor:pointer;">🖨 Print / Save as PDF</button>
-    <h1>Cremona Music — Class Schedule</h1>
-    <div class="sub">${rows.length} session${rows.length !== 1 ? 's' : ''}${filterBits ? ' · ' + filterBits : ''} · exported ${new Date().toLocaleString()}</div>
-    <table><thead><tr><th>Date</th><th>Time</th><th>Student</th><th>Teacher</th><th>Subject</th><th>Min</th><th>Status</th></tr></thead>
-    <tbody>${body || '<tr><td colspan=7>No sessions in this range.</td></tr>'}</tbody></table>
-  </body></html>`);
-  w.document.close();
 };
 
 window.clearFilters = function() {
   ['f-filter-teacher','f-filter-student','f-filter-status','f-filter-from','f-filter-to']
     .forEach(id => { document.getElementById(id).value = ''; });
   renderSessions(allSessions);
-  if (currentView !== 'list') renderAdminCalendar();
-};
-
-// ── Excel export — respects the current filters ───────────────────────────────
-// Manually push today's class digest to every teacher and parent involved —
-// the same notification the 11:00 AM automatic digest sends.
-// ── Daily digest settings (settings/scheduleDigest) ─────────────────────────
-window.openDigestSettings = async function() {
-  const hourSel = document.getElementById('dg-hour');
-  hourSel.innerHTML = Array.from({length: 24}, (_, h) => {
-    const label = `${String(h).padStart(2, '0')}:00 ${h < 12 ? 'AM' : 'PM'}`;
-    return `<option value="${h}">${label}</option>`;
-  }).join('');
-
-  let cfg = {};
-  try {
-    const snap = await getDoc(doc(db, 'settings', 'scheduleDigest'));
-    if (snap.exists()) cfg = snap.data();
-  } catch (_) {}
-
-  document.getElementById('dg-enabled').checked = cfg.enabled !== false;
-  hourSel.value = Number.isInteger(cfg.hour) ? cfg.hour : 11;
-
-  const evSel = document.getElementById('dg-evening-hour');
-  const evChk = document.getElementById('dg-evening-enabled');
-  if (evSel && evChk) {
-    evSel.innerHTML = Array.from({length: 24}, (_, h) => {
-      const label = `${String(h).padStart(2, '0')}:00 ${h < 12 ? 'AM' : 'PM'}`;
-      return `<option value="${h}">${label}</option>`;
-    }).join('');
-    evChk.checked = cfg.eveningEnabled === true;
-    evSel.value = Number.isInteger(cfg.eveningHour) ? cfg.eveningHour : 20;
-  }
-
-  const selT = cfg.recipients && cfg.recipients !== 'all' ? (cfg.recipients.teacherUids || []) : null;
-  const selS = cfg.recipients && cfg.recipients !== 'all' ? (cfg.recipients.studentIds || []) : null;
-  const row = (id, name, checked, cls) => `
-    <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-surface-container-low cursor-pointer">
-      <input type="checkbox" value="${escAttr(id)}" ${checked ? 'checked' : ''} class="${cls} accent-secondary w-4 h-4"/>
-      <span class="text-sm text-on-surface">${escHtml(name)}</span>
-    </label>`;
-  document.getElementById('dg-teachers').innerHTML = allTeachers
-    .map(t => row(t.id, t.name || t.email || t.id, !selT || selT.includes(t.id), 'dg-t')).join('') || '<p class="text-xs text-text-muted p-3">No teachers.</p>';
-  document.getElementById('dg-students').innerHTML = allStudents
-    .map(st => row(st.id, st.fullName || 'Unnamed', !selS || selS.includes(st.id), 'dg-s')).join('') || '<p class="text-xs text-text-muted p-3">No students.</p>';
-
-  document.getElementById('digest-modal').classList.remove('hidden');
-};
-
-window.dgSelectAll = function(on) {
-  document.querySelectorAll('#dg-teachers input, #dg-students input').forEach(cb => { cb.checked = on; });
-};
-
-window.saveDigestSettings = async function() {
-  const btn = document.getElementById('dg-save-btn');
-  btn.disabled = true;
-  try {
-    const teacherUids = Array.from(document.querySelectorAll('#dg-teachers input:checked')).map(cb => cb.value);
-    const studentIds  = Array.from(document.querySelectorAll('#dg-students input:checked')).map(cb => cb.value);
-    const everyone = teacherUids.length === allTeachers.length && studentIds.length === allStudents.length;
-    await setDoc(doc(db, 'settings', 'scheduleDigest'), {
-      enabled: document.getElementById('dg-enabled').checked,
-      hour: parseInt(document.getElementById('dg-hour').value),
-      eveningEnabled: document.getElementById('dg-evening-enabled')?.checked === true,
-      eveningHour: parseInt(document.getElementById('dg-evening-hour')?.value || '20'),
-      recipients: everyone ? 'all' : { teacherUids, studentIds },
-      updatedBy: currentAdmin.uid,
-    }, { merge: true });
-    document.getElementById('digest-modal').classList.add('hidden');
-    showToast('Digest settings saved.', 'success');
-  } catch (e) {
-    showToast(e.message || 'Failed to save settings.', 'error');
-  } finally {
-    btn.disabled = false;
-  }
-};
-
-let _replacesId = null;
-
-window.sendTodaySchedule = function() {
-  document.getElementById('send-schedule-modal').classList.remove('hidden');
-};
-
-window.sendScheduleDate = async function() {
-  const date = document.getElementById('send-schedule-date').value;
-  if (!date) return showToast('Pick a date first.', 'error');
-  document.getElementById('send-schedule-modal').classList.add('hidden');
-  try {
-    const r = await fetch('/api/sendSchedule', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminUid: currentAdmin.uid, date })
-    });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Failed');
-    showToast(`Schedule for ${date} was sent to all teachers and parents.`, 'success');
-  } catch (e) {
-    showToast(e.message || 'Failed to send schedule.', 'error');
-  }
-};
-
-window.sendScheduleGo = async function(at) {
-  if (at !== '' && !at) return showToast('Pick a time first.', 'error');
-  document.getElementById('send-schedule-modal').classList.add('hidden');
-  try {
-    const r = await fetch('/api/sendSchedule', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminUid: currentAdmin.uid, at })
-    });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || 'Failed');
-    showToast(at ? `Schedule notification set for ${at} today.` : "Today's schedule was sent to all teachers and parents.", 'success');
-  } catch (e) {
-    showToast(e.message || 'Failed to send schedule.', 'error');
-  }
-};
-
-// ── Smart Excel import: reads messy schedule spreadsheets automatically ─────
-// Tolerant of header naming (Korean/English), date and time formats, and
-// matches student names fuzzily against the database. Everything lands in a
-// preview for the admin to confirm — nothing is created blindly.
-let _importRows = [];
-
-function _norm(x) { return String(x || '').toLowerCase().replace(/\s+/g, ''); }
-
-function _findStudent(name) {
-  const n = _norm(name);
-  if (!n) return null;
-  let hit = allStudents.find(st => _norm(st.fullName) === n);
-  if (!hit) hit = allStudents.find(st => _norm(st.fullName).includes(n) || n.includes(_norm(st.fullName)));
-  return hit || null;
-}
-
-function _parseExcelDate(v) {
-  if (v == null || v === '') return null;
-  if (typeof v === 'number') { // Excel serial (may include time fraction)
-    return new Date(Date.UTC(1899, 11, 30) + v * 86400000 - new Date().getTimezoneOffset() * -60000);
-  }
-  const str = String(v).trim();
-  let m = str.match(/(\d{4})[-./년\s]+(\d{1,2})[-./월\s]+(\d{1,2})/);
-  if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
-  m = str.match(/(\d{1,2})[/월\s]+(\d{1,2})일?/);
-  if (m) return new Date(new Date().getFullYear(), +m[1] - 1, +m[2]);
-  const d = new Date(str);
-  return isNaN(d.getTime()) ? null : d;
-}
-
-function _parseExcelTime(v) {
-  if (v == null || v === '') return null;
-  if (typeof v === 'number' && v < 1) { // Excel time fraction
-    const mins = Math.round(v * 24 * 60);
-    return { h: Math.floor(mins / 60), m: mins % 60 };
-  }
-  const str = String(v).trim().toLowerCase();
-  let m = str.match(/(오전|오후|am|pm)?\s*(\d{1,2})[:시]\s*(\d{0,2})\s*(am|pm)?/);
-  if (!m) return null;
-  let h = +m[2];
-  const min = m[3] ? +m[3] : 0;
-  const mer = m[1] || m[4] || '';
-  if ((mer === '오후' || mer === 'pm') && h < 12) h += 12;
-  if ((mer === '오전' || mer === 'am') && h === 12) h = 0;
-  return { h, m: min };
-}
-
-const _COL_KEYS = {
-  student:  ['student', '학생', '이름', 'name', '수강생'],
-  date:     ['date', '날짜', '수업일', 'day', '일자'],
-  time:     ['time', '시간', '수업시간', 'start'],
-  datetime: ['datetime', '일시'],
-  subject:  ['subject', '과목', '수업', 'class', '내용'],
-  duration: ['duration', '분', 'min', '수업길이', 'length'],
-  notes:    ['note', '비고', '메모', 'memo'],
-  meet:     ['meet', 'link', '링크'],
-};
-
-window.importScheduleExcel = function(input) {
-  const file = input.files && input.files[0];
-  input.value = '';
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const grid = XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: '' });
-
-      // find the header row: the first row matching at least 2 known columns
-      let headerIdx = -1, colMap = {};
-      for (let r = 0; r < Math.min(grid.length, 10); r++) {
-        const map = {};
-        grid[r].forEach((cell, c) => {
-          const n = _norm(cell);
-          if (!n) return;
-          for (const [key, aliases] of Object.entries(_COL_KEYS)) {
-            if (map[key] == null && aliases.some(a => n.includes(_norm(a)))) map[key] = c;
-          }
-        });
-        if (Object.keys(map).length >= 2 && map.student != null) { headerIdx = r; colMap = map; break; }
-      }
-      if (headerIdx === -1) { showToast('Could not find a header row with a Student column. Add headers like: Student, Date, Time, Subject.', 'error'); return; }
-
-      _importRows = [];
-      for (let r = headerIdx + 1; r < grid.length; r++) {
-        const row = grid[r];
-        const rawStudent = colMap.student != null ? row[colMap.student] : '';
-        if (!String(rawStudent).trim()) continue;
-
-        const warnings = [];
-        const student = _findStudent(rawStudent);
-        if (!student) warnings.push('student not found');
-
-        let date = null, time = null;
-        if (colMap.datetime != null) {
-          date = _parseExcelDate(row[colMap.datetime]);
-          time = _parseExcelTime(row[colMap.datetime]);
-        }
-        if (!date && colMap.date != null) date = _parseExcelDate(row[colMap.date]);
-        if (!time && colMap.time != null) time = _parseExcelTime(row[colMap.time]);
-        if (!date) warnings.push('date unclear');
-        if (!time) warnings.push('time unclear');
-
-        let when = null;
-        if (date && time) when = new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.h, time.m);
-
-        const subject  = colMap.subject != null ? String(row[colMap.subject] || '').trim() : '';
-        const duration = colMap.duration != null ? (parseInt(row[colMap.duration]) || 30) : 30;
-        const notes    = colMap.notes != null ? String(row[colMap.notes] || '').trim() : '';
-        const meet     = colMap.meet != null ? String(row[colMap.meet] || '').trim() : '';
-
-        _importRows.push({
-          rawStudent: String(rawStudent).trim(),
-          student, when, subject: subject || 'English Class', duration, notes, meet, warnings,
-        });
-      }
-      if (!_importRows.length) { showToast('No class rows found in the file.', 'error'); return; }
-      renderImportPreview();
-    } catch (err) {
-      console.error('[importScheduleExcel]', err);
-      showToast('Could not read this file: ' + err.message, 'error');
-    }
-  };
-  reader.readAsArrayBuffer(file);
-};
-
-function renderImportPreview() {
-  const body = document.getElementById('import-preview-body');
-  body.innerHTML = `<table class="w-full text-sm">
-    <thead><tr class="text-left text-xs text-text-muted border-b border-border-subtle">
-      <th class="py-2 pr-2"></th><th class="py-2 pr-3">Student</th><th class="py-2 pr-3">When</th>
-      <th class="py-2 pr-3">Subject</th><th class="py-2 pr-3">Min</th><th class="py-2">Warnings</th>
-    </tr></thead>
-    <tbody>` + _importRows.map((r, i) => {
-      const ok = r.student && r.when;
-      const whenStr = r.when ? r.when.toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
-      return `<tr class="border-b border-border-subtle/60 ${ok ? '' : 'opacity-70'}">
-        <td class="py-2 pr-2"><input type="checkbox" data-imp="${i}" ${ok ? 'checked' : ''} class="accent-secondary w-4 h-4"/></td>
-        <td class="py-2 pr-3">${r.student ? escHtml(r.student.fullName) : '<span class="text-error">' + escHtml(r.rawStudent) + '</span>'}</td>
-        <td class="py-2 pr-3">${escHtml(whenStr)}</td>
-        <td class="py-2 pr-3">${escHtml(r.subject)}</td>
-        <td class="py-2 pr-3">${r.duration}</td>
-        <td class="py-2 text-xs text-error">${escHtml(r.warnings.join(', '))}</td>
-      </tr>`;
-    }).join('') + '</tbody></table>';
-  document.getElementById('import-preview-modal').classList.remove('hidden');
-}
-
-window.createImportedSessions = async function() {
-  const btn = document.getElementById('import-create-btn');
-  btn.disabled = true;
-  let created = 0, skipped = 0;
-  try {
-    const boxes = document.querySelectorAll('[data-imp]:checked');
-    for (const box of boxes) {
-      const r = _importRows[+box.dataset.imp];
-      if (!r || !r.student || !r.when) { skipped++; continue; }
-      const teacher = getTeacherForStudent(r.student.id);
-      await addDoc(collection(db, 'sessions'), {
-        teacherUid: teacher ? teacher.id : ((r.student.assignedTeachers || [])[0] || ''),
-        teacherName: teacher ? (teacher.name || '') : '',
-        studentId: r.student.id,
-        studentName: r.student.fullName || '',
-        subject: r.subject,
-        duration: r.duration,
-        meetLink: r.meet || (teacher && teacher.googleMeetLink) || '',
-        notes: r.notes,
-        status: 'scheduled',
-        dateTime: Timestamp.fromDate(r.when),
-        createdAt: serverTimestamp(),
-        createdBy: currentAdmin.uid,
-        importedFromExcel: true,
-      });
-      created++;
-    }
-    document.getElementById('import-preview-modal').classList.add('hidden');
-    showToast(`Created ${created} class${created === 1 ? '' : 'es'}${skipped ? `, skipped ${skipped}` : ''}.`, 'success');
-    await loadSessions();
-  } catch (e) {
-    showToast('Import failed: ' + e.message, 'error');
-  } finally {
-    btn.disabled = false;
-  }
-};
-
-window.exportScheduleExcel = function() {
-  if (typeof XLSX === 'undefined') { showToast('Excel library not loaded.', 'error'); return; }
-  const tId    = document.getElementById('f-filter-teacher').value;
-  const sId    = document.getElementById('f-filter-student').value;
-  const status = document.getElementById('f-filter-status').value;
-  const from   = document.getElementById('f-filter-from').value;
-  const to     = document.getElementById('f-filter-to').value;
-
-  const data = allSessions.filter(s => {
-    if (tId    && s.teacherUid  !== tId)          return false;
-    if (sId    && s.studentId   !== sId)          return false;
-    if (status && getDisplayStatus(s) !== status) return false;
-    const dt = toDate(s.dateTime);
-    if (from && dt < new Date(from + 'T00:00:00')) return false;
-    if (to   && dt > new Date(to   + 'T23:59:59')) return false;
-    return true;
-  }).sort((a, b) => toDate(a.dateTime) - toDate(b.dateTime));
-
-  if (!data.length) { showToast('No sessions to export.', 'info'); return; }
-  const rows = data.map(s => {
-    const dt = toDate(s.dateTime);
-    return {
-      'Date':          dt.toLocaleDateString('en-CA'),
-      'Time':          dt.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:false }),
-      'Student':       s.studentName || '',
-      'Teacher':       s.teacherName || '',
-      'Subject':       s.subject || '',
-      'Duration (min)': s.duration || '',
-      'Status':        getDisplayStatus(s),
-      'Hours Taught':  s.durationHours || '',
-      'Meet Link':     s.meetLink || '',
-      'Notes':         s.notes || '',
-    };
-  });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Schedule');
-  XLSX.writeFile(wb, `cremona_schedule_${new Date().toISOString().slice(0,10)}.xlsx`);
 };
 
 // ── Subject dropdown helpers ───────────────────────────────────────────────────
@@ -1222,7 +731,7 @@ function updateModalTeacherDisplay(studentId) {
   if (!teacher) {
     el.innerHTML = '<span class="text-sm text-amber-600 font-medium">No teacher assigned to this student</span>';
   } else {
-    const color = (teacher.color && /^#[0-9a-f]{6}$/i.test(teacher.color)) ? teacher.color : '#7A5A16';
+    const color = (teacher.color && /^#[0-9a-f]{6}$/i.test(teacher.color)) ? teacher.color : '#C9A227';
     const bg = hexToRgba(color, 0.09);
     el.innerHTML = `<span style="display:inline-flex;align-items:center;padding:2px 10px;background:${bg};color:${color};border-radius:999px;font-size:13px;font-weight:600;line-height:22px;">${escHtml(teacher.name || teacher.email || teacher.id)}</span>`;
   }
@@ -1270,22 +779,17 @@ function resetRepeatSection() {
 // ── Create / edit / copy session modal ────────────────────────────────────────
 window.openCreateSession = function() {
   editingId = null;
-  _replacesId = null;
-  document.getElementById('f-replacement').checked = false;
-  document.getElementById('f-replaces-note').textContent = '';
   document.getElementById('session-modal-title').textContent = 'Create Session';
   document.getElementById('f-student').value  = '';
   document.getElementById('f-datetime').value = '';
   document.getElementById('f-duration').value = '30';
   document.getElementById('f-meet').value     = '';
   document.getElementById('f-status').value   = 'scheduled';
-  document.getElementById('f-notes').value    = '';
   setSubjectValue('');
   updateModalTeacherDisplay('');
   resetRepeatSection();
   document.getElementById('f-repeat-section').classList.remove('hidden');
   document.getElementById('f-repeat-copy-note').classList.add('hidden');
-  document.getElementById('session-reschedule-btn').classList.toggle('hidden', !editingId);
   document.getElementById('session-modal').classList.remove('hidden');
 };
 
@@ -1293,9 +797,6 @@ function openCopySession(sid) {
   const s = allSessions.find(x => x.id === sid);
   if (!s) return;
   editingId = null;
-  _replacesId = null;
-  document.getElementById('f-replacement').checked = false;
-  document.getElementById('f-replaces-note').textContent = '';
   document.getElementById('session-modal-title').textContent = 'Copy Session';
   document.getElementById('f-student').value  = s.studentId   || '';
   document.getElementById('f-datetime').value = '';
@@ -1303,40 +804,11 @@ function openCopySession(sid) {
   const _copyTeacher = getTeacherForStudent(s.studentId);
   document.getElementById('f-meet').value     = (_copyTeacher && _copyTeacher.googleMeetLink) ? _copyTeacher.googleMeetLink : (s.meetLink || '');
   document.getElementById('f-status').value   = 'scheduled';
-  document.getElementById('f-notes').value    = s.notes || '';
   setSubjectValue(s.subject || '');
   updateModalTeacherDisplay(s.studentId || '');
   resetRepeatSection();
   document.getElementById('f-repeat-section').classList.remove('hidden');
   document.getElementById('f-repeat-copy-note').classList.remove('hidden');
-  document.getElementById('session-reschedule-btn').classList.toggle('hidden', !editingId);
-  document.getElementById('session-modal').classList.remove('hidden');
-}
-
-// "Schedule replacement" from a cancelled class: pre-fills a new session for
-// the same student and subject, marked 보강 and linked to the original.
-function openReplacementSession(sid) {
-  const s = allSessions.find(x => x.id === sid);
-  if (!s) return;
-  editingId = null;
-  _replacesId = sid;
-  document.getElementById('session-modal-title').textContent = 'Schedule Replacement (보강)';
-  document.getElementById('f-student').value  = s.studentId || '';
-  document.getElementById('f-datetime').value = '';
-  document.getElementById('f-duration').value = String(s.duration || 30);
-  const _t = getTeacherForStudent(s.studentId);
-  document.getElementById('f-meet').value = (_t && _t.googleMeetLink) ? _t.googleMeetLink : (s.meetLink || '');
-  document.getElementById('f-status').value = 'scheduled';
-  document.getElementById('f-notes').value = s.notes || '';
-  setSubjectValue(s.subject || '');
-  updateModalTeacherDisplay(s.studentId || '');
-  resetRepeatSection();
-  document.getElementById('f-replacement').checked = true;
-  const dt = s.dateTime ? toDate(s.dateTime) : null;
-  document.getElementById('f-replaces-note').textContent = dt
-    ? `— replaces the cancelled class on ${dt.toLocaleDateString([], { month: 'short', day: 'numeric' })}`
-    : '';
-  document.getElementById('session-reschedule-btn').classList.toggle('hidden', !editingId);
   document.getElementById('session-modal').classList.remove('hidden');
 }
 
@@ -1344,9 +816,6 @@ function openEditSession(sid) {
   editingId = sid;
   const s = allSessions.find(x => x.id === sid);
   if (!s) return;
-  _replacesId = s.replacesSessionId || null;
-  document.getElementById('f-replacement').checked = !!s.isReplacement;
-  document.getElementById('f-replaces-note').textContent = '';
   document.getElementById('session-modal-title').textContent = 'Edit Session';
   document.getElementById('f-student').value  = s.studentId   || '';
   document.getElementById('f-duration').value = String(s.duration || 30);
@@ -1355,7 +824,6 @@ function openEditSession(sid) {
   // Map stored 'completed' (legacy) → 'scheduled' since completed is now automatic
   const storedStatus = s.status === 'completed' ? 'scheduled' : (s.status || 'scheduled');
   document.getElementById('f-status').value   = storedStatus;
-  document.getElementById('f-notes').value    = s.notes || '';
   setSubjectValue(s.subject || '');
   updateModalTeacherDisplay(s.studentId || '');
   if (s.dateTime) {
@@ -1366,56 +834,11 @@ function openEditSession(sid) {
   }
   resetRepeatSection();
   document.getElementById('f-repeat-section').classList.add('hidden');
-  document.getElementById('session-reschedule-btn').classList.toggle('hidden', !editingId);
   document.getElementById('session-modal').classList.remove('hidden');
 }
 
 window.closeSessionModal = function() {
   document.getElementById('session-modal').classList.add('hidden');
-};
-
-// Quick reschedule — same behaviour as the teacher schedule. Updates only the
-// session's dateTime, which the onSessionUpdated Cloud Function turns into an
-// automatic "class rescheduled" notification to the student's parents.
-window.openAdminReschedule = function() {
-  if (!editingId) return;
-  const s = allSessions.find(x => x.id === editingId);
-  if (!s) return;
-  document.getElementById('ars-student').textContent = s.studentName || '—';
-  const dt = s.dateTime ? toDate(s.dateTime) : new Date();
-  const pad = n => String(n).padStart(2, '0');
-  document.getElementById('ars-datetime').value =
-    `${dt.getFullYear()}-${pad(dt.getMonth() + 1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
-  document.getElementById('admin-resched-modal').classList.remove('hidden');
-};
-
-window.closeAdminReschedule = function() {
-  document.getElementById('admin-resched-modal').classList.add('hidden');
-};
-
-window.submitAdminReschedule = async function() {
-  const v = document.getElementById('ars-datetime').value;
-  if (!v || !editingId) return;
-  const when = new Date(v);
-  if (isNaN(when) || when < new Date()) return showToast('Pick a future date and time.', 'error');
-  const btn = document.getElementById('ars-save');
-  btn.disabled = true;
-  try {
-    const patch = {
-      dateTime: Timestamp.fromDate(when),
-      rescheduledBy: (auth.currentUser && auth.currentUser.uid) || null,
-      rescheduledAt: serverTimestamp(),
-    };
-    await updateDoc(doc(db, 'sessions', editingId), patch);
-    const idx = allSessions.findIndex(s => s.id === editingId);
-    if (idx !== -1) allSessions[idx] = { ...allSessions[idx], ...patch };
-    closeAdminReschedule();
-    closeSessionModal();
-    showToast('Class rescheduled — parents have been notified.', 'success');
-    location.reload();
-  } catch (e) {
-    showToast('Failed: ' + e.message, 'error');
-  } finally { btn.disabled = false; }
 };
 
 window.saveSession = async function() {
@@ -1444,9 +867,6 @@ window.saveSession = async function() {
     studentId,
     studentName: student?.fullName || '',
     subject, duration, meetLink, status,
-    notes: document.getElementById('f-notes').value.trim(),
-    isReplacement: document.getElementById('f-replacement').checked,
-    replacesSessionId: _replacesId || null,
   };
 
   btn.textContent = 'Saving…'; btn.disabled = true;
@@ -1514,49 +934,17 @@ async function confirmDeleteSession(sid) {
 // ── View toggle ────────────────────────────────────────────────────────────────
 window.setView = function(v) {
   currentView = v;
-  const isList = v === 'list';
-  document.getElementById('list-view-section').classList.toggle('hidden', !isList);
-  document.getElementById('week-view-section').classList.toggle('hidden', isList);
-  ['list', 'day', 'week', 'month'].forEach(k => {
-    const b = document.getElementById('btn-' + k + '-view');
-    if (b) b.className = `view-tab ${v === k ? 'active' : 'inactive'}`;
-  });
-  if (!isList) { renderAdminCalendar(); renderLegend(); }
+  document.getElementById('list-view-section').classList.toggle('hidden', v === 'week');
+  document.getElementById('week-view-section').classList.toggle('hidden', v === 'list');
+  document.getElementById('btn-list-view').className = `view-tab ${v === 'list' ? 'active' : 'inactive'}`;
+  document.getElementById('btn-week-view').className = `view-tab ${v === 'week' ? 'active' : 'inactive'}`;
+  if (v === 'week') { renderAdminCalendar(); renderLegend(); }
 };
 
 // ── Week view ──────────────────────────────────────────────────────────────────
-function adminCalStep(dir) {
-  if (currentView === 'day') { const d = new Date(adminWeekStart); d.setDate(d.getDate() + dir); adminWeekStart = d; }
-  else if (currentView === 'month') adminWeekStart = new Date(adminWeekStart.getFullYear(), adminWeekStart.getMonth() + dir, 1);
-  else adminWeekStart = offsetWeek(adminWeekStart, dir * 7);
-  renderAdminCalendar();
-}
-window.prevWeekAdmin  = function() { adminCalStep(-1); };
-window.nextWeekAdmin  = function() { adminCalStep(1); };
-window.goToTodayAdmin = function() { adminWeekStart = currentView === 'week' ? getMonday(new Date()) : new Date(); renderAdminCalendar(); };
-
-function renderAdminMonth() {
-  const C = window.cremonaCalPalette();
-  document.getElementById('admin-week-label').textContent =
-    adminWeekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  document.getElementById('admin-calendar').innerHTML = window.cremonaMonthGrid({
-    anchor: adminWeekStart,
-    C,
-    sessionsForDay: (d) => sessionsForDay(d, calFilteredSessions()),
-    chip: (s) => {
-      const disp = getDisplayStatus(s);
-      const tc = disp === 'cancelled' ? '#9ca3af' : getTeacherColor(s.teacherUid);
-      const dt = toDate(s.dateTime);
-      const hh = String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
-      return {
-        bg: hexToRgba(tc, 0.13), border: tc, text: tc,
-        label: `${hh} ${escHtml((s.studentName || '—').split(' ')[0])}`,
-        attrs: `class="session-block-admin" data-sid="${s.id}"`,
-        strike: disp === 'cancelled',
-      };
-    },
-  });
-}
+window.prevWeekAdmin  = function() { adminWeekStart = offsetWeek(adminWeekStart, -7); renderAdminCalendar(); };
+window.nextWeekAdmin  = function() { adminWeekStart = offsetWeek(adminWeekStart,  7); renderAdminCalendar(); };
+window.goToTodayAdmin = function() { adminWeekStart = getMonday(new Date()); renderAdminCalendar(); };
 
 function renderLegend() {
   const el = document.getElementById('week-legend');
@@ -1567,74 +955,58 @@ function renderLegend() {
     </span>`).join('');
 }
 
-function calFilteredSessions() {
-  const tId    = document.getElementById('f-filter-teacher').value;
-  const sId    = document.getElementById('f-filter-student').value;
-  const status = document.getElementById('f-filter-status').value;
-  return allSessions.filter(x => {
-    if (tId    && x.teacherUid !== tId) return false;
-    if (sId    && x.studentId  !== sId) return false;
-    if (status && getDisplayStatus(x) !== status) return false;
-    return true;
-  });
-}
-
 function renderAdminCalendar() {
-  if (currentView === 'month') { renderAdminMonth(); return; }
-  const days  = currentView === 'day' ? [new Date(adminWeekStart)] : getWeekDays(adminWeekStart);
+  const days  = getWeekDays(adminWeekStart);
   const today = new Date();
-  const _calSess = calFilteredSessions();
 
-  // Theme-aware colors — the calendar re-renders when dark mode is toggled
-  const C = window.cremonaCalPalette();
+  document.getElementById('admin-week-label').textContent = fmtWeekLabel(days);
 
-  document.getElementById('admin-week-label').textContent = currentView === 'day'
-    ? adminWeekStart.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
-    : fmtWeekLabel(days);
+  // Apply the week-view teacher filter (empty = all teachers)
+  const srcSessions = adminWeekTeacher ? allSessions.filter(s => s.teacherUid === adminWeekTeacher) : allSessions;
 
-  // ── Header row ─────────────────────────────────────────────────────────────
-  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(${days.length},minmax(80px,1fr));border-bottom:1px solid #e5e7eb;">
-    <div style="background:${C.timeColBg};"></div>`;
+  // ── Header row (sticky so it stays visible while scrolling) ─────────────────
+  let html = `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:5;background:#fff;">
+    <div style="background:#f9fafb;"></div>`;
 
   days.forEach((day, i) => {
     const isToday = day.toDateString() === today.toDateString();
     html += `
-      <div style="background:${isToday ? C.headTodayBg : C.headBg};border-left:1px solid ${C.cellBorder};
+      <div style="background:${isToday ? '#eff6ff' : '#f9fafb'};border-left:1px solid #f3f4f6;
                   height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
-        <span style="font-size:11px;font-weight:600;color:${isToday ? '#3b82f6' : C.dayLabel};">${DAY_NAMES[i]}</span>
+        <span style="font-size:11px;font-weight:600;color:${isToday ? '#1d4ed8' : '#6b7280'};">${DAY_NAMES[i]}</span>
         <span style="font-size:14px;font-weight:700;width:28px;height:28px;border-radius:50%;
                      display:flex;align-items:center;justify-content:center;
                      background:${isToday ? '#3b82f6' : 'transparent'};
-                     color:${isToday ? '#fff' : C.dayNum};">${day.getDate()}</span>
+                     color:${isToday ? '#fff' : '#3E2C23'};">${day.getDate()}</span>
       </div>`;
   });
   html += `</div>`;
 
   // ── Body grid ───────────────────────────────────────────────────────────────
-  html += `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(${days.length},minmax(80px,1fr));
+  html += `<div style="display:grid;grid-template-columns:${TIME_W}px repeat(7,minmax(80px,1fr));
                        height:${CAL_HEIGHT}px;position:relative;overflow:hidden;">`;
 
   // Time labels
-  html += `<div style="position:relative;border-right:1px solid ${C.cellBorder};background:${C.timeColBg};">`;
+  html += `<div style="position:relative;border-right:1px solid #f3f4f6;background:#fafafa;">`;
   for (let h = CAL_START; h <= CAL_END; h++) {
     const top = (h - CAL_START) * PX_PER_HOUR;
-    html += `<div style="position:absolute;top:${top - 8}px;right:6px;font-size:10px;color:${C.timeLabel};font-weight:500;line-height:1;text-align:right;">${String(h).padStart(2,'0')}:00</div>`;
+    html += `<div style="position:absolute;top:${top - 8}px;right:6px;font-size:10px;color:#9ca3af;font-weight:500;line-height:1;text-align:right;">${String(h).padStart(2,'0')}:00</div>`;
   }
   html += `</div>`;
 
   // Day columns
   days.forEach((day, i) => {
     const isToday    = day.toDateString() === today.toDateString();
-    const sessions   = sessionsForDay(day, _calSess);
+    const sessions   = sessionsForDay(day, srcSessions);
 
-    html += `<div style="position:relative;border-left:1px solid ${C.cellBorder};background:${isToday ? C.todayCol : 'transparent'};">`;
+    html += `<div style="position:relative;border-left:1px solid #f3f4f6;background:${isToday ? 'rgba(59,130,246,0.03)' : 'transparent'};">`;
 
     // Hour lines
     for (let h = CAL_START; h <= CAL_END; h++) {
       const top = (h - CAL_START) * PX_PER_HOUR;
-      html += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:${C.hourLine};"></div>`;
+      html += `<div style="position:absolute;left:0;right:0;top:${top}px;height:1px;background:#f3f4f6;"></div>`;
       if (h < CAL_END)
-        html += `<div style="position:absolute;left:0;right:0;top:${top+30}px;height:1px;border-top:1px dashed ${C.halfLine};"></div>`;
+        html += `<div style="position:absolute;left:0;right:0;top:${top+30}px;height:1px;border-top:1px dashed #f0f0f0;"></div>`;
     }
 
     // Session blocks (colored by teacher)
@@ -1670,8 +1042,6 @@ function renderAdminCalendar() {
 
   // Click on session → open edit modal
   cal.addEventListener('click', e => {
-    const dj = e.target.closest('.cal-day-jump');
-    if (dj) { adminWeekStart = new Date(dj.dataset.date + 'T00:00:00'); setView('day'); return; }
     const block = e.target.closest('.session-block-admin');
     if (block) openEditSession(block.dataset.sid);
   });
@@ -1746,11 +1116,6 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// Escape for use inside an HTML attribute value (quotes included).
-function escAttr(s) {
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
-}
-
 function absUrl(url) {
   if (!url) return '';
   return /^https?:\/\//i.test(url) ? url : 'https://' + url;
@@ -1761,91 +1126,8 @@ window.showToast = function(msg, type = 'info') {
   t.textContent = msg; t.className = `show ${type}`;
   setTimeout(() => t.className = '', 3500);
 };
-
-// Re-render the week view when light/dark mode is toggled
-window.addEventListener('cremona-theme', () => { if (currentView === 'week') renderAdminCalendar(); });
 </script>
-
-<!-- Daily digest settings -->
-<div id="digest-modal" class="hidden fixed inset-0 bg-black/40 z-[110] flex items-center justify-center p-4">
-  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6">
-    <h3 class="text-lg font-bold text-on-surface mb-1">Daily Schedule Digest</h3>
-    <p class="text-sm text-text-muted mb-4">Choose when the daily class notification goes out, and who receives it.</p>
-
-    <label class="flex items-center justify-between mb-4">
-      <span class="text-sm font-semibold text-on-surface">Send the daily digest</span>
-      <input id="dg-enabled" type="checkbox" class="w-5 h-5 accent-secondary"/>
-    </label>
-
-    <label class="block text-xs font-medium text-on-surface-variant mb-1">Morning send time — today's classes (Korea time)</label>
-    <select id="dg-hour" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm mb-4"></select>
-
-    <label class="flex items-center justify-between mb-2">
-      <span class="text-sm font-semibold text-on-surface">Also send tomorrow's classes each evening</span>
-      <input id="dg-evening-enabled" type="checkbox" class="w-5 h-5 accent-secondary"/>
-    </label>
-    <label class="block text-xs font-medium text-on-surface-variant mb-1">Evening send time — tomorrow's classes (Korea time)</label>
-    <select id="dg-evening-hour" class="w-full border border-border-subtle rounded-lg px-3 py-2 text-sm mb-4"></select>
-
-    <label class="block text-xs font-medium text-on-surface-variant mb-1">Recipients</label>
-    <div class="flex gap-2 mb-2">
-      <button onclick="dgSelectAll(true)" class="px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-bold hover:border-secondary hover:text-secondary">Select everyone</button>
-      <button onclick="dgSelectAll(false)" class="px-3 py-1.5 rounded-lg border border-border-subtle text-xs font-bold hover:border-error hover:text-error">Clear all</button>
-    </div>
-    <p class="text-xs font-bold text-text-muted mt-2 mb-1">Teachers</p>
-    <div id="dg-teachers" class="border border-border-subtle rounded-xl max-h-40 overflow-y-auto mb-3"></div>
-    <p class="text-xs font-bold text-text-muted mb-1">Students (their parents get notified)</p>
-    <div id="dg-students" class="border border-border-subtle rounded-xl max-h-40 overflow-y-auto mb-4"></div>
-
-    <div class="flex justify-end gap-3">
-      <button onclick="document.getElementById('digest-modal').classList.add('hidden')"
-              class="px-4 py-2 text-sm font-semibold text-text-muted hover:text-on-surface">Cancel</button>
-      <button id="dg-save-btn" onclick="saveDigestSettings()"
-              class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold text-sm shadow hover:brightness-105 active:scale-95">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- Send schedule: now or timed -->
-<div id="send-schedule-modal" class="hidden fixed inset-0 bg-black/40 z-[115] flex items-center justify-center p-4">
-  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-    <h3 class="text-lg font-bold text-on-surface mb-1">Send Today's Schedule</h3>
-    <p class="text-sm text-text-muted mb-4">Notify all selected teachers and parents about today's classes — now, or at a set time.</p>
-    <button onclick="sendScheduleGo('')"
-            class="w-full bg-primary-container text-on-primary-fixed font-bold py-3 rounded-lg text-sm mb-3">Send now</button>
-    <div class="flex items-center gap-2">
-      <input id="send-schedule-time" type="time" class="flex-1 border border-border-subtle rounded-lg px-3 py-2.5 text-sm"/>
-      <button onclick="sendScheduleGo(document.getElementById('send-schedule-time').value)"
-              class="px-4 py-2.5 rounded-lg border border-secondary text-secondary font-bold text-sm hover:bg-secondary/5">Set timer</button>
-    </div>
-    <p class="text-[11px] text-text-muted mt-2">Timer time is Korea time, today only.</p>
-    <div class="border-t border-border-subtle my-4"></div>
-    <label class="block text-xs font-medium text-on-surface-variant mb-1">Send a specific day's schedule</label>
-    <div class="flex items-center gap-2">
-      <input id="send-schedule-date" type="date" class="flex-1 border border-border-subtle rounded-lg px-3 py-2.5 text-sm"/>
-      <button onclick="sendScheduleDate()"
-              class="px-4 py-2.5 rounded-lg border border-secondary text-secondary font-bold text-sm hover:bg-secondary/5">Send that day</button>
-    </div>
-    <button onclick="document.getElementById('send-schedule-modal').classList.add('hidden')"
-            class="w-full mt-4 text-sm font-semibold text-text-muted hover:text-on-surface">Cancel</button>
-  </div>
-</div>
-
-<!-- Excel import preview -->
-<div id="import-preview-modal" class="hidden fixed inset-0 bg-black/40 z-[115] flex items-center justify-center p-4">
-  <div class="bg-surface-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-y-auto p-6">
-    <h3 class="text-lg font-bold text-on-surface mb-1">Import Classes from Excel</h3>
-    <p class="text-sm text-text-muted mb-4">The file was read automatically — check the rows below, untick anything wrong, then create. Rows with warnings are unticked by default.</p>
-    <div id="import-preview-body" class="overflow-x-auto"></div>
-    <div class="flex justify-end gap-3 mt-5">
-      <button onclick="document.getElementById('import-preview-modal').classList.add('hidden')"
-              class="px-4 py-2 text-sm font-semibold text-text-muted hover:text-on-surface">Cancel</button>
-      <button id="import-create-btn" onclick="createImportedSessions()"
-              class="px-6 py-2 bg-primary-container text-on-primary-fixed rounded-lg font-bold text-sm shadow">Create Selected</button>
-    </div>
-  </div>
-</div>
-<script src="/js/notifbell.js?v=4" defer></script>
-<script src="/js/portal-nav.js?v=1" defer></script>
+  <script>window.CREMONA_NAV={portal:'admin',active:'schedule',title:'Schedule'};</script>
+  <script src="/js/portal-nav.js"></script>
 </body>
 </html>
